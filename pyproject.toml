@@ -36,11 +36,11 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "License :: OSI Approved :: MIT License",
-    "Operating System :: Windows",
+    "Operating System :: Microsoft :: Windows",
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Topic :: Software Development :: Libraries :: Python Modules",
-    "Topic :: Office/Business",
+    "Topic :: Software Development :: Build Tools",
     "Environment :: Console",
 ]
 

@@ -71,7 +71,7 @@ from .utils import FileUtils, ValidationUtils, ZipUtils
 # METADATA INFORMATION
 # ///////////////////////////////////////////////////////////////
 
-__version__ = "1.0.1"
+__version__ = "1.0.2"
 __author__ = "Neuraaak"
 __maintainer__ = "Neuraaak"
 __description__ = "Project compilation and distribution framework for Python"
