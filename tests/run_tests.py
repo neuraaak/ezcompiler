@@ -42,10 +42,10 @@ from pathlib import Path
 
 def run_command(cmd: list[str], description: str) -> bool:
     """
-    Execute a shell command and display output.
+    Execute a shell command and display output in real-time.
 
-    Runs a command using subprocess, capturing and displaying stdout/stderr.
-    Provides formatted output with status messages.
+    Runs a command using subprocess with output displayed directly to the console
+    without buffering. This provides real-time feedback during test execution.
 
     Args:
         cmd: Command and arguments as list of strings
@@ -62,12 +62,8 @@ def run_command(cmd: list[str], description: str) -> bool:
     print(f"🚀 {description}")
     print(f"{'=' * 60}")
     try:
-        result = subprocess.run(  # noqa: S603
-            cmd, check=False, capture_output=True, text=True
-        )
-        print(result.stdout)
-        if result.stderr:
-            print(f"⚠️  Warnings/Errors: {result.stderr}")
+        # Run without capturing output - displays in real-time
+        result = subprocess.run(cmd, check=False)  # noqa: S603
         return result.returncode == 0
     except Exception as e:
         print(f"❌ Execution error: {e}")
