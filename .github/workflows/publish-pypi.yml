@@ -159,7 +159,7 @@ jobs:
           pip install -e ".[dev]"
 
       - name: Run tests
-        if: github.event_name != 'workflow_dispatch' || !github.event.inputs.skip_tests
+        if: github.event_name != 'workflow_dispatch' && github.event.inputs.skip_tests != 'true'
         run: |
           echo "🧪 Running test suite..."
           pytest tests/ -v --tb=short
