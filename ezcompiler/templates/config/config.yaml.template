@@ -1,0 +1,51 @@
+# EzCompiler Configuration File
+# This file contains the configuration for your project compilation
+
+# Project Information
+version: "#VERSION#"
+project_name: "#PROJECT_NAME#"
+project_description: "#PROJECT_DESCRIPTION#"
+company_name: "#COMPANY_NAME#"
+author: "#AUTHOR#"
+
+# Files and Paths
+main_file: "#MAIN_FILE#"
+icon: "#ICON#"
+version_filename: "#VERSION_FILE#"
+output_folder: "#OUTPUT_FOLDER#"
+
+# Include Configuration
+include_files:
+  files:
+    #INCLUDE_FILES#
+  folders:
+    #INCLUDE_FOLDERS#
+
+# Package Configuration
+packages:
+  #PACKAGES#
+
+includes:
+  #INCLUDES#
+
+excludes:
+  #EXCLUDES#
+
+# Compilation Options
+compilation:
+  console: #CONSOLE#
+  compiler: "#COMPILER#"  # "auto", "Cx_Freeze", or "PyInstaller"
+  zip_needed: #ZIP_NEEDED#
+  repo_needed: #REPO_NEEDED#
+
+# Upload Configuration
+upload:
+  structure: "#UPLOAD_STRUCTURE#"  # "disk" or "server"
+  repo_path: "#REPO_PATH#"
+  server_url: "#SERVER_URL#"  # Only needed for server upload
+
+# Advanced Options
+advanced:
+  optimize: #OPTIMIZE#
+  strip: #STRIP#
+  debug: #DEBUG#

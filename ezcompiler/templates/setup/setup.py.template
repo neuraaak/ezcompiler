@@ -1,0 +1,135 @@
+# -*- coding: utf-8 -*-
+# ///////////////////////////////////////////////////////////////
+
+## => EZCOMPILER SETUP TEMPLATE
+# ///////////////////////////////////////////////////////////////
+
+import sys
+import locale
+from datetime import datetime
+from pathlib import Path
+
+# IMPORT SPECS
+# ///////////////////////////////////////////////////////////////
+
+# IMPORT / GUI AND MODULES AND WIDGETS
+# ///////////////////////////////////////////////////////////////
+from ezcompiler import EzCompiler
+
+## ==> GLOBALS
+# ///////////////////////////////////////////////////////////////
+
+__VERSION__ = "#VERSION#"
+__ZIP_NEEDED__ = #ZIP_NEEDED#
+__REPO_NEEDED__ = #REPO_NEEDED#
+#
+APP_PATH = (
+    Path(sys._MEIPASS)
+    if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS")
+    else Path(sys.argv[0]).parent
+)
+REPO_PATH = ""
+
+## ==> FUNCTIONS
+# ///////////////////////////////////////////////////////////////
+
+## ==> VARIABLES
+# ///////////////////////////////////////////////////////////////
+
+version = __VERSION__
+project_name = "#PROJECT_NAME#"
+project_description = "#PROJECT_DESCRIPTION#"
+company_name = "#COMPANY_NAME#"
+author = "#AUTHOR#"
+icon = "#ICON#"
+#
+main_file = "#MAIN_FILE#"
+config_file = APP_PATH / f"{project_name}_config.exemple.yaml"
+version_file = "#VERSION_FILE#"
+output_folder = APP_PATH / "#OUTPUT_FOLDER#"
+#
+include_files = #INCLUDE_FILES#
+packages = #PACKAGES#
+includes = #INCLUDES#
+excludes = #EXCLUDES#
+
+# ---- DATES
+locale.setlocale(locale.LC_TIME, "fr_FR")
+date = datetime.now()
+annee = str(date.year)
+
+# ---- ASCII COPYRIGHT
+COPYRIGHT = f"Copyright (c) {annee} {company_name}. Tous droits réservés."
+
+ASCII_SCRIPT_DEBUT = """
+┌─────────────────┐
+| Début du script |
+└─────────────────┘
+"""
+
+ASCII_SCRIPT_FIN = """
+┌─────────────────┐
+| Script terminé  |
+└─────────────────┘
+"""
+
+# ///////////////////////////////////////////////////////////////
+## ==> SCRIPT
+# ///////////////////////////////////////////////////////////////
+
+# //////
+print(COPYRIGHT)
+
+# //////
+# START
+print(
+    ASCII_SCRIPT_DEBUT,
+    end="\\n",
+)
+
+compiler = EzCompiler()
+compiler._ezpl.add_separator()
+
+# Appel des méthodes de l'objet compiler
+# //////
+try:
+
+    ## => INIT PROJECT
+    compiler.init_project(
+        version=version,
+        project_name=project_name,
+        project_description=project_description,
+        company_name=company_name,
+        author=author,
+        icon=icon,
+        main_file=main_file,
+        version_filename=version_file,
+        output_folder=output_folder,
+        include_files=include_files,
+        packages=packages,
+        includes=includes,
+        excludes=excludes,
+    )
+
+    ## => VERSION FILE
+    compiler.generate_version_file()  # Générer le fichier de version
+
+    ## => COMPILATION & INTEGRATION DU CFG
+    compiler.compile_project(console=True)  # Compiler le projet
+
+    ## => ZIPPING DU PROJET
+    compiler.zip_compiled_project()
+
+    if __REPO_NEEDED__:
+        ## => UPLOADING TO REPO
+        compiler.upload_to_repo(structure="disk", repo_path=REPO_PATH)
+
+# //////
+except Exception as e:
+    compiler.printer.error(e)
+    compiler.logger.error(e)
+    raise SystemExit(1)
+
+# ///////////////////////////////////////////////////////////////
+# END
+print(ASCII_SCRIPT_FIN)

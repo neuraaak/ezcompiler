@@ -1,0 +1,10 @@
+# ///////////////////////////////////////////////////////////////
+# INTEGRATION TESTS - Integration test suite
+# Project: ezcompiler
+# ///////////////////////////////////////////////////////////////
+
+"""
+Integration tests for EzCompiler.
+
+Tests interactions between multiple components without mocking.
+"""

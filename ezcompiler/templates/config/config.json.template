@@ -1,0 +1,34 @@
+{
+  "version": "#VERSION#",
+  "project_name": "#PROJECT_NAME#",
+  "project_description": "#PROJECT_DESCRIPTION#",
+  "company_name": "#COMPANY_NAME#",
+  "author": "#AUTHOR#",
+  "main_file": "#MAIN_FILE#",
+  "icon": "#ICON#",
+  "version_filename": "#VERSION_FILE#",
+  "output_folder": "#OUTPUT_FOLDER#",
+  "include_files": {
+    "files": #INCLUDE_FILES#,
+    "folders": #INCLUDE_FOLDERS#
+  },
+  "packages": #PACKAGES#,
+  "includes": #INCLUDES#,
+  "excludes": #EXCLUDES#,
+  "compilation": {
+    "console": #CONSOLE#,
+    "compiler": "#COMPILER#",
+    "zip_needed": #ZIP_NEEDED#,
+    "repo_needed": #REPO_NEEDED#
+  },
+  "upload": {
+    "structure": "#UPLOAD_STRUCTURE#",
+    "repo_path": "#REPO_PATH#",
+    "server_url": "#SERVER_URL#"
+  },
+  "advanced": {
+    "optimize": #OPTIMIZE#,
+    "strip": #STRIP#,
+    "debug": #DEBUG#
+  }
+}

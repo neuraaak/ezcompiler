@@ -1,0 +1,10 @@
+# ///////////////////////////////////////////////////////////////
+# UNIT TESTS - Unit test suite
+# Project: ezcompiler
+# ///////////////////////////////////////////////////////////////
+
+"""
+Unit tests for EzCompiler.
+
+Tests individual components in isolation with mocked dependencies.
+"""

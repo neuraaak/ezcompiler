@@ -1,0 +1,26 @@
+# ///////////////////////////////////////////////////////////////
+# GENERATORS - File generators for version and setup files
+# Project: ezcompiler
+# ///////////////////////////////////////////////////////////////
+
+"""
+Generators module - Version and setup file generators for EzCompiler.
+
+This module provides generator classes for creating version information
+files and setup.py files from templates with configuration values.
+"""
+
+from __future__ import annotations
+
+# ///////////////////////////////////////////////////////////////
+# IMPORTS
+# ///////////////////////////////////////////////////////////////
+# Local imports
+from .setup_generator import SetupGenerator
+from .version_generator import VersionGenerator
+
+# ///////////////////////////////////////////////////////////////
+# PUBLIC API
+# ///////////////////////////////////////////////////////////////
+
+__all__ = ["SetupGenerator", "VersionGenerator"]
