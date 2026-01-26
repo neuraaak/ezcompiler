@@ -4,7 +4,7 @@
 # ///////////////////////////////////////////////////////////////
 
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 # ///////////////////////////////////////////////////////////////
@@ -14,7 +14,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ezcompiler"
-version = "1.0.0"
+version = "1.0.2"
 description = "Project compilation and distribution framework for Python projects"
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.10"
