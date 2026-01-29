@@ -19,51 +19,58 @@ from __future__ import annotations
 class TestPublicAPIImports:
     """Test that all public API components can be imported."""
 
-    def test_import_from_ezcompiler_main(self) -> None:
+    def test_import_ezcompiler_class(self) -> None:
         """Test importing main class from ezcompiler."""
         from ezcompiler import EzCompiler
 
         assert EzCompiler is not None
 
-    def test_import_config_from_ezcompiler(self) -> None:
+    def test_import_compiler_config(self) -> None:
         """Test importing CompilerConfig from ezcompiler."""
         from ezcompiler import CompilerConfig
 
         assert CompilerConfig is not None
 
-    def test_import_compilers(self) -> None:
-        """Test importing compiler classes."""
-        from ezcompiler import BaseCompiler, CxFreezeCompiler, PyInstallerCompiler
-
-        assert BaseCompiler is not None
-        assert CxFreezeCompiler is not None
-        assert PyInstallerCompiler is not None
-
-    def test_import_generators(self) -> None:
-        """Test importing generator classes."""
-        from ezcompiler import SetupGenerator, VersionGenerator
-
-        assert VersionGenerator is not None
-        assert SetupGenerator is not None
-
-    def test_import_uploaders(self) -> None:
-        """Test importing uploader classes."""
+    def test_import_exceptions(self) -> None:
+        """Test importing all public exceptions."""
         from ezcompiler import (
-            BaseUploader,
-            DiskUploader,
-            ServerUploader,
-            UploaderFactory,
+            CompilationError,
+            ConfigurationError,
+            EzCompilerError,
+            FileOperationError,
+            TemplateError,
+            UploadError,
+            VersionError,
         )
 
-        assert BaseUploader is not None
-        assert DiskUploader is not None
-        assert ServerUploader is not None
-        assert UploaderFactory is not None
+        assert EzCompilerError is not None
+        assert CompilationError is not None
+        assert ConfigurationError is not None
+        assert TemplateError is not None
+        assert UploadError is not None
+        assert VersionError is not None
+        assert FileOperationError is not None
 
-    def test_import_utils(self) -> None:
-        """Test importing utility classes."""
-        from ezcompiler import FileUtils, ValidationUtils, ZipUtils
+    def test_import_metadata(self) -> None:
+        """Test importing metadata attributes."""
+        from ezcompiler import __author__, __version__
 
-        assert FileUtils is not None
-        assert ZipUtils is not None
-        assert ValidationUtils is not None
+        assert __version__ is not None
+        assert __author__ is not None
+
+    def test_exception_hierarchy(self) -> None:
+        """Test that all exceptions inherit from EzCompilerError."""
+        from ezcompiler import (
+            CompilationError,
+            ConfigurationError,
+            EzCompilerError,
+            TemplateError,
+            UploadError,
+            VersionError,
+        )
+
+        assert issubclass(CompilationError, EzCompilerError)
+        assert issubclass(ConfigurationError, EzCompilerError)
+        assert issubclass(TemplateError, EzCompilerError)
+        assert issubclass(UploadError, EzCompilerError)
+        assert issubclass(VersionError, EzCompilerError)

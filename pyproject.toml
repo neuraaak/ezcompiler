@@ -14,7 +14,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ezcompiler"
-version = "1.0.3"
+version = "2.0.0"
 description = "Project compilation and distribution framework for Python projects"
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.10"
@@ -51,12 +51,14 @@ classifiers = [
 
 dependencies = [
     "cx_Freeze>=7.0,<9.0",
+    "Nuitka>=2.4",
     "PyInstaller>=5.0",
     "InquirerPy>=0.3.0",
     "requests>=2.28.0",
     "click>=8.0.0",
     "PyYAML>=6.0",
     "ezplog>=1.0.0",
+    "tomli>=1.0.0; python_version < '3.11'",
 ]
 
 # ///////////////////////////////////////////////////////////////
@@ -110,7 +112,7 @@ PyPI = "https://pypi.org/project/ezcompiler/"
 # ///////////////////////////////////////////////////////////////
 
 [project.scripts]
-ezcompiler = "ezcompiler.cli:main"
+ezcompiler = "ezcompiler.interfaces.cli_interface:main"
 
 # ///////////////////////////////////////////////////////////////
 # 📦 SETUPTOOLS CONFIGURATION
@@ -154,7 +156,7 @@ exclude = [
 ]
 
 [tool.setuptools.package-data]
-"ezcompiler.templates" = ["**/*.template"]
+"ezcompiler.assets.templates" = ["**/*.template"]
 
 
 # ///////////////////////////////////////////////////////////////

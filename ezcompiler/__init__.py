@@ -11,7 +11,7 @@ file generation, packaging, and distribution, with a clean and typed API suitabl
 for professional and industrial Python applications.
 
 **Main Features:**
-    - Multi-compiler support (Cx_Freeze, PyInstaller)
+    - Multi-compiler support (Cx_Freeze, PyInstaller, Nuitka)
     - Version file generation for Windows executables
     - Project packaging to ZIP archives
     - Upload backends (disk and HTTP server)
@@ -19,15 +19,11 @@ for professional and industrial Python applications.
     - File utilities (validation, ZIP operations)
     - CLI for automation and batch operations
 
-**Main Modules:**
-    - core: Configuration and exception hierarchy
-    - compilers: Concrete compiler implementations
-    - generators: Setup and version file generators
-    - templates: Template management and processing
-    - uploaders: Upload backends (disk, server)
-    - utils: File, ZIP, and validation utilities
-    - cli: Command-line interface
-    - helper: Template-based file generation helpers
+**Architecture (v2.0.0):**
+    - interfaces: Public interfaces (CLI, Python API)
+    - services: Business logic services
+    - protocols: Compiler protocol implementations
+    - utils: Utility functions and exceptions
 
 **Quick Start:**
     >>> from ezcompiler import EzCompiler, CompilerConfig
@@ -53,30 +49,35 @@ from __future__ import annotations
 import sys
 
 # Local imports
-from .compilers import BaseCompiler, CxFreezeCompiler, PyInstallerCompiler
-from .core import (
+from .interfaces import EzCompiler
+from .shared import (
     CompilationError,
     CompilerConfig,
     ConfigurationError,
     EzCompilerError,
+    FileOperationError,
+    TemplateError,
+    UploadError,
+    VersionError,
 )
-from .ezcompiler import EzCompiler
-from .generators import SetupGenerator, VersionGenerator
-from .helper import Helper
-from .templates import TemplateManager, TemplateProcessor
-from .uploaders import BaseUploader, DiskUploader, ServerUploader, UploaderFactory
-from .utils import FileUtils, ValidationUtils, ZipUtils
 
 # ///////////////////////////////////////////////////////////////
 # METADATA INFORMATION
 # ///////////////////////////////////////////////////////////////
 
-__version__ = "1.0.3"
+__version__ = "2.0.0"
 __author__ = "Neuraaak"
 __maintainer__ = "Neuraaak"
 __description__ = "Project compilation and distribution framework for Python"
 __python_requires__ = ">=3.10"
-__keywords__ = ["compilation", "packaging", "distribution", "cx_freeze", "pyinstaller"]
+__keywords__ = [
+    "compilation",
+    "packaging",
+    "distribution",
+    "cx_freeze",
+    "pyinstaller",
+    "nuitka",
+]
 __url__ = "https://github.com/neuraaak/ezcompiler"
 __repository__ = "https://github.com/neuraaak/ezcompiler"
 
@@ -91,67 +92,22 @@ if sys.version_info < (3, 10):  # noqa: UP036
     )
 
 # ///////////////////////////////////////////////////////////////
-# TYPE ALIASES
-# ///////////////////////////////////////////////////////////////
-
-Config = CompilerConfig
-"""Type alias for CompilerConfig.
-
-Use this type when you want to annotate a variable that represents
-a compiler configuration.
-
-Example:
-    >>> from ezcompiler import EzCompiler, Config
-    >>> config: Config = CompilerConfig(...)
-    >>> compiler = EzCompiler(config)
-"""
-
-Compiler = BaseCompiler
-"""Type alias for BaseCompiler.
-
-Use this type when you want to annotate a variable that represents
-a compiler implementation.
-
-Example:
-    >>> from ezcompiler import Compiler
-    >>> compiler: Compiler = CxFreezeCompiler(config)
-    >>> compiler.compile()
-"""
-
-# ///////////////////////////////////////////////////////////////
 # PUBLIC API
 # ///////////////////////////////////////////////////////////////
 
 __all__ = [
     # Main orchestration class
     "EzCompiler",
-    # Configuration and exceptions
+    # Configuration
     "CompilerConfig",
-    "Config",
+    # Exceptions
     "EzCompilerError",
     "CompilationError",
     "ConfigurationError",
-    # Compiler implementations
-    "BaseCompiler",
-    "Compiler",
-    "CxFreezeCompiler",
-    "PyInstallerCompiler",
-    # Generators
-    "VersionGenerator",
-    "SetupGenerator",
-    # Templates
-    "TemplateManager",
-    "TemplateProcessor",
-    # Uploaders
-    "BaseUploader",
-    "DiskUploader",
-    "ServerUploader",
-    "UploaderFactory",
-    # Utilities
-    "FileUtils",
-    "ZipUtils",
-    "ValidationUtils",
-    "Helper",
+    "TemplateError",
+    "UploadError",
+    "VersionError",
+    "FileOperationError",
     # Metadata
     "__version__",
     "__author__",

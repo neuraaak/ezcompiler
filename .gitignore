@@ -249,5 +249,6 @@ user_settings/
 .vscode/launch.json
 .vscode/tasks.json
 .github/instructions/
+.claude/
 .cursor/rules/
 .clinerules

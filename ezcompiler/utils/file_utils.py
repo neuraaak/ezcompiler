@@ -20,7 +20,15 @@ import shutil
 from pathlib import Path
 
 # Local imports
-from ..core.exceptions import FileOperationError
+from ..shared.exceptions.utils import (
+    DirectoryCreationError,
+    DirectoryListError,
+    FileAccessError,
+    FileCopyError,
+    FileDeleteError,
+    FileMoveError,
+    FileNotFoundError,
+)
 
 # ///////////////////////////////////////////////////////////////
 # CLASSES
@@ -91,13 +99,15 @@ class FileUtils:
             path: Path to the directory to create
 
         Raises:
-            FileOperationError: If directory creation fails
+            DirectoryCreationError: If directory creation fails
         """
         try:
             dir_path = Path(path)
             dir_path.mkdir(parents=True, exist_ok=True)
         except Exception as e:
-            raise FileOperationError(f"Failed to create directory {path}: {e}") from e
+            raise DirectoryCreationError(
+                f"Failed to create directory {path}: {e}"
+            ) from e
 
     @staticmethod
     def ensure_parent_directory_exists(file_path: str | Path) -> None:
@@ -108,7 +118,7 @@ class FileUtils:
             file_path: Path to the file
 
         Raises:
-            FileOperationError: If parent directory creation fails
+            DirectoryCreationError: If parent directory creation fails
         """
         try:
             path = Path(file_path)
@@ -116,7 +126,7 @@ class FileUtils:
             if path.parent != path:
                 path.parent.mkdir(parents=True, exist_ok=True)
         except Exception as e:
-            raise FileOperationError(
+            raise DirectoryCreationError(
                 f"Failed to create parent directory for {file_path}: {e}"
             ) from e
 
@@ -136,15 +146,18 @@ class FileUtils:
             int: File size in bytes
 
         Raises:
-            FileOperationError: If file doesn't exist or is not accessible
+            FileNotFoundError: If file doesn't exist
+            FileAccessError: If file is not accessible
         """
         try:
             file_path = Path(path)
             if not file_path.exists():
-                raise FileOperationError(f"File does not exist: {path}")
+                raise FileNotFoundError(f"File does not exist: {path}")
             return file_path.stat().st_size
+        except FileNotFoundError:
+            raise
         except Exception as e:
-            raise FileOperationError(f"Failed to get file size for {path}: {e}") from e
+            raise FileAccessError(f"Failed to get file size for {path}: {e}") from e
 
     # ////////////////////////////////////////////////
     # FILE OPERATIONS METHODS
@@ -165,14 +178,15 @@ class FileUtils:
             preserve_metadata: Whether to preserve file metadata (default: True)
 
         Raises:
-            FileOperationError: If copy operation fails
+            FileNotFoundError: If source file doesn't exist
+            FileCopyError: If copy operation fails
         """
         try:
             source_path = Path(source)
             dest_path = Path(destination)
 
             if not source_path.exists():
-                raise FileOperationError(f"Source file does not exist: {source}")
+                raise FileNotFoundError(f"Source file does not exist: {source}")
 
             # Ensure destination directory exists
             FileUtils.ensure_parent_directory_exists(dest_path)
@@ -183,8 +197,10 @@ class FileUtils:
             else:
                 shutil.copy(source_path, dest_path)
 
+        except FileNotFoundError:
+            raise
         except Exception as e:
-            raise FileOperationError(
+            raise FileCopyError(
                 f"Failed to copy file from {source} to {destination}: {e}"
             ) from e
 
@@ -198,14 +214,15 @@ class FileUtils:
             destination: Destination file path
 
         Raises:
-            FileOperationError: If move operation fails
+            FileNotFoundError: If source file doesn't exist
+            FileMoveError: If move operation fails
         """
         try:
             source_path = Path(source)
             dest_path = Path(destination)
 
             if not source_path.exists():
-                raise FileOperationError(f"Source file does not exist: {source}")
+                raise FileNotFoundError(f"Source file does not exist: {source}")
 
             # Ensure destination directory exists
             FileUtils.ensure_parent_directory_exists(dest_path)
@@ -213,8 +230,10 @@ class FileUtils:
             # Move the file
             shutil.move(str(source_path), str(dest_path))
 
+        except FileNotFoundError:
+            raise
         except Exception as e:
-            raise FileOperationError(
+            raise FileMoveError(
                 f"Failed to move file from {source} to {destination}: {e}"
             ) from e
 
@@ -227,14 +246,14 @@ class FileUtils:
             path: Path to the file to delete
 
         Raises:
-            FileOperationError: If deletion fails
+            FileDeleteError: If deletion fails
         """
         try:
             file_path = Path(path)
             if file_path.exists():
                 file_path.unlink()
         except Exception as e:
-            raise FileOperationError(f"Failed to delete file {path}: {e}") from e
+            raise FileDeleteError(f"Failed to delete file {path}: {e}") from e
 
     # ////////////////////////////////////////////////
     # LISTING AND EXTENSION METHODS
@@ -253,16 +272,19 @@ class FileUtils:
             list[Path]: List of matching file paths
 
         Raises:
-            FileOperationError: If directory access fails
+            FileNotFoundError: If directory doesn't exist
+            DirectoryListError: If directory access fails
         """
         try:
             dir_path = Path(directory)
             if not dir_path.exists():
-                raise FileOperationError(f"Directory does not exist: {directory}")
+                raise FileNotFoundError(f"Directory does not exist: {directory}")
 
             return list(dir_path.glob(pattern))
+        except FileNotFoundError:
+            raise
         except Exception as e:
-            raise FileOperationError(f"Failed to list files in {directory}: {e}") from e
+            raise DirectoryListError(f"Failed to list files in {directory}: {e}") from e
 
     @staticmethod
     def get_file_extension(path: str | Path) -> str:

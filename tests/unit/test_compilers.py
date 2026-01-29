@@ -14,7 +14,12 @@ from __future__ import annotations
 # ///////////////////////////////////////////////////////////////
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
-from ezcompiler.compilers import BaseCompiler, CxFreezeCompiler, PyInstallerCompiler
+from ezcompiler.compilers import (
+    BaseCompiler,
+    CxFreezeCompiler,
+    NuitkaCompiler,
+    PyInstallerCompiler,
+)
 
 # ///////////////////////////////////////////////////////////////
 # TESTS - COMPILER IMPORTS
@@ -35,3 +40,7 @@ class TestCompilerImports:
     def test_pyinstaller_compiler_import(self) -> None:
         """Test that PyInstallerCompiler can be imported."""
         assert PyInstallerCompiler is not None
+
+    def test_nuitka_compiler_import(self) -> None:
+        """Test that NuitkaCompiler can be imported."""
+        assert NuitkaCompiler is not None
