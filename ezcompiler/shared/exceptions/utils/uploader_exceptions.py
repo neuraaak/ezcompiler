@@ -1,0 +1,54 @@
+# ///////////////////////////////////////////////////////////////
+# UPLOADER_EXCEPTIONS - Uploader operation exceptions
+# Project: ezcompiler
+# ///////////////////////////////////////////////////////////////
+
+"""
+Uploader exceptions - Specialized exceptions for uploader operations.
+
+This module defines exceptions for various uploader-related failures
+used by UploaderUtils and uploader implementations.
+"""
+
+from __future__ import annotations
+
+# ///////////////////////////////////////////////////////////////
+# IMPORTS
+# ///////////////////////////////////////////////////////////////
+from .base import EzCompilerError
+
+# ///////////////////////////////////////////////////////////////
+# EXCEPTIONS
+# ///////////////////////////////////////////////////////////////
+
+
+class UploadError(EzCompilerError):
+    """Base exception for upload operation errors."""
+
+
+class SourcePathError(UploadError):
+    """Raised when source path for upload is invalid or inaccessible."""
+
+
+class UploaderTypeError(UploadError):
+    """Raised when upload type is not supported."""
+
+
+class ServerConfigError(UploadError):
+    """Raised when server configuration is invalid."""
+
+
+class BackupGenerationError(UploadError):
+    """Raised when backup path generation fails."""
+
+
+class UploadConnectionError(UploadError):
+    """Raised when connection to upload destination fails."""
+
+
+class UploadAuthenticationError(UploadError):
+    """Raised when authentication for upload fails."""
+
+
+class UploadTimeoutError(UploadError):
+    """Raised when upload operation times out."""

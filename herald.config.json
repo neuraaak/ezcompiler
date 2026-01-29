@@ -1,0 +1,19 @@
+{
+  "ignore": [
+    ".venv",
+    ".cursor",
+    ".github",
+    "build",
+    "dist",
+    "docs",
+    "examples",
+    "htmlcov",
+    "tests"
+  ],
+  "rules": {
+    "disable": []
+  },
+  "thresholds": {
+    "maxFileLines": 500
+  }
+}

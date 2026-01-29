@@ -4,11 +4,13 @@
 # ///////////////////////////////////////////////////////////////
 
 """
-Utils module - Utility classes for file operations, validation, and ZIP handling.
+Utils module - Utility classes for file operations, validation, ZIP handling, and logging.
 
 This module provides utility classes for common operations used throughout
-the EzCompiler project, including file manipulation, data validation, and
-ZIP archive management.
+the EzCompiler project, including file manipulation, data validation,
+ZIP archive management, logging utilities, and exception definitions.
+
+Utils layer can only use DEBUG and ERROR log levels.
 """
 
 from __future__ import annotations
@@ -17,7 +19,11 @@ from __future__ import annotations
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
 # Local imports
+from .compiler_utils import CompilerUtils
+from .config_utils import ConfigUtils
 from .file_utils import FileUtils
+from .template_utils import TemplateProcessor
+from .uploader_utils import UploaderUtils
 from .validation_utils import ValidationUtils
 from .zip_utils import ZipUtils
 
@@ -25,4 +31,13 @@ from .zip_utils import ZipUtils
 # PUBLIC API
 # ///////////////////////////////////////////////////////////////
 
-__all__ = ["FileUtils", "ValidationUtils", "ZipUtils"]
+__all__ = [
+    # Utility classes
+    "CompilerUtils",
+    "ConfigUtils",
+    "FileUtils",
+    "UploaderUtils",
+    "ValidationUtils",
+    "TemplateProcessor",
+    "ZipUtils",
+]

@@ -1,0 +1,27 @@
+# ///////////////////////////////////////////////////////////////
+# TEMPLATES - Template loading and resource access
+# Project: ezcompiler
+# ///////////////////////////////////////////////////////////////
+
+"""
+Templates module - Template loading and resource access for EzCompiler.
+
+This module provides template loading functionality for accessing
+template resource files (.template) from the assets directory.
+Template processing (variable substitution) is handled by
+TemplateProcessor in the utils layer.
+"""
+
+from __future__ import annotations
+
+# ///////////////////////////////////////////////////////////////
+# IMPORTS
+# ///////////////////////////////////////////////////////////////
+# Local imports
+from .template_loader import TemplateLoader
+
+# ///////////////////////////////////////////////////////////////
+# PUBLIC API
+# ///////////////////////////////////////////////////////////////
+
+__all__ = ["TemplateLoader"]

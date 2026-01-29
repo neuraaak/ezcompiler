@@ -1,0 +1,38 @@
+# ///////////////////////////////////////////////////////////////
+# EXAMPLE PYPROJECT.TOML - PyInstaller, no-console (GUI app)
+# ///////////////////////////////////////////////////////////////
+# Scenario: Application GUI compilée avec PyInstaller
+# - Pas de console (fenêtre cachée)
+# - Upload sur serveur distant
+# - Mode optimisé, strip activé
+
+[project]
+name = "ExampleApp"
+version = "1.0.0"
+description = "Sample GUI application compiled with EzCompiler"
+authors = [{ name = "EzCompiler Team" }]
+
+[tool.ezcompiler]
+main_file = "main.py"
+output_folder = "dist/pyinstaller_build"
+icon = ""
+include_files = { files = ["README.md"], folders = ["assets"] }
+packages = ["json", "pathlib"]
+includes = []
+excludes = ["tkinter", "unittest", "test"]
+
+[tool.ezcompiler.compilation]
+compiler = "PyInstaller"
+console = false
+zip_needed = true
+repo_needed = true
+
+[tool.ezcompiler.upload]
+structure = "server"
+repo_path = "releases/gui"
+server_url = "https://example.com/uploads"
+
+[tool.ezcompiler.advanced]
+optimize = true
+strip = true
+debug = false

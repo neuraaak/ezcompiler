@@ -20,18 +20,16 @@ from __future__ import annotations
 import zipfile
 from collections.abc import Callable
 from pathlib import Path
-from typing import TYPE_CHECKING
-
-# Third-party imports
-from ezpl import Ezpl
 
 # Local imports
-from ..core.exceptions import FileOperationError
+from ..shared.exceptions.utils.zip_exceptions import (
+    ZipCreationError,
+    ZipExtractionError,
+    ZipFileCorruptedError,
+    ZipFileNotFoundError,
+    ZipPathError,
+)
 from .file_utils import FileUtils
-
-# Type checking imports (not used at runtime)
-if TYPE_CHECKING:
-    from ezpl import EzLogger, EzPrinter
 
 # ///////////////////////////////////////////////////////////////
 # CLASSES
@@ -56,31 +54,8 @@ class ZipUtils:
         >>> ZipUtils.extract_zip_archive("./output.zip", "./extracted")
     """
 
-    _ezpl: Ezpl | None = None
-    _logger: EzLogger | None = None
-    _printer: EzPrinter | None = None
-
-    # ////////////////////////////////////////////////
-    # LOGGING SETUP METHODS
-    # ////////////////////////////////////////////////
-
-    @classmethod
-    def _get_logger(cls) -> tuple[EzLogger | None, EzPrinter | None]:
-        """
-        Get or create Ezpl instance for logging.
-
-        Returns:
-            tuple[EzLogger | None, EzPrinter | None]: Logger and printer instances
-
-        Note:
-            Lazily initializes Ezpl on first call. Returns None values if
-            initialization hasn't occurred yet (should not happen in normal use).
-        """
-        if cls._ezpl is None:
-            cls._ezpl = Ezpl(log_file=Path("ezcompiler.log"))
-            cls._printer: EzPrinter = cls._ezpl.get_printer()
-            cls._logger: EzLogger = cls._ezpl.get_logger()
-        return cls._logger, cls._printer
+    # Utils layer should not initialize logging directly
+    # Logging is handled by the service and interface layers
 
     # ////////////////////////////////////////////////
     # ARCHIVE CREATION METHODS
@@ -116,7 +91,7 @@ class ZipUtils:
             output = Path(output_path)
 
             if not source.exists():
-                raise FileOperationError(f"Source path does not exist: {source_path}")
+                raise ZipPathError(f"Source path does not exist: {source_path}")
 
             # Ensure output directory exists
             FileUtils.ensure_parent_directory_exists(output)
@@ -153,7 +128,7 @@ class ZipUtils:
                                 progress_callback(str(file_path), progress)
 
         except Exception as e:
-            raise FileOperationError(
+            raise ZipCreationError(
                 f"Failed to create ZIP archive {output_path}: {e}"
             ) from e
 
@@ -189,10 +164,10 @@ class ZipUtils:
             extract_dir = Path(extract_path)
 
             if not zip_file.exists():
-                raise FileOperationError(f"ZIP file does not exist: {zip_path}")
+                raise ZipFileNotFoundError(f"ZIP file does not exist: {zip_path}")
 
             if not zip_file.is_file():
-                raise FileOperationError(f"Path is not a file: {zip_path}")
+                raise ZipPathError(f"Path is not a file: {zip_path}")
 
             # Create extraction directory
             FileUtils.create_directory_if_not_exists(extract_dir)
@@ -216,16 +191,12 @@ class ZipUtils:
                             progress_callback(file_info.filename, progress)
 
                     except Exception as e:
-                        # Log warning but continue with other files
-                        logger, printer = ZipUtils._get_logger()
-                        if printer is not None and logger is not None:
-                            printer.warn(
-                                f"⚠️ Warning: Failed to extract {file_info.filename}: {e}"
-                            )
-                            logger.warn(f"Failed to extract {file_info.filename}: {e}")
+                        raise ZipExtractionError(
+                            f"Failed to extract file '{file_info.filename}' from ZIP archive {zip_path}: {e}"
+                        ) from e
 
         except Exception as e:
-            raise FileOperationError(
+            raise ZipExtractionError(
                 f"Failed to extract ZIP archive {zip_path}: {e}"
             ) from e
 
@@ -245,19 +216,19 @@ class ZipUtils:
             list[str]: List of file names in the archive
 
         Raises:
-            FileOperationError: If listing fails
+            ZipFileCorruptedError: If listing fails
         """
         try:
             zip_file = Path(zip_path)
 
             if not zip_file.exists():
-                raise FileOperationError(f"ZIP file does not exist: {zip_path}")
+                raise ZipFileNotFoundError(f"ZIP file does not exist: {zip_path}")
 
             with zipfile.ZipFile(zip_file, "r") as zipf:
                 return zipf.namelist()
 
         except Exception as e:
-            raise FileOperationError(
+            raise ZipFileCorruptedError(
                 f"Failed to list ZIP contents {zip_path}: {e}"
             ) from e
 
@@ -278,13 +249,13 @@ class ZipUtils:
                 - files: List of file names in the archive
 
         Raises:
-            FileOperationError: If getting info fails
+            ZipFileCorruptedError: If getting info fails
         """
         try:
             zip_file = Path(zip_path)
 
             if not zip_file.exists():
-                raise FileOperationError(f"ZIP file does not exist: {zip_path}")
+                raise ZipFileNotFoundError(f"ZIP file does not exist: {zip_path}")
 
             with zipfile.ZipFile(zip_file, "r") as zipf:
                 info = zipf.infolist()
@@ -305,7 +276,9 @@ class ZipUtils:
                 }
 
         except Exception as e:
-            raise FileOperationError(f"Failed to get ZIP info {zip_path}: {e}") from e
+            raise ZipFileCorruptedError(
+                f"Failed to get ZIP info {zip_path}: {e}"
+            ) from e
 
     @staticmethod
     def is_valid_zip(zip_path: str | Path) -> bool:
@@ -351,17 +324,17 @@ class ZipUtils:
             arcname: Name of the file in the archive (default: file name)
 
         Raises:
-            FileOperationError: If adding file fails
+            ZipCreationError: If adding file fails
         """
         try:
             zip_file = Path(zip_path)
             file_to_add = Path(file_path)
 
             if not file_to_add.exists():
-                raise FileOperationError(f"File to add does not exist: {file_path}")
+                raise ZipPathError(f"File to add does not exist: {file_path}")
 
             if not file_to_add.is_file():
-                raise FileOperationError(f"Path is not a file: {file_path}")
+                raise ZipPathError(f"Path is not a file: {file_path}")
 
             # Use file name if arcname not specified
             if arcname is None:
@@ -371,9 +344,7 @@ class ZipUtils:
                 zipf.write(file_to_add, arcname)
 
         except Exception as e:
-            raise FileOperationError(
-                f"Failed to add file to ZIP {zip_path}: {e}"
-            ) from e
+            raise ZipCreationError(f"Failed to add file to ZIP {zip_path}: {e}") from e
 
     @staticmethod
     def remove_file_from_zip(zip_path: str | Path, file_name: str) -> None:
@@ -385,7 +356,7 @@ class ZipUtils:
             file_name: Name of the file to remove from the archive
 
         Raises:
-            FileOperationError: If removal fails
+            ZipCreationError: If removal fails
 
         Note:
             Creates a temporary file during removal process.
@@ -394,7 +365,7 @@ class ZipUtils:
             zip_file = Path(zip_path)
 
             if not zip_file.exists():
-                raise FileOperationError(f"ZIP file does not exist: {zip_path}")
+                raise ZipFileNotFoundError(f"ZIP file does not exist: {zip_path}")
 
             # Create a temporary ZIP without the file
             temp_zip = zip_file.with_suffix(".tmp.zip")
@@ -412,7 +383,7 @@ class ZipUtils:
             temp_zip.rename(zip_file)
 
         except Exception as e:
-            raise FileOperationError(
+            raise ZipCreationError(
                 f"Failed to remove file from ZIP {zip_path}: {e}"
             ) from e
 

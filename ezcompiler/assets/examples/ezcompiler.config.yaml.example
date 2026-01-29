@@ -1,0 +1,48 @@
+# ///////////////////////////////////////////////////////////////
+# EXAMPLE YAML CONFIG - Cx_Freeze, console app, disk upload
+# ///////////////////////////////////////////////////////////////
+# Scenario: Application console compilée avec Cx_Freeze
+# - Console visible (CLI tool)
+# - Upload sur disque local
+# - Debug activé, pas de zip
+
+version: "2.0.0-beta"
+project_name: "ExampleApp-CLI"
+project_description: "Sample console application compiled with Cx_Freeze"
+company_name: "EzCompiler Labs"
+author: "Dev Team"
+main_file: "main.py"
+output_folder: "dist/cxfreeze_build"
+icon: ""
+include_files:
+  files:
+    - "main.py"
+    - "README.md"
+  folders: []
+packages:
+  - json
+  - os
+  - platform
+includes:
+  - datetime
+excludes:
+  - tkinter
+  - unittest
+  - email
+  - xml
+
+compilation:
+  compiler: "Cx_Freeze"
+  console: true
+  zip_needed: false
+  repo_needed: false
+
+upload:
+  structure: "disk"
+  repo_path: "releases/cli"
+  server_url: ""
+
+advanced:
+  optimize: false
+  strip: false
+  debug: true
