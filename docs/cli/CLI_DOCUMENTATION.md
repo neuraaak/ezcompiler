@@ -168,7 +168,7 @@ ezcompiler generate config [OPTIONS]
 - `--includes, -inc TEXT`: Modules to include explicitly (multiple allowed)
 - `--excludes, -exc TEXT`: Modules to exclude (multiple allowed) [default: debugpy, test, unittest]
 - `--console / --no-console`: Show console window [default: console]
-- `--compiler, -comp TEXT`: Compiler to use [default: auto]
+- `--compiler, -comp TEXT`: Compiler to use (auto/Cx_Freeze/PyInstaller/Nuitka) [default: auto]
 - `--optimize / --no-optimize`: Enable optimization [default: optimize]
 - `--strip / --no-strip`: Strip symbols [default: no-strip]
 - `--debug / --no-debug`: Debug mode [default: no-debug]
@@ -209,7 +209,7 @@ ezcompiler generate config \
 
 #### generate setup
 
-Generate a `setup.py` file for Cx_Freeze compilation.
+Generate a `setup.py` file for compilation.
 
 ```bash
 ezcompiler generate setup [OPTIONS]
@@ -362,18 +362,18 @@ ezcompiler generate template --type version --filename my_version.txt
 
 ### Compilation Options
 
-| Option              | Short   | Description                           | Default                     |
-| ------------------- | ------- | ------------------------------------- | --------------------------- |
-| `--include-files`   | `-f`    | Files to include                      | `[]`                        |
-| `--include-folders` | `-fd`   | Folders to include                    | `[]`                        |
-| `--packages`        | `-p`    | Packages to include                   | `[]`                        |
-| `--includes`        | `-inc`  | Modules to include                    | `[]`                        |
-| `--excludes`        | `-exc`  | Modules to exclude                    | `[debugpy, test, unittest]` |
-| `--console`         |         | Show console window                   | `True`                      |
-| `--compiler`        | `-comp` | Compiler (auto/PyInstaller/Cx_Freeze) | `auto`                      |
-| `--optimize`        | `-opt`  | Enable optimization                   | `True`                      |
-| `--strip`           | `-s`    | Strip symbols                         | `False`                     |
-| `--debug`           | `-dbg`  | Debug mode                            | `False`                     |
+| Option              | Short  | Description                                   | Default                     |
+| ------------------- | ------ | --------------------------------------------- | --------------------------- |
+| `--include-files`   | `-f`   | Files to include                              | `[]`                        |
+| `--include-folders` | `-fd`  | Folders to include                            | `[]`                        |
+| `--packages`        | `-p`   | Packages to include                           | `[]`                        |
+| `--includes`        | `-inc` | Modules to include                            | `[]`                        |
+| `--excludes`        | `-exc` | Modules to exclude                            | `[debugpy, test, unittest]` |
+| `--console`         |        | Show console window                           | `True`                      |
+| `--compiler`        | `-comp`| Compiler (auto/Cx_Freeze/PyInstaller/Nuitka)  | `auto`                      |
+| `--optimize`        | `-opt` | Enable optimization                           | `True`                      |
+| `--strip`           | `-s`   | Strip symbols                                 | `False`                     |
+| `--debug`           | `-dbg` | Debug mode                                    | `False`                     |
 
 ### Upload Options
 
@@ -605,7 +605,7 @@ setup(
 
 **version_info.txt:**
 
-```
+```python
 VSVersionInfo(
     ffi=FixedFileInfo(
         filevers=(1, 0, 0, 0),
@@ -646,28 +646,28 @@ VSVersionInfo(
 
 ### Common Issues
 
-**Issue: "Project name is required"**
+#### Issue: "Project name is required"
 
 ```bash
 # Make sure to provide --project-name
 ezcompiler generate config --project-name "MyProject" ...
 ```
 
-**Issue: "Configuration file not found"**
+#### Issue: "Configuration file not found"
 
 ```bash
 # Check the path to your configuration file
 ezcompiler generate setup --config ./ezcompiler.yaml
 ```
 
-**Issue: "Invalid compiler name"**
+#### Issue: "Invalid compiler name"
 
 ```bash
-# Valid compiler names are: auto, PyInstaller, Cx_Freeze
+# Valid compiler names are: auto, Cx_Freeze, PyInstaller, Nuitka
 ezcompiler generate config --compiler "PyInstaller" ...
 ```
 
-**Issue: "Invalid upload structure"**
+#### Issue: "Invalid upload structure"
 
 ```bash
 # Valid upload structures are: disk, server

@@ -56,7 +56,7 @@ def _initialize_ezpl(log_file: Path | None = None) -> Ezpl:
 
     if _ezpl_instance is None:
         _ezpl_instance = Ezpl(log_file=log_file) if log_file else Ezpl()
-        _printer_instance = cast(EzPrinter, _ezpl_instance.get_printer())
+        _printer_instance = _ezpl_instance.get_printer()
         _logger_instance = _ezpl_instance.get_logger()
 
     return _ezpl_instance
@@ -94,7 +94,7 @@ def configure_ezpl(
     # Initialize if needed
     if _ezpl_instance is None:
         _ezpl_instance = Ezpl(log_file=log_file) if log_file else Ezpl()
-        _printer_instance = cast(EzPrinter, _ezpl_instance.get_printer())
+        _printer_instance = _ezpl_instance.get_printer()
         _logger_instance = _ezpl_instance.get_logger()
 
     # Configure

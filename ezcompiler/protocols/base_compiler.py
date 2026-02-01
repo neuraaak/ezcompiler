@@ -157,6 +157,48 @@ class BaseCompiler(ABC):
 
         CompilerUtils.prepare_compiler_output_directory(self.config)
 
+    @staticmethod
+    def extract_error_summary(raw_output: str) -> str:
+        """
+        Extract a concise error summary from compiler subprocess output.
+
+        Filters out verbose INFO/WARNING lines and keeps only meaningful
+        error information (ERROR lines, Traceback, and final exception).
+
+        Args:
+            raw_output: Raw stderr or stdout from subprocess
+
+        Returns:
+            str: Concise error message
+        """
+        lines = raw_output.splitlines()
+
+        # Try to extract the last traceback + exception
+        traceback_start = None
+        for i, line in enumerate(lines):
+            if line.strip().startswith("Traceback"):
+                traceback_start = i
+
+        if traceback_start is not None:
+            # Get from last Traceback to end, skip Nuitka-Reports lines
+            tb_lines = [
+                line
+                for line in lines[traceback_start:]
+                if not line.startswith("Nuitka-Reports:")
+            ]
+            return "\n".join(tb_lines).strip()
+
+        # Fallback: extract ERROR lines
+        error_lines = [
+            line for line in lines if "ERROR" in line or "error:" in line.lower()
+        ]
+        if error_lines:
+            return "\n".join(error_lines).strip()
+
+        # Last resort: return last 5 non-empty lines
+        non_empty = [line for line in lines if line.strip()]
+        return "\n".join(non_empty[-5:]).strip()
+
     def get_include_files_data(self) -> list[str]:
         """
         Get formatted include files data for compilation.

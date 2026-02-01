@@ -7,30 +7,30 @@
 # - Mode optimisé, strip activé
 
 [project]
-name = "ExampleApp"
+name = "ExampleApp-PyInstaller"
 version = "1.0.0"
-description = "Sample GUI application compiled with EzCompiler"
-authors = [{ name = "EzCompiler Team" }]
+description = "Sample GUI application compiled with PyInstaller"
+authors = [{ name = "Dev Team" }]
 
 [tool.ezcompiler]
 main_file = "main.py"
 output_folder = "dist/pyinstaller_build"
 icon = ""
-include_files = { files = ["README.md"], folders = ["assets"] }
+include_files = { files = [], folders = [] }
 packages = ["json", "pathlib"]
 includes = []
 excludes = ["tkinter", "unittest", "test"]
 
 [tool.ezcompiler.compilation]
 compiler = "PyInstaller"
-console = false
+console = true
 zip_needed = true
 repo_needed = true
 
 [tool.ezcompiler.upload]
-structure = "server"
-repo_path = "releases/gui"
-server_url = "https://example.com/uploads"
+structure = "disk"
+repo_path = "releases/PyInstaller"
+server_url = ""
 
 [tool.ezcompiler.advanced]
 optimize = true

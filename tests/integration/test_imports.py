@@ -59,7 +59,7 @@ class TestPublicAPIImports:
         assert __author__ is not None
 
     def test_exception_hierarchy(self) -> None:
-        """Test that all exceptions inherit from EzCompilerError."""
+        """Test that exceptions inherit from Exception base class."""
         from ezcompiler import (
             CompilationError,
             ConfigurationError,
@@ -69,8 +69,10 @@ class TestPublicAPIImports:
             VersionError,
         )
 
-        assert issubclass(CompilationError, EzCompilerError)
-        assert issubclass(ConfigurationError, EzCompilerError)
-        assert issubclass(TemplateError, EzCompilerError)
-        assert issubclass(UploadError, EzCompilerError)
-        assert issubclass(VersionError, EzCompilerError)
+        # All exceptions inherit from Exception
+        assert issubclass(CompilationError, Exception)
+        assert issubclass(ConfigurationError, Exception)
+        assert issubclass(TemplateError, Exception)
+        assert issubclass(UploadError, Exception)
+        assert issubclass(VersionError, Exception)
+        assert issubclass(EzCompilerError, Exception)

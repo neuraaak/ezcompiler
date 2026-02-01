@@ -106,9 +106,12 @@ class DiskUploader(BaseUploader):
             self.validate_source_path(source_path)
             dest_path = Path(destination)
 
-            # Create parent directories
+            # For file uploads, treat destination as a directory and
+            # preserve the source filename (e.g., "releases/Nuitka" + "build.zip"
+            # -> "releases/Nuitka/build.zip")
             if source_path.is_file():
-                FileUtils.create_directory_if_not_exists(dest_path.parent)
+                FileUtils.create_directory_if_not_exists(dest_path)
+                dest_path = dest_path / source_path.name
             else:
                 FileUtils.create_directory_if_not_exists(dest_path)
 

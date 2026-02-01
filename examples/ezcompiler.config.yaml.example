@@ -6,18 +6,18 @@
 # - Upload sur disque local
 # - Debug activé, pas de zip
 
-version: "2.0.0-beta"
-project_name: "ExampleApp-CLI"
+version: "1.0.0"
+project_name: "ExampleApp-CxFreeze"
 project_description: "Sample console application compiled with Cx_Freeze"
-company_name: "EzCompiler Labs"
+company_name: "EzCompiler Inc."
 author: "Dev Team"
 main_file: "main.py"
 output_folder: "dist/cxfreeze_build"
 icon: ""
+version_filename: "version_info.txt"
 include_files:
   files:
     - "main.py"
-    - "README.md"
   folders: []
 packages:
   - json
@@ -34,12 +34,12 @@ excludes:
 compilation:
   compiler: "Cx_Freeze"
   console: true
-  zip_needed: false
-  repo_needed: false
+  zip_needed: true
+  repo_needed: true
 
 upload:
   structure: "disk"
-  repo_path: "releases/cli"
+  repo_path: "releases/CxFreeze"
   server_url: ""
 
 advanced:

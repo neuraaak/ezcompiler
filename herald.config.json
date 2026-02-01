@@ -1,5 +1,6 @@
 {
   "ignore": [
+    "*_cache",
     ".venv",
     ".cursor",
     ".github",
@@ -11,7 +12,9 @@
     "tests"
   ],
   "rules": {
-    "disable": []
+    "disable": [
+      "magic-numbers"
+    ]
   },
   "thresholds": {
     "maxFileLines": 500

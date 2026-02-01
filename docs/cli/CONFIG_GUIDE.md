@@ -19,11 +19,11 @@ This guide provides comprehensive instructions for configuring **EzCompiler** pr
     - [Compilation Fields](#compilation-fields)
     - [Upload Fields](#upload-fields)
   - [YAML Configuration](#yaml-configuration)
+    - [Complete Example (JSON)](#complete-example-json)
+    - [Minimal Example (JSON)](#minimal-example-json)
+  - [JSON Configuration](#json-configuration)
     - [Complete Example](#complete-example)
     - [Minimal Example](#minimal-example)
-  - [JSON Configuration](#json-configuration)
-    - [Complete Example](#complete-example-1)
-    - [Minimal Example](#minimal-example-1)
   - [Field Reference](#field-reference)
     - [version](#version)
     - [project\_name](#project_name)
@@ -140,7 +140,7 @@ These fields must be provided for compilation:
 
 ## YAML Configuration
 
-### Complete Example
+### Complete Example (JSON)
 
 ```yaml
 # ///////////////////////////////////////////////////////////////
@@ -208,7 +208,7 @@ excludes:
 
 # Compilation options
 console: false          # GUI application (no console window)
-compiler: "Cx_Freeze"   # Use Cx_Freeze compiler
+compiler: "Cx_Freeze"   # "auto", "Cx_Freeze", "PyInstaller", or "Nuitka"
 optimize: true          # Enable optimization
 strip: true             # Strip debug symbols
 debug: false            # Disable debug mode
@@ -224,7 +224,7 @@ repo_path: "./releases/v2.0.0"  # Repository path
 server_url: null              # No server upload
 ```
 
-### Minimal Example
+### Minimal Example (JSON)
 
 ```yaml
 # Minimal EzCompiler configuration
@@ -293,7 +293,7 @@ output_folder: "dist"
   ],
   
   "console": false,
-  "compiler": "Cx_Freeze",
+  "compiler": "Cx_Freeze",  // "auto", "Cx_Freeze", "PyInstaller", or "Nuitka"
   "optimize": true,
   "strip": true,
   "debug": false,
@@ -332,6 +332,7 @@ version: "1.0.0"
 ```
 
 **Validation:**
+
 - Must contain at least 2 parts separated by dots
 - Each part must be a valid integer
 - Examples: "1.0", "1.0.0", "1.0.0.0"
@@ -345,6 +346,7 @@ project_name: "MyProject"
 ```
 
 **Best Practices:**
+
 - Use alphanumeric characters and underscores
 - Avoid spaces (use underscores instead)
 - Keep it concise but descriptive
@@ -360,6 +362,7 @@ main_file: "src/main.py"
 ```
 
 **Notes:**
+
 - Relative to project root
 - Must exist at compilation time
 - Must be a valid Python file
@@ -375,6 +378,7 @@ output_folder: "build/output"
 ```
 
 **Notes:**
+
 - Created automatically if doesn't exist
 - Relative to project root
 - Cleaned before compilation (optional)
@@ -396,6 +400,7 @@ include_files:
 ```
 
 **Structure:**
+
 - `files`: List of individual files to include
 - `folders`: List of directories to include (recursive)
 
@@ -411,6 +416,7 @@ packages:
 ```
 
 **Notes:**
+
 - Package names as they appear in import statements
 - Dependencies are usually detected automatically
 - Add packages that aren't detected automatically
@@ -428,6 +434,7 @@ excludes:
 ```
 
 **Common Excludes:**
+
 - Development tools: `debugpy`, `pytest`, `mypy`, `black`, `ruff`
 - Test modules: `test`, `unittest`, `tests`
 - Large unused modules: `tkinter` (if not used)
@@ -439,15 +446,19 @@ Compiler to use for building the executable.
 ```yaml
 compiler: "auto"  # Automatic selection
 # Or
+compiler: "Cx_Freeze"
+# Or
 compiler: "PyInstaller"
 # Or
-compiler: "Cx_Freeze"
+compiler: "Nuitka"
 ```
 
 **Options:**
+
 - `auto`: Automatic selection based on requirements
+- `Cx_Freeze`: Directory-based, better handling of complex dependencies
 - `PyInstaller`: Single-file executables, simpler distribution
-- `Cx_Freeze`: Directory-based, better performance for large apps
+- `Nuitka`: Compiles to native C code, best performance (standalone or onefile)
 
 ### upload_structure
 
@@ -460,6 +471,7 @@ upload_structure: "server"  # HTTP/HTTPS server
 ```
 
 **Options:**
+
 - `disk`: Copy to local filesystem
 - `server`: Upload via HTTP POST/PUT
 
