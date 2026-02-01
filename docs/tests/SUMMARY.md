@@ -39,10 +39,10 @@ The EzCompiler test suite is organized into three main categories:
 
 ### Test Coverage
 
-- **Unit Tests**: 7 test files covering all core components
-- **Integration Tests**: 3 test files for component integration
-- **Robustness Tests**: 3 test files for edge cases and error scenarios
-- **Total**: 150+ test cases
+- **Unit Tests**: 4 test files covering core components (68 tests)
+- **Integration Tests**: 2 test files for component integration
+- **Robustness Tests**: 2 test files for edge cases and error scenarios
+- **Total**: 68+ test cases with ~80% code coverage
 
 ### Quick Start
 
@@ -69,25 +69,20 @@ python tests/run_tests.py --parallel
 
 **Unit Tests:**
 
-- `test_ezcompiler.py` – EzCompiler facade tests
-- `test_compiler_config.py` – CompilerConfig tests
-- `test_compilers.py` – Compiler implementations
-- `test_generators.py` – File generators
-- `test_templates.py` – Template system
-- `test_uploaders.py` – Distribution uploaders
-- `test_utils.py` – Utility functions
+- `test_core.py` – Exception hierarchy and CompilerConfig tests
+- `test_compilers.py` – Compiler implementations (Cx_Freeze, PyInstaller, Nuitka)
+- `test_ezcompiler_basic.py` – EzCompiler facade and project initialization
+- `test_utils.py` – Utility functions (FileUtils, ValidationUtils, ZipUtils)
 
 **Integration Tests:**
 
-- `test_ezcompiler_integration.py` – Full workflow integration
-- `test_config_integration.py` – Configuration integration
-- `test_compilation_integration.py` – Compilation pipeline
+- `test_imports.py` – Public API imports and exception hierarchy
+- `test_ezcompiler_integration.py` – Component interaction tests
 
 **Robustness Tests:**
 
-- `test_error_handling.py` – Error scenarios
-- `test_edge_cases.py` – Edge cases
-- `test_special_cases.py` – Special cases
+- `test_error_handling.py` – Exception raising and handling
+- `test_edge_cases.py` – Edge cases and boundary conditions
 
 ### Test Markers
 

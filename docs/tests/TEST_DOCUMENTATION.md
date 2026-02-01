@@ -13,30 +13,53 @@ This document provides comprehensive documentation for the **EzCompiler** test s
   - [Test Structure](#test-structure)
     - [Directory Organization](#directory-organization)
   - [Unit Tests](#unit-tests)
-    - [test_ezcompiler.py](#test_ezcompilerpy--ezcompiler-facade-tests)
-    - [test_compiler_config.py](#test_compiler_configpy--compilerconfig-tests)
-    - [test_compilers.py](#test_compilerspy--compiler-tests)
-    - [test_generators.py](#test_generatorspy--generator-tests)
-    - [test_templates.py](#test_templatespy--template-system-tests)
-    - [test_uploaders.py](#test_uploaderspy--uploader-tests)
-    - [test_utils.py](#test_utilspy--utility-tests)
+    - [test\_core.py – Core Module Tests](#test_corepy--core-module-tests)
+      - [TestExceptions (5 tests)](#testexceptions-5-tests)
+      - [TestCompilerConfig (8 tests)](#testcompilerconfig-8-tests)
+    - [test\_compilers.py – Compiler Implementation Tests](#test_compilerspy--compiler-implementation-tests)
+      - [TestCompilerImports (4 tests)](#testcompilerimports-4-tests)
+      - [TestCompilerInstantiation (5 tests)](#testcompilerinstantiation-5-tests)
+      - [TestCompilerNames (3 tests)](#testcompilernames-3-tests)
+    - [test\_ezcompiler\_basic.py – EzCompiler Facade Tests](#test_ezcompiler_basicpy--ezcompiler-facade-tests)
+      - [TestEzCompilerImport (11 tests)](#testezcompilerimport-11-tests)
+      - [TestEzCompilerInitialization (2 tests)](#testezcompilerinitialization-2-tests)
+    - [test\_utils.py – Utility Functions Tests](#test_utilspy--utility-functions-tests)
+      - [TestFileUtils (3 tests)](#testfileutils-3-tests)
+      - [TestValidationUtils (3 tests)](#testvalidationutils-3-tests)
+      - [TestZipUtils (3 tests)](#testziputils-3-tests)
+      - [TestFileUtilsMethods (4 tests)](#testfileutilsmethods-4-tests)
+      - [TestValidationUtilsMethods (8 tests)](#testvalidationutilsmethods-8-tests)
+      - [TestZipUtilsMethods (2 tests)](#testziputilsmethods-2-tests)
   - [Integration Tests](#integration-tests)
-    - [test_ezcompiler_integration.py](#test_ezcompiler_integrationpy--full-workflow-integration)
-    - [test_config_integration.py](#test_config_integrationpy--configuration-integration)
-    - [test_compilation_integration.py](#test_compilation_integrationpy--compilation-pipeline-integration)
+    - [test\_imports.py – Public API Import Tests](#test_importspy--public-api-import-tests)
+      - [TestPublicAPIImports (4 tests)](#testpublicapiimports-4-tests)
+    - [test\_ezcompiler\_integration.py – Component Integration](#test_ezcompiler_integrationpy--component-integration)
+      - [TestEzCompilerIntegration (2 tests)](#testezcompilerintegration-2-tests)
   - [Robustness Tests](#robustness-tests)
-    - [test_error_handling.py](#test_error_handlingpy--error-handling)
-    - [test_edge_cases.py](#test_edge_casespy--edge-cases)
+    - [test\_error\_handling.py – Error Handling Tests](#test_error_handlingpy--error-handling-tests)
+      - [TestConfigurationErrors (3 tests)](#testconfigurationerrors-3-tests)
+      - [TestCompilationErrors (4 tests)](#testcompilationerrors-4-tests)
+      - [TestFileOperationErrors (3 tests)](#testfileoperationerrors-3-tests)
+    - [test\_edge\_cases.py – Edge Cases](#test_edge_casespy--edge-cases)
+      - [TestExtremeValues (4 tests)](#testextremevalues-4-tests)
+      - [TestVersionEdgeCases (3 tests)](#testversionedgecases-3-tests)
+      - [TestPathEdgeCases (3 tests)](#testpathedgecases-3-tests)
   - [Test Configuration](#test-configuration)
-    - [conftest.py](#conftest.py--shared-fixtures)
-    - [run_tests.py](#run_testspy--test-runner)
+    - [conftest.py – Shared Fixtures](#conftestpy--shared-fixtures)
   - [Running Tests](#running-tests)
     - [Using pytest](#using-pytest)
-    - [Using run_tests.py](#using-run_testspy)
+    - [Using run\_tests.py](#using-run_testspy)
   - [Coverage Reports](#coverage-reports)
   - [Test Markers](#test-markers)
   - [Best Practices](#best-practices)
+    - [1. Test Isolation](#1-test-isolation)
+    - [2. Use Fixtures](#2-use-fixtures)
+    - [3. Use Appropriate Markers](#3-use-appropriate-markers)
+    - [4. Coverage Goals](#4-coverage-goals)
+    - [5. Platform Compatibility](#5-platform-compatibility)
   - [Known Issues and Solutions](#known-issues-and-solutions)
+    - [Temporary File Cleanup](#temporary-file-cleanup)
+    - [Slow Tests](#slow-tests)
   - [Additional Resources](#additional-resources)
 
 ---
@@ -53,332 +76,209 @@ The EzCompiler test suite is organized into three main categories:
 
 ### Directory Organization
 
-```
+```text
 tests/
 ├── conftest.py                           # Shared fixtures and pytest configuration
+├── pytest.ini                            # Pytest settings
 ├── run_tests.py                          # Test runner script
-├── unit/                                 # Unit tests
+├── unit/                                 # Unit tests (68 tests)
 │   ├── __init__.py
-│   ├── test_ezcompiler.py               # EzCompiler facade tests
-│   ├── test_compiler_config.py          # CompilerConfig tests
-│   ├── test_compilers.py                # Compiler implementations tests
-│   ├── test_generators.py               # Generator implementations tests
-│   ├── test_templates.py                # Template system tests
-│   ├── test_uploaders.py                # Uploader implementations tests
-│   └── test_utils.py                    # Utility functions tests
+│   ├── test_core.py                     # Exception and CompilerConfig tests (13 tests)
+│   ├── test_compilers.py                # Compiler implementations (12 tests)
+│   ├── test_ezcompiler_basic.py         # EzCompiler facade tests (13 tests)
+│   └── test_utils.py                    # Utility functions tests (30 tests)
 ├── integration/                          # Integration tests
 │   ├── __init__.py
-│   ├── test_ezcompiler_integration.py   # Full workflow integration
-│   ├── test_config_integration.py       # Configuration integration
-│   └── test_compilation_integration.py  # Compilation pipeline integration
+│   ├── test_imports.py                  # Public API imports
+│   └── test_ezcompiler_integration.py   # Component integration
 └── robustness/                           # Robustness tests
     ├── __init__.py
-    ├── test_error_handling.py           # Error scenarios
-    ├── test_edge_cases.py               # Edge cases
-    └── test_special_cases.py            # Special cases
+    ├── test_error_handling.py           # Exception handling
+    └── test_edge_cases.py               # Edge cases
 ```
 
 ---
 
 ## Unit Tests
 
-### test_ezcompiler.py – EzCompiler Facade Tests
+### test_core.py – Core Module Tests
 
-**Location:** `tests/unit/test_ezcompiler.py`
-
-**Test Classes:**
-
-#### TestInitialization
-
-- `test_initialization_default` – Default initialization
-- `test_initialization_with_log_level` – Custom log level
-- `test_initialization_with_log_rotation` – Custom log rotation
-
-#### TestProjectInitialization
-
-- `test_init_project_minimal` – Minimal project initialization
-- `test_init_project_complete` – Full project initialization
-- `test_init_project_validation` – Configuration validation
-
-#### TestFileGeneration
-
-- `test_generate_version_file` – Version file generation
-- `test_generate_setup_file` – Setup file generation
-- `test_generate_files_sequence` – Sequential generation
-
-#### TestCompilation
-
-- `test_compile_project_pyinstaller` – PyInstaller compilation
-- `test_compile_project_cxfreeze` – Cx_Freeze compilation
-- `test_compile_project_auto` – Automatic compiler selection
-- `test_compile_with_options` – Compilation with options
-
-#### TestZipping
-
-- `test_zip_compiled_project` – ZIP archive creation
-- `test_zip_verification` – ZIP contents verification
-
-#### TestUpload
-
-- `test_upload_disk` – Disk upload
-- `test_upload_server` – Server upload
-
-#### TestAccessors
-
-- `test_logger_accessor` – Logger property access
-- `test_printer_accessor` – Printer property access
-- `test_config_accessor` – Config property access
-
-### test_compiler_config.py – CompilerConfig Tests
-
-**Location:** `tests/unit/test_compiler_config.py`
+**Location:** `tests/unit/test_core.py`
 
 **Test Classes:**
 
-#### TestCreation
+#### TestExceptions (5 tests)
 
-- `test_create_minimal_config` – Minimal configuration
-- `test_create_full_config` – Complete configuration
-- `test_create_with_defaults` – Default values
+- `test_ezcompiler_error_exists` – EzCompilerError can be imported
+- `test_compilation_error_is_subclass` – CompilationError inherits from Exception
+- `test_configuration_error_is_subclass` – ConfigurationError inherits from Exception
+- `test_raise_ezcompiler_error` – EzCompilerError can be raised
 
-#### TestValidation
+#### TestCompilerConfig (8 tests)
 
-- `test_validate_required_fields` – Required field validation
-- `test_validate_version_format` – Version format validation
-- `test_validate_paths` – Path validation
+- `test_compiler_config_import` – CompilerConfig import
+- `test_compiler_config_creation_minimal` – Minimal configuration creation with temp files
+- `test_compiler_config_creation_full` – Full configuration with all fields
+- `test_compiler_config_to_dict` – Configuration to dictionary conversion
+- `test_compiler_config_from_dict` – Configuration from dictionary
+- `test_compiler_config_defaults` – Default values validation
 
-#### TestConversion
-
-- `test_to_dict` – Dictionary conversion
-- `test_from_dict` – Creation from dictionary
-- `test_roundtrip_conversion` – Conversion roundtrip
-
-#### TestProperties
-
-- `test_output_path_property` – Output path property
-- `test_version_tuple_property` – Version tuple property
-
-#### TestErrorHandling
-
-- `test_invalid_version` – Invalid version handling
-- `test_missing_required_field` – Missing field handling
-
-### test_compilers.py – Compiler Tests
+### test_compilers.py – Compiler Implementation Tests
 
 **Location:** `tests/unit/test_compilers.py`
 
 **Test Classes:**
 
-#### TestCxFreezeCompiler
+#### TestCompilerImports (4 tests)
 
-- `test_cxfreeze_initialization` – Initialization
-- `test_cxfreeze_compilation` – Compilation process
-- `test_cxfreeze_zip_needed` – ZIP requirement check
-- `test_cxfreeze_error_handling` – Error handling
+- `test_base_compiler_import` – BaseCompiler can be imported
+- `test_cx_freeze_compiler_import` – CxFreezeCompiler can be imported
+- `test_pyinstaller_compiler_import` – PyInstallerCompiler can be imported  
+- `test_nuitka_compiler_import` – NuitkaCompiler can be imported
 
-#### TestPyInstallerCompiler
+#### TestCompilerInstantiation (5 tests)
 
-- `test_pyinstaller_initialization` – Initialization
-- `test_pyinstaller_compilation` – Compilation process
-- `test_pyinstaller_zip_needed` – ZIP requirement check
-- `test_pyinstaller_single_file` – Single-file mode
+- `test_instantiate_cx_freeze_compiler` – CxFreezeCompiler instantiation with temp files
+- `test_instantiate_pyinstaller_compiler` – PyInstallerCompiler instantiation with temp files
+- `test_instantiate_nuitka_compiler` – NuitkaCompiler instantiation with temp files
+- `test_cx_freeze_compiler_has_config` – Config attribute validation
+- `test_compiler_is_base_compiler_instance` – BaseCompiler inheritance check
 
-#### TestCompilerSelection
+#### TestCompilerNames (3 tests)
 
-- `test_compiler_validation` – Compiler name validation
-- `test_compiler_requirements` – Requirements checking
+- `test_cx_freeze_compiler_name` – CxFreezeCompiler name verification
+- `test_pyinstaller_compiler_name` – PyInstallerCompiler name verification
+- `test_nuitka_compiler_name` – NuitkaCompiler name verification
 
-### test_generators.py – Generator Tests
+### test_ezcompiler_basic.py – EzCompiler Facade Tests
 
-**Location:** `tests/unit/test_generators.py`
-
-**Test Classes:**
-
-#### TestVersionGenerator
-
-- `test_generate_version_content` – Content generation
-- `test_generate_version_file` – File generation
-- `test_version_template_variables` – Template variables
-- `test_version_file_format` – File format
-
-#### TestSetupGenerator
-
-- `test_generate_setup_content` – Content generation
-- `test_generate_setup_file` – File generation
-- `test_setup_template_variables` – Template variables
-- `test_setup_file_format` – File format
-- `test_setup_with_packages` – Package handling
-
-### test_templates.py – Template System Tests
-
-**Location:** `tests/unit/test_templates.py`
+**Location:** `tests/unit/test_ezcompiler_basic.py`
 
 **Test Classes:**
 
-#### TestTemplateManager
+#### TestEzCompilerImport (11 tests)
 
-- `test_load_template` – Template loading
-- `test_list_templates` – List templates
-- `test_get_template_path` – Path retrieval
-- `test_process_template` – Template processing
+- `test_import_ezcompiler` – EzCompiler can be imported
+- `test_instantiate_ezcompiler` – EzCompiler instantiation
+- `test_ezcompiler_has_logger` – Logger attribute exists
+- `test_ezcompiler_has_printer` – Printer attribute exists
+- `test_ezcompiler_has_config` – Config property exists
+- `test_ezcompiler_config_returns_compiler_config` – Config attribute validation
+- `test_ezcompiler_with_custom_log_level` – Custom log level initialization
+- `test_ezcompiler_with_custom_log_rotation` – Custom log rotation
+- `test_ezcompiler_has_printer_attribute` – Printer accessible
+- `test_ezcompiler_has_logger_attribute` – Logger accessible
+- `test_ezcompiler_has_ezpl_attribute` – Ezpl accessible
 
-#### TestTemplateProcessor
+#### TestEzCompilerInitialization (2 tests)
 
-- `test_substitute_variables` – Variable substitution
-- `test_generate_mockup` – Mockup generation
-- `test_validate_template` – Template validation
-- `test_missing_variables` – Missing variables handling
+- `test_init_project_minimal` – Minimal project initialization with temp files
+- `test_init_project_full` – Full project initialization with all options
 
-### test_uploaders.py – Uploader Tests
-
-**Location:** `tests/unit/test_uploaders.py`
-
-**Test Classes:**
-
-#### TestDiskUploader
-
-- `test_disk_upload_file` – File upload
-- `test_disk_upload_directory` – Directory upload
-- `test_disk_upload_validation` – Upload validation
-- `test_disk_permissions` – Permission handling
-
-#### TestServerUploader
-
-- `test_server_upload_initialization` – Initialization
-- `test_server_upload_connection` – Connection test
-- `test_server_upload_retry` – Retry logic
-- `test_server_authentication` – Authentication
-
-#### TestUploaderFactory
-
-- `test_create_disk_uploader` – Disk uploader creation
-- `test_create_server_uploader` – Server uploader creation
-- `test_invalid_structure` – Invalid structure handling
-
-### test_utils.py – Utility Tests
+### test_utils.py – Utility Functions Tests
 
 **Location:** `tests/unit/test_utils.py`
 
 **Test Classes:**
 
-#### TestFileUtils
+#### TestFileUtils (3 tests)
 
-- `test_ensure_directory` – Directory creation
-- `test_copy_file` – File copying
-- `test_copy_directory` – Directory copying
-- `test_delete_directory` – Directory deletion
-- `test_get_file_size` – File size
+- `test_file_utils_exists` – FileUtils can be imported
+- `test_file_utils_instantiate` – FileUtils instantiation
 
-#### TestValidationUtils
+#### TestValidationUtils (3 tests)
 
-- `test_validate_version` – Version validation
-- `test_validate_path` – Path validation
-- `test_validate_compiler_name` – Compiler name validation
-- `test_validate_upload_structure` – Structure validation
+- `test_validation_utils_exists` – ValidationUtils can be imported
+- `test_validation_utils_instantiate` – ValidationUtils instantiation
 
-#### TestZipUtils
+#### TestZipUtils (3 tests)
 
-- `test_create_zip_archive` – ZIP creation
-- `test_extract_zip_archive` – ZIP extraction
-- `test_list_zip_contents` – ZIP listing
-- `test_zip_with_progress` – Progress callback
+- `test_zip_utils_exists` – ZipUtils can be imported
+- `test_zip_utils_instantiate` – ZipUtils instantiation
+
+#### TestFileUtilsMethods (4 tests)
+
+- `test_file_utils_create_directory` – Directory creation with temp fixture
+- `test_file_utils_create_directory_existing` – Existing directory handling
+- `test_file_utils_get_file_size` – File size retrieval
+- `test_file_utils_validate_file_exists` – File existence validation
+
+#### TestValidationUtilsMethods (8 tests)
+
+- `test_validate_version_valid` – Valid version string validation
+- `test_validate_version_invalid` – Invalid version string rejection
+- `test_validate_compiler_name_valid` – Valid compiler name validation
+- `test_validate_compiler_name_invalid` – Invalid compiler name rejection
+- `test_validate_upload_structure_valid` – Valid upload structure validation
+- `test_validate_upload_structure_invalid` – Invalid upload structure rejection
+
+#### TestZipUtilsMethods (2 tests)
+
+- `test_create_zip_archive` – ZIP archive creation with temp files
+- `test_list_zip_contents` – ZIP contents listing
 
 ---
 
 ## Integration Tests
 
-### test_ezcompiler_integration.py – Full Workflow Integration
+### test_imports.py – Public API Import Tests
+
+**Location:** `tests/integration/test_imports.py`
+
+**Test Classes:**
+
+#### TestPublicAPIImports (4 tests)
+
+- `test_ezcompiler_import` – Main EzCompiler class import
+- `test_compiler_config_import` – CompilerConfig dataclass import
+- `test_exceptions_import` – Exception classes import
+- `test_exception_hierarchy` – Exception inheritance validation
+
+---
+
+### test_ezcompiler_integration.py – Component Integration
 
 **Location:** `tests/integration/test_ezcompiler_integration.py`
 
 **Test Classes:**
 
-#### TestFullBuildWorkflow
+#### TestEzCompilerIntegration (2 tests)
 
-- `test_complete_build_pipeline` – Full build workflow
-- `test_init_to_compilation` – Initialization to compilation
-- `test_compilation_to_distribution` – Compilation to distribution
-- `test_full_release_workflow` – Complete release workflow
-
-#### TestConfigurationIntegration
-
-- `test_config_from_file` – Configuration from file
-- `test_config_from_api` – Configuration from API
-- `test_config_validation_flow` – Validation flow
-
-#### TestErrorRecovery
-
-- `test_error_handling_in_pipeline` – Error handling
-- `test_rollback_on_error` – Error rollback
-
-### test_config_integration.py – Configuration Integration
-
-**Location:** `tests/integration/test_config_integration.py`
-
-**Test Classes:**
-
-#### TestConfigurationSources
-
-- `test_yaml_config_loading` – YAML loading
-- `test_json_config_loading` – JSON loading
-- `test_config_merging` – Configuration merging
-
-#### TestConfigurationPipeline
-
-- `test_config_to_generation` – Config to generation
-- `test_config_to_compilation` – Config to compilation
-
-### test_compilation_integration.py – Compilation Pipeline Integration
-
-**Location:** `tests/integration/test_compilation_integration.py`
-
-**Test Classes:**
-
-#### TestCompilationPipeline
-
-- `test_pyinstaller_pipeline` – PyInstaller pipeline
-- `test_cxfreeze_pipeline` – Cx_Freeze pipeline
-- `test_compiler_switching` – Compiler switching
-
-#### TestDependencyHandling
-
-- `test_package_inclusion` – Package inclusion
-- `test_package_exclusion` – Package exclusion
-- `test_dependency_resolution` – Dependency resolution
+- `test_ezcompiler_with_config` – EzCompiler initialization with CompilerConfig
+- `test_ezcompiler_logger_integration` – Logger component integration
 
 ---
 
 ## Robustness Tests
 
-### test_error_handling.py – Error Handling
+### test_error_handling.py – Error Handling Tests
 
 **Location:** `tests/robustness/test_error_handling.py`
 
 **Test Classes:**
 
-#### TestConfigurationErrors
+**Test Classes:**
 
-- `test_invalid_version_format` – Invalid version
-- `test_missing_required_fields` – Missing fields
-- `test_invalid_paths` – Invalid paths
+#### TestConfigurationErrors (3 tests)
 
-#### TestCompilationErrors
+- `test_invalid_config` – Invalid configuration detection
+- `test_missing_required_fields` – Required field validation
+- `test_invalid_version_format` – Version format validation
 
-- `test_compilation_failure` – Compilation failure
-- `test_invalid_compiler` – Invalid compiler
-- `test_missing_main_file` – Missing main file
+#### TestCompilationErrors (4 tests)
 
-#### TestUploadErrors
+- `test_compilation_failure` – Compilation failure handling
+- `test_invalid_compiler` – Invalid compiler name rejection
+- `test_missing_main_file` – Missing main file detection
+- `test_output_directory_error` – Output directory issues
 
-- `test_upload_failure` – Upload failure
-- `test_connection_error` – Connection error
-- `test_authentication_error` – Authentication error
+#### TestFileOperationErrors (3 tests)
 
-#### TestFileOperationErrors
+- `test_file_not_found` – File not found errors
+- `test_directory_creation_error` – Directory creation failures
+- `test_invalid_path` – Invalid path handling
 
-- `test_file_write_error` – File write error
-- `test_directory_creation_error` – Directory creation error
-- `test_permission_error` – Permission error
+---
 
 ### test_edge_cases.py – Edge Cases
 
@@ -386,28 +286,24 @@ tests/
 
 **Test Classes:**
 
-#### TestExtremeValues
+#### TestExtremeValues (4 tests)
 
-- `test_very_long_project_name` – Long name
-- `test_very_large_number_of_packages` – Many packages
-- `test_very_deep_directory_structure` – Deep directories
-- `test_very_large_files` – Large files
+- `test_very_long_project_name` – Long project names (255+ chars)
+- `test_empty_project_name` – Empty string handling
+- `test_very_deep_directory_structure` – Deep nested paths
+- `test_special_characters_in_name` – Unicode and special chars
 
-#### TestSpecialCharacters
+#### TestVersionEdgeCases (3 tests)
 
-- `test_unicode_in_config` – Unicode characters
-- `test_special_chars_in_paths` – Special characters
-- `test_spaces_in_names` – Spaces in names
+- `test_version_edge_formats` – Various version formats (0.0.0, 99.99.99)
+- `test_invalid_version_formats` – Invalid versions (abc, 1.2.x)
+- `test_version_with_prerelease` – Pre-release identifiers
 
-#### TestConcurrency
+#### TestPathEdgeCases (3 tests)
 
-- `test_parallel_compilations` – Parallel builds
-- `test_concurrent_file_access` – Concurrent access
-
-#### TestVersionEdgeCases
-
-- `test_version_edge_formats` – Version formats
-- `test_version_comparison` – Version comparison
+- `test_relative_paths` – Relative path handling
+- `test_absolute_paths` – Absolute path normalization
+- `test_path_with_spaces` – Spaces in paths
 
 ---
 
@@ -419,33 +315,17 @@ tests/
 
 **Fixtures:**
 
-- `temp_dir` – Temporary directory for test files
-- `temp_file` – Temporary file
-- `config_file` – Temporary configuration file
-- `sample_project` – Sample project structure
-- `compiler_config` – Sample compiler configuration
-
-**Pytest Hooks:**
-
-- `pytest_runtest_teardown` – Test cleanup
-- `pytest_runtest_makereport` – Test reporting
-
-### run_tests.py – Test Runner
-
-**Location:** `tests/run_tests.py`
-
-**Features:**
-
-- Test type selection (unit, integration, robustness, all)
-- Coverage reporting
-- Verbose mode
-- Parallel execution
-- Marker filtering
+- `temp_dir` – Temporary directory for test file operations (scope: function)
+- `temp_file` – Temporary file creation in temp_dir (scope: function)
 
 **Usage:**
 
-```bash
-python tests/run_tests.py --type unit --coverage --verbose
+```python
+def test_example(temp_dir, temp_file):
+    # temp_dir: pathlib.Path to temporary directory
+    # temp_file: callable(name: str, content: str) -> Path
+    test_py = temp_file("test.py", "print('hello')")
+    assert test_py.exists()
 ```
 
 ---

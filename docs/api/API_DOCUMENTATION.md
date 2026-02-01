@@ -17,6 +17,7 @@ This documentation presents all the components available in the **EzCompiler** l
       - [File Generation](#file-generation)
       - [Compilation](#compilation)
       - [Distribution](#distribution)
+      - [Build Pipeline](#build-pipeline)
     - [CompilerConfig](#compilerconfig)
       - [Required Fields](#required-fields)
       - [Optional Fields](#optional-fields)
@@ -27,18 +28,21 @@ This documentation presents all the components available in the **EzCompiler** l
     - [BaseCompiler](#basecompiler)
     - [CxFreezeCompiler](#cxfreezecompiler)
     - [PyInstallerCompiler](#pyinstallercompiler)
-    - [VersionGenerator](#versiongenerator)
-    - [SetupGenerator](#setupgenerator)
-    - [TemplateManager](#templatemanager)
-    - [TemplateProcessor](#templateprocessor)
+    - [NuitkaCompiler](#nuitkacompiler)
+    - [TemplateLoader](#templateloader)
+    - [TemplateService](#templateservice)
     - [BaseUploader](#baseuploader)
     - [DiskUploader](#diskuploader)
     - [ServerUploader](#serveruploader)
     - [UploaderFactory](#uploaderfactory)
     - [Utility Classes](#utility-classes)
+      - [FileUtils](#fileutils)
+      - [ValidationUtils](#validationutils)
+      - [ZipUtils](#ziputils)
     - [Exceptions](#exceptions)
   - [🧪 Usage Examples](#-usage-examples)
-    - [Basic Usage](#basic-usage)
+    - [Basic Usage with run\_pipeline()](#basic-usage-with-run_pipeline)
+    - [Basic Usage with Individual Steps](#basic-usage-with-individual-steps)
     - [Configuration from Files](#configuration-from-files)
     - [Advanced Compilation](#advanced-compilation)
     - [Distribution and Upload](#distribution-and-upload)
@@ -47,7 +51,7 @@ This documentation presents all the components available in the **EzCompiler** l
   - [🎯 Best Practices](#-best-practices)
     - [Type Safety](#type-safety)
     - [Configuration](#configuration)
-    - [Compilation](#compilation-1)
+    - [Compilation (Best Practices)](#compilation-best-practices)
     - [Error Handling](#error-handling)
     - [Testing](#testing)
     - [Performance](#performance)
@@ -61,7 +65,7 @@ This documentation presents all the components available in the **EzCompiler** l
 
 ### Class EzCompiler
 
-**File:** `ezcompiler/ezcompiler.py`
+**File:** `ezcompiler/interfaces/python_api.py`
 
 The main entry point of the library. Provides a facade for orchestrating the entire compilation and distribution process.
 
@@ -92,9 +96,9 @@ config: Config = ezcompiler.config  # Type: CompilerConfig
 **Behavior:**
 
 - Creates an internal `Ezpl` instance for logging and printing
-- Initializes `VersionGenerator` and `SetupGenerator` instances
+- Initializes `TemplateService`, `CompilerService`, and `UploaderService` instances
 - Initializes compiler state to `None` (created on demand)
-- Configures internal state (`_compiler_choice`, `_zip_needed`)
+- Configures internal state and compilation result tracking
 
 #### Getters
 
@@ -160,18 +164,20 @@ ezcompiler.generate_setup_file("setup.py")
 **Parameters:**
 
 - `console`: Whether to show console window (True for console apps, False for GUI)
-- `compiler`: Compiler to use ("PyInstaller", "Cx_Freeze", or None for interactive/auto)
+- `compiler`: Compiler to use ("PyInstaller", "Cx_Freeze", "Nuitka", or None for interactive/auto)
 
 **Compiler Selection:**
 
 - If `compiler` is specified, uses that compiler directly
-- If `None`, checks for command-line arguments (`-cxf` or `-pyi`)
+- If `None`, checks for command-line arguments (`-cxf`, `-pyi`, or `-nui`)
 - If no arguments, prompts interactively via `InquirerPy`
 
 **ZIP Requirement:**
 
-- `Cx_Freeze`: `_zip_needed = True` (directory-based output)
-- `PyInstaller` (onefile): `_zip_needed = False` (single file output)
+- `Cx_Freeze`: `zip_needed = True` (directory-based output)
+- `PyInstaller` (onefile): `zip_needed = False` (single file output)
+- `Nuitka` (standalone): `zip_needed = True` (directory-based output)
+- `Nuitka` (onefile): `zip_needed = False` (single file output)
 
 **Example:**
 
@@ -204,11 +210,65 @@ ezcompiler.upload_to_repo(
 )
 ```
 
+#### Build Pipeline
+
+- `run_pipeline(
+    console: bool = True,
+    compiler: str | None = None,
+    skip_zip: bool = False,
+    skip_upload: bool = False,
+    upload_structure: Literal["server", "disk"] | None = None,
+    upload_destination: str | None = None,
+    upload_config: dict[str, Any] | None = None,
+) -> None`: Run the full build pipeline with DLP visual progress tracking
+
+**Parameters:**
+
+- `console`: Whether to show console window (default: True)
+- `compiler`: Compiler to use or None for auto-selection ("Cx_Freeze", "PyInstaller", "Nuitka")
+- `skip_zip`: Skip ZIP archive creation (default: False)
+- `skip_upload`: Skip upload step (default: False)
+- `upload_structure`: Upload type ("server" or "disk")
+- `upload_destination`: Upload destination path or URL
+- `upload_config`: Additional uploader configuration options
+
+**Behavior:**
+
+Executes version generation, compilation, optional ZIP creation, and optional upload in sequence with a DynamicLayeredProgress (DLP) display from ezpl. Each stage is visualized with spinners and progress bars.
+
+**Example:**
+
+```python
+ezcompiler = EzCompiler()
+ezcompiler.init_project(
+    version="1.0.0",
+    project_name="MyApp",
+    main_file="main.py",
+    include_files={"files": [], "folders": []},
+    output_folder="dist",
+)
+
+# Run full pipeline with DLP progress display
+ezcompiler.run_pipeline(
+    console=True,
+    compiler="Nuitka",
+    upload_structure="disk",
+    upload_destination="./releases",
+)
+
+# Or skip optional steps
+ezcompiler.run_pipeline(
+    console=False,
+    skip_zip=True,
+    skip_upload=True,
+)
+```
+
 ---
 
 ### CompilerConfig
 
-**File:** `ezcompiler/core/compiler_config.py`
+**File:** `ezcompiler/shared/compiler_config.py`
 
 Dataclass for managing all project compilation configuration.
 
@@ -247,7 +307,7 @@ config = CompilerConfig(
 - `includes: list[str]`: Modules to include explicitly
 - `excludes: list[str]`: Modules to exclude
 - `console: bool = True`: Show console window
-- `compiler: str = "auto"`: Compiler choice ("auto", "PyInstaller", "Cx_Freeze")
+- `compiler: str = "auto"`: Compiler choice ("auto", "PyInstaller", "Cx_Freeze", "Nuitka")
 - `optimize: bool = True`: Enable optimization
 - `strip: bool = False`: Strip symbols
 - `debug: bool = False`: Debug mode
@@ -301,7 +361,7 @@ print(config.version_tuple)  # (1, 0, 0)
 
 ### BaseCompiler
 
-**File:** `ezcompiler/compilers/base_compiler.py`
+**File:** `ezcompiler/protocols/base_compiler.py`
 
 Abstract base class for all compiler implementations.
 
@@ -319,6 +379,10 @@ Abstract base class for all compiler implementations.
 
 - `zip_needed -> bool`: Whether ZIP archive is needed
 
+**Static methods:**
+
+- `extract_error_summary(output: str) -> str`: Extract a human-readable error summary from compiler subprocess output
+
 **Helper methods:**
 
 - `_validate_config() -> None`: Validate configuration before compilation
@@ -330,7 +394,7 @@ Abstract base class for all compiler implementations.
 
 ### CxFreezeCompiler
 
-**File:** `ezcompiler/compilers/cx_freeze_compiler.py`
+**File:** `ezcompiler/protocols/cx_freeze_compiler.py`
 
 Cx_Freeze compiler implementation. Creates directory-based executables.
 
@@ -343,7 +407,7 @@ Cx_Freeze compiler implementation. Creates directory-based executables.
 **Example:**
 
 ```python
-from ezcompiler.compilers import CxFreezeCompiler
+from ezcompiler.protocols import CxFreezeCompiler
 from ezcompiler import CompilerConfig
 
 config = CompilerConfig(...)
@@ -355,20 +419,21 @@ compiler.compile()
 
 ### PyInstallerCompiler
 
-**File:** `ezcompiler/compilers/pyinstaller_compiler.py`
+**File:** `ezcompiler/protocols/pyinstaller_compiler.py`
 
 PyInstaller compiler implementation. Creates single-file executables.
 
 **Characteristics:**
 
-- `_zip_needed = False` (creates single file in onefile mode)
-- Simpler distribution (single executable)
-- Smaller file size for simple applications
+- `zip_needed = False` (creates single file in onefile mode)
+- `zip_needed = True` (creates directory in onedir mode)
+- Simpler distribution (single executable in onefile)
+- Output folder flattening: nested subfolder contents are moved to output_folder
 
 **Example:**
 
 ```python
-from ezcompiler.compilers import PyInstallerCompiler
+from ezcompiler.protocols import PyInstallerCompiler
 from ezcompiler import CompilerConfig
 
 config = CompilerConfig(...)
@@ -378,129 +443,66 @@ compiler.compile()
 
 ---
 
-### VersionGenerator
+### NuitkaCompiler
 
-**File:** `ezcompiler/generators/version_generator.py`
+**File:** `ezcompiler/protocols/nuitka_compiler.py`
 
-Generator for Windows version information files.
+Nuitka compiler implementation. Creates standalone executables or single-file executables.
 
-**Main methods:**
+**Characteristics:**
 
-- `generate(config: dict[str, Any], output_path: Path | None = None) -> str`: Generate version file content
-- `generate_to_file(config: dict[str, Any], output_path: Path) -> None`: Generate and write version file
-
-**Template Variables:**
-
-- `#VERSION#`: Full version string (e.g., "1.0.0")
-- `#VERSION_TUPLE#`: Version as tuple (e.g., "(1, 0, 0, 0)")
-- `#COMPANY_NAME#`: Company name
-- `#PROJECT_NAME#`: Project name
-- `#PROJECT_DESCRIPTION#`: Project description
-- `#FILE_VERSION#`: File version string
+- `zip_needed = True` (standalone mode, directory output)
+- `zip_needed = False` (onefile mode, single executable)
+- Best optimization: compiles Python to C then to native code
+- Requires MSVC backend on Python 3.13+ (MinGW64 not compatible)
+- Output folder flattening: nested `.dist` folder contents are moved to output_folder
 
 **Example:**
 
 ```python
-from ezcompiler.generators import VersionGenerator
+from ezcompiler.protocols import NuitkaCompiler
+from ezcompiler import CompilerConfig
 
-generator = VersionGenerator()
-content = generator.generate({
-    "version": "1.0.0",
-    "project_name": "MyProject",
-    "company_name": "MyCompany",
-    "project_description": "My awesome project",
-})
+config = CompilerConfig(...)
+compiler = NuitkaCompiler(config)
+compiler.compile()
 ```
 
 ---
 
-### SetupGenerator
+### TemplateLoader
 
-**File:** `ezcompiler/generators/setup_generator.py`
+**File:** `ezcompiler/utils/template_loader.py`
 
-Generator for `setup.py` files.
-
-**Main methods:**
-
-- `generate_from_config(config: dict[str, Any], output_dir: Path | None = None) -> str`: Generate setup.py content
-- `generate_to_file(config: dict[str, Any], output_path: Path) -> None`: Generate and write setup.py file
-
-**Template Variables:**
-
-- `#PROJECT_NAME#`: Project name
-- `#VERSION#`: Version string
-- `#AUTHOR#`: Author name
-- `#COMPANY_NAME#`: Company name
-- `#PROJECT_DESCRIPTION#`: Project description
-- `#MAIN_FILE#`: Main file path
-- `#ICON#`: Icon file path
-- `#INCLUDE_FILES#`: Files to include (formatted list)
-- `#PACKAGES#`: Packages to include
-- `#INCLUDES#`: Modules to include
-- `#EXCLUDES#`: Modules to exclude
-
-**Example:**
-
-```python
-from ezcompiler.generators import SetupGenerator
-
-generator = SetupGenerator()
-content = generator.generate_from_config({
-    "version": "1.0.0",
-    "project_name": "MyProject",
-    "main_file": "main.py",
-    "packages": ["requests", "pandas"],
-})
-```
-
----
-
-### TemplateManager
-
-**File:** `ezcompiler/templates/template_manager.py`
-
-Manager for loading and processing EzCompiler templates.
+Loader for accessing EzCompiler template files from the assets directory.
 
 **Main methods:**
 
 - `load_template(template_name: str) -> str`: Load a template file by name
 - `get_template_path(template_name: str) -> Path`: Get the full path to a template
 - `list_templates() -> list[str]`: List all available templates
-- `process_template(template_name: str, variables: dict[str, str]) -> str`: Load and process a template
 
 **Available Templates:**
 
-- `config.yaml`: YAML configuration template
-- `config.json`: JSON configuration template
-- `setup.py`: Setup file template
-- `version_info.txt`: Version information template
-
-**Example:**
-
-```python
-from ezcompiler.templates import TemplateManager
-
-manager = TemplateManager()
-templates = manager.list_templates()
-content = manager.process_template("config.yaml", {
-    "PROJECT_NAME": "MyProject",
-    "VERSION": "1.0.0",
-})
-```
+- `config/config.yaml.template`: YAML configuration template
+- `config/config.json.template`: JSON configuration template
+- `setup/setup.py.template`: Setup file template
+- `version/version_info.txt.template`: Version information template
 
 ---
 
-### TemplateProcessor
+### TemplateService
 
-**File:** `ezcompiler/templates/template_utils.py`
+**File:** `ezcompiler/services/template_service.py`
 
-Utility for processing templates with variable substitution.
+Service for processing templates with variable substitution and generating project files.
 
 **Main methods:**
 
-- `substitute(template: str, variables: dict[str, str]) -> str`: Substitute variables in template
-- `generate_mockup(template_type: str) -> str`: Generate template with example values
-- `validate_template(template: str, required_vars: list[str]) -> bool`: Validate template has all required variables
+- `generate_version_file(config_dict: dict[str, Any], output_path: Path) -> None`: Generate version info file
+- `generate_setup_file(config_dict: dict[str, Any], output_path: Path) -> None`: Generate setup.py file
+- `generate_config_file(config_dict: dict[str, Any], output_path: Path, format: str = "yaml") -> None`: Generate config file
+- `process_template(template_name: str, variables: dict[str, str]) -> str`: Process a template with variable substitution
 
 **Variable Format:**
 
@@ -509,21 +511,20 @@ Variables use the format `#VARIABLE_NAME#` for substitution.
 **Example:**
 
 ```python
-from ezcompiler.templates import TemplateProcessor
+from ezcompiler.services import TemplateService
 
-processor = TemplateProcessor()
-result = processor.substitute(
-    "Project: #PROJECT_NAME# v#VERSION#",
-    {"PROJECT_NAME": "MyProject", "VERSION": "1.0.0"}
+service = TemplateService()
+service.generate_version_file(
+    config_dict={"version": "1.0.0", "project_name": "MyApp", ...},
+    output_path=Path("version_info.txt"),
 )
-# Result: "Project: MyProject v1.0.0"
 ```
 
 ---
 
 ### BaseUploader
 
-**File:** `ezcompiler/uploaders/base.py`
+**File:** `ezcompiler/protocols/base_uploader.py`
 
 Abstract base class for all uploader implementations.
 
@@ -548,7 +549,7 @@ Abstract base class for all uploader implementations.
 
 ### DiskUploader
 
-**File:** `ezcompiler/uploaders/disk.py`
+**File:** `ezcompiler/protocols/disk_uploader.py`
 
 Uploader implementation for local disk operations.
 
@@ -576,7 +577,7 @@ success = uploader.upload()
 
 ### ServerUploader
 
-**File:** `ezcompiler/uploaders/server.py`
+**File:** `ezcompiler/protocols/server_uploader.py`
 
 Uploader implementation for HTTP/HTTPS uploads.
 
@@ -605,7 +606,7 @@ success = uploader.upload()
 
 ### UploaderFactory
 
-**File:** `ezcompiler/uploaders/factory.py`
+**File:** `ezcompiler/services/uploader_service.py`
 
 Factory for creating uploader instances.
 
@@ -681,7 +682,7 @@ Static methods for ZIP archive operations.
 
 ### Exceptions
 
-**File:** `ezcompiler/core/exceptions.py`
+**File:** `ezcompiler/shared/exceptions/`
 
 Custom exception classes for better error handling.
 
@@ -701,7 +702,7 @@ Custom exception classes for better error handling.
 **Example:**
 
 ```python
-from ezcompiler.core.exceptions import ConfigurationError, CompilationError
+from ezcompiler.shared.exceptions import ConfigurationError, CompilationError
 
 try:
     ezcompiler.compile_project()
@@ -715,10 +716,9 @@ except CompilationError as e:
 
 ## 🧪 Usage Examples
 
-### Basic Usage
+### Basic Usage with run_pipeline()
 
 ```python
-from pathlib import Path
 from ezcompiler import EzCompiler
 
 # Create compiler instance
@@ -733,6 +733,28 @@ ezcompiler.init_project(
     output_folder="dist",
     company_name="MyCompany",
     project_description="My awesome project",
+)
+
+# Run full pipeline with DLP progress display
+ezcompiler.run_pipeline(
+    console=True,
+    upload_structure="disk",
+    upload_destination="./releases",
+)
+```
+
+### Basic Usage with Individual Steps
+
+```python
+from ezcompiler import EzCompiler
+
+ezcompiler = EzCompiler()
+ezcompiler.init_project(
+    version="1.0.0",
+    project_name="MyProject",
+    main_file="main.py",
+    include_files={"files": ["config.yaml"], "folders": ["assets"]},
+    output_folder="dist",
 )
 
 # Generate supporting files
@@ -800,6 +822,9 @@ ezcompiler.init_project(
 
 # Compile with specific compiler
 ezcompiler.compile_project(console=False, compiler="Cx_Freeze")
+
+# Or use run_pipeline() for DLP progress display
+# ezcompiler.run_pipeline(console=False, compiler="Nuitka")
 ```
 
 ### Distribution and Upload
@@ -870,8 +895,8 @@ result = processor.substitute(
 ```python
 from ezcompiler import EzCompiler, CompilerConfig
 from ezcompiler import Config, Compiler  # Type aliases
-from ezcompiler.compilers import BaseCompiler, CxFreezeCompiler, PyInstallerCompiler
-from ezcompiler.uploaders import BaseUploader, DiskUploader, ServerUploader
+from ezcompiler.protocols import BaseCompiler, CxFreezeCompiler, PyInstallerCompiler, NuitkaCompiler
+from ezcompiler.protocols import BaseUploader, DiskUploader, ServerUploader
 
 # Type hints enable full IDE autocompletion
 ezcompiler = EzCompiler()
@@ -908,12 +933,13 @@ uploader.upload()  # Autocompletion works!
 2. **Configuration file** (YAML/JSON)
 3. **Default values** - Lowest priority
 
-### Compilation
+### Compilation (Best Practices)
 
 - **Choose the right compiler**:
+  - `Cx_Freeze`: For directory-based output, complex dependencies
   - `PyInstaller`: For single-file distribution, simpler deployment
-  - `Cx_Freeze`: For better performance, complex dependencies
-- **Test both compilers**: Different compilers may handle dependencies differently
+  - `Nuitka`: For best performance, compiles to native C code
+- **Test multiple compilers**: Different compilers may handle dependencies differently
 - **Use console=False for GUI apps**: Hides the console window
 
 ### Error Handling
@@ -952,7 +978,9 @@ except TemplateError as e:
 
 - **Use optimization**: Enable `optimize=True` for smaller executables
 - **Exclude unnecessary packages**: Use `excludes` to remove unused modules
-- **Consider Cx_Freeze for large apps**: Better performance for complex applications
+- **Consider Nuitka for best performance**: Compiles to native C code for optimal speed
+- **Consider Cx_Freeze for large apps**: Better handling of complex dependencies
+- **Use `run_pipeline()`**: Provides DLP progress display for better user experience
 
 ---
 

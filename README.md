@@ -2,13 +2,14 @@
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg?style=for-the-badge&logo=python)](https://www.python.org/)
 [![Platform](https://img.shields.io/badge/Platform-Windows-lightgray.svg?style=for-the-badge&logo=windows)](https://pypi.org/project/ezcompiler/)
-[![Version](https://img.shields.io/badge/Version-2.0.0-orange.svg?style=for-the-badge)](https://github.com/neuraaak/ezcompiler)
+[![Version](https://img.shields.io/badge/Version-2.1.0-orange.svg?style=for-the-badge)](https://github.com/neuraaak/ezcompiler)
 [![PyPI](https://img.shields.io/badge/PyPI-ezcompiler-green.svg?style=for-the-badge&logo=pypi)](https://pypi.org/project/ezcompiler/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 [![Status](https://img.shields.io/badge/Status-Production%20Ready-success.svg?style=for-the-badge)](https://github.com/neuraaak/ezcompiler)
-[![Tests](https://img.shields.io/badge/Tests-150%2B%20passing-success.svg?style=for-the-badge)](https://github.com/neuraaak/ezcompiler)
+[![Tests](https://img.shields.io/badge/Tests-68%20passing-success.svg?style=for-the-badge)](https://github.com/neuraaak/ezcompiler)
+[![Coverage](https://img.shields.io/badge/Coverage-29%25-yellow.svg?style=for-the-badge)](https://github.com/neuraaak/ezcompiler)
 
-**EzCompiler** is a professional Python library for compiling projects into executable files with automatic version management, packaging, and distribution. It provides a unified interface for multiple compilers (Cx_Freeze, PyInstaller) with modular architecture and complete type hints.
+**EzCompiler** is a professional Python library for compiling projects into executable files with automatic version management, packaging, and distribution. It provides a unified interface for multiple compilers (Cx_Freeze, PyInstaller, Nuitka) with modular architecture and complete type hints.
 
 ## 📦 Installation
 
@@ -40,21 +41,17 @@ compiler.init_project(
     output_folder="dist",
 )
 
-# Generate supporting files
-compiler.generate_version_file()
-compiler.generate_setup_file("setup.py")
-
-# Compile project
-compiler.compile_project(compiler="PyInstaller")
-
-# Create distribution
-compiler.zip_compiled_project()
-compiler.upload_to_repo(structure="disk", repo_path="./releases")
+# Run the full build pipeline with DLP progress display
+compiler.run_pipeline(
+    console=True,
+    upload_structure="disk",
+    upload_destination="./releases",
+)
 ```
 
 ## 🎯 Key Features
 
-- **✅ Multi-Compiler Support**: CxFreezeCompiler and PyInstallerCompiler with unified interface
+- **✅ Multi-Compiler Support**: Cx_Freeze, PyInstaller, and Nuitka with unified interface
 - **✅ Automatic File Generation**: Version files, setup.py, and configuration from templates
 - **✅ Template System**: Flexible file generation based on customizable templates
 - **✅ Packaging**: Automatic ZIP archive creation for distribution
@@ -75,7 +72,7 @@ compiler.upload_to_repo(structure="disk", repo_path="./releases")
 
 ## 🧪 Testing
 
-Comprehensive test suite with 150+ test cases covering unit, integration, and robustness scenarios.
+Comprehensive test suite with 68 test cases covering unit, integration, and robustness scenarios (~29% coverage).
 
 ```bash
 # Install dev dependencies
@@ -119,9 +116,9 @@ mypy ezcompiler/
 - **`BaseCompiler`**: Abstract base class for compiler implementations
 - **`CxFreezeCompiler`**: Cx_Freeze compiler implementation
 - **`PyInstallerCompiler`**: PyInstaller compiler implementation
-- **`VersionGenerator`**: Windows version information file generator
-- **`SetupGenerator`**: Setup.py file generator
-- **`TemplateManager`**: Template system manager
+- **`NuitkaCompiler`**: Nuitka compiler implementation (standalone & onefile)
+- **`TemplateLoader`**: Template loading and resource access
+- **`TemplateService`**: Template processing and file generation
 - **`BaseUploader`**: Abstract base class for uploaders
 - **`DiskUploader`**: Local disk uploader
 - **`ServerUploader`**: HTTP/HTTPS uploader
@@ -130,13 +127,14 @@ mypy ezcompiler/
 
 | Package         | Version | Description                   |
 | --------------- | ------- | ----------------------------- |
-| **cx_Freeze**   | 7.1.0+  | Python to executable compiler |
-| **PyInstaller** | 6.10.0+ | Python to executable compiler |
+| **cx_Freeze**   | 7.0-9.0 | Python to executable compiler |
+| **PyInstaller** | 5.0+    | Python to executable compiler |
+| **Nuitka**      | 2.4+    | Python to executable compiler |
 | **InquirerPy**  | 0.3.4+  | Interactive CLI interface     |
 | **requests**    | 2.32.3+ | HTTP library for uploads      |
 | **PyYAML**      | 6.0+    | YAML file processing          |
 | **click**       | 8.0.0+  | CLI framework                 |
-| **ezpl**        | 1.4.0+  | Structured logging framework  |
+| **ezpl**        | latest  | Structured logging framework  |
 
 ## 🔧 Quick API Reference
 
@@ -155,20 +153,18 @@ compiler.init_project(
     output_folder="dist",
 )
 
-# Generate files
-compiler.generate_version_file()
-compiler.generate_setup_file("setup.py")
+# Run full pipeline with DLP progress (version, compile, zip, upload)
+compiler.run_pipeline(
+    console=True,
+    upload_structure="disk",
+    upload_destination="./releases",
+)
 
-# Compile
-compiler.compile_project(compiler="PyInstaller")
-
-# Distribute
-compiler.zip_compiled_project()
-compiler.upload_to_repo(structure="disk", repo_path="./releases")
-
-# Access components
-logger = compiler.logger
-printer = compiler.printer
+# Or call individual steps manually:
+# compiler.generate_version_file()
+# compiler.compile_project(compiler="Nuitka")
+# compiler.zip_compiled_project()
+# compiler.upload_to_repo(structure="disk", repo_path="./releases")
 ```
 
 ## 🛡️ Robustness
@@ -229,9 +225,11 @@ excludes:
   - "debugpy"
   - "test"
 
-compiler: "PyInstaller"
-console: true
-zip_needed: true
+compilation:
+  compiler: "auto"  # "auto", "Cx_Freeze", "PyInstaller", or "Nuitka"
+  console: true
+  zip_needed: true
+  repo_needed: false
 ```
 
 See **[Configuration Guide](docs/cli/CONFIG_GUIDE.md)** for detailed configuration options.
@@ -240,15 +238,17 @@ See **[Configuration Guide](docs/cli/CONFIG_GUIDE.md)** for detailed configurati
 
 ```txt
 ezcompiler/
-├── core/                 # Configuration and exceptions
-├── compilers/           # Compiler implementations
-├── generators/          # File generators
-├── templates/           # Template system
-├── uploaders/           # Distribution uploaders
-├── utils/              # Utility functions
-├── cli.py              # Command-line interface
-├── ezcompiler.py       # Main facade class
-└── helper.py           # Helper functions
+├── interfaces/          # CLI and Python API (entry points)
+├── services/            # Business logic orchestration
+├── protocols/           # Compiler and uploader implementations
+│   ├── cx_freeze_compiler.py
+│   ├── pyinstaller_compiler.py
+│   ├── nuitka_compiler.py
+│   ├── disk_uploader.py
+│   └── server_uploader.py
+├── shared/              # Configuration and exceptions
+├── utils/               # Utility functions
+└── assets/templates/    # Template files (config, setup, version)
 ```
 
 ## 🚀 Use Cases

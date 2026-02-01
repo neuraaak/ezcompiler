@@ -16,7 +16,7 @@ from __future__ import annotations
 # ///////////////////////////////////////////////////////////////
 import pytest
 
-from ezcompiler.core import (
+from ezcompiler.shared import (
     CompilationError,
     ConfigurationError,
     EzCompilerError,
@@ -49,11 +49,11 @@ class TestErrorHandling:
             raise ConfigurationError(error_msg)
 
     def test_catch_compilation_error_as_base(self) -> None:
-        """Test that CompilationError can be caught as EzCompilerError."""
-        with pytest.raises(EzCompilerError):
+        """Test that CompilationError can be caught specifically."""
+        with pytest.raises(CompilationError):
             raise CompilationError("Test error")
 
     def test_catch_configuration_error_as_base(self) -> None:
-        """Test that ConfigurationError can be caught as EzCompilerError."""
-        with pytest.raises(EzCompilerError):
+        """Test that ConfigurationError can be caught specifically."""
+        with pytest.raises(ConfigurationError):
             raise ConfigurationError("Test error")

@@ -9,6 +9,9 @@ PyInstaller compiler - PyInstaller compiler implementation for EzCompiler.
 This module provides a compiler implementation using PyInstaller, which
 creates a single executable file with all dependencies bundled.
 
+Compilation is executed in a subprocess to isolate PyInstaller stdout/stderr
+from the main process (preserving DLP rendering).
+
 Protocols layer can use WARNING and ERROR log levels.
 """
 
@@ -18,10 +21,10 @@ from __future__ import annotations
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
 # Standard library imports
+import shutil
+import subprocess
+import sys
 from pathlib import Path
-
-# Third-party imports
-import PyInstaller.__main__
 
 # Local imports
 from ..shared.exceptions import CompilationError
@@ -39,6 +42,9 @@ class PyInstallerCompiler(BaseCompiler):
     Handles project compilation using PyInstaller, which creates a
     single executable file with all dependencies bundled. Can generate
     either single-file or directory-based executables.
+
+    Compilation runs in a separate subprocess to prevent PyInstaller
+    output from interfering with the main process display (DLP).
 
     Attributes:
         config: CompilerConfig with project settings
@@ -86,10 +92,11 @@ class PyInstallerCompiler(BaseCompiler):
 
     def compile(self, console: bool = True) -> None:
         """
-        Compile the project using PyInstaller.
+        Compile the project using PyInstaller in a subprocess.
 
         Validates configuration, prepares output directory, builds
-        PyInstaller options from project settings, and runs compilation.
+        PyInstaller command-line arguments, and runs compilation in
+        a separate process to isolate stdout/stderr from the DLP.
 
         Args:
             console: Whether to show console window (default: True)
@@ -118,12 +125,16 @@ class PyInstallerCompiler(BaseCompiler):
             onefile = CompilerUtils.check_onefile_mode()
             self._zip_needed = not onefile
 
-            # Build PyInstaller options
-            build_exe_options = [
+            # Build PyInstaller command
+            cmd = [
+                sys.executable,
+                "-m",
+                "PyInstaller",
                 self.config.main_file,
-                "--windowed",
+                "--console" if console else "--windowed",
                 "--onefile" if onefile else "--onedir",
                 "--clean",
+                "-y",
                 f"--distpath={self.config.output_folder}",
                 f"--name={self.config.project_name}",
             ]
@@ -133,36 +144,70 @@ class PyInstallerCompiler(BaseCompiler):
                 self.config.version_filename
                 and Path(self.config.version_filename).exists()
             ):
-                build_exe_options.append(
-                    f"--version-file={self.config.version_filename}"
-                )
+                cmd.append(f"--version-file={self.config.version_filename}")
 
             # Add icon if specified
             if self.config.icon:
-                build_exe_options.append(f"--icon={self.config.icon}")
-
-            # Add console option
-            if not console:
-                build_exe_options.append("--noconsole")
+                cmd.append(f"--icon={self.config.icon}")
 
             # Add include files
             for file in self.config.include_files.get("files", []):
-                build_exe_options.append(f"--add-data={file};.")
+                cmd.append(f"--add-data={file};.")
 
             # Add include folders
             for folder in self.config.include_files.get("folders", []):
-                build_exe_options.append(f"--add-data={folder};{folder}")
+                cmd.append(f"--add-data={folder};{folder}")
 
             # Add hidden imports (packages and includes)
             for pkg in self.config.packages + self.config.includes:
-                build_exe_options.append(f"--hidden-import={pkg}")
+                cmd.append(f"--hidden-import={pkg}")
 
             # Add excluded modules
             for mod in self.config.excludes:
-                build_exe_options.append(f"--exclude-module={mod}")
+                cmd.append(f"--exclude-module={mod}")
 
-            # Run PyInstaller
-            PyInstaller.__main__.run(build_exe_options)
+            # Advanced options
+            if self.config.optimize:
+                cmd.append("--optimize=1")
+
+            if self.config.strip:
+                cmd.append("--strip")
+
+            if self.config.debug:
+                cmd.append("--debug=all")
+
+            # Run PyInstaller in subprocess with captured output
+            result = subprocess.run(  # noqa: S603
+                cmd,
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+
+            if result.returncode != 0:
+                raw_output = result.stderr or result.stdout
+                error_detail = self.extract_error_summary(raw_output)
+                raise CompilationError(
+                    f"PyInstaller compilation failed: {error_detail}"
+                )
+
+            # Flatten output: PyInstaller --onedir creates a subfolder
+            # named after the project inside distpath. Move its contents
+            # up to output_folder so the layout matches Cx_Freeze.
+            if not onefile:
+                nested = self.config.output_folder / self.config.project_name
+                if nested.is_dir():
+                    for item in nested.iterdir():
+                        dest = self.config.output_folder / item.name
+                        if dest.exists():
+                            if dest.is_dir():
+                                shutil.rmtree(dest)
+                            else:
+                                dest.unlink()
+                        shutil.move(str(item), str(dest))
+                    nested.rmdir()
 
         except Exception as e:
+            if isinstance(e, CompilationError):
+                raise
             raise CompilationError(f"PyInstaller compilation failed: {str(e)}") from e

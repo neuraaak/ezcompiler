@@ -11,7 +11,8 @@ This documentation presents comprehensive usage examples for the **EzCompiler** 
   - [Table of Contents](#table-of-contents)
   - [🚀 Quick Start](#-quick-start)
     - [Installation](#installation)
-    - [First Compilation](#first-compilation)
+    - [First Compilation with run\_pipeline()](#first-compilation-with-run_pipeline)
+    - [First Compilation (Individual Steps)](#first-compilation-individual-steps)
   - [📦 Basic Examples](#-basic-examples)
     - [Simple Console Application](#simple-console-application)
     - [GUI Application](#gui-application)
@@ -20,7 +21,8 @@ This documentation presents comprehensive usage examples for the **EzCompiler** 
     - [Multi-Package Application](#multi-package-application)
     - [Custom Compiler Selection](#custom-compiler-selection)
     - [Configuration from Files](#configuration-from-files)
-    - [Programmatic Configuration](#programmatic-configuration)
+    - [Programmatic Configuration with run\_pipeline()](#programmatic-configuration-with-run_pipeline)
+    - [Programmatic Configuration with Nuitka](#programmatic-configuration-with-nuitka)
   - [📤 Distribution Examples](#-distribution-examples)
     - [Local Disk Distribution](#local-disk-distribution)
     - [Server Upload](#server-upload)
@@ -45,6 +47,7 @@ This documentation presents comprehensive usage examples for the **EzCompiler** 
     - [Error Handling](#error-handling)
     - [Logging Integration](#logging-integration)
     - [Configuration Management](#configuration-management)
+  - [Additional Resources](#additional-resources)
 
 ---
 
@@ -63,7 +66,7 @@ pip install ezcompiler[dev]
 ezcompiler --version
 ```
 
-### First Compilation
+### First Compilation with run_pipeline()
 
 ```python
 from ezcompiler import EzCompiler
@@ -80,7 +83,25 @@ ezcompiler.init_project(
     output_folder="dist",
 )
 
-# Compile the project
+# Compile the project using run_pipeline() with DLP progress display
+ezcompiler.run_pipeline(compiler="PyInstaller")
+```
+
+### First Compilation (Individual Steps)
+
+```python
+from ezcompiler import EzCompiler
+
+ezcompiler = EzCompiler()
+ezcompiler.init_project(
+    version="1.0.0",
+    project_name="HelloWorld",
+    main_file="hello.py",
+    include_files={"files": [], "folders": []},
+    output_folder="dist",
+)
+
+# Compile the project (individual method call)
 ezcompiler.compile_project(compiler="PyInstaller")
 ```
 
@@ -112,7 +133,7 @@ from ezcompiler import EzCompiler
 def build():
     """Build the Hello World application."""
     ezcompiler = EzCompiler()
-    
+
     ezcompiler.init_project(
         version="1.0.0",
         project_name="HelloWorld",
@@ -122,14 +143,9 @@ def build():
         company_name="My Company",
         project_description="A simple Hello World application",
     )
-    
-    # Generate supporting files
-    ezcompiler.generate_version_file()
-    
-    # Compile with PyInstaller (single file)
-    ezcompiler.compile_project(console=True, compiler="PyInstaller")
-    
-    print("Build completed successfully!")
+
+    # Run pipeline with DLP progress display
+    ezcompiler.run_pipeline(console=True, compiler="PyInstaller")
 
 if __name__ == "__main__":
     build()
@@ -173,7 +189,7 @@ from ezcompiler import EzCompiler
 def build():
     """Build the GUI application."""
     ezcompiler = EzCompiler()
-    
+
     ezcompiler.init_project(
         version="1.0.0",
         project_name="MyGUIApp",
@@ -184,11 +200,9 @@ def build():
         project_description="A GUI application",
         icon="resources/app.ico",  # Optional icon
     )
-    
-    ezcompiler.generate_version_file()
-    
-    # Compile without console window
-    ezcompiler.compile_project(console=False, compiler="PyInstaller")
+
+    # Run pipeline with DLP progress display
+    ezcompiler.run_pipeline(console=False, compiler="PyInstaller")
 
 if __name__ == "__main__":
     build()
@@ -237,7 +251,7 @@ from ezcompiler import EzCompiler
 def build():
     """Build application with data files."""
     ezcompiler = EzCompiler()
-    
+
     ezcompiler.init_project(
         version="1.0.0",
         project_name="DataApp",
@@ -249,12 +263,9 @@ def build():
         output_folder="dist",
         packages=["PyYAML"],
     )
-    
-    ezcompiler.generate_version_file()
-    ezcompiler.compile_project(compiler="Cx_Freeze")
-    
-    # Create ZIP for distribution
-    ezcompiler.zip_compiled_project()
+
+    # Run pipeline with DLP progress display (includes ZIP)
+    ezcompiler.run_pipeline(compiler="Cx_Freeze")
 
 if __name__ == "__main__":
     build()
@@ -341,10 +352,8 @@ def build_data_science_app():
         console=False,
     )
     
-    ezcompiler.generate_version_file()
-    ezcompiler.generate_setup_file("setup.py")
-    ezcompiler.compile_project(compiler="Cx_Freeze")
-    ezcompiler.zip_compiled_project()
+    # Run pipeline with DLP progress display
+    ezcompiler.run_pipeline(compiler="Cx_Freeze")
 
 if __name__ == "__main__":
     build_data_science_app()
@@ -359,7 +368,7 @@ import sys
 def build_with_compiler_choice():
     """Build with compiler selection based on requirements."""
     ezcompiler = EzCompiler()
-    
+
     ezcompiler.init_project(
         version="1.0.0",
         project_name="FlexibleApp",
@@ -367,7 +376,7 @@ def build_with_compiler_choice():
         include_files={"files": [], "folders": []},
         output_folder="dist",
     )
-    
+
     # Choose compiler based on command line argument
     if "-pyi" in sys.argv or "--pyinstaller" in sys.argv:
         compiler = "PyInstaller"
@@ -375,12 +384,16 @@ def build_with_compiler_choice():
     elif "-cxf" in sys.argv or "--cxfreeze" in sys.argv:
         compiler = "Cx_Freeze"
         print("Using Cx_Freeze (directory)")
+    elif "-nui" in sys.argv or "--nuitka" in sys.argv:
+        compiler = "Nuitka"
+        print("Using Nuitka (best performance)")
     else:
         # Interactive selection
         compiler = None
         print("No compiler specified, will prompt for selection")
-    
-    ezcompiler.compile_project(compiler=compiler)
+
+    # Use run_pipeline() for DLP progress display
+    ezcompiler.run_pipeline(compiler=compiler)
 
 if __name__ == "__main__":
     build_with_compiler_choice()
@@ -431,15 +444,15 @@ if __name__ == "__main__":
     build_from_yaml()
 ```
 
-### Programmatic Configuration
+### Programmatic Configuration with run_pipeline()
 
 ```python
 from ezcompiler import EzCompiler, CompilerConfig
 from pathlib import Path
 
 def build_programmatic():
-    """Build with programmatic configuration."""
-    
+    """Build with programmatic configuration using run_pipeline()."""
+
     # Create configuration object directly
     config = CompilerConfig(
         version="1.5.0",
@@ -449,44 +462,89 @@ def build_programmatic():
         project_description="Built with programmatic configuration",
         company_name="TechCorp",
         author="Development Team",
-        
+
         include_files={
             "files": ["config.yaml", "README.md"],
             "folders": ["resources", "locales"],
         },
-        
+
         packages=["requests", "click", "rich"],
         excludes=["debugpy", "test", "pytest"],
-        
+
         console=True,
         compiler="PyInstaller",
         optimize=True,
-        
+
         zip_needed=True,
         repo_needed=True,
         upload_structure="disk",
         repo_path="./releases",
     )
-    
+
     # Validate configuration
     config.validate()
-    
+
     # Create compiler with config
     ezcompiler = EzCompiler()
     ezcompiler._config = config
-    
-    # Full build pipeline
-    ezcompiler.generate_version_file()
-    ezcompiler.generate_setup_file("setup.py")
-    ezcompiler.compile_project()
-    ezcompiler.zip_compiled_project()
-    ezcompiler.upload_to_repo(
-        structure=config.upload_structure,
-        repo_path=config.repo_path,
+
+    # Run full pipeline with DLP progress display
+    ezcompiler.run_pipeline(
+        upload_structure=config.upload_structure,
+        upload_destination=config.repo_path,
     )
 
 if __name__ == "__main__":
     build_programmatic()
+```
+
+### Programmatic Configuration with Nuitka
+
+```python
+from ezcompiler import EzCompiler, CompilerConfig
+
+def build_with_nuitka():
+    """Build with Nuitka for optimal performance."""
+
+    config = CompilerConfig(
+        version="2.0.0",
+        project_name="HighPerformanceApp",
+        main_file="src/main.py",
+        output_folder="dist/nuitka",
+        project_description="High-performance Nuitka-compiled application",
+        company_name="TechCorp",
+        author="Performance Team",
+
+        include_files={
+            "files": ["config.yaml", "README.md", "LICENSE"],
+            "folders": ["assets", "data"],
+        },
+
+        packages=["numpy", "pandas", "requests"],
+        excludes=["debugpy", "test", "pytest", "mypy", "black"],
+
+        console=True,
+        compiler="Nuitka",  # Use Nuitka for best performance
+        optimize=True,
+        strip=True,  # Strip debug symbols for smaller executables
+
+        zip_needed=True,
+        repo_needed=False,
+    )
+
+    config.validate()
+
+    ezcompiler = EzCompiler(log_level="INFO")
+    ezcompiler._config = config
+
+    # Run pipeline with DLP progress
+    ezcompiler.run_pipeline(
+        console=True,
+        compiler="Nuitka",
+    )
+
+if __name__ == "__main__":
+    build_with_nuitka()
 ```
 
 ---
@@ -502,7 +560,7 @@ from pathlib import Path
 def build_and_distribute():
     """Build and distribute to local disk."""
     ezcompiler = EzCompiler()
-    
+
     ezcompiler.init_project(
         version="1.0.0",
         project_name="DistributableApp",
@@ -510,21 +568,15 @@ def build_and_distribute():
         include_files={"files": [], "folders": []},
         output_folder="dist",
     )
-    
-    ezcompiler.compile_project(compiler="Cx_Freeze")
-    ezcompiler.zip_compiled_project()
-    
-    # Upload to local releases folder
+
+    # Run pipeline with upload to local releases
     release_path = Path("./releases/v1.0.0")
-    ezcompiler.upload_to_repo(
-        structure="disk",
-        repo_path=release_path,
-        upload_config={
-            "preserve_permissions": True,
-            "overwrite": True,
-        }
+    ezcompiler.run_pipeline(
+        compiler="Cx_Freeze",
+        upload_structure="disk",
+        upload_destination=str(release_path),
     )
-    
+
     print(f"Distribution available at: {release_path}")
 
 if __name__ == "__main__":
@@ -539,7 +591,7 @@ from ezcompiler import EzCompiler
 def build_and_upload():
     """Build and upload to server."""
     ezcompiler = EzCompiler()
-    
+
     ezcompiler.init_project(
         version="1.0.0",
         project_name="ServerApp",
@@ -547,14 +599,12 @@ def build_and_upload():
         include_files={"files": [], "folders": []},
         output_folder="dist",
     )
-    
-    ezcompiler.compile_project(compiler="PyInstaller")
-    ezcompiler.zip_compiled_project()
-    
-    # Upload to server
-    ezcompiler.upload_to_repo(
-        structure="server",
-        repo_path="https://releases.example.com/api/upload",
+
+    # Run pipeline with server upload
+    ezcompiler.run_pipeline(
+        compiler="PyInstaller",
+        upload_structure="server",
+        upload_destination="https://releases.example.com/api/upload",
         upload_config={
             "headers": {
                 "Authorization": "Bearer your-api-token",
@@ -609,26 +659,13 @@ def full_release_workflow():
         strip=True,
     )
     
-    # Generate all files
-    print("Generating version file...")
-    ezcompiler.generate_version_file()
-    
-    print("Generating setup.py...")
-    ezcompiler.generate_setup_file("setup.py")
-    
-    # Compile
-    print("Compiling project...")
-    ezcompiler.compile_project(console=False, compiler="Cx_Freeze")
-    
-    # Create ZIP archive
-    print("Creating ZIP archive...")
-    ezcompiler.zip_compiled_project()
-    
-    # Upload to local releases
-    print(f"Uploading to {release_folder}...")
-    ezcompiler.upload_to_repo(
-        structure="disk",
-        repo_path=release_folder,
+    # Run full pipeline with DLP progress
+    print("Building and distributing...")
+    ezcompiler.run_pipeline(
+        console=False,
+        compiler="Cx_Freeze",
+        upload_structure="disk",
+        upload_destination=str(release_folder),
     )
     
     # Create release notes
@@ -890,14 +927,14 @@ VERSION := 1.0.0
 PROJECT := MyApp
 
 build:
-	python -c "from ezcompiler import EzCompiler; e = EzCompiler(); e.init_project(version='$(VERSION)', project_name='$(PROJECT)', main_file='main.py', include_files={'files': [], 'folders': []}, output_folder='dist'); e.compile_project(compiler='PyInstaller')"
+ python -c "from ezcompiler import EzCompiler; e = EzCompiler(); e.init_project(version='$(VERSION)', project_name='$(PROJECT)', main_file='main.py', include_files={'files': [], 'folders': []}, output_folder='dist'); e.compile_project(compiler='PyInstaller')"
 
 clean:
-	rm -rf dist/ build/ *.spec
+ rm -rf dist/ build/ *.spec
 
 release: build
-	mkdir -p releases/v$(VERSION)
-	cp -r dist/* releases/v$(VERSION)/
+ mkdir -p releases/v$(VERSION)
+ cp -r dist/* releases/v$(VERSION)/
 ```
 
 ### Automated Release Workflow

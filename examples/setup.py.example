@@ -1,12 +1,13 @@
 # ///////////////////////////////////////////////////////////////
-# SETUP - Compilation setup script
-# Project: #PROJECT_NAME#
+# SETUP_EXAMPLE - Example setup script for EzCompiler
+# Project: ezcompiler
 # ///////////////////////////////////////////////////////////////
 
 """
-Setup script for #PROJECT_NAME# compilation.
+Setup example - Sample compilation setup script for EzCompiler.
 
-This script uses EzCompiler to compile, zip, and upload the project.
+This script demonstrates how to use EzCompiler programmatically
+via init_project() to compile, zip, and upload a Python project.
 """
 
 from __future__ import annotations
@@ -27,16 +28,16 @@ from ezcompiler import EzCompiler
 # CONSTANTS
 # ///////////////////////////////////////////////////////////////
 
-__VERSION__ = "#VERSION#"
-__ZIP_NEEDED__ = #ZIP_NEEDED#
-__REPO_NEEDED__ = #REPO_NEEDED#
+__VERSION__ = "1.0.0"
+__ZIP_NEEDED__ = True
+__REPO_NEEDED__ = True
 
 APP_PATH = (
     Path(sys._MEIPASS)
     if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS")
     else Path(sys.argv[0]).parent
 )
-REPO_PATH = "#REPO_PATH#"
+REPO_PATH = "releases/CxFreeze"
 
 # ///////////////////////////////////////////////////////////////
 # VARIABLES
@@ -47,29 +48,28 @@ REPO_PATH = "#REPO_PATH#"
 # ------------------------------------------------
 
 version = __VERSION__
-project_name = "#PROJECT_NAME#"
-project_description = "#PROJECT_DESCRIPTION#"
-company_name = "#COMPANY_NAME#"
-author = "#AUTHOR#"
-icon = "#ICON#"
+project_name = "ExampleApp-CxFreeze"
+project_description = "Sample console application compiled with Cx_Freeze"
+company_name = "EzCompiler Inc."
+author = "Dev Team"
+icon = ""
 
 # ------------------------------------------------
 # PATHS AND FILES
 # ------------------------------------------------
 
-main_file = "#MAIN_FILE#"
-config_file = APP_PATH / f"{project_name}_config.exemple.yaml"
-version_file = "#VERSION_FILE#"
-output_folder = APP_PATH / "#OUTPUT_FOLDER#"
+main_file = "main.py"
+version_file = "version_info.txt"
+output_folder = APP_PATH / "dist/cxfreeze_build"
 
 # ------------------------------------------------
 # COMPILATION SETTINGS
 # ------------------------------------------------
 
-include_files = #INCLUDE_FILES#
-packages = #PACKAGES#
-includes = #INCLUDES#
-excludes = #EXCLUDES#
+include_files = {"files": ["main.py"], "folders": []}
+packages = ["json", "os", "platform"]
+includes = ["datetime"]
+excludes = ["tkinter", "unittest", "email", "xml"]
 
 # ------------------------------------------------
 # DATE AND COPYRIGHT
@@ -123,11 +123,11 @@ try:
 
     ## => RUN BUILD PIPELINE (version, compile, zip, upload with DLP)
     compiler.run_pipeline(
-        console=#CONSOLE#,
+        console=True,
         compiler=None,
         skip_zip=not __ZIP_NEEDED__,
         skip_upload=not __REPO_NEEDED__,
-        upload_structure="#UPLOAD_STRUCTURE#" if __REPO_NEEDED__ else None,
+        upload_structure="disk" if __REPO_NEEDED__ else None,
         upload_destination=REPO_PATH if __REPO_NEEDED__ else None,
     )
 

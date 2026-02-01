@@ -1,0 +1,51 @@
+{
+  "version": "1.0.0",
+  "project_name": "ExampleApp-Nuitka",
+  "project_description": "Sample application compiled with Nuitka",
+  "company_name": "EzCompiler Inc.",
+  "author": "Dev Team",
+  "main_file": "main.py",
+  "output_folder": "dist/nuitka_build",
+  "icon": "",
+  "version_filename": "version_info.txt",
+  "include_files": {
+    "files": [
+      "main.py"
+    ],
+    "folders": []
+  },
+  "packages": [
+    "json",
+    "os",
+    "platform",
+    "sys"
+  ],
+  "includes": [
+    "datetime",
+    "pathlib"
+  ],
+  "excludes": [
+    "tkinter",
+    "unittest",
+    "test",
+    "email",
+    "xml",
+    "http"
+  ],
+  "compilation": {
+    "compiler": "Nuitka",
+    "console": true,
+    "zip_needed": true,
+    "repo_needed": true
+  },
+  "upload": {
+    "structure": "disk",
+    "repo_path": "releases/Nuitka",
+    "server_url": ""
+  },
+  "advanced": {
+    "optimize": true,
+    "strip": true,
+    "debug": false
+  }
+}

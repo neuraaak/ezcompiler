@@ -21,12 +21,16 @@ from __future__ import annotations
 import json
 import sys
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from ezpl.handlers.wizard.dynamic import StageConfig
 
 # Third-party imports
 import click
 import tomli_w
 import yaml
+from ezpl import EzLogger, EzPrinter
 
 try:
     import tomllib  # type: ignore[no-redef]  # ty:ignore[unused-ignore-comment, unused-ignore-comment]
@@ -52,14 +56,14 @@ from ..utils.zip_utils import ZipUtils
 # ///////////////////////////////////////////////////////////////
 
 
-def _get_printer():
+def _get_printer() -> EzPrinter:
     """Get the global EzPrinter instance (lazy import)."""
     from . import get_printer
 
     return get_printer()
 
 
-def _get_logger():
+def _get_logger() -> EzLogger:
     """Get the global EzLogger instance (lazy import)."""
     from . import get_logger
 
@@ -792,6 +796,19 @@ def template_raw(
     default=False,
     help="Skip upload step",
 )
+@click.option(
+    "--upload-structure",
+    "-us",
+    type=click.Choice(["disk", "server"]),
+    default=None,
+    help="Upload structure (overrides config)",
+)
+@click.option(
+    "--upload-destination",
+    "-ud",
+    default=None,
+    help="Upload destination path or URL (overrides config)",
+)
 def compile_project(
     config: str | None,
     pyproject: str | None,
@@ -801,6 +818,8 @@ def compile_project(
     debug: bool,
     no_zip: bool,
     no_upload: bool,
+    upload_structure: str | None,
+    upload_destination: str | None,
 ) -> None:
     """
     Compile the project.
@@ -817,10 +836,13 @@ def compile_project(
         ezcompiler compile --pyproject ../myproject/pyproject.toml
 
         ezcompiler compile --compiler PyInstaller --no-console
+
+        ezcompiler compile --upload-structure disk --upload-destination releases/
     """
     printer = _get_printer()
     logger = _get_logger()
 
+    # Phase 1: Config loading (outside progress - needed to build stages)
     try:
         # Build CLI overrides (only explicitly provided values)
         cli_overrides: dict[str, Any] = {}
@@ -832,6 +854,10 @@ def compile_project(
             cli_overrides["output_folder"] = output_folder
         if debug:
             cli_overrides["debug"] = True
+        if upload_structure is not None:
+            cli_overrides["upload_structure"] = upload_structure
+        if upload_destination is not None:
+            cli_overrides["repo_path"] = upload_destination
 
         # Load config with cascade
         config_obj = ConfigService.build_compiler_config(
@@ -839,78 +865,149 @@ def compile_project(
             pyproject_path=Path(pyproject) if pyproject else None,
             cli_overrides=cli_overrides or None,
         )
-
-        printer.info(
-            f"Compiling {config_obj.project_name} v{config_obj.version} "
-            f"with {config_obj.compiler}..."
-        )
-        logger.info(
-            f"Compiling {config_obj.project_name} v{config_obj.version} "
-            f"with {config_obj.compiler}"
-        )
-
-        # Auto-generate version file (always regenerated)
-        template_service = TemplateService()
-        version_file_path = Path(config_obj.version_filename)
-        try:
-            template_service.generate_version_file(
-                config_obj.to_dict(), version_file_path
-            )
-            printer.info(f"Version file generated: {version_file_path}")
-            logger.info(f"Version file generated: {version_file_path}")
-        except VersionError as e:
-            printer.error(f"Failed to generate version file: {e}")
-            logger.error(f"Failed to generate version file: {e}")
-            sys.exit(1)
-
-        # Compile
-        compiler_service = CompilerService(config_obj)
-        result = compiler_service.compile(
-            console=config_obj.console,
-            compiler=config_obj.compiler,  # type: ignore[arg-type]
-        )
-
-        printer.success("Compilation completed successfully")
-        logger.info("Compilation completed successfully")
-
-        # ZIP if needed
-        zip_needed = result.zip_needed and config_obj.zip_needed
-        if not no_zip and zip_needed:
-            zip_path = f"{config_obj.output_folder}.zip"
-            ZipUtils.create_zip_archive(
-                source_path=str(config_obj.output_folder),
-                output_path=zip_path,
-            )
-            printer.success(f"ZIP archive created: {zip_path}")
-            logger.info(f"ZIP archive created: {zip_path}")
-
-        # Upload if needed
-        if not no_upload and config_obj.repo_needed:
-            source_file = (
-                f"{config_obj.output_folder}.zip"
-                if zip_needed
-                else str(config_obj.output_folder)
-            )
-            destination = (
-                config_obj.server_url
-                if config_obj.upload_structure == "server"
-                else config_obj.repo_path
-            )
-
-            UploaderService.upload(
-                source_path=Path(source_file),
-                upload_type=config_obj.upload_structure,  # type: ignore[arg-type]
-                destination=destination,
-            )
-            printer.success(f"Upload completed ({config_obj.upload_structure})")
-            logger.info(f"Upload completed ({config_obj.upload_structure})")
-
-        printer.success("Build pipeline finished")
-
-    except (ConfigurationError, CompilationError, UploadError, ZipError) as e:
+    except ConfigurationError as e:
         printer.error(str(e))
         logger.error(str(e))
         sys.exit(1)
+
+    # Build dynamic stages based on config
+    stages: list[StageConfig] = [
+        {
+            "name": "main",
+            "type": "main",
+            "description": f"Building {config_obj.project_name} v{config_obj.version}",
+        },
+        {
+            "name": "version",
+            "type": "spinner",
+            "description": "Generating version file",
+        },
+        {
+            "name": "compile",
+            "type": "spinner",
+            "description": f"Compiling with {config_obj.compiler}",
+        },
+    ]
+
+    should_zip = not no_zip and config_obj.zip_needed
+    should_upload = not no_upload and (
+        upload_structure is not None or config_obj.repo_needed
+    )
+
+    if should_zip:
+        stages.append(
+            {
+                "name": "zip",
+                "type": "progress",
+                "description": "Creating ZIP archive",
+                "total": 100,
+            }
+        )
+    effective_upload_structure = upload_structure or config_obj.upload_structure
+    if should_upload:
+        stages.append(
+            {
+                "name": "upload",
+                "type": "spinner",
+                "description": f"Uploading ({effective_upload_structure})",
+            }
+        )
+
+    # Phase 2-5: Execute pipeline with progress
+    current_phase = "version"
+    pipeline_error: Exception | None = None
+
+    with printer.wizard.dynamic_layered_progress(stages) as dlp:
+        try:
+            # Version file generation
+            current_phase = "version"
+            dlp.update_layer("version", 0, "Processing template...")
+            template_service = TemplateService()
+            version_file_path = Path(config_obj.version_filename)
+            template_service.generate_version_file(
+                config_obj.to_dict(), version_file_path
+            )
+            logger.info(f"Version file generated: {version_file_path}")
+            dlp.complete_layer("version")
+
+            # Compilation
+            current_phase = "compile"
+            dlp.update_layer("compile", 0, "Initializing compiler...")
+            compiler_service = CompilerService(config_obj)
+            result = compiler_service.compile(
+                console=config_obj.console,
+                compiler=config_obj.compiler,  # type: ignore[arg-type]
+            )
+            logger.info("Compilation completed successfully")
+            dlp.complete_layer("compile")
+
+            # ZIP archive (runtime check for zip_needed from compilation result)
+            zip_needed = result.zip_needed and config_obj.zip_needed
+            if should_zip:
+                if zip_needed:
+                    current_phase = "zip"
+                    zip_path = str(config_obj.zip_file_path)
+
+                    def _zip_progress(filename: str, progress: int) -> None:
+                        dlp.update_layer("zip", progress, Path(filename).name)
+
+                    ZipUtils.create_zip_archive(
+                        source_path=str(config_obj.output_folder),
+                        output_path=zip_path,
+                        progress_callback=_zip_progress,
+                    )
+                    logger.info(f"ZIP archive created: {zip_path}")
+                    dlp.complete_layer("zip")
+                else:
+                    # Stage was added but not needed at runtime
+                    dlp.update_layer("zip", 0, "Skipped (not needed)")
+                    dlp.complete_layer("zip")
+
+            # Upload
+            if should_upload:
+                current_phase = "upload"
+                source_file = (
+                    str(config_obj.zip_file_path)
+                    if zip_needed
+                    else str(config_obj.output_folder)
+                )
+                structure = upload_structure or config_obj.upload_structure
+                destination = upload_destination or (
+                    config_obj.server_url
+                    if structure == "server"
+                    else config_obj.repo_path
+                )
+                dlp.update_layer("upload", 0, f"Connecting to {destination}...")
+                UploaderService.upload(
+                    source_path=Path(source_file),
+                    upload_type=structure,  # type: ignore[arg-type]
+                    destination=destination,
+                )
+                logger.info(f"Upload completed ({structure})")
+                dlp.complete_layer("upload")
+
+        except (
+            ConfigurationError,
+            CompilationError,
+            TemplateError,
+            VersionError,
+            UploadError,
+            ZipError,
+        ) as e:
+            dlp.handle_error(current_phase, str(e))
+            dlp.emergency_stop(str(e))
+            pipeline_error = e
+        except Exception as e:
+            dlp.handle_error(current_phase, str(e))
+            dlp.emergency_stop(str(e))
+            pipeline_error = e
+
+    if pipeline_error:
+        printer.error(str(pipeline_error))
+        logger.error(str(pipeline_error))
+        sys.exit(1)
+
+    printer.success("Build pipeline finished")
 
 
 @main.command()
@@ -951,7 +1048,7 @@ def init(
 
         printer.info(f"Initializing EzCompiler project in {output_dir}...")
 
-        # Collect basic project information via prompts
+        # Collect basic project information via prompts (outside progress bar)
         project_name = click.prompt("Project name")
         version = click.prompt("Version", default="1.0.0")
         project_description = click.prompt("Project description", default="")
@@ -988,35 +1085,74 @@ def init(
             "advanced": {"optimize": True, "strip": False, "debug": False},
         }
 
+        # File generation with progress tracking
+        stages: list[StageConfig] = [
+            {
+                "name": "config",
+                "type": "spinner",
+                "description": f"Generating {format_type} configuration",
+            },
+            {"name": "setup", "type": "spinner", "description": "Generating setup.py"},
+        ]
+
         template_service = TemplateService()
+        current_phase = "config"
+        pipeline_error: Exception | None = None
 
-        # Generate configuration file according to chosen format
-        if format_type == "yaml":
-            yaml_content = template_service.process_config_template("yaml", config_dict)
-            target = output_dir / "ezcompiler.yaml"
-            target.write_text(yaml_content, encoding="utf-8")
-            printer.success(f"ezcompiler.yaml generated: {target}")
-            logger.info(f"ezcompiler.yaml generated: {target}")
+        with printer.wizard.dynamic_layered_progress(stages) as dlp:
+            try:
+                # Config file generation
+                current_phase = "config"
+                dlp.update_layer("config", 0, f"Writing {format_type} file...")
 
-        elif format_type == "json":
-            json_content = template_service.process_config_template("json", config_dict)
-            target = output_dir / "ezcompiler.json"
-            target.write_text(json_content, encoding="utf-8")
-            printer.success(f"ezcompiler.json generated: {target}")
-            logger.info(f"ezcompiler.json generated: {target}")
+                if format_type == "yaml":
+                    yaml_content = template_service.process_config_template(
+                        "yaml", config_dict
+                    )
+                    target = output_dir / "ezcompiler.yaml"
+                    target.write_text(yaml_content, encoding="utf-8")
+                    logger.info(f"ezcompiler.yaml generated: {target}")
 
-        else:  # pyproject
-            _create_or_update_pyproject(output_dir / "pyproject.toml", config_dict)
+                elif format_type == "json":
+                    json_content = template_service.process_config_template(
+                        "json", config_dict
+                    )
+                    target = output_dir / "ezcompiler.json"
+                    target.write_text(json_content, encoding="utf-8")
+                    logger.info(f"ezcompiler.json generated: {target}")
 
-        # Generate setup.py
-        template_service.generate_setup_file(config_dict, output_dir=output_dir)
-        printer.success(f"setup.py generated: {output_dir / 'setup.py'}")
-        logger.info(f"setup.py generated: {output_dir / 'setup.py'}")
+                else:  # pyproject
+                    _create_or_update_pyproject(
+                        output_dir / "pyproject.toml", config_dict
+                    )
+
+                dlp.complete_layer("config")
+
+                # Setup file generation
+                current_phase = "setup"
+                dlp.update_layer("setup", 0, "Processing template...")
+                template_service.generate_setup_file(config_dict, output_dir=output_dir)
+                logger.info(f"setup.py generated: {output_dir / 'setup.py'}")
+                dlp.complete_layer("setup")
+
+            except (TemplateError, ConfigError) as e:
+                dlp.handle_error(current_phase, str(e))
+                dlp.emergency_stop(str(e))
+                pipeline_error = e
+            except Exception as e:
+                dlp.handle_error(current_phase, str(e))
+                dlp.emergency_stop(str(e))
+                pipeline_error = e
+
+        if pipeline_error:
+            printer.error(str(pipeline_error))
+            logger.error(str(pipeline_error))
+            sys.exit(1)
 
         printer.success("EzCompiler project initialized successfully")
         printer.tip("Run 'ezcompiler compile' to build your project.")
 
-    except (TemplateError, ConfigurationError) as e:
+    except (TemplateError, ConfigError) as e:
         printer.error(str(e))
         logger.error(str(e))
         sys.exit(1)

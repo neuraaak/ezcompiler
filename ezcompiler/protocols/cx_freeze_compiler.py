@@ -9,6 +9,9 @@ Cx_Freeze compiler - Cx_Freeze compiler implementation for EzCompiler.
 This module provides a compiler implementation using Cx_Freeze, which
 creates a directory containing the executable and all dependencies.
 
+Compilation is executed in a subprocess to isolate cx_Freeze stdout/stderr
+from the main process (preserving DLP rendering).
+
 Protocols layer can use WARNING and ERROR log levels.
 """
 
@@ -18,17 +21,15 @@ from __future__ import annotations
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
 # Standard library imports
+import json
+import subprocess
 import sys
-
-# Third-party imports
-from cx_Freeze import Executable, setup
+import tempfile
+from pathlib import Path
 
 # Local imports
 from ..shared.exceptions import CompilationError
 from .base_compiler import BaseCompiler
-
-# Increase recursion limit for deep imports
-sys.setrecursionlimit(5000)
 
 # ///////////////////////////////////////////////////////////////
 # CLASSES
@@ -42,6 +43,9 @@ class CxFreezeCompiler(BaseCompiler):
     Handles project compilation using Cx_Freeze, which creates a
     directory structure containing the executable and all dependencies.
     The output is typically zipped for distribution.
+
+    Compilation runs in a separate subprocess to prevent cx_Freeze
+    output from interfering with the main process display (DLP).
 
     Attributes:
         config: CompilerConfig with project settings
@@ -89,11 +93,10 @@ class CxFreezeCompiler(BaseCompiler):
 
     def compile(self, console: bool = True) -> None:
         """
-        Compile the project using Cx_Freeze.
+        Compile the project using Cx_Freeze in a subprocess.
 
-        Validates configuration, prepares output directory, and runs
-        Cx_Freeze setup with configured options for packages, includes,
-        excludes, and executable properties.
+        Generates a temporary setup script and executes it in a separate
+        process to isolate cx_Freeze stdout/stderr from the main process.
 
         Args:
             console: Whether to show console window (default: True)
@@ -103,7 +106,7 @@ class CxFreezeCompiler(BaseCompiler):
 
         Note:
             On Windows with console=False, uses Win32GUI base.
-            Sets recursion limit to 5000 for deep import chains.
+            Runs in subprocess to preserve DLP rendering in main process.
 
         Example:
             >>> config = CompilerConfig(...)
@@ -118,39 +121,134 @@ class CxFreezeCompiler(BaseCompiler):
             # Prepare include files data
             data = self.get_include_files_data()
 
-            # Build executable options
-            build_exe_options = {
-                "include_files": data,
-                "packages": self.config.packages,
-                "includes": self.config.includes,
-                "excludes": self.config.excludes,
-                "build_exe": str(self.config.output_folder),
-            }
-
             # Determine base for executable (Win32GUI for no-console on Windows)
             from ..utils.compiler_utils import CompilerUtils
 
             base = CompilerUtils.get_windows_base_for_console(console)
 
-            # Create executable configuration
-            executables = [
-                Executable(
-                    self.config.main_file,
-                    base=base,
-                    target_name=f"{self.config.project_name}.exe",
-                    icon=self.config.icon if self.config.icon else None,
-                )
-            ]
+            # Normalize version to PEP 440 format to avoid setuptools warning
+            from packaging.version import Version
 
-            # Run Cx_Freeze setup
-            setup(
-                name=self.config.project_name,
-                version=self.config.version,
-                description=self.config.project_description,
-                author=self.config.author,
-                options={"build_exe": build_exe_options},
-                executables=executables,
-            )
+            normalized_version = str(Version(self.config.version))
+
+            # Build setup script configuration
+            setup_config = {
+                "name": self.config.project_name,
+                "version": normalized_version,
+                "description": self.config.project_description,
+                "author": self.config.author,
+                "main_file": self.config.main_file,
+                "target_name": f"{self.config.project_name}.exe",
+                "base": base,
+                "icon": self.config.icon if self.config.icon else None,
+                "include_files": data,
+                "packages": self.config.packages,
+                "includes": self.config.includes,
+                "excludes": self.config.excludes,
+                "build_exe": str(self.config.output_folder),
+                "optimize": 1 if self.config.optimize else 0,
+                "silent_level": 0 if self.config.debug else 1,
+            }
+
+            # Generate and execute temporary setup script
+            self._run_setup_subprocess(setup_config)
 
         except Exception as e:
+            if isinstance(e, CompilationError):
+                raise
             raise CompilationError(f"Cx_Freeze compilation failed: {str(e)}") from e
+
+    # ////////////////////////////////////////////////
+    # PRIVATE METHODS
+    # ////////////////////////////////////////////////
+
+    _SETUP_SCRIPT = """\
+import sys
+import json
+import warnings
+from pathlib import Path
+
+sys.setrecursionlimit(5000)
+
+from cx_Freeze import Executable, setup
+
+config = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+
+build_exe_options = {
+    "include_files": config["include_files"],
+    "packages": config["packages"],
+    "includes": config["includes"],
+    "excludes": config["excludes"],
+    "build_exe": config["build_exe"],
+    "optimize": config["optimize"],
+    "silent_level": config["silent_level"],
+}
+
+executables = [
+    Executable(
+        config["main_file"],
+        base=config["base"],
+        target_name=config["target_name"],
+        icon=config["icon"],
+    )
+]
+
+sys.argv = [sys.argv[0], "build_exe"]
+
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore", category=FutureWarning)
+    setup(
+        name=config["name"],
+        version=config["version"],
+        description=config["description"],
+        author=config["author"],
+        options={"build_exe": build_exe_options},
+        executables=executables,
+    )
+"""
+
+    def _run_setup_subprocess(self, setup_config: dict) -> None:
+        """
+        Execute cx_Freeze setup in a subprocess.
+
+        Writes the configuration as a separate JSON file and runs
+        a setup script that reads it, avoiding escape issues with
+        inline JSON in Python strings.
+
+        Args:
+            setup_config: Configuration dictionary for the setup script
+
+        Raises:
+            CompilationError: If the subprocess fails
+        """
+        # Write temporary config JSON file
+        config_fd, config_file_str = tempfile.mkstemp(suffix="_cx_config.json")
+        config_file = Path(config_file_str)
+
+        # Write temporary setup script
+        script_fd, script_file_str = tempfile.mkstemp(suffix="_cx_setup.py")
+        script_file = Path(script_file_str)
+
+        try:
+            with open(config_fd, "w", encoding="utf-8") as f:
+                json.dump(setup_config, f)
+
+            with open(script_fd, "w", encoding="utf-8") as f:
+                f.write(self._SETUP_SCRIPT)
+
+            # Run cx_Freeze in subprocess with captured output
+            result = subprocess.run(  # noqa: S603
+                [sys.executable, str(script_file), str(config_file)],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+
+            if result.returncode != 0:
+                raw_output = result.stderr or result.stdout
+                error_detail = self.extract_error_summary(raw_output)
+                raise CompilationError(f"Cx_Freeze compilation failed: {error_detail}")
+
+        finally:
+            script_file.unlink(missing_ok=True)
+            config_file.unlink(missing_ok=True)

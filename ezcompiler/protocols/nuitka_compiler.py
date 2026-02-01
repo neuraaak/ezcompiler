@@ -18,6 +18,7 @@ from __future__ import annotations
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
 # Standard library imports
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -101,7 +102,8 @@ class NuitkaCompiler(BaseCompiler):
                 "-m",
                 "nuitka",
                 self.config.main_file,
-                "--follow-imports",
+                "--assume-yes-for-downloads",
+                "--remove-output",
                 f"--output-dir={output_dir}",
                 f"--output-filename={output_name}",
             ]
@@ -111,9 +113,11 @@ class NuitkaCompiler(BaseCompiler):
             else:
                 cmd.append("--standalone")
 
-            # Windows console behavior
-            if sys.platform == "win32" and not console:
-                cmd.append("--windows-disable-console")
+            # Windows: use MSVC backend (MinGW64 not supported on Python 3.13+)
+            if sys.platform == "win32":
+                cmd.append("--msvc=latest")
+                if not console:
+                    cmd.append("--windows-disable-console")
 
             # Icon support
             if self.config.icon:
@@ -126,26 +130,53 @@ class NuitkaCompiler(BaseCompiler):
             for folder in self.config.include_files.get("folders", []):
                 cmd.append(f"--include-data-dir={folder}={folder}")
 
-            # Include packages/modules
-            for pkg in self.config.packages:
-                cmd.append(f"--include-package={pkg}")
-
-            for mod in self.config.includes:
+            # Include packages and modules (both use --include-module to avoid
+            # crashes with stdlib built-in modules that have no __path__)
+            for mod in self.config.packages + self.config.includes:
                 cmd.append(f"--include-module={mod}")
 
             # Exclude modules
             for mod in self.config.excludes:
                 cmd.append(f"--nofollow-import-to={mod}")
 
+            # Windows metadata
+            if sys.platform == "win32":
+                cmd.append(f"--product-name={self.config.project_name}")
+                cmd.append(f"--product-version={self.config.version}")
+                if self.config.company_name:
+                    cmd.append(f"--company-name={self.config.company_name}")
+                if self.config.project_description:
+                    cmd.append(f"--file-description={self.config.project_description}")
+
+            # Advanced options
+            if self.config.debug:
+                cmd.append("--debug")
+
             # Run Nuitka
             result = subprocess.run(
                 cmd, check=False, capture_output=True, text=True
             )  # noqa: S603
             if result.returncode != 0:
-                error_detail = result.stderr or result.stdout
-                raise CompilationError(
-                    f"Nuitka compilation failed: {error_detail.strip()}"
-                )
+                raw_output = result.stderr or result.stdout
+                error_detail = self.extract_error_summary(raw_output)
+                raise CompilationError(f"Nuitka compilation failed: {error_detail}")
+
+            # Flatten output: Nuitka --standalone creates a subfolder
+            # named "{main_stem}.dist" inside output-dir. Move its contents
+            # up to output_folder so the layout matches Cx_Freeze.
+            if not onefile:
+                main_stem = Path(self.config.main_file).stem
+                nested = self.config.output_folder / f"{main_stem}.dist"
+                if nested.is_dir():
+                    for item in nested.iterdir():
+                        dest = self.config.output_folder / item.name
+                        if dest.exists():
+                            if dest.is_dir():
+                                shutil.rmtree(dest)
+                            else:
+                                dest.unlink()
+                        shutil.move(str(item), str(dest))
+                    nested.rmdir()
 
         except Exception as e:
             if isinstance(e, CompilationError):

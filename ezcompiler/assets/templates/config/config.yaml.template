@@ -34,7 +34,7 @@ excludes:
 # Compilation Options
 compilation:
   console: #CONSOLE#
-  compiler: "#COMPILER#"  # "auto", "Cx_Freeze", or "PyInstaller"
+  compiler: "#COMPILER#"  # "auto", "Cx_Freeze", "PyInstaller", or "Nuitka"
   zip_needed: #ZIP_NEEDED#
   repo_needed: #REPO_NEEDED#
 

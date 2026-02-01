@@ -209,10 +209,13 @@ class CompilerConfig:
         """
         Get the path to the zip file.
 
+        Uses the project name as the zip filename, placed next to the
+        output folder (e.g., dist/MyApp.zip).
+
         Returns:
             Path: Path to the zip archive file
         """
-        return Path(f"{self.output_folder}.zip")
+        return self.output_folder.parent / f"{self.project_name}.zip"
 
     # ////////////////////////////////////////////////
     # SERIALIZATION METHODS
@@ -310,6 +313,14 @@ class CompilerConfig:
         config_copy.pop("compilation", None)
         config_copy.pop("upload", None)
         config_copy.pop("advanced", None)
+
+        # Remap nested key names to dataclass field names
+        # "upload.structure" becomes "upload_structure" after flattening
+        if "structure" in config_copy:
+            if "upload_structure" not in config_copy:
+                config_copy["upload_structure"] = config_copy.pop("structure")
+            else:
+                config_copy.pop("structure")
 
         # Handle backward compatibility
         if "version_file" in config_copy and "version_filename" not in config_copy:
