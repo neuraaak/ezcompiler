@@ -119,7 +119,9 @@ jobs:
           echo "🔍 Tag $TAG_NAME points to commit: $TAG_COMMIT"
 
           # Vérifier que main existe et récupérer sa référence
-          if git rev-parse origin/main >/dev/null 2>&1; then
+          if git rev-parse refs/remotes/origin/main >/dev/null 2>&1; then
+            MAIN_REF="refs/remotes/origin/main"
+          elif git rev-parse origin/main >/dev/null 2>&1; then
             MAIN_REF="origin/main"
           elif git rev-parse main >/dev/null 2>&1; then
             MAIN_REF="main"
@@ -129,28 +131,28 @@ jobs:
             exit 1
           fi
 
-          echo "🔍 Checking if tag commit is in main branch ($MAIN_REF)..."
+          MAIN_COMMIT=$(git rev-parse "$MAIN_REF")
+          echo "🔍 Main branch ($MAIN_REF) points to commit: $MAIN_COMMIT"
+          echo "🔍 Checking if tag commit is in main branch's history..."
 
-          # Vérifier si le commit du tag est dans l'historique de main
-          # Utiliser git branch --contains pour vérifier si main contient le commit du tag
-          if git branch --contains "$TAG_COMMIT" 2>/dev/null | grep -qE "(main|origin/main)" || \
-             git branch -r --contains "$TAG_COMMIT" 2>/dev/null | grep -qE "origin/main"; then
-            echo "✅ Tag $TAG_NAME is on main branch"
-            echo "on_main=true" >> $GITHUB_OUTPUT
-          else
-            # Vérification alternative : est-ce que le commit du tag est un ancêtre de main ?
-            if git merge-base --is-ancestor "$TAG_COMMIT" "$MAIN_REF" 2>/dev/null; then
-              echo "✅ Tag $TAG_NAME is on main branch (commit is ancestor of main)"
+          # Vérifier si le commit du tag est un ancêtre de main (méthode fiable)
+          if git merge-base --is-ancestor "$TAG_COMMIT" "$MAIN_REF" 2>/dev/null; then
+            echo "✅ Tag $TAG_NAME is on main branch (commit is in main's history)"
               echo "on_main=true" >> $GITHUB_OUTPUT
             else
               echo "❌ Tag $TAG_NAME is NOT on main branch!"
               echo "   Tag commit: $TAG_COMMIT"
-              echo "   Main branch: $MAIN_REF"
+            echo "   Main branch: $MAIN_REF (commit: $MAIN_COMMIT)"
               echo "   This tag points to a commit that is not in main's history"
               echo "   Only tags on the main branch will trigger PyPI publication"
+            echo ""
+            echo "🔍 Debug info - commits in main branch:"
+            git log --oneline "$MAIN_REF" -10
+            echo ""
+            echo "🔍 Debug info - tag commit details:"
+            git log --oneline "$TAG_COMMIT" -1
               echo "on_main=false" >> $GITHUB_OUTPUT
               exit 1
-            fi
           fi
 
       - name: Install dependencies
