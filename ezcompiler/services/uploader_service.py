@@ -24,7 +24,7 @@ from typing import Any, Literal
 # Local imports
 from ..protocols.uploader_factory import UploaderFactory
 from ..shared.exceptions import UploadError
-from ..utils.validation_utils import ValidationUtils
+from ..utils.validators import validate_upload_structure
 
 # ///////////////////////////////////////////////////////////////
 # TYPE ALIASES
@@ -87,7 +87,7 @@ class UploaderService:
         """
         try:
             # Validate upload type
-            if not ValidationUtils.validate_upload_structure(upload_type):
+            if not validate_upload_structure(upload_type):
                 raise UploadError(f"Invalid upload type: {upload_type}")
 
             # Prepare uploader configuration

@@ -33,7 +33,7 @@ from ..protocols import (
 )
 from ..shared.compiler_config import CompilerConfig
 from ..shared.exceptions import CompilationError, ConfigurationError
-from ..utils.validation_utils import ValidationUtils
+from ..utils.validators import validate_compiler_name
 
 # ///////////////////////////////////////////////////////////////
 # TYPE ALIASES
@@ -125,7 +125,7 @@ class CompilerService:
             compiler_choice = self._determine_compiler(compiler)
 
             # Validate compiler choice
-            if not ValidationUtils.validate_compiler_name(compiler_choice):
+            if not validate_compiler_name(compiler_choice):
                 raise CompilationError(f"Invalid compiler: {compiler_choice}")
 
             # Create and execute compiler
