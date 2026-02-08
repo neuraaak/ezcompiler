@@ -34,6 +34,7 @@ This guide provides comprehensive instructions for configuring **EzCompiler** pr
     - [excludes](#excludes)
     - [compiler](#compiler)
     - [upload\_structure](#upload_structure)
+    - [compiler\_options](#compiler_options)
   - [Configuration Examples](#configuration-examples)
     - [Console Application](#console-application)
     - [GUI Application](#gui-application)
@@ -207,21 +208,21 @@ excludes:
   - "ruff"
 
 # Compilation options
-console: false          # GUI application (no console window)
-compiler: "Cx_Freeze"   # "auto", "Cx_Freeze", "PyInstaller", or "Nuitka"
-optimize: true          # Enable optimization
-strip: true             # Strip debug symbols
-debug: false            # Disable debug mode
+console: false # GUI application (no console window)
+compiler: "Cx_Freeze" # "auto", "Cx_Freeze", "PyInstaller", or "Nuitka"
+optimize: true # Enable optimization
+strip: true # Strip debug symbols
+debug: false # Disable debug mode
 
 # ---------------------------------------------------------------
 # DISTRIBUTION SETTINGS
 # ---------------------------------------------------------------
 
-zip_needed: true              # Create ZIP archive after compilation
-repo_needed: true             # Upload to repository
-upload_structure: "disk"      # Upload to local disk
-repo_path: "./releases/v2.0.0"  # Repository path
-server_url: null              # No server upload
+zip_needed: true # Create ZIP archive after compilation
+repo_needed: true # Upload to repository
+upload_structure: "disk" # Upload to local disk
+repo_path: "./releases/v2.0.0" # Repository path
+server_url: null # No server upload
 ```
 
 ### Minimal Example (JSON)
@@ -243,45 +244,27 @@ output_folder: "dist"
 ```json
 {
   "$schema": "https://ezcompiler.dev/schema/config.json",
-  
+
   "version": "2.0.0",
   "project_name": "MyAwesomeApp",
   "project_description": "A feature-rich Python application",
   "company_name": "TechCorp Inc.",
   "author": "Jane Developer",
-  
+
   "main_file": "src/main.py",
   "icon": "resources/app.ico",
   "version_file": "version_info.txt",
   "output_folder": "build/dist",
-  
+
   "include_files": {
-    "files": [
-      "config.yaml",
-      "README.md",
-      "LICENSE",
-      "data/defaults.json"
-    ],
-    "folders": [
-      "assets",
-      "templates",
-      "locale"
-    ]
+    "files": ["config.yaml", "README.md", "LICENSE", "data/defaults.json"],
+    "folders": ["assets", "templates", "locale"]
   },
-  
-  "packages": [
-    "requests",
-    "pandas",
-    "numpy",
-    "matplotlib",
-    "PyYAML"
-  ],
-  
-  "includes": [
-    "encodings",
-    "json"
-  ],
-  
+
+  "packages": ["requests", "pandas", "numpy", "matplotlib", "PyYAML"],
+
+  "includes": ["encodings", "json"],
+
   "excludes": [
     "debugpy",
     "test",
@@ -291,13 +274,13 @@ output_folder: "dist"
     "black",
     "ruff"
   ],
-  
+
   "console": false,
-  "compiler": "Cx_Freeze",  // "auto", "Cx_Freeze", "PyInstaller", or "Nuitka"
+  "compiler": "Cx_Freeze", // "auto", "Cx_Freeze", "PyInstaller", or "Nuitka"
   "optimize": true,
   "strip": true,
   "debug": false,
-  
+
   "zip_needed": true,
   "repo_needed": true,
   "upload_structure": "disk",
@@ -475,6 +458,87 @@ upload_structure: "server"  # HTTP/HTTPS server
 - `disk`: Copy to local filesystem
 - `server`: Upload via HTTP POST/PUT
 
+### compiler_options
+
+Compiler-specific options passed directly to the underlying compiler (Cx_Freeze, PyInstaller, or Nuitka).
+
+```yaml
+compiler_options:
+  # Cx_Freeze specific options
+  zip_include_packages: ["*"]
+  zip_exclude_packages: ["test", "tkinter"]
+  include_msvcr: true
+
+  # PyInstaller specific options
+  # log-level: "DEBUG"
+  # runtime-tmpdir: "/tmp"
+
+  # Nuitka specific options
+  # show-progress: true
+  # enable-plugin: "numpy"
+```
+
+**Format:**
+
+Options are passed as key-value pairs where:
+
+- Keys are option names (without leading dashes)
+- Values can be strings, booleans, lists, or numbers
+- Boolean `true` values become flags (e.g., `--option`)
+- Other values become `--option=value`
+
+**Cx_Freeze Options:**
+
+Common options include:
+
+- `zip_include_packages`: List of packages to include in ZIP
+- `zip_exclude_packages`: List of packages to exclude from ZIP
+- `include_msvcr`: Include Microsoft Visual C++ runtime
+- `optimize`: Optimization level (0, 1, or 2)
+- `constants`: Define constants at compile time
+
+**PyInstaller Options:**
+
+Common options include:
+
+- `log-level`: Logging level (DEBUG, INFO, WARN, ERROR)
+- `runtime-tmpdir`: Runtime temporary directory path
+- `bootloader-ignore-signals`: Ignore signals in bootloader
+- `collect-all`: Collect all submodules for a package
+
+**Nuitka Options:**
+
+Common options include:
+
+- `show-progress`: Show compilation progress
+- `enable-plugin`: Enable specific Nuitka plugins
+- `follow-imports`: Follow all imports
+- `disable-console`: Disable console window (alternative to console: false)
+
+**Example:**
+
+```yaml
+# For Cx_Freeze with custom build options
+compiler: "Cx_Freeze"
+compiler_options:
+  zip_include_packages: ["*"]
+  include_msvcr: true
+  optimize: 2
+
+# For PyInstaller with debug logging
+compiler: "PyInstaller"
+compiler_options:
+  log-level: "DEBUG"
+  collect-all: "numpy"
+
+# For Nuitka with plugins
+compiler: "Nuitka"
+compiler_options:
+  show-progress: true
+  enable-plugin: "numpy"
+  enable-plugin: "multiprocessing"
+```
+
 ---
 
 ## Configuration Examples
@@ -487,7 +551,7 @@ project_name: "ConsoleApp"
 main_file: "cli.py"
 output_folder: "dist"
 
-console: true  # Show console window
+console: true # Show console window
 compiler: "PyInstaller"
 
 packages:
@@ -508,7 +572,7 @@ main_file: "gui/main.py"
 output_folder: "dist"
 
 icon: "resources/app.ico"
-console: false  # Hide console window
+console: false # Hide console window
 compiler: "Cx_Freeze"
 
 include_files:
@@ -523,7 +587,7 @@ packages:
 excludes:
   - "debugpy"
   - "test"
-  - "tkinter"  # Not using tkinter
+  - "tkinter" # Not using tkinter
 ```
 
 ### Multi-Package Application
@@ -765,7 +829,7 @@ Error: Invalid version format
 **Solution:** Use semantic versioning format:
 
 ```yaml
-version: "1.0.0"  # Correct
+version: "1.0.0" # Correct
 # NOT:
 # version: "v1.0.0"  # Wrong - no prefix
 # version: "1"       # Wrong - need at least 2 parts

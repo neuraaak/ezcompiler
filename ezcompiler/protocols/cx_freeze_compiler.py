@@ -28,6 +28,7 @@ import tempfile
 from pathlib import Path
 
 # Local imports
+from ..shared.compiler_config import CompilerConfig
 from ..shared.exceptions import CompilationError
 from .base_compiler import BaseCompiler
 
@@ -60,7 +61,7 @@ class CxFreezeCompiler(BaseCompiler):
     # INITIALIZATION
     # ////////////////////////////////////////////////
 
-    def __init__(self, config: object) -> None:
+    def __init__(self, config: CompilerConfig) -> None:
         """
         Initialize Cx_Freeze compiler.
 
@@ -70,7 +71,7 @@ class CxFreezeCompiler(BaseCompiler):
         Note:
             Cx_Freeze output requires zipping, so _zip_needed is set to True.
         """
-        super().__init__(config)  # type: ignore[arg-type]
+        super().__init__(config)
         self._zip_needed = True  # Cx_Freeze always needs zipping
 
     # ////////////////////////////////////////////////
@@ -131,6 +132,21 @@ class CxFreezeCompiler(BaseCompiler):
 
             normalized_version = str(Version(self.config.version))
 
+            # Build default build_exe options
+            build_exe_options = {
+                "include_files": data,
+                "packages": self.config.packages,
+                "includes": self.config.includes,
+                "excludes": self.config.excludes,
+                "build_exe": str(self.config.output_folder),
+                "optimize": 1 if self.config.optimize else 0,
+                "silent_level": 0 if self.config.debug else 1,
+            }
+
+            # Merge with compiler-specific options (overrides defaults)
+            if self.config.compiler_options:
+                build_exe_options.update(self.config.compiler_options)
+
             # Build setup script configuration
             setup_config = {
                 "name": self.config.project_name,
@@ -141,13 +157,7 @@ class CxFreezeCompiler(BaseCompiler):
                 "target_name": f"{self.config.project_name}.exe",
                 "base": base,
                 "icon": self.config.icon if self.config.icon else None,
-                "include_files": data,
-                "packages": self.config.packages,
-                "includes": self.config.includes,
-                "excludes": self.config.excludes,
-                "build_exe": str(self.config.output_folder),
-                "optimize": 1 if self.config.optimize else 0,
-                "silent_level": 0 if self.config.debug else 1,
+                "build_exe_options": build_exe_options,
             }
 
             # Generate and execute temporary setup script
@@ -174,15 +184,8 @@ from cx_Freeze import Executable, setup
 
 config = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
 
-build_exe_options = {
-    "include_files": config["include_files"],
-    "packages": config["packages"],
-    "includes": config["includes"],
-    "excludes": config["excludes"],
-    "build_exe": config["build_exe"],
-    "optimize": config["optimize"],
-    "silent_level": config["silent_level"],
-}
+# Get build_exe_options directly from config (already merged with compiler_options)
+build_exe_options = config["build_exe_options"]
 
 executables = [
     Executable(

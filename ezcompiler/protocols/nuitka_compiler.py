@@ -24,6 +24,7 @@ import sys
 from pathlib import Path
 
 # Local imports
+from ..shared.compiler_config import CompilerConfig
 from ..shared.exceptions import CompilationError
 from .base_compiler import BaseCompiler
 
@@ -47,14 +48,14 @@ class NuitkaCompiler(BaseCompiler):
     # INITIALIZATION
     # ////////////////////////////////////////////////
 
-    def __init__(self, config: object) -> None:
+    def __init__(self, config: CompilerConfig) -> None:
         """
         Initialize Nuitka compiler.
 
         Args:
             config: CompilerConfig instance with project settings
         """
-        super().__init__(config)  # type: ignore[arg-type]
+        super().__init__(config)
         self._zip_needed = True
 
     # ////////////////////////////////////////////////
@@ -151,6 +152,17 @@ class NuitkaCompiler(BaseCompiler):
             # Advanced options
             if self.config.debug:
                 cmd.append("--debug")
+
+            # Add compiler-specific options from config.compiler_options
+            # Format: {"option-name": "value"} -> --option-name=value
+            #         {"option-flag": True} -> --option-flag
+            if self.config.compiler_options:
+                for key, value in self.config.compiler_options.items():
+                    if isinstance(value, bool):
+                        if value:  # Only add if True
+                            cmd.append(f"--{key}")
+                    else:
+                        cmd.append(f"--{key}={value}")
 
             # Run Nuitka
             result = subprocess.run(
