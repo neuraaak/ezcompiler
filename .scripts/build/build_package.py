@@ -106,7 +106,7 @@ def build_package() -> bool:
     """
     console.print(
         Panel.fit(
-            Text("🔨 Building your package", style="bold cyan"),
+            Text(f"🔨 Building {project_name} package", style="bold cyan"),
             border_style="cyan",
         )
     )

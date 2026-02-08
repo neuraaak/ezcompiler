@@ -142,7 +142,7 @@ def upload_to_test_pypi() -> bool:
     )
     console.print(
         "[cyan]📦[/cyan] Package available at: "
-        "[link]https://test.pypi.org/project/your-package-name/[/link]"
+        f"[link]https://test.pypi.org/project/{project_name}/[/link]"
     )
     return True
 
@@ -207,7 +207,7 @@ def upload_to_pypi() -> bool:
     )
     console.print(
         "[cyan]📦[/cyan] Package available at: "
-        "[link]https://pypi.org/project/your-package-name/[/link]"
+        f"[link]https://pypi.org/project/{project_name}/[/link]"
     )
     return True
 
