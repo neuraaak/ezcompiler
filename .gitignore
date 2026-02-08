@@ -156,10 +156,9 @@ version_info.txt
 # =============================================================================
 # Cursor
 .cursorignore
+.cursor/
+.cursor/rules/
 .cursor_cache/
-
-# Claude
-.claude/
 
 # Visual Studio Code
 .vscode/
@@ -178,6 +177,19 @@ version_info.txt
 *.swp
 *.swo
 *~
+
+# =============================================================================
+# AI AGENT
+# =============================================================================
+# Cursor
+.cursor/
+.cursorrules
+.cursor/rules/
+.cursor/*.mdc
+cursor.json
+
+# Claude (Anthropic)
+.claude/
 
 # =============================================================================
 # FICHIERS SYSTÈME (COMMUNS)
