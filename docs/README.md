@@ -30,7 +30,7 @@ Information about the test suite:
 
 ## Documentation Structure
 
-```
+```text
 docs/
 ├── README.md (this file)
 ├── api/
@@ -81,11 +81,12 @@ ezcompiler.compile_project(compiler="PyInstaller")
 
 - **EzCompiler** – Main facade class for orchestrating the entire process
 - **CompilerConfig** – Configuration dataclass for all compilation settings
-- **Compilers** – CxFreezeCompiler and PyInstallerCompiler implementations
+- **Compilers** – CxFreezeCompiler, PyInstallerCompiler, and NuitkaCompiler implementations
 - **Generators** – VersionGenerator and SetupGenerator for file creation
 - **Templates** – Template system for dynamic content generation
 - **Uploaders** – DiskUploader and ServerUploader for distribution
-- **Utils** – Utility classes for file, validation, and ZIP operations
+- **Utils** – Utility classes for file, config, template, upload, ZIP operations
+  - **Validators** – Modular validation package with 9 specialized modules (format, path, type, value, schema, domain, string, meta)
 
 ### Common Use Cases
 
@@ -122,12 +123,16 @@ version: "1.0.0"
 project_name: "MyProject"
 main_file: "main.py"
 output_folder: "dist"
+compiler: "Cx_Freeze"
 packages:
   - "requests"
   - "pandas"
 excludes:
   - "debugpy"
   - "test"
+compiler_options:
+  zip_include_packages: ["*"]
+  include_msvcr: true
 ```
 
 See [Configuration Guide](cli/CONFIG_GUIDE.md) for details.
@@ -190,27 +195,37 @@ config: Config = ezcompiler.config  # CompilerConfig
 ### Main Classes
 
 - `ezcompiler.EzCompiler` – Main facade class
-- `ezcompiler.core.compiler_config.CompilerConfig` – Configuration dataclass
-- `ezcompiler.compilers.base_compiler.BaseCompiler` – Abstract compiler base
-- `ezcompiler.compilers.CxFreezeCompiler` – Cx_Freeze implementation
-- `ezcompiler.compilers.PyInstallerCompiler` – PyInstaller implementation
-- `ezcompiler.generators.VersionGenerator` – Version file generator
-- `ezcompiler.generators.SetupGenerator` – Setup file generator
-- `ezcompiler.templates.TemplateManager` – Template system manager
-- `ezcompiler.uploaders.base.BaseUploader` – Abstract uploader base
-- `ezcompiler.uploaders.DiskUploader` – Local disk uploader
-- `ezcompiler.uploaders.ServerUploader` – HTTP/HTTPS uploader
+- `ezcompiler.shared.compiler_config.CompilerConfig` – Configuration dataclass
+- `ezcompiler.protocols.base_compiler.BaseCompiler` – Abstract compiler base
+- `ezcompiler.protocols.CxFreezeCompiler` – Cx_Freeze implementation
+- `ezcompiler.protocols.PyInstallerCompiler` – PyInstaller implementation
+- `ezcompiler.protocols.NuitkaCompiler` – Nuitka implementation
+- `ezcompiler.services.TemplateService` – Template generation service
+- `ezcompiler.services.CompilerService` – Compiler selection and orchestration
+- `ezcompiler.services.UploaderService` – Upload orchestration
+- `ezcompiler.protocols.base_uploader.BaseUploader` – Abstract uploader base
+- `ezcompiler.protocols.DiskUploader` – Local disk uploader
+- `ezcompiler.protocols.ServerUploader` – HTTP/HTTPS uploader
+- `ezcompiler.utils.validators` – Modular validation package
 
 ### Exceptions
 
 All custom exceptions inherit from `EzCompilerError`:
 
+**Service Exceptions:**
+
 - `CompilationError` – Compilation failures
 - `ConfigurationError` – Configuration issues
-- `TemplateError` – Template processing errors
-- `VersionError` – Version generation errors
-- `UploadError` – Upload failures
+- `TemplateServiceError` – Template processing errors
+- `UploaderServiceError` – Upload failures
+- `CompilerServiceError` – Compiler selection errors
+
+**Utils Exceptions:**
+
 - `ValidationError` – Validation errors
+- `FileOperationError` – File operation failures
+- `ConfigError` – Configuration parsing errors
+- `ZipError` – ZIP archive errors
 
 ---
 
@@ -272,6 +287,33 @@ pytest tests/integration/
 pytest --cov=ezcompiler tests/
 ```
 
+### 5. Compiler-Specific Options
+
+Use `compiler_options` for advanced compiler features:
+
+```yaml
+# For Cx_Freeze - control ZIP packaging
+compiler: "Cx_Freeze"
+compiler_options:
+  zip_include_packages: ["*"]
+  zip_exclude_packages: ["test", "tkinter"]
+  include_msvcr: true
+
+# For PyInstaller - enable debug logging
+compiler: "PyInstaller"
+compiler_options:
+  log-level: "DEBUG"
+  collect-all: "numpy"
+
+# For Nuitka - enable plugins
+compiler: "Nuitka"
+compiler_options:
+  show-progress: true
+  enable-plugin: "numpy"
+```
+
+See [Configuration Guide](cli/CONFIG_GUIDE.md#compiler_options) for complete options reference.
+
 ---
 
 ## Advanced Topics
@@ -281,6 +323,32 @@ pytest --cov=ezcompiler tests/
 ```python
 ezcompiler.compile_project(compiler="PyInstaller")  # Single file
 ezcompiler.compile_project(compiler="Cx_Freeze")    # Directory
+```
+
+### Compiler-Specific Options
+
+Pass advanced options to compilers via `compiler_options`:
+
+```python
+from ezcompiler import EzCompiler, CompilerConfig
+
+config = CompilerConfig(
+    version="1.0.0",
+    project_name="MyApp",
+    main_file="main.py",
+    include_files={"files": [], "folders": []},
+    output_folder="dist",
+    compiler="Cx_Freeze",
+    compiler_options={
+        "zip_include_packages": ["*"],
+        "zip_exclude_packages": ["test", "tkinter"],
+        "include_msvcr": True,
+        "optimize": 2
+    }
+)
+
+ezcompiler = EzCompiler(config)
+ezcompiler.compile_project()
 ```
 
 ### Template Processing

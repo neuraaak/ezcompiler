@@ -156,12 +156,17 @@ version_info.txt
 # =============================================================================
 # Cursor
 .cursorignore
-.cursor/
 .cursor_cache/
+
+# Claude
+.claude/
 
 # Visual Studio Code
 .vscode/
 .vscode-server/
+.vscode/settings.json
+.vscode/launch.json
+.vscode/tasks.json
 
 # PyCharm/IntelliJ
 .idea/
@@ -243,12 +248,3 @@ temp_projects/
 # Configuration locale utilisateur
 local_config/
 user_settings/
-
-# Configuration IDE spécifique (optionnel)
-.vscode/settings.json
-.vscode/launch.json
-.vscode/tasks.json
-.github/instructions/
-.claude/
-.cursor/rules/
-.clinerules

@@ -63,6 +63,7 @@ class CompilerConfig:
         optimize: Optimize code (default: True)
         strip: Strip debug info (default: False)
         debug: Enable debug mode (default: False)
+        compiler_options: Compiler-specific options dict (default: {})
 
     Example:
         >>> config = CompilerConfig(
@@ -122,6 +123,12 @@ class CompilerConfig:
     optimize: bool = True
     strip: bool = False
     debug: bool = False
+
+    # ////////////////////////////////////////////////
+    # COMPILER-SPECIFIC OPTIONS
+    # ////////////////////////////////////////////////
+
+    compiler_options: dict[str, Any] = field(default_factory=dict)
 
     # ////////////////////////////////////////////////
     # INITIALIZATION AND VALIDATION
@@ -268,6 +275,7 @@ class CompilerConfig:
                 "strip": self.strip,
                 "debug": self.debug,
             },
+            "compiler_options": self.compiler_options,
         }
 
     @classmethod

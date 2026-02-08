@@ -27,6 +27,7 @@ import sys
 from pathlib import Path
 
 # Local imports
+from ..shared.compiler_config import CompilerConfig
 from ..shared.exceptions import CompilationError
 from .base_compiler import BaseCompiler
 
@@ -59,7 +60,7 @@ class PyInstallerCompiler(BaseCompiler):
     # INITIALIZATION
     # ////////////////////////////////////////////////
 
-    def __init__(self, config: object) -> None:
+    def __init__(self, config: CompilerConfig) -> None:
         """
         Initialize PyInstaller compiler.
 
@@ -69,7 +70,7 @@ class PyInstallerCompiler(BaseCompiler):
         Note:
             PyInstaller creates single files, so _zip_needed is set to False.
         """
-        super().__init__(config)  # type: ignore[arg-type]
+        super().__init__(config)
         self._zip_needed = False  # PyInstaller creates single file
 
     # ////////////////////////////////////////////////
@@ -175,6 +176,17 @@ class PyInstallerCompiler(BaseCompiler):
 
             if self.config.debug:
                 cmd.append("--debug=all")
+
+            # Add compiler-specific options from config.compiler_options
+            # Format: {"option-name": "value"} -> --option-name=value
+            #         {"option-flag": True} -> --option-flag
+            if self.config.compiler_options:
+                for key, value in self.config.compiler_options.items():
+                    if isinstance(value, bool):
+                        if value:  # Only add if True
+                            cmd.append(f"--{key}")
+                    else:
+                        cmd.append(f"--{key}={value}")
 
             # Run PyInstaller in subprocess with captured output
             result = subprocess.run(  # noqa: S603

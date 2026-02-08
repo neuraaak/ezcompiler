@@ -48,7 +48,7 @@ from ..shared.exceptions.utils.config_exceptions import (
     TomlNotAvailableError,
 )
 from .file_utils import FileUtils
-from .validation_utils import ValidationUtils
+from .validators import validate_string_length
 
 # ///////////////////////////////////////////////////////////////
 # CLASSES
@@ -94,12 +94,10 @@ class ConfigUtils:
         if not config.version:
             raise MissingRequiredConfigError("Version cannot be empty")
 
-        if not ValidationUtils.validate_string_length(
-            config.project_name, min_length=1
-        ):
+        if not validate_string_length(config.project_name, min_length=1):
             raise MissingRequiredConfigError("Project name cannot be empty")
 
-        if not ValidationUtils.validate_string_length(config.main_file, min_length=1):
+        if not validate_string_length(config.main_file, min_length=1):
             raise MissingRequiredConfigError("Main file cannot be empty")
 
         if not config.include_files:
