@@ -21,15 +21,15 @@ For backward compatibility, all validators are re-exported at package level.
 
 from __future__ import annotations
 
+# ///////////////////////////////////////////////////////////////
+# IMPORTS
+# ///////////////////////////////////////////////////////////////
 # Domain validators
 from .domain_validators import (
     validate_compiler_name,
     validate_upload_structure,
 )
 
-# ///////////////////////////////////////////////////////////////
-# IMPORTS
-# ///////////////////////////////////////////////////////////////
 # Format validators
 from .format_validators import (
     validate_email,

@@ -4,9 +4,9 @@
 # ///////////////////////////////////////////////////////////////
 
 """
-Unit tests for utility modules (FileUtils, ValidationUtils, ZipUtils).
+Unit tests for utility modules (FileUtils, validators, ZipUtils).
 
-Tests the basic functionality of utility classes.
+Tests the basic functionality of utility classes and validator functions.
 """
 
 from __future__ import annotations
@@ -14,7 +14,7 @@ from __future__ import annotations
 # ///////////////////////////////////////////////////////////////
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
-from ezcompiler.utils import FileUtils, ValidationUtils, ZipUtils
+from ezcompiler.utils import FileUtils, ZipUtils, validators
 
 # ///////////////////////////////////////////////////////////////
 # TESTS - FILE UTILS
@@ -39,17 +39,18 @@ class TestFileUtils:
 # ///////////////////////////////////////////////////////////////
 
 
-class TestValidationUtils:
-    """Test ValidationUtils class."""
+class TestValidators:
+    """Test validators module."""
 
-    def test_validation_utils_exists(self) -> None:
-        """Test that ValidationUtils can be imported."""
-        assert ValidationUtils is not None
+    def test_validators_exists(self) -> None:
+        """Test that validators module can be imported."""
+        assert validators is not None
 
-    def test_validation_utils_instantiate(self) -> None:
-        """Test that ValidationUtils can be instantiated."""
-        validation_utils = ValidationUtils()
-        assert isinstance(validation_utils, ValidationUtils)
+    def test_validators_has_functions(self) -> None:
+        """Test that validators module has expected functions."""
+        assert hasattr(validators, "validate_version_string")
+        assert hasattr(validators, "validate_compiler_name")
+        assert hasattr(validators, "validate_upload_structure")
 
 
 # ///////////////////////////////////////////////////////////////
@@ -117,45 +118,45 @@ class TestFileUtilsMethods:
 # ///////////////////////////////////////////////////////////////
 
 
-class TestValidationUtilsMethods:
-    """Test ValidationUtils methods."""
+class TestValidatorFunctions:
+    """Test validator functions."""
 
     def test_validate_version_valid(self) -> None:
-        """Test ValidationUtils.validate_version_string with valid versions."""
-        assert ValidationUtils.validate_version_string("1.0.0") is True
-        assert ValidationUtils.validate_version_string("2.1.0") is True
-        assert ValidationUtils.validate_version_string("0.0.1") is True
+        """Test validators.validate_version_string with valid versions."""
+        assert validators.validate_version_string("1.0.0") is True
+        assert validators.validate_version_string("2.1.0") is True
+        assert validators.validate_version_string("0.0.1") is True
 
     def test_validate_version_invalid(self) -> None:
-        """Test ValidationUtils.validate_version_string with invalid versions."""
-        assert ValidationUtils.validate_version_string("invalid") is False
+        """Test validators.validate_version_string with invalid versions."""
+        assert validators.validate_version_string("invalid") is False
         # "1" is technically valid per regex but let's test what passes
         # The regex accepts "1" as valid, so we test that it doesn't accept empty
-        assert ValidationUtils.validate_version_string("") is False
+        assert validators.validate_version_string("") is False
         # Test that it doesn't accept non-numeric
-        assert ValidationUtils.validate_version_string("1.a.0") is False
+        assert validators.validate_version_string("1.a.0") is False
 
     def test_validate_compiler_name_valid(self) -> None:
-        """Test ValidationUtils.validate_compiler_name with valid names."""
-        assert ValidationUtils.validate_compiler_name("Cx_Freeze") is True
-        assert ValidationUtils.validate_compiler_name("PyInstaller") is True
-        assert ValidationUtils.validate_compiler_name("Nuitka") is True
-        assert ValidationUtils.validate_compiler_name("auto") is True
+        """Test validators.validate_compiler_name with valid names."""
+        assert validators.validate_compiler_name("Cx_Freeze") is True
+        assert validators.validate_compiler_name("PyInstaller") is True
+        assert validators.validate_compiler_name("Nuitka") is True
+        assert validators.validate_compiler_name("auto") is True
 
     def test_validate_compiler_name_invalid(self) -> None:
-        """Test ValidationUtils.validate_compiler_name with invalid names."""
-        assert ValidationUtils.validate_compiler_name("InvalidCompiler") is False
-        assert ValidationUtils.validate_compiler_name("") is False
+        """Test validators.validate_compiler_name with invalid names."""
+        assert validators.validate_compiler_name("InvalidCompiler") is False
+        assert validators.validate_compiler_name("") is False
 
     def test_validate_upload_structure_valid(self) -> None:
-        """Test ValidationUtils.validate_upload_structure with valid structures."""
-        assert ValidationUtils.validate_upload_structure("disk") is True
-        assert ValidationUtils.validate_upload_structure("server") is True
+        """Test validators.validate_upload_structure with valid structures."""
+        assert validators.validate_upload_structure("disk") is True
+        assert validators.validate_upload_structure("server") is True
 
     def test_validate_upload_structure_invalid(self) -> None:
-        """Test ValidationUtils.validate_upload_structure with invalid structures."""
-        assert ValidationUtils.validate_upload_structure("ftp") is False
-        assert ValidationUtils.validate_upload_structure("") is False
+        """Test validators.validate_upload_structure with invalid structures."""
+        assert validators.validate_upload_structure("ftp") is False
+        assert validators.validate_upload_structure("") is False
 
 
 # ///////////////////////////////////////////////////////////////
