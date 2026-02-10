@@ -14,3 +14,5 @@ mkdocs>=1.6.0
 mkdocs-material>=9.5.0
 mkdocstrings[python]>=0.27.0
 mkdocs-section-index>=0.3.0
+mkdocs-coverage>=1.1.0
+git-cliff>=2.7.0
