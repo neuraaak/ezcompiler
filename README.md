@@ -2,12 +2,15 @@
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg?style=for-the-badge&logo=python)](https://www.python.org/)
 [![Platform](https://img.shields.io/badge/Platform-Windows-lightgray.svg?style=for-the-badge&logo=windows)](https://pypi.org/project/ezcompiler/)
-[![Version](https://img.shields.io/badge/Version-2.2.1-orange.svg?style=for-the-badge)](https://github.com/neuraaak/ezcompiler)
+[![Version](https://img.shields.io/badge/Version-2.2.2-orange.svg?style=for-the-badge)](https://github.com/neuraaak/ezcompiler)
 [![PyPI](https://img.shields.io/badge/PyPI-ezcompiler-green.svg?style=for-the-badge&logo=pypi)](https://pypi.org/project/ezcompiler/)
+[![Docs](https://img.shields.io/badge/Docs-Online-blue.svg?style=for-the-badge&logo=readthedocs)](https://neuraaak.github.io/ezcompiler/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 [![Status](https://img.shields.io/badge/Status-Production%20Ready-success.svg?style=for-the-badge)](https://github.com/neuraaak/ezcompiler)
 [![Tests](https://img.shields.io/badge/Tests-68%20passing-success.svg?style=for-the-badge)](https://github.com/neuraaak/ezcompiler)
 [![Coverage](https://img.shields.io/badge/Coverage-29%25-yellow.svg?style=for-the-badge)](https://github.com/neuraaak/ezcompiler)
+
+![EzCompiler Logo](docs/assets/logo-min.png)
 
 **EzCompiler** is a professional Python library for compiling projects into executable files with automatic version management, packaging, and distribution. It provides a unified interface for multiple compilers (Cx_Freeze, PyInstaller, Nuitka) with modular architecture and complete type hints.
 
@@ -62,13 +65,13 @@ compiler.run_pipeline(
 
 ## 📚 Documentation
 
-- **[📖 Complete API Documentation](docs/api/API_DOCUMENTATION.md)** – Full API reference with examples
-- **[📋 API Summary](docs/api/SUMMARY.md)** – Quick API overview
-- **[🖥️ CLI Documentation](docs/cli/CLI_DOCUMENTATION.md)** – Command-line interface guide
-- **[⚙️ Configuration Guide](docs/cli/CONFIG_GUIDE.md)** – Configuration management
-- **[💡 Examples](docs/examples/EXAMPLES.md)** – Usage examples and demonstrations
-- **[🧪 Test Documentation](docs/tests/TEST_DOCUMENTATION.md)** – Complete test suite documentation
-- **[📊 Test Summary](docs/tests/SUMMARY.md)** – Quick test overview
+- **[📖 Getting Started](docs/getting-started.md)** – Installation and first steps
+- **[📋 API Reference](docs/api/index.md)** – Complete API documentation with auto-generation
+- **[🖥️ CLI Reference](docs/cli/index.md)** – Command-line interface guide
+- **[⚙️ Configuration Guide](docs/guides/configuration.md)** – Detailed configuration options
+- **[💡 Examples](docs/examples/index.md)** – Usage examples and demonstrations
+- **[👨‍💻 Development Guide](docs/guides/development.md)** – Development workflow and contribution guide
+- **[🌐 Online Documentation](https://neuraaak.github.io/ezcompiler/)** – Full documentation website
 
 ## 🧪 Testing
 
@@ -90,7 +93,7 @@ python tests/run_tests.py --type robustness
 python tests/run_tests.py --coverage
 ```
 
-See **[Test Documentation](docs/tests/TEST_DOCUMENTATION.md)** for complete details.
+See **[Development Guide](docs/guides/development.md)** for testing details.
 
 ## 🛠️ Development Setup
 
@@ -199,7 +202,7 @@ ezcompiler generate version --config ezcompiler.yaml
 ezcompiler generate template --type config --mockup
 ```
 
-See **[CLI Documentation](docs/cli/CLI_DOCUMENTATION.md)** for complete reference.
+See **[CLI Reference](docs/cli/index.md)** for complete reference.
 
 ## 🔄 Configuration
 
@@ -226,13 +229,13 @@ excludes:
   - "test"
 
 compilation:
-  compiler: "auto"  # "auto", "Cx_Freeze", "PyInstaller", or "Nuitka"
+  compiler: "auto" # "auto", "Cx_Freeze", "PyInstaller", or "Nuitka"
   console: true
   zip_needed: true
   repo_needed: false
 ```
 
-See **[Configuration Guide](docs/cli/CONFIG_GUIDE.md)** for detailed configuration options.
+See **[Configuration Guide](docs/guides/configuration.md)** for detailed configuration options.
 
 ## 📊 Architecture
 
@@ -291,7 +294,7 @@ Contributions are welcome! Please feel free to:
 
 - **🐛 Bug Reports**: [GitHub Issues](https://github.com/neuraaak/ezcompiler/issues)
 - **💡 Feature Requests**: [GitHub Issues](https://github.com/neuraaak/ezcompiler/issues)
-- **📚 Documentation**: [Complete API Docs](docs/api/API_DOCUMENTATION.md)
+- **📚 Documentation**: [Complete Documentation](https://neuraaak.github.io/ezcompiler/)
 
 ## 📝 License
 
@@ -300,8 +303,9 @@ MIT License – See [LICENSE](LICENSE) file for details.
 ## 🔗 Links
 
 - **Repository**: [https://github.com/neuraaak/ezcompiler](https://github.com/neuraaak/ezcompiler)
+- **PyPI Package**: [https://pypi.org/project/ezcompiler/](https://pypi.org/project/ezcompiler/)
 - **Issues**: [GitHub Issues](https://github.com/neuraaak/ezcompiler/issues)
-- **Documentation**: [Complete Documentation](docs/README.md)
+- **Documentation**: [https://neuraaak.github.io/ezcompiler/](https://neuraaak.github.io/ezcompiler/)
 
 ---
 

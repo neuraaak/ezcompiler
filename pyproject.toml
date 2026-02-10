@@ -14,7 +14,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ezcompiler"
-version = "2.2.1"
+version = "2.2.2"
 description = "Project compilation and distribution framework for Python projects"
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.10"
@@ -96,6 +96,12 @@ test = [
     "pytest-mock>=3.10.0",
     "pytest-xdist>=3.0.0",
 ]
+docs = [
+    "mkdocs>=1.6.0",
+    "mkdocs-material>=9.5.0",
+    "mkdocstrings[python]>=0.27.0",
+    "mkdocs-section-index>=0.3.0",
+]
 
 # ///////////////////////////////////////////////////////////////
 # 🔗 PROJECT URLS
@@ -104,6 +110,7 @@ test = [
 
 [project.urls]
 Homepage = "https://github.com/neuraaak/ezcompiler"
+Documentation = "https://neuraaak.github.io/ezcompiler/"
 Repository = "https://github.com/neuraaak/ezcompiler"
 PyPI = "https://pypi.org/project/ezcompiler/"
 

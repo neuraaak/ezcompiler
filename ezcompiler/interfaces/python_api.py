@@ -592,6 +592,12 @@ class EzCompiler:
                         zip_file_path = str(self.config.zip_file_path)
 
                         def _zip_cb(filename: str, progress: int) -> None:
+                            """Update progress display during ZIP file creation.
+
+                            Args:
+                                filename: The name of the file being compressed.
+                                progress: The current progress percentage (0-100).
+                            """
                             dlp.update_layer("zip", progress, Path(filename).name)
 
                         ZipUtils.create_zip_archive(
