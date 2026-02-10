@@ -1,16 +1,15 @@
 name: Deploy Documentation
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "docs/**"
-      - "mkdocs.yml"
-      # ⚠️ Remplacer par le nom du package source pour rebuilder la doc sur changement de code
-      # Exemple : "my_package/**"
-      # Note : les variables env ne sont pas supportées dans on.push.paths
-      - "ezcompiler/**"
   workflow_dispatch:
+  workflow_call:
+    inputs:
+      version:
+        required: false
+        type: string
+      tag:
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -30,6 +29,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -43,11 +44,23 @@ jobs:
           echo "📦 Installing extra system dependencies..."
           pip install ${{ env.EXTRA_SYSTEM_DEPS }} --no-cache-dir
 
-      - name: Install package with docs dependencies
+      - name: Install package with docs and test dependencies
         run: |
-          echo "📦 Installing package and docs dependencies..."
+          echo "📦 Installing package with docs and test dependencies..."
           python -m pip install --upgrade pip
-          pip install -e ".[docs]"
+          pip install -e ".[docs,test]"
+
+      - name: Generate coverage report
+        run: |
+          echo "🧪 Running tests and generating coverage report..."
+          pytest --cov=ezpl --cov-report=html --cov-report=xml -q || true
+          echo "✅ Coverage report generated!"
+
+      - name: Generate changelog
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --output docs/changelog.md
 
       - name: Build and deploy documentation
         run: |
