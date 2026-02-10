@@ -1,13 +1,14 @@
 # ///////////////////////////////////////////////////////////////
 # MKDOCS CONFIGURATION
-# ⚠️ Remplacer les valeurs ci-dessous par celles de votre projet
 # ///////////////////////////////////////////////////////////////
 
 site_name: EzCompiler Documentation
 site_description: Comprehensive documentation for the EzCompiler project, covering user guides, API reference, CLI usage, and examples.
+site_author: Neuraaak
 site_url: https://neuraaak.github.io/ezcompiler/
 repo_url: https://github.com/neuraaak/ezcompiler
 repo_name: neuraaak/ezcompiler
+edit_uri: edit/main/docs/
 
 # ///////////////////////////////////////////////////////////////
 # THEME
@@ -22,27 +23,37 @@ theme:
       accent: indigo
       toggle:
         icon: material/brightness-7
-        name: Dark mode
+        name: Switch to dark mode
     - scheme: slate
       primary: indigo
       accent: indigo
       toggle:
         icon: material/brightness-4
-        name: Light mode
+        name: Switch to light mode
   features:
     - navigation.tabs
+    - navigation.tabs.sticky
     - navigation.sections
+    - navigation.path
     - navigation.top
+    - navigation.footer
+    - navigation.indexes
     - search.suggest
     - search.highlight
+    - search.share
     - content.code.copy
+    - content.code.annotate
     - content.tabs.link
+    - toc.follow
   icon:
     repo: fontawesome/brands/github
+    edit: material/pencil
+    view: material/eye
+  # logo: assets/logo.png       # Uncomment when docs/assets/logo.png exists
+  # favicon: assets/favicon.ico  # Uncomment when docs/assets/favicon.ico exists
 
 # ///////////////////////////////////////////////////////////////
 # NAVIGATION
-# ⚠️ Adapter la structure de navigation à votre projet
 # ///////////////////////////////////////////////////////////////
 
 nav:
@@ -63,6 +74,8 @@ nav:
       - cli/index.md
   - Examples:
       - examples/index.md
+  - Coverage: coverage.md
+  - Changelog: changelog.md
 
 # ///////////////////////////////////////////////////////////////
 # PLUGINS
@@ -71,6 +84,9 @@ nav:
 plugins:
   - search
   - section-index
+  - coverage:
+      page_name: coverage
+      html_report_dir: htmlcov
   - mkdocstrings:
       default_handler: python
       handlers:

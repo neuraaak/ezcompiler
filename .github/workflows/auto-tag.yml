@@ -30,7 +30,7 @@ jobs:
         id: get_pyproject_version
         run: |
           if [ -f "pyproject.toml" ]; then
-            VERSION=$(grep -E '^version\s*=\s*"' pyproject.toml | sed 's/.*version\s*=\s*"\([^"]*\)".*/\1/')
+            VERSION=$(grep -E '^version\s*=\s*"' pyproject.toml | head -1 | sed 's/.*version\s*=\s*"\([^"]*\)".*/\1/')
             if [ -n "$VERSION" ]; then
               echo "version=$VERSION" >> $GITHUB_OUTPUT
               echo "source=pyproject.toml" >> $GITHUB_OUTPUT
@@ -179,78 +179,28 @@ jobs:
           echo "✅ Tags successfully created and pushed to remote!" >> $GITHUB_STEP_SUMMARY
 
   # ========================================
-  # TRIGGER ANOTHER WORKFLOW
+  # TRIGGER OTHER WORKFLOWS (reusable workflow calls)
   # ========================================
-  # Uncomment and configure one of the methods below
+  # Uncomment and configure the jobs below to trigger local workflows.
+  # Each job runs in parallel after auto-tag completes.
+  # The called workflows must define `on: workflow_call:` with matching inputs.
 
-  # METHOD 1: Call a reusable workflow (recommended for workflows in same repo)
-  # trigger-workflow:
-  #   name: Trigger Another Workflow
-  #   needs: auto-tag
-  #   if: needs.auto-tag.outputs.new_tag == 'true'
-  #   uses: ./.github/workflows/publish.yml
-  #   secrets: inherit
-  #   with:
-  #     version: ${{ needs.auto-tag.outputs.version }}
-  #     tag: ${{ needs.auto-tag.outputs.tag_name }}
+  trigger-publish:
+    name: Trigger Publish
+    needs: auto-tag
+    if: needs.auto-tag.outputs.new_tag == 'true'
+    uses: ./.github/workflows/publish-pypi.yml
+    secrets: inherit
+    with:
+      version: ${{ needs.auto-tag.outputs.version }}
+      tag: ${{ needs.auto-tag.outputs.tag_name }}
 
-  # METHOD 2: Trigger workflow with gh CLI (for any workflow)
-  # trigger-workflow:
-  #   name: Trigger Another Workflow
-  #   needs: auto-tag
-  #   if: needs.auto-tag.outputs.new_tag == 'true'
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Trigger workflow
-  #       run: |
-  #         gh workflow run workflow-name.yml \
-  #           -f version="${{ needs.auto-tag.outputs.version }}" \
-  #           -f tag="${{ needs.auto-tag.outputs.tag_name }}"
-  #         echo "🚀 Triggered workflow: workflow-name.yml"
-  #       env:
-  #         GH_TOKEN: ${{ github.token }}
-
-  # METHOD 3: Trigger workflow with GitHub API (more control)
-  # trigger-workflow:
-  #   name: Trigger Another Workflow
-  #   needs: auto-tag
-  #   if: needs.auto-tag.outputs.new_tag == 'true'
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Trigger workflow via API
-  #       run: |
-  #         curl -X POST \
-  #           -H "Accept: application/vnd.github.v3+json" \
-  #           -H "Authorization: token ${{ github.token }}" \
-  #           https://api.github.com/repos/${{ github.repository }}/actions/workflows/workflow-name.yml/dispatches \
-  #           -d '{
-  #             "ref": "main",
-  #             "inputs": {
-  #               "version": "${{ needs.auto-tag.outputs.version }}",
-  #               "tag": "${{ needs.auto-tag.outputs.tag_name }}"
-  #             }
-  #           }'
-  #         echo "🚀 Triggered workflow via API"
-
-  # METHOD 4: Trigger repository_dispatch event (for event-driven workflows)
-  # trigger-workflow:
-  #   name: Trigger Custom Event
-  #   needs: auto-tag
-  #   if: needs.auto-tag.outputs.new_tag == 'true'
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Dispatch custom event
-  #       run: |
-  #         curl -X POST \
-  #           -H "Accept: application/vnd.github.v3+json" \
-  #           -H "Authorization: token ${{ github.token }}" \
-  #           https://api.github.com/repos/${{ github.repository }}/dispatches \
-  #           -d '{
-  #             "event_type": "tag-created",
-  #             "client_payload": {
-  #               "version": "${{ needs.auto-tag.outputs.version }}",
-  #               "tag": "${{ needs.auto-tag.outputs.tag_name }}",
-  #               "latest_tag": "${{ needs.auto-tag.outputs.latest_tag }}"
-  #             }
-  #           }'
-  #         echo "🚀 Triggered repository_dispatch event: tag-created"
+  trigger-deploy-docs:
+    name: Trigger Deploy Docs
+    needs: auto-tag
+    if: needs.auto-tag.outputs.new_tag == 'true'
+    uses: ./.github/workflows/docs.yml
+    secrets: inherit
+    with:
+      version: ${{ needs.auto-tag.outputs.version }}
+      tag: ${{ needs.auto-tag.outputs.tag_name }}
