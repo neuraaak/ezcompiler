@@ -6,7 +6,7 @@ This directory contains Git hooks used by your project.
 
 ### `pre-commit`
 
-- **Purpose**: Code quality and formatting before each commit  
+- **Purpose**: Code quality and formatting before each commit
 - **Behavior**:
   - Runs **Black**, **isort**, and **Ruff format** on the entire repository
   - Automatically stages reformatted files with `git add .`
@@ -16,7 +16,7 @@ This directory contains Git hooks used by your project.
 
 ### `post-commit`
 
-- **Purpose**: Automated tagging and local build after a successful commit  
+- **Purpose**: Automated tagging and local build after a successful commit
 - **Behavior**:
   - Reads the version from `pyproject.toml` (or `setup.py` as fallback)
   - Creates or updates a lightweight tag `v<version>` on `HEAD`
@@ -43,8 +43,8 @@ This tells Git to use the `.hooks/` directory instead of `.git/hooks/`.
 
 #### Adding a new hook
 
-1. Create the file in `.hooks/` (e.g. `.hooks/pre-push`)  
-2. Make it executable: `chmod +x .hooks/pre-push`  
+1. Create the file in `.hooks/` (e.g. `.hooks/pre-push`)
+2. Make it executable: `chmod +x .hooks/pre-push`
 3. Document the new hook in this file
 
 #### Manual testing

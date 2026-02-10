@@ -949,6 +949,12 @@ def compile_project(
                     zip_path = str(config_obj.zip_file_path)
 
                     def _zip_progress(filename: str, progress: int) -> None:
+                        """Update progress display during ZIP file creation.
+
+                        Args:
+                            filename: The name of the file being compressed.
+                            progress: The current progress percentage (0-100).
+                        """
                         dlp.update_layer("zip", progress, Path(filename).name)
 
                     ZipUtils.create_zip_archive(

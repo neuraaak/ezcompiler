@@ -1,0 +1,56 @@
+name: Deploy Documentation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "mkdocs.yml"
+      # ⚠️ Remplacer par le nom du package source pour rebuilder la doc sur changement de code
+      # Exemple : "my_package/**"
+      # Note : les variables env ne sont pas supportées dans on.push.paths
+      - "ezcompiler/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  PACKAGE_NAME: ezcompiler
+  PYTHON_VERSION: "3.11"
+  # Dépendances système supplémentaires nécessaires avant l'installation du package
+  # Laisser vide si aucune dépendance système n'est requise
+  EXTRA_SYSTEM_DEPS: ""
+
+jobs:
+  deploy:
+    name: Build and Deploy Docs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install extra system dependencies
+        if: env.EXTRA_SYSTEM_DEPS != ''
+        run: |
+          echo "📦 Installing extra system dependencies..."
+          pip install ${{ env.EXTRA_SYSTEM_DEPS }} --no-cache-dir
+
+      - name: Install package with docs dependencies
+        run: |
+          echo "📦 Installing package and docs dependencies..."
+          python -m pip install --upgrade pip
+          pip install -e ".[docs]"
+
+      - name: Build and deploy documentation
+        run: |
+          echo "📚 Building and deploying documentation for ${{ env.PACKAGE_NAME }}..."
+          mkdocs gh-deploy --force
+          echo "✅ Documentation deployed successfully!"
