@@ -19,7 +19,7 @@ fi
 echo "🔍 Running pre-commit formatting..."
 
 # Check if Python is available
-if ! command -v "$PYTHON_BIN" &> /dev/null; then
+if ! command -v "$PYTHON_BIN" &>/dev/null; then
     echo "❌ Error: Python not found (venv or PATH)"
     exit 1
 fi
@@ -38,19 +38,19 @@ if [ -f ".scripts/dev/lint.py" ]; then
     fi
 else
     echo "⚠️  Warning: .scripts/dev/lint.py not found, using fallback tools..."
-    
+
     # Fallback to direct tool calls if lint.py is not available
     # Function to check if a tool is available
     check_tool() {
         local tool="$1"
         local command="$2"
-        if ! command -v "$command" &> /dev/null; then
+        if ! command -v "$command" &>/dev/null; then
             echo "⚠️  Warning: $tool not found, skipping..."
             return 1
         fi
         return 0
     }
-    
+
     # Function to run a formatting tool
     run_formatter() {
         local tool="$1"
@@ -64,31 +64,31 @@ else
             return 1
         fi
     }
-    
+
     # Track overall success
     overall_success=true
-    
+
     # Run Black (code formatting) - format automatically
     if check_tool "Black" "black"; then
         if ! run_formatter "Black" "black ."; then
             overall_success=false
         fi
     fi
-    
+
     # Run isort (import sorting) - format automatically
     if check_tool "isort" "isort"; then
         if ! run_formatter "isort" "isort ."; then
             overall_success=false
         fi
     fi
-    
+
     # Run Ruff format (code formatting) - format automatically
     if check_tool "Ruff" "ruff"; then
         if ! run_formatter "Ruff format" "ruff format ."; then
             overall_success=false
         fi
     fi
-    
+
     if [ "$overall_success" != true ]; then
         echo "❌ Pre-commit formatting failed!"
         overall_success=false
