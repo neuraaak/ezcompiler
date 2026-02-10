@@ -43,16 +43,11 @@ jobs:
 
       - name: Fetch all branches and tags
         run: |
-          git fetch origin main:refs/remotes/origin/main --force
           git fetch --all --tags --prune
           echo "📋 Available branches:"
           git branch -a
           echo "📋 Available tags:"
           git tag -l
-          echo "📋 Current HEAD:"
-          git log --oneline -1
-          echo "📋 origin/main HEAD:"
-          git log --oneline -1 origin/main
 
       - name: Extract version from tag
         id: extract_version
@@ -143,21 +138,21 @@ jobs:
           # Vérifier si le commit du tag est un ancêtre de main (méthode fiable)
           if git merge-base --is-ancestor "$TAG_COMMIT" "$MAIN_REF" 2>/dev/null; then
             echo "✅ Tag $TAG_NAME is on main branch (commit is in main's history)"
-              echo "on_main=true" >> $GITHUB_OUTPUT
-            else
-              echo "❌ Tag $TAG_NAME is NOT on main branch!"
-              echo "   Tag commit: $TAG_COMMIT"
+            echo "on_main=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Tag $TAG_NAME is NOT on main branch!"
+            echo "   Tag commit: $TAG_COMMIT"
             echo "   Main branch: $MAIN_REF (commit: $MAIN_COMMIT)"
-              echo "   This tag points to a commit that is not in main's history"
-              echo "   Only tags on the main branch will trigger PyPI publication"
+            echo "   This tag points to a commit that is not in main's history"
+            echo "   Only tags on the main branch will trigger PyPI publication"
             echo ""
             echo "🔍 Debug info - commits in main branch:"
             git log --oneline "$MAIN_REF" -10
             echo ""
             echo "🔍 Debug info - tag commit details:"
             git log --oneline "$TAG_COMMIT" -1
-              echo "on_main=false" >> $GITHUB_OUTPUT
-              exit 1
+            echo "on_main=false" >> $GITHUB_OUTPUT
+            exit 1
           fi
 
       - name: Install dependencies
