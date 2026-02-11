@@ -5,7 +5,7 @@
 [![Python versions](https://img.shields.io/pypi/pyversions/ezcompiler)](https://pypi.org/project/ezcompiler/)
 [![License](https://img.shields.io/pypi/l/ezcompiler)](https://github.com/neuraaak/ezcompiler/blob/main/LICENSE)
 
-![EzCompiler Logo](assets/logo-min.png)
+![EzCompiler Logo](https://raw.githubusercontent.com/neuraaak/ezcompiler/refs/heads/main/docs/assets/logo-min.png)
 
 **EzCompiler** is a comprehensive Python framework for project compilation, version file generation, packaging, and distribution. It provides a clean and typed API suitable for professional and industrial Python applications.
 
