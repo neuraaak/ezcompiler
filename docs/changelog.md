@@ -4,6 +4,12 @@ All notable changes to this project are documented here.
 
 This changelog is automatically generated from [Conventional Commits](https://www.conventionalcommits.org/).
 
+## [2.2.3](https://github.com/neuraaak/ezcompiler/releases/tag/v2.2.3) — 2026-02-10
+
+### Documentation
+
+- Add changelog and pytest coverage to documentation ([e6a8d84](https://github.com/neuraaak/ezcompiler/commit/e6a8d8414828ac8e1ccb57189778eaf88f7a60ad))
+
 ## [2.2.2](https://github.com/neuraaak/ezcompiler/releases/tag/v2.2.2) — 2026-02-10
 
 ### Features
