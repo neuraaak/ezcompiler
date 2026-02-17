@@ -65,7 +65,7 @@ from .shared import (
 # METADATA INFORMATION
 # ///////////////////////////////////////////////////////////////
 
-__version__ = "2.2.3"
+__version__ = "2.2.4"
 __author__ = "Neuraaak"
 __maintainer__ = "Neuraaak"
 __description__ = "Project compilation and distribution framework for Python"
