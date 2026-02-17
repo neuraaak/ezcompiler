@@ -157,6 +157,7 @@ class CxFreezeCompiler(BaseCompiler):
                 "target_name": f"{self.config.project_name}.exe",
                 "base": base,
                 "icon": self.config.icon if self.config.icon else None,
+                "debug": self.config.debug,
                 "build_exe_options": build_exe_options,
             }
 
@@ -193,6 +194,7 @@ executables = [
         base=config["base"],
         target_name=config["target_name"],
         icon=config["icon"],
+        init_script=config.get("init_script"),
     )
 ]
 
@@ -224,12 +226,18 @@ with warnings.catch_warnings():
         Raises:
             CompilationError: If the subprocess fails
         """
+        project_dir = Path(setup_config["main_file"]).resolve().parent
+
         # Write temporary config JSON file
-        config_fd, config_file_str = tempfile.mkstemp(suffix="_cx_config.json")
+        config_fd, config_file_str = tempfile.mkstemp(
+            suffix="_cx_config.json", dir=str(project_dir)
+        )
         config_file = Path(config_file_str)
 
         # Write temporary setup script
-        script_fd, script_file_str = tempfile.mkstemp(suffix="_cx_setup.py")
+        script_fd, script_file_str = tempfile.mkstemp(
+            suffix="_cx_setup.py", dir=str(project_dir)
+        )
         script_file = Path(script_file_str)
 
         try:
@@ -245,6 +253,7 @@ with warnings.catch_warnings():
                 check=False,
                 capture_output=True,
                 text=True,
+                cwd=str(project_dir),
             )
 
             if result.returncode != 0:
