@@ -58,7 +58,6 @@ MANIFEST
 .pytest_cache/
 .ruff_cache/
 .mypy_cache/
-.black_cache/
 .bandit/
 .pre-commit-cache/
 .benchmarks/
@@ -66,6 +65,7 @@ MANIFEST
 .cache
 .nox/
 .hypothesis/
+.import_linter_cache
 
 # Dependency manager cache
 .pip-cache/
@@ -90,7 +90,6 @@ htmlcov/
 # Rapports de linting et formatage
 ruff-report.json
 flake8-report.txt
-black-report.txt
 mypy-report.txt
 
 # Rapports de tests
@@ -129,7 +128,6 @@ pytype-report.txt
 # Rapports de formatage et style
 autopep8-report.txt
 yapf-report.txt
-isort-report.txt
 
 # Rapports de sécurité avancés
 semgrep-report.json

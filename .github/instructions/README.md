@@ -1,6 +1,5 @@
 # EzCompiler Project Guidelines
 
-**Version:** 2.1.0
 **Architecture:** Layered Architecture with Service-Oriented Design
 **Target:** Python 3.10+ | Windows Primary (Unix compatible utilities)
 
@@ -30,7 +29,7 @@ EzCompiler is a **professional-grade compilation framework** that prioritizes:
 ├─────────────────────────────────────────────────┤
 │  services/      (Business Orchestration)        │  ← Business Logic
 ├─────────────────────────────────────────────────┤
-│  protocols/     (Abstract + Implementations)    │  ← Compiler/Uploader Abstractions
+│  adapters/     (Abstract + Implementations)    │  ← Compiler/Uploader Abstractions
 ├─────────────────────────────────────────────────┤
 │  shared/        (Config + Exceptions)           │  ← Shared Domain Models
 │  utils/         (Domain-Specific Utilities)     │  ← Cross-Cutting Concerns
@@ -41,7 +40,7 @@ EzCompiler is a **professional-grade compilation framework** that prioritizes:
 
 - ✅ **ALLOWED:** Upper layers depend on lower layers
 - ❌ **FORBIDDEN:** Lower layers importing from upper layers
-- ❌ **FORBIDDEN:** Cross-layer jumps (interfaces → protocols directly)
+- ❌ **FORBIDDEN:** Cross-layer jumps (interfaces → adapters directly)
 - ✅ **ALLOWED:** All layers can use `shared/` and `utils/`
 
 **Example:**
@@ -92,20 +91,21 @@ class EzCompiler:
 
 ### services/ - Business Logic Layer
 
-**Purpose:** Orchestrate business workflows and coordinate protocols
+**Purpose:** Orchestrate business workflows and coordinate adapters
 
 **Rules:**
 
 - Implements business logic and workflow orchestration
-- Coordinates multiple `protocols/` implementations
+- Coordinates multiple `adapters/` implementations
 - Validates business rules (not just data validation)
 - Manages service-level error handling and logging
-- **NEVER** implements concrete compiler/uploader logic (that's `protocols/`)
+- **NEVER** implements concrete compiler/uploader logic (that's `adapters/`)
 
 **Key Files:**
 
 - `compiler_service.py` - Compiler selection and orchestration
 - `config_service.py` - Configuration management and validation
+- `pipeline_service.py` - Build pipeline orchestration (compile → zip → upload)
 - `template_service.py` - Template generation workflow
 - `uploader_service.py` - Upload orchestration
 
@@ -116,12 +116,12 @@ class CompilerService:
     def select_compiler(self, compiler_name: str) -> BaseCompiler:
         """Select compiler based on availability and config."""
         # Business logic: validate availability, select best match
-        # Returns protocol implementation from protocols/
+        # Returns protocol implementation from adapters/
 ```
 
 ---
 
-### protocols/ - Implementation Abstraction Layer
+### adapters/ - Implementation Abstraction Layer
 
 **Purpose:** Define interfaces and concrete implementations for compilers/uploaders
 
@@ -137,9 +137,12 @@ class CompilerService:
 
 - `base_compiler.py` - Abstract compiler interface
 - `cx_freeze_compiler.py` / `pyinstaller_compiler.py` / `nuitka_compiler.py`
+- `compiler_factory.py` - Factory for compiler instantiation (`CompilerFactory`)
 - `base_uploader.py` - Abstract uploader interface
 - `disk_uploader.py` / `server_uploader.py`
 - `uploader_factory.py` - Factory for uploader instantiation
+- `base_file_writer.py` - Abstract file writer port (`BaseFileWriter`)
+- `disk_file_writer.py` - Local filesystem adapter (`DiskFileWriter`)
 
 **Pattern:**
 
@@ -407,7 +410,7 @@ def standalone_function(param: str) -> bool:
 ### Modules
 
 - **services/** - `*_service.py` (e.g., `compiler_service.py`)
-- **protocols/** - `*_compiler.py`, `*_uploader.py`, or `base_*.py`
+- **adapters/** - `*_compiler.py`, `*_uploader.py`, or `base_*.py`
 - **utils/** - `*_utils.py` (e.g., `validation_utils.py`)
 - **exceptions/** - `*_exceptions.py` (e.g., `service_exceptions.py`)
 
@@ -535,7 +538,7 @@ def compile_project(config: CompilerConfig) -> bool:
 - **Log levels by layer:**
   - `interfaces/` → `DEBUG`, `INFO`
   - `services/` → `INFO`, `WARNING`, `ERROR`
-  - `protocols/` → `WARNING`, `ERROR`
+  - `adapters/` → `WARNING`, `ERROR`
   - `utils/` → Log indirectly via calling layer
 
 ### Logging Patterns
@@ -619,7 +622,7 @@ tests/
 ### Testing Rules
 
 1. **Target 60-70% coverage** for production code (currently 29% - improvement needed)
-2. **Focus on critical paths** - services/, protocols/, shared/
+2. **Focus on critical paths** - services/, adapters/, shared/
 3. **Test error handling** - every exception path should be tested
 4. **Use parametrize** - for data-driven tests
 5. **Mock external dependencies** - compilers, file I/O, network calls
@@ -679,7 +682,7 @@ Before committing code, verify:
 - [ ] Follows layered architecture (no cross-layer violations)
 - [ ] Dependencies flow downward (upper → lower layers)
 - [ ] No business logic in `interfaces/` or `utils/`
-- [ ] Services orchestrate, protocols implement
+- [ ] Services orchestrate, adapters implement
 
 ### Code Quality
 
@@ -746,7 +749,7 @@ Before committing code, verify:
 
 **Development:**
 
-- `black`, `isort`, `ruff` - Code quality
+- `ruff` - Code quality
 - `pyright` - Type checking
 - `pytest`, `pytest-cov` - Testing
 - `bandit` - Security
@@ -772,12 +775,12 @@ Before committing code, verify:
 - **MINOR** - New features, backward-compatible (e.g., 2.0 → 2.1)
 - **PATCH** - Bug fixes, backward-compatible (e.g., 2.1.0 → 2.1.1)
 
-**Current Version:** `2.1.0`
+**Current Version:** `2.2.4`
 
 **Update Locations:**
 
 - `pyproject.toml` → `[project] version`
-- `ezcompiler/__init__.py` → `__version__`
+- `src/ezcompiler/version.py` → `__version__`
 - Update CHANGELOG.md (when created)
 
 ---
@@ -790,8 +793,8 @@ Before committing code, verify:
 # ❌ WRONG - Services importing from interfaces
 from ezcompiler.interfaces.python_api import EzCompiler
 
-# ✅ CORRECT - Services only import from protocols/shared/utils
-from ezcompiler.protocols.base_compiler import BaseCompiler
+# ✅ CORRECT - Services only import from adapters/shared/utils
+from ezcompiler.adapters.base_compiler import BaseCompiler
 ```
 
 ### 2. Business Logic in Utils
@@ -903,9 +906,9 @@ def __init__(self, config: CompilerConfig) -> None:
 
 **Files Updated:**
 
-- `protocols/cx_freeze_compiler.py`
-- `protocols/pyinstaller_compiler.py`
-- `protocols/nuitka_compiler.py`
+- `adapters/cx_freeze_compiler.py`
+- `adapters/pyinstaller_compiler.py`
+- `adapters/nuitka_compiler.py`
 
 ---
 
@@ -956,5 +959,57 @@ from ezcompiler.utils.validators.format_validators import validate_email
 
 ---
 
-_Last Updated: 2026-02-08_
-_Project Version: 2.1.0_
+---
+
+## Recent Improvements (2026-03-12)
+
+### ✅ Source Layout Migration (`src/` layout)
+
+**Change:** Package source moved from `ezcompiler/` to `src/ezcompiler/` following standard Python packaging conventions.
+
+**Impact:**
+
+- Prevents accidental imports of the local package during development
+- Aligns with `pyproject.toml` `[tool.setuptools] package-dir` configuration
+- Version now centralized in `src/ezcompiler/version.py` (previously inline in `__init__.py`)
+
+---
+
+### ✅ New Components: `PipelineService`, `CompilerFactory`, `BaseFileWriter`
+
+**`services/pipeline_service.py` — `PipelineService`**
+
+Extracts the compile → zip → upload orchestration from `interfaces/python_api.py` into a reusable, testable service.
+
+```python
+service = PipelineService()
+compiler_svc, result = service.compile_project(config, console=False)
+service.zip_artifact(config, compiler_svc, result)
+service.upload_artifact(config, "disk", "releases/", result)
+```
+
+**`adapters/compiler_factory.py` — `CompilerFactory`**
+
+Centralizes compiler instantiation logic previously scattered in `CompilerService`.
+
+```python
+# By name
+compiler = CompilerFactory.create_compiler(config, "PyInstaller")
+
+# From config default
+compiler = CompilerFactory.create_from_config(config)
+```
+
+**`adapters/base_file_writer.py` / `disk_file_writer.py` — File writer port/adapter**
+
+Abstract port + local filesystem adapter for writing template output. Parent directories are created automatically.
+
+```python
+writer = DiskFileWriter()
+writer.write_text(Path("output/version_info.txt"), content)
+```
+
+---
+
+_Last Updated: 2026-03-12_
+_Project Version: 2.2.4_

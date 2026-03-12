@@ -22,7 +22,7 @@ for professional and industrial Python applications.
 **Architecture (v2.0.0):**
     - interfaces: Public interfaces (CLI, Python API)
     - services: Business logic services
-    - protocols: Compiler protocol implementations
+    - adapters: Compiler protocol implementations
     - utils: Utility functions and exceptions
 
 **Quick Start:**
@@ -60,12 +60,12 @@ from .shared import (
     UploadError,
     VersionError,
 )
+from .version import __version__
 
 # ///////////////////////////////////////////////////////////////
 # METADATA INFORMATION
 # ///////////////////////////////////////////////////////////////
 
-__version__ = "2.2.4"
 __author__ = "Neuraaak"
 __maintainer__ = "Neuraaak"
 __description__ = "Project compilation and distribution framework for Python"

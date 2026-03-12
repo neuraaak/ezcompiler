@@ -1,6 +1,6 @@
 <project_context>
     <instruction_sources>
-        CRITICAL: Always consult .github/instructions/ before any development task.
+    CRITICAL: Always consult .github/instructions/ before any development task.
 
         Workflow:
         1. Read .github/instructions/README.md FIRST (if present)

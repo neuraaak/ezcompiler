@@ -419,7 +419,6 @@ config = CompilerConfig(
         "debugpy",
         "pytest",
         "mypy",
-        "black",
         "ruff"
     ]
 )

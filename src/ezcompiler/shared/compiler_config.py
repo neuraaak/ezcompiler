@@ -145,6 +145,7 @@ class CompilerConfig:
             ConfigurationError: If any validation fails
         """
         self._validate_required_fields()
+        self._validate_include_files()
         self._validate_paths()
         self._validate_compiler_option()
 
@@ -161,8 +162,42 @@ class CompilerConfig:
             raise ConfigurationError("Project name cannot be empty")
         if not self.main_file:
             raise ConfigurationError("Main file cannot be empty")
-        if not self.include_files:
-            raise ConfigurationError("Include files cannot be empty")
+
+    def _validate_include_files(self) -> None:
+        """
+        Validate and normalize include_files payload.
+
+        Expected format:
+            {"files": ["..."], "folders": ["..."]}
+
+        Raises:
+            ConfigurationError: If include_files structure is invalid
+        """
+        if not isinstance(self.include_files, dict):
+            raise ConfigurationError("include_files must be a dictionary")
+
+        files = self.include_files.get("files", [])
+        folders = self.include_files.get("folders", [])
+
+        if not isinstance(files, list):
+            raise ConfigurationError("include_files['files'] must be a list")
+        if not isinstance(folders, list):
+            raise ConfigurationError("include_files['folders'] must be a list")
+
+        if not all(isinstance(item, str) and item.strip() for item in files):
+            raise ConfigurationError(
+                "include_files['files'] must contain non-empty strings"
+            )
+        if not all(isinstance(item, str) and item.strip() for item in folders):
+            raise ConfigurationError(
+                "include_files['folders'] must contain non-empty strings"
+            )
+
+        # Normalize to canonical shape even when keys are missing.
+        self.include_files = {
+            "files": files,
+            "folders": folders,
+        }
 
     def _validate_paths(self) -> None:
         """
@@ -179,8 +214,6 @@ class CompilerConfig:
 
         if isinstance(self.output_folder, str):
             self.output_folder = Path(self.output_folder)
-
-        self.output_folder.mkdir(parents=True, exist_ok=True)
 
     def _validate_compiler_option(self) -> None:
         """

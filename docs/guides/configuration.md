@@ -209,7 +209,6 @@ excludes:
   - "debugpy"
   - "pytest"
   - "mypy"
-  - "black"
   - "ruff"
   - "ipython"
 ```

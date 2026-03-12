@@ -141,7 +141,7 @@ See the [CLI Reference](cli/index.md) for complete documentation.
 | ------------------------------- | ----------------------------------------------------- | -------------------------------------- |
 | [Interfaces](api/interfaces.md) | `EzCompiler`, `CLIInterface`                          | Public APIs and user-facing interfaces |
 | [Services](api/services.md)     | `CompilerService`, `ConfigService`, `TemplateService` | Business logic and orchestration       |
-| [Protocols](api/protocols.md)   | Compilers, Uploaders                                  | Implementation protocols and adapters  |
+| [Adapters](api/adapters.md)     | Compilers, Uploaders, FileWriters                     | Concrete adapter implementations       |
 | [Utils](api/utils.md)           | File, Config, Template, Zip, Validators               | Utility functions and validation       |
 
 ## 📝 License

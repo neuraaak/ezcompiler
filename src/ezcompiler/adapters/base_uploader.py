@@ -24,7 +24,7 @@ from pathlib import Path
 from typing import Any
 
 # Local imports
-from ..utils.uploader_utils import UploaderUtils
+from ..shared.exceptions import UploadError
 
 # ///////////////////////////////////////////////////////////////
 # CLASSES
@@ -130,6 +130,10 @@ class BaseUploader(ABC):
             UploadError: If source path is invalid
 
         Note:
-            Uses UploaderUtils for validation.
+            Validation is handled at protocol level to keep this port independent
+            from uploader utility helpers.
         """
-        UploaderUtils.validate_source_path(source_path)
+        if not source_path.exists():
+            raise UploadError(f"Source path does not exist: {source_path}")
+        if not source_path.is_file() and not source_path.is_dir():
+            raise UploadError(f"Source path is not a file or directory: {source_path}")

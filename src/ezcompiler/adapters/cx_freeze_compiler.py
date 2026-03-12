@@ -26,6 +26,7 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+from typing import Any
 
 # Local imports
 from ..shared.compiler_config import CompilerConfig
@@ -212,7 +213,7 @@ with warnings.catch_warnings():
     )
 """
 
-    def _run_setup_subprocess(self, setup_config: dict) -> None:
+    def _run_setup_subprocess(self, setup_config: dict[str, Any]) -> None:
         """
         Execute cx_Freeze setup in a subprocess.
 

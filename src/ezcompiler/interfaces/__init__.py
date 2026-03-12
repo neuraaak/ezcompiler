@@ -36,7 +36,11 @@ from .python_api import EzCompiler
 # EZPL INITIALIZATION
 # ///////////////////////////////////////////////////////////////
 
-# Global ezpl instance - initialized on first use
+# NOTE: Module-level singletons below are an intentional architectural exception
+# to the "no global variables" rule. Ezpl (like loguru or Python's logging module)
+# is a process-wide logging infrastructure designed as a singleton. Using module-level
+# state here allows all EzCompiler instances in a process to share a single configured
+# logger — which is the correct behavior for logging. This is NOT application state.
 _ezpl_instance: Ezpl | None = None
 _printer_instance: EzPrinter | None = None
 _logger_instance: EzLogger | None = None

@@ -9,6 +9,7 @@ Services module - Business logic services for EzCompiler.
 This module provides services that implement the core business logic:
 - Compiler service for compilation operations
 - Config service for configuration management
+- Pipeline service for build pipeline orchestration
 - Template service for template processing
 - Uploader service for artifact distribution
 
@@ -21,9 +22,10 @@ from __future__ import annotations
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
 # Local imports
-from ..shared import CompilerConfig
-from .compiler_service import CompilationResult, CompilerService
+from ..shared import CompilationResult, CompilerConfig
+from .compiler_service import CompilerService
 from .config_service import ConfigService
+from .pipeline_service import PipelineService
 from .template_service import TemplateService
 from .uploader_service import UploaderService
 
@@ -36,6 +38,7 @@ __all__ = [
     "CompilerService",
     "CompilerConfig",
     "ConfigService",
+    "PipelineService",
     "TemplateService",
     "UploaderService",
     # Result types
