@@ -22,7 +22,7 @@ from pathlib import Path
 from typing import Any, Literal
 
 # Local imports
-from ..protocols.uploader_factory import UploaderFactory
+from ..adapters.uploader_factory import UploaderFactory
 from ..shared.exceptions import UploadError
 from ..utils.validators import validate_upload_structure
 

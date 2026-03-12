@@ -19,6 +19,7 @@ from __future__ import annotations
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
 # Standard library imports
+from collections.abc import Callable
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 
@@ -30,11 +31,12 @@ from ezpl import EzLogger, EzPrinter
 
 # Local imports
 from ..services import (
-    CompilationResult,
     CompilerService,
+    PipelineService,
     TemplateService,
     UploaderService,
 )
+from ..shared import CompilationResult
 from ..shared.compiler_config import CompilerConfig
 from ..shared.exceptions import (
     CompilationError,
@@ -44,7 +46,6 @@ from ..shared.exceptions import (
     VersionError,
 )
 from ..shared.exceptions.utils.zip_exceptions import ZipError
-from ..utils.zip_utils import ZipUtils
 
 # ///////////////////////////////////////////////////////////////
 # CLASSES
@@ -80,6 +81,12 @@ class EzCompiler:
     def __init__(
         self,
         config: CompilerConfig | None = None,
+        compiler_service_factory: (
+            Callable[[CompilerConfig], CompilerService] | None
+        ) = None,
+        template_service: TemplateService | None = None,
+        uploader_service: UploaderService | None = None,
+        pipeline_service: PipelineService | None = None,
         log_file: Path | None = None,
         log_rotation: str = "1 day",
         log_retention: str = "14 days",
@@ -123,9 +130,11 @@ class EzCompiler:
         self._logger: EzLogger = get_logger_fn()
 
         # Service instances
+        self._compiler_service_factory = compiler_service_factory or CompilerService
         self._compiler_service: CompilerService | None = None
-        self._template_service = TemplateService()
-        self._uploader_service = UploaderService()
+        self._template_service = template_service or TemplateService()
+        self._uploader_service = uploader_service or UploaderService()
+        self._pipeline_service = pipeline_service or PipelineService()
 
         # Compilation state
         self._compilation_result: CompilationResult | None = None
@@ -344,7 +353,7 @@ class EzCompiler:
                 )
 
             # Create compiler service and compile
-            self._compiler_service = CompilerService(self.config)
+            self._compiler_service = self._compiler_service_factory(self.config)
             self._compilation_result = self._compiler_service.compile(
                 console=console,
                 compiler=compiler,  # type: ignore[arg-type]
@@ -390,12 +399,14 @@ class EzCompiler:
                 self._printer.info("ZIP not needed for this compilation type")
                 return
 
-            # Create ZIP archive using ZipUtils
-            zip_file_path = str(self.config.zip_file_path)
+            # Create ZIP archive via CompilerService
+            if self._compiler_service is None:
+                self._compiler_service = self._compiler_service_factory(self.config)
 
-            ZipUtils.create_zip_archive(
-                source_path=self.config.output_folder,
-                output_path=zip_file_path,
+            self._pipeline_service.zip_artifact(
+                config=self.config,
+                compiler_service=self._compiler_service,
+                compilation_result=self._compilation_result,
                 progress_callback=self._zip_progress_callback,
             )
 
@@ -444,23 +455,12 @@ class EzCompiler:
                     "Project not initialized. Call init_project() first."
                 )
 
-            # Determine source file (ZIP or directory)
-            zip_needed = (
-                self._compilation_result.zip_needed
-                if self._compilation_result
-                else self.config.zip_needed
-            )
-
-            if zip_needed:
-                source_file = str(self.config.zip_file_path)
-            else:
-                source_file = self.config.output_folder
-
             # Perform upload using UploaderService
-            UploaderService.upload(
-                source_path=Path(source_file),
-                upload_type=structure,
+            self._pipeline_service.upload_artifact(
+                config=self.config,
+                structure=structure,
                 destination=str(repo_path),
+                compilation_result=self._compilation_result,
                 upload_config=upload_config,
             )
 
@@ -522,36 +522,9 @@ class EzCompiler:
         )
 
         # Build stages
-        stages: list[StageConfig] = [
-            {
-                "name": "main",
-                "type": "main",
-                "description": f"Building {self.config.project_name} v{self.config.version}",
-            },
-            {
-                "name": "version",
-                "type": "spinner",
-                "description": "Generating version file",
-            },
-            {"name": "compile", "type": "spinner", "description": "Compiling project"},
-        ]
-        if should_zip:
-            stages.append(
-                {
-                    "name": "zip",
-                    "type": "progress",
-                    "description": "Creating ZIP archive",
-                    "total": 100,
-                }
-            )
-        if should_upload:
-            stages.append(
-                {
-                    "name": "upload",
-                    "type": "spinner",
-                    "description": "Uploading artifacts",
-                }
-            )
+        stages: list[StageConfig] = PipelineService.build_stages(  # type: ignore[assignment]
+            self.config, should_zip=should_zip, should_upload=should_upload
+        )
 
         current_phase = "version"
         pipeline_error: Exception | None = None
@@ -572,10 +545,12 @@ class EzCompiler:
                 # Compilation
                 current_phase = "compile"
                 dlp.update_layer("compile", 0, "Initializing compiler...")
-                self._compiler_service = CompilerService(self.config)
-                self._compilation_result = self._compiler_service.compile(
-                    console=console,
-                    compiler=compiler,  # type: ignore[arg-type]
+                self._compiler_service, self._compilation_result = (
+                    self._pipeline_service.compile_project(
+                        config=self.config,
+                        console=console,
+                        compiler=compiler,
+                    )
                 )
                 self._logger.info("Project compiled successfully")
                 dlp.complete_layer("compile")
@@ -589,7 +564,6 @@ class EzCompiler:
                 if should_zip:
                     if zip_needed:
                         current_phase = "zip"
-                        zip_file_path = str(self.config.zip_file_path)
 
                         def _zip_cb(filename: str, progress: int) -> None:
                             """Update progress display during ZIP file creation.
@@ -600,9 +574,10 @@ class EzCompiler:
                             """
                             dlp.update_layer("zip", progress, Path(filename).name)
 
-                        ZipUtils.create_zip_archive(
-                            source_path=self.config.output_folder,
-                            output_path=zip_file_path,
+                        self._pipeline_service.zip_artifact(
+                            config=self.config,
+                            compiler_service=self._compiler_service,
+                            compilation_result=self._compilation_result,
                             progress_callback=_zip_cb,
                         )
                         self._logger.info("ZIP archive created successfully")
@@ -621,16 +596,12 @@ class EzCompiler:
                         if structure == "server"
                         else self.config.repo_path
                     )
-                    source_file = (
-                        str(self.config.zip_file_path)
-                        if zip_needed
-                        else self.config.output_folder
-                    )
                     dlp.update_layer("upload", 0, f"Uploading to {destination}...")
-                    UploaderService.upload(
-                        source_path=Path(source_file),
-                        upload_type=structure,  # type: ignore[arg-type]
+                    self._pipeline_service.upload_artifact(
+                        config=self.config,
+                        structure=structure,
                         destination=str(destination),
+                        compilation_result=self._compilation_result,
                         upload_config=upload_config,
                     )
                     self._logger.info(f"Upload completed ({structure})")

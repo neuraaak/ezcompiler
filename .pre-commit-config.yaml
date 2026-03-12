@@ -5,8 +5,7 @@
 # Run manually: pre-commit run --all-files
 #
 # This configuration runs automatically on `git commit` and ensures:
-# - Code formatting consistency (Black, isort, Ruff)
-# - Import organization (isort)
+# - Code formatting consistency (Ruff)
 # - Code quality and linting (Ruff)
 # - General file hygiene (trailing whitespace, YAML/TOML validation, etc.)
 # - Security scanning (Bandit)
@@ -14,9 +13,7 @@
 # Note: The .hooks/pre-commit script executes .scripts/dev/lint.py
 # which runs these tools in a specific order:
 #   1. Ruff Format (🎨) - Format code
-#   2. Black (⚫)        - Format code
-#   3. isort (📦)        - Sort imports
-#   4. Ruff Check (🔍)   - Lint code
+#   2. Ruff Check (🔍)   - Lint code
 
 repos:
   # ///////////////////////////////////////////////////////////////
@@ -62,10 +59,8 @@ repos:
   # Auto-formatting, import sorting, and style checking
   # ===
   # Execution order matters - formatted first, then linted:
-  # 1. Ruff Format (must run before Black/isort for consistency)
-  # 2. Black (88 char line length, Python 3.10+)
-  # 3. isort (Black-compatible profile, 88 char line length)
-  # 4. Ruff Check (comprehensive linting with auto-fix)
+  # 1. Ruff Format (formatting and import sorting)
+  # 2. Ruff Check (comprehensive linting with auto-fix)
   # ///////////////////////////////////////////////////////////////
 
   # Ruff: All-in-one linter with comprehensive rule sets (format)
@@ -75,23 +70,6 @@ repos:
       - id: ruff-format
         name: "Ruff Format"
         args: [--line-length=88]
-
-  # Black: Code formatter (88 char line length, Python 3.10+)
-  - repo: https://github.com/psf/black
-    rev: 24.8.0
-    hooks:
-      - id: black
-        name: "Black Formatter"
-        language_version: python3
-        args: [--line-length=88, --target-version=py310]
-
-  # isort: Import sorting (Black-compatible profile)
-  - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
-    hooks:
-      - id: isort
-        name: "isort - Sort Imports"
-        args: [--profile=black, --line-length=88]
 
   # Ruff: All-in-one linter with comprehensive rule sets (check)
   - repo: https://github.com/astral-sh/ruff-pre-commit

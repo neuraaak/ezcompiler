@@ -31,6 +31,7 @@ from __future__ import annotations
 # ///////////////////////////////////////////////////////////////
 # Standard library imports
 import argparse
+import logging
 import subprocess
 import sys
 from pathlib import Path
@@ -38,6 +39,8 @@ from pathlib import Path
 # ///////////////////////////////////////////////////////////////
 # HELPER FUNCTIONS
 # ///////////////////////////////////////////////////////////////
+
+logger = logging.getLogger(__name__)
 
 
 def run_command(cmd: list[str], description: str) -> bool:
@@ -58,15 +61,15 @@ def run_command(cmd: list[str], description: str) -> bool:
         Uses S603 security rule bypass for subprocess.run() since this is
         a test runner with trusted input.
     """
-    print(f"\n{'=' * 60}")
-    print(f"🚀 {description}")
-    print(f"{'=' * 60}")
+    logger.info("\n%s", "=" * 60)
+    logger.info("%s", description)
+    logger.info("%s", "=" * 60)
     try:
         # Run without capturing output - displays in real-time
         result = subprocess.run(cmd, check=False)  # noqa: S603
         return result.returncode == 0
     except Exception as e:
-        print(f"❌ Execution error: {e}")
+        logger.exception("Execution error: %s", e)
         return False
 
 
@@ -86,6 +89,8 @@ def main() -> None:
         0: All tests passed
         1: Tests failed or pyproject.toml not found
     """
+    logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
+
     parser = argparse.ArgumentParser(
         description="Test runner for EzCompiler with flexible configuration"
     )
@@ -124,9 +129,7 @@ def main() -> None:
 
     # Validate project structure
     if not Path("pyproject.toml").exists():
-        print(
-            "❌ Error: pyproject.toml not found. Run this script from the project root."
-        )
+        logger.error("pyproject.toml not found. Run this script from the project root.")
         sys.exit(1)
 
     # Build pytest command
@@ -160,7 +163,7 @@ def main() -> None:
     if args.coverage:
         cmd_parts.extend(
             [
-                "--cov=ezcompiler",
+                "--cov=src/ezcompiler",
                 "--cov-report=term-missing",
                 "--cov-report=html:htmlcov",
             ]
@@ -171,12 +174,12 @@ def main() -> None:
 
     # Display results
     if success:
-        print("\n✅ Tests passed successfully!")
+        logger.info("Tests passed successfully")
         if args.coverage:
-            print("\n📊 Coverage report generated in htmlcov/")
-            print("   Open htmlcov/index.html in your browser")
+            logger.info("Coverage report generated in htmlcov/")
+            logger.info("Open htmlcov/index.html in your browser")
     else:
-        print("\n❌ Tests failed")
+        logger.error("Tests failed")
         sys.exit(1)
 
 

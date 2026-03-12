@@ -17,6 +17,7 @@ from __future__ import annotations
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
 # Local imports
+from .compilation_result import CompilationResult
 from .compiler_config import CompilerConfig
 from .exceptions import (
     CompilationError,
@@ -40,6 +41,9 @@ FileOperationError = FileError
 # ///////////////////////////////////////////////////////////////
 
 __all__ = [
+    # Configuration
+    # Result types
+    "CompilationResult",
     # Configuration
     "CompilerConfig",
     # Base exception

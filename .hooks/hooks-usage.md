@@ -8,7 +8,7 @@ This directory contains Git hooks used by your project.
 
 - **Purpose**: Code quality and formatting before each commit
 - **Behavior**:
-  - Runs **Black**, **isort**, and **Ruff format** on the entire repository
+  - Runs **Ruff format** and **Ruff check** on the entire repository
   - Automatically stages reformatted files with `git add .`
   - Fails the commit if one of the tools fails
 

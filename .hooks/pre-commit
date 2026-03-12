@@ -68,20 +68,6 @@ else
     # Track overall success
     overall_success=true
 
-    # Run Black (code formatting) - format automatically
-    if check_tool "Black" "black"; then
-        if ! run_formatter "Black" "black ."; then
-            overall_success=false
-        fi
-    fi
-
-    # Run isort (import sorting) - format automatically
-    if check_tool "isort" "isort"; then
-        if ! run_formatter "isort" "isort ."; then
-            overall_success=false
-        fi
-    fi
-
     # Run Ruff format (code formatting) - format automatically
     if check_tool "Ruff" "ruff"; then
         if ! run_formatter "Ruff format" "ruff format ."; then

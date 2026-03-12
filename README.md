@@ -7,8 +7,8 @@
 [![Docs](https://img.shields.io/badge/Docs-Online-blue.svg?style=for-the-badge&logo=readthedocs)](https://neuraaak.github.io/ezcompiler/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 [![Status](https://img.shields.io/badge/Status-Production%20Ready-success.svg?style=for-the-badge)](https://github.com/neuraaak/ezcompiler)
-[![Tests](https://img.shields.io/badge/Tests-68%20passing-success.svg?style=for-the-badge)](https://github.com/neuraaak/ezcompiler)
-[![Coverage](https://img.shields.io/badge/Coverage-29%25-yellow.svg?style=for-the-badge)](https://github.com/neuraaak/ezcompiler)
+[![Tests](https://img.shields.io/badge/Tests-233%20passing-success.svg?style=for-the-badge)](https://github.com/neuraaak/ezcompiler)
+[![Coverage](https://img.shields.io/badge/Coverage-63%25-green.svg?style=for-the-badge)](https://github.com/neuraaak/ezcompiler)
 
 ![EzCompiler Logo](docs/assets/logo-min.png)
 
@@ -75,7 +75,7 @@ compiler.run_pipeline(
 
 ## 🧪 Testing
 
-Comprehensive test suite with 68 test cases covering unit, integration, and robustness scenarios (~29% coverage).
+Comprehensive test suite with 233 test cases covering unit, integration, and robustness scenarios (~63% coverage).
 
 ```bash
 # Install dev dependencies
@@ -108,21 +108,27 @@ pytest tests/
 
 # Run linting and formatting
 ruff check .
-black --check .
-mypy ezcompiler/
+ruff format --check .
+pyright src/ezcompiler/
+PYTHONPATH=src lint-imports
 ```
 
 ## 🎨 Main Components
 
 - **`EzCompiler`**: Main facade class for orchestrating the entire compilation process
 - **`CompilerConfig`**: Centralized configuration management
-- **`BaseCompiler`**: Abstract base class for compiler implementations
+- **`CompilationResult`**: Result type for compilation operations (shared layer)
+- **`PipelineService`**: Full compile → zip → upload pipeline orchestration
+- **`CompilerService`**: Compiler selection and execution
+- **`ConfigService`**: Configuration loading with cascade merge
+- **`TemplateService`**: Template processing and file generation
+- **`CompilerFactory`**: Factory for creating compiler instances
+- **`BaseCompiler`**: Abstract base class for compiler adapters
 - **`CxFreezeCompiler`**: Cx_Freeze compiler implementation
 - **`PyInstallerCompiler`**: PyInstaller compiler implementation
 - **`NuitkaCompiler`**: Nuitka compiler implementation (standalone & onefile)
-- **`TemplateLoader`**: Template loading and resource access
-- **`TemplateService`**: Template processing and file generation
-- **`BaseUploader`**: Abstract base class for uploaders
+- **`BaseFileWriter`** / **`DiskFileWriter`**: File writer port and disk adapter
+- **`BaseUploader`**: Abstract base class for uploader adapters
 - **`DiskUploader`**: Local disk uploader
 - **`ServerUploader`**: HTTP/HTTPS uploader
 
@@ -243,16 +249,29 @@ See **[Configuration Guide](docs/guides/configuration.md)** for detailed configu
 ezcompiler/
 ├── interfaces/          # CLI and Python API (entry points)
 ├── services/            # Business logic orchestration
-├── protocols/           # Compiler and uploader implementations
+│   ├── compiler_service.py
+│   ├── config_service.py
+│   ├── pipeline_service.py
+│   ├── template_service.py
+│   └── uploader_service.py
+├── adapters/            # Concrete compiler and uploader implementations
 │   ├── cx_freeze_compiler.py
 │   ├── pyinstaller_compiler.py
 │   ├── nuitka_compiler.py
+│   ├── compiler_factory.py
+│   ├── disk_file_writer.py
 │   ├── disk_uploader.py
 │   └── server_uploader.py
-├── shared/              # Configuration and exceptions
+├── shared/              # Configuration, result types and exceptions
+│   ├── compiler_config.py
+│   └── compilation_result.py
 ├── utils/               # Utility functions
 └── assets/templates/    # Template files (config, setup, version)
 ```
+
+`assets/` is a dedicated resource layer for non-executable project artifacts
+(template files, static generation resources). It is consumed by services
+through template loaders and remains isolated from business orchestration logic.
 
 ## 🚀 Use Cases
 

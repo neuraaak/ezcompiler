@@ -14,7 +14,7 @@ from __future__ import annotations
 # ///////////////////////////////////////////////////////////////
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
-from ezcompiler.protocols import (
+from ezcompiler.adapters import (
     BaseCompiler,
     CxFreezeCompiler,
     NuitkaCompiler,
@@ -30,19 +30,19 @@ from ezcompiler.shared import CompilerConfig
 class TestCompilerImports:
     """Test compiler classes can be imported."""
 
-    def test_base_compiler_import(self) -> None:
+    def test_should_be_importable_when_base_compiler_is_loaded(self) -> None:
         """Test that BaseCompiler can be imported."""
         assert BaseCompiler is not None
 
-    def test_cx_freeze_compiler_import(self) -> None:
+    def test_should_be_importable_when_cx_freeze_compiler_is_loaded(self) -> None:
         """Test that CxFreezeCompiler can be imported."""
         assert CxFreezeCompiler is not None
 
-    def test_pyinstaller_compiler_import(self) -> None:
+    def test_should_be_importable_when_pyinstaller_compiler_is_loaded(self) -> None:
         """Test that PyInstallerCompiler can be imported."""
         assert PyInstallerCompiler is not None
 
-    def test_nuitka_compiler_import(self) -> None:
+    def test_should_be_importable_when_nuitka_compiler_is_loaded(self) -> None:
         """Test that NuitkaCompiler can be imported."""
         assert NuitkaCompiler is not None
 
@@ -55,9 +55,10 @@ class TestCompilerImports:
 class TestCompilerInstantiation:
     """Test compiler classes can be instantiated."""
 
-    def test_instantiate_cx_freeze_compiler(self, temp_dir) -> None:
+    def test_should_instantiate_when_cx_freeze_compiler_is_given_valid_config(
+        self, temp_dir
+    ) -> None:
         """Test that CxFreezeCompiler can be instantiated."""
-        # Create test file
         main_file = temp_dir / "main.py"
         main_file.write_text("# test")
 
@@ -72,9 +73,10 @@ class TestCompilerInstantiation:
         assert compiler is not None
         assert isinstance(compiler, CxFreezeCompiler)
 
-    def test_instantiate_pyinstaller_compiler(self, temp_dir) -> None:
+    def test_should_instantiate_when_pyinstaller_compiler_is_given_valid_config(
+        self, temp_dir
+    ) -> None:
         """Test that PyInstallerCompiler can be instantiated."""
-        # Create test file
         main_file = temp_dir / "main.py"
         main_file.write_text("# test")
 
@@ -89,9 +91,10 @@ class TestCompilerInstantiation:
         assert compiler is not None
         assert isinstance(compiler, PyInstallerCompiler)
 
-    def test_instantiate_nuitka_compiler(self, temp_dir) -> None:
+    def test_should_instantiate_when_nuitka_compiler_is_given_valid_config(
+        self, temp_dir
+    ) -> None:
         """Test that NuitkaCompiler can be instantiated."""
-        # Create test file
         main_file = temp_dir / "main.py"
         main_file.write_text("# test")
 
@@ -106,9 +109,10 @@ class TestCompilerInstantiation:
         assert compiler is not None
         assert isinstance(compiler, NuitkaCompiler)
 
-    def test_cx_freeze_compiler_has_config(self, temp_dir) -> None:
+    def test_should_store_config_when_cx_freeze_compiler_is_instantiated(
+        self, temp_dir
+    ) -> None:
         """Test that CxFreezeCompiler stores config."""
-        # Create test file
         main_file = temp_dir / "main.py"
         main_file.write_text("# test")
 
@@ -123,9 +127,10 @@ class TestCompilerInstantiation:
         assert hasattr(compiler, "config")
         assert compiler.config == config
 
-    def test_compiler_is_base_compiler_instance(self, temp_dir) -> None:
+    def test_should_be_base_compiler_instance_when_any_compiler_is_created(
+        self, temp_dir
+    ) -> None:
         """Test that all compilers are instances of BaseCompiler."""
-        # Create test file
         main_file = temp_dir / "main.py"
         main_file.write_text("# test")
 
@@ -136,13 +141,9 @@ class TestCompilerInstantiation:
             include_files={"files": [], "folders": []},
             output_folder=str(temp_dir / "dist"),
         )
-        cx_compiler = CxFreezeCompiler(config)
-        pyi_compiler = PyInstallerCompiler(config)
-        nui_compiler = NuitkaCompiler(config)
-
-        assert isinstance(cx_compiler, BaseCompiler)
-        assert isinstance(pyi_compiler, BaseCompiler)
-        assert isinstance(nui_compiler, BaseCompiler)
+        assert isinstance(CxFreezeCompiler(config), BaseCompiler)
+        assert isinstance(PyInstallerCompiler(config), BaseCompiler)
+        assert isinstance(NuitkaCompiler(config), BaseCompiler)
 
 
 # ///////////////////////////////////////////////////////////////
@@ -153,9 +154,10 @@ class TestCompilerInstantiation:
 class TestCompilerNames:
     """Test that compilers return correct names."""
 
-    def test_cx_freeze_compiler_name(self, temp_dir) -> None:
+    def test_should_return_cx_freeze_name_when_get_compiler_name_is_called(
+        self, temp_dir
+    ) -> None:
         """Test that CxFreezeCompiler returns correct name."""
-        # Create test file
         main_file = temp_dir / "main.py"
         main_file.write_text("# test")
 
@@ -166,15 +168,14 @@ class TestCompilerNames:
             include_files={"files": [], "folders": []},
             output_folder=str(temp_dir / "dist"),
         )
-        compiler = CxFreezeCompiler(config)
-        name = compiler.get_compiler_name()
-        assert name is not None
+        name = CxFreezeCompiler(config).get_compiler_name()
         assert isinstance(name, str)
         assert "freeze" in name.lower() or "cx" in name.lower()
 
-    def test_pyinstaller_compiler_name(self, temp_dir) -> None:
+    def test_should_return_pyinstaller_name_when_get_compiler_name_is_called(
+        self, temp_dir
+    ) -> None:
         """Test that PyInstallerCompiler returns correct name."""
-        # Create test file
         main_file = temp_dir / "main.py"
         main_file.write_text("# test")
 
@@ -185,15 +186,14 @@ class TestCompilerNames:
             include_files={"files": [], "folders": []},
             output_folder=str(temp_dir / "dist"),
         )
-        compiler = PyInstallerCompiler(config)
-        name = compiler.get_compiler_name()
-        assert name is not None
+        name = PyInstallerCompiler(config).get_compiler_name()
         assert isinstance(name, str)
         assert "pyinstaller" in name.lower()
 
-    def test_nuitka_compiler_name(self, temp_dir) -> None:
+    def test_should_return_nuitka_name_when_get_compiler_name_is_called(
+        self, temp_dir
+    ) -> None:
         """Test that NuitkaCompiler returns correct name."""
-        # Create test file
         main_file = temp_dir / "main.py"
         main_file.write_text("# test")
 
@@ -204,8 +204,6 @@ class TestCompilerNames:
             include_files={"files": [], "folders": []},
             output_folder=str(temp_dir / "dist"),
         )
-        compiler = NuitkaCompiler(config)
-        name = compiler.get_compiler_name()
-        assert name is not None
+        name = NuitkaCompiler(config).get_compiler_name()
         assert isinstance(name, str)
         assert "nuitka" in name.lower()

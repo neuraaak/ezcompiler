@@ -19,21 +19,23 @@ from __future__ import annotations
 # ///////////////////////////////////////////////////////////////
 # Standard library imports
 import sys
+from collections.abc import Callable
+from pathlib import Path
 from typing import Literal
 
 # Third-party imports
 from InquirerPy.resolver import prompt
 
 # Local imports
-from ..protocols import (
+from ..adapters import (
     BaseCompiler,
-    CxFreezeCompiler,
-    NuitkaCompiler,
-    PyInstallerCompiler,
+    CompilerFactory,
 )
+from ..shared.compilation_result import CompilationResult
 from ..shared.compiler_config import CompilerConfig
 from ..shared.exceptions import CompilationError, ConfigurationError
 from ..utils.validators import validate_compiler_name
+from ..utils.zip_utils import ZipUtils
 
 # ///////////////////////////////////////////////////////////////
 # TYPE ALIASES
@@ -128,6 +130,9 @@ class CompilerService:
             if not validate_compiler_name(compiler_choice):
                 raise CompilationError(f"Invalid compiler: {compiler_choice}")
 
+            # Ensure output directory exists (moved out of CompilerConfig to avoid side effects)
+            self.config.output_folder.mkdir(parents=True, exist_ok=True)
+
             # Create and execute compiler
             self._compiler_instance = self._create_compiler(compiler_choice)
             self._compiler_instance.compile(console=console)
@@ -172,11 +177,17 @@ class CompilerService:
         # Interactive prompt for user choice
         return self._choose_compiler_interactively()
 
-    def _choose_compiler_interactively(self) -> str:
+    def _choose_compiler_interactively(
+        self, argv_flags: list[str] | None = None
+    ) -> str:
         """
         Prompt user to choose a compiler interactively.
 
-        Checks command-line arguments first, then prompts if needed.
+        Checks command-line flags first, then prompts if needed.
+
+        Args:
+            argv_flags: List of CLI flags to check. Defaults to sys.argv.
+                Inject a custom list in tests to avoid reading global state.
 
         Returns:
             str: Chosen compiler name
@@ -184,13 +195,14 @@ class CompilerService:
         Raises:
             CompilationError: If selection fails
         """
+        flags = argv_flags if argv_flags is not None else sys.argv
         try:
             # Check command line arguments first
-            if "-cxf" in sys.argv:
+            if "-cxf" in flags:
                 return "Cx_Freeze"
-            elif "-pyi" in sys.argv:
+            elif "-pyi" in flags:
                 return "PyInstaller"
-            elif "-nka" in sys.argv:
+            elif "-nka" in flags:
                 return "Nuitka"
 
             # Prompt user for choice
@@ -223,14 +235,31 @@ class CompilerService:
         Raises:
             CompilationError: If compiler name is unsupported
         """
-        if compiler_name == "Cx_Freeze":
-            return CxFreezeCompiler(config=self.config)
-        elif compiler_name == "PyInstaller":
-            return PyInstallerCompiler(config=self.config)
-        elif compiler_name == "Nuitka":
-            return NuitkaCompiler(config=self.config)
-        else:
-            raise CompilationError(f"Unsupported compiler: {compiler_name}")
+        return CompilerFactory.create_compiler(
+            config=self.config,
+            compiler_name=compiler_name,
+        )
+
+    def zip_artifact(
+        self,
+        output_path: str | Path,
+        progress_callback: Callable[[str, int], None] | None = None,
+    ) -> None:
+        """
+        Create ZIP archive of the compiled output.
+
+        Args:
+            output_path: Path for the output ZIP file
+            progress_callback: Optional callback(filename, progress) for progress updates
+
+        Raises:
+            ZipError: If ZIP creation fails
+        """
+        ZipUtils.create_zip_archive(
+            source_path=self.config.output_folder,
+            output_path=output_path,
+            progress_callback=progress_callback,
+        )
 
     # ////////////////////////////////////////////////
     # PROPERTIES
@@ -245,45 +274,3 @@ class CompilerService:
             BaseCompiler | None: Current compiler instance or None if not compiled yet
         """
         return self._compiler_instance
-
-
-# ///////////////////////////////////////////////////////////////
-# RESULT CLASSES
-# ///////////////////////////////////////////////////////////////
-
-
-class CompilationResult:
-    """
-    Result of a compilation operation.
-
-    Contains information about the compilation result, including whether
-    the output needs to be zipped and the compiler instance used.
-
-    Attributes:
-        zip_needed: Whether the compiled output needs to be zipped
-        compiler_name: Name of the compiler used
-        compiler_instance: The compiler instance that performed the compilation
-
-    Example:
-        >>> result = service.compile(compiler="PyInstaller")
-        >>> if result.zip_needed:
-        ...     # Create ZIP archive
-    """
-
-    def __init__(
-        self,
-        zip_needed: bool,
-        compiler_name: str,
-        compiler_instance: BaseCompiler,
-    ) -> None:
-        """
-        Initialize compilation result.
-
-        Args:
-            zip_needed: Whether output needs to be zipped
-            compiler_name: Name of compiler used
-            compiler_instance: Compiler instance that performed compilation
-        """
-        self.zip_needed = zip_needed
-        self.compiler_name = compiler_name
-        self.compiler_instance = compiler_instance

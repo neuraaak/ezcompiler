@@ -53,8 +53,19 @@ jobs:
       - name: Generate coverage report
         run: |
           echo "🧪 Running tests and generating coverage report..."
-          pytest --cov=ezpl --cov-report=html --cov-report=xml -q || true
+          pytest --cov=src/ezcompiler --cov-report=html --cov-report=xml -q || true
           echo "✅ Coverage report generated!"
+
+      - name: Enforce import contracts
+        run: |
+          echo "🧭 Enforcing import contracts with import-linter..."
+          lint-imports
+
+      - name: Generate architecture graph
+        run: |
+          echo "🏗️ Generating architecture dependency graph..."
+          python .scripts/dev/generate_architecture_graph.py
+          echo "✅ Architecture graph generated!"
 
       - name: Generate changelog
         uses: orhun/git-cliff-action@v4
