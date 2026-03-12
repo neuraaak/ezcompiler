@@ -53,34 +53,40 @@ mkdocs serve
 
 ```text
 ezcompiler/
-├── ezcompiler/              # Main package
-│   ├── __init__.py         # Package initialization
-│   ├── interfaces/         # Public interfaces
-│   │   ├── python_api.py   # EzCompiler main class
-│   │   └── cli_interface.py # CLI interface
-│   ├── services/           # Business logic
-│   │   ├── compiler_service.py
-│   │   ├── config_service.py
-│   │   ├── template_service.py
-│   │   └── uploader_service.py
-│   ├── protocols/          # Protocol implementations
-│   │   ├── base_compiler.py
-│   │   ├── cx_freeze_compiler.py
-│   │   ├── pyinstaller_compiler.py
-│   │   ├── nuitka_compiler.py
-│   │   ├── base_uploader.py
-│   │   ├── disk_uploader.py
-│   │   └── server_uploader.py
-│   ├── shared/             # Shared components
-│   │   ├── compiler_config.py
-│   │   └── exceptions/
-│   ├── utils/              # Utilities
-│   │   ├── file_utils.py
-│   │   ├── config_utils.py
-│   │   ├── template_utils.py
-│   │   ├── zip_utils.py
-│   │   └── validators/     # Validation modules
-│   └── assets/             # Templates and resources
+├── src/
+│   └── ezcompiler/          # Main package
+│       ├── __init__.py         # Package initialization
+│       ├── interfaces/         # Public interfaces
+│       │   ├── python_api.py   # EzCompiler main class
+│       │   └── cli_interface.py # CLI interface
+│       ├── services/           # Business logic
+│       │   ├── compiler_service.py
+│       │   ├── config_service.py
+│       │   ├── pipeline_service.py
+│       │   ├── template_service.py
+│       │   └── uploader_service.py
+│       ├── adapters/           # Concrete implementations
+│       │   ├── base_compiler.py
+│       │   ├── compiler_factory.py
+│       │   ├── cx_freeze_compiler.py
+│       │   ├── pyinstaller_compiler.py
+│       │   ├── nuitka_compiler.py
+│       │   ├── base_file_writer.py
+│       │   ├── disk_file_writer.py
+│       │   ├── base_uploader.py
+│       │   ├── disk_uploader.py
+│       │   └── server_uploader.py
+│       ├── shared/             # Shared components
+│       │   ├── compilation_result.py
+│       │   ├── compiler_config.py
+│       │   └── exceptions/
+│       ├── utils/              # Utilities
+│       │   ├── file_utils.py
+│       │   ├── config_utils.py
+│       │   ├── template_utils.py
+│       │   ├── zip_utils.py
+│       │   └── validators/     # Validation modules
+│       └── assets/             # Templates and resources
 ├── tests/                  # Test suite
 │   ├── unit/              # Unit tests
 │   └── integration/       # Integration tests
@@ -101,7 +107,7 @@ EzCompiler follows these coding standards:
 - **PEP 8** - Python style guide
 - **Type Hints** - Full type annotations for Python 3.10+
 - **Docstrings** - Google-style docstrings for all public APIs
-- **Line Length** - 88 characters (Black default)
+- **Line Length** - 88 characters (Ruff default)
 
 ### Type Hints
 
@@ -228,11 +234,11 @@ def test_compiler_selection():
 
 ### Test Coverage
 
-Aim for high test coverage:
+Target coverage is **60%** (threshold enforced in CI). Current coverage: **~64%**.
 
 ```bash
 # Generate coverage report
-pytest tests/ --cov=ezcompiler --cov-report=html
+pytest tests/ --cov=src/ezcompiler --cov-report=html
 
 # View coverage report
 open htmlcov/index.html
@@ -242,31 +248,28 @@ open htmlcov/index.html
 
 ## Linting and Formatting
 
-### Black (Code Formatting)
-
-```bash
-# Format code
-black ezcompiler/ tests/
-
-# Check formatting
-black --check ezcompiler/ tests/
-```
-
 ### Ruff (Linting)
 
 ```bash
 # Lint code
-ruff check ezcompiler/ tests/
+ruff check src/ezcompiler/ tests/
 
 # Fix auto-fixable issues
-ruff check --fix ezcompiler/ tests/
+ruff check --fix src/ezcompiler/ tests/
 ```
 
-### mypy (Type Checking)
+### Pyright (Type Checking)
 
 ```bash
 # Type check code
-mypy ezcompiler/
+pyright src/ezcompiler/
+```
+
+### Import Linter (Architecture Contracts)
+
+```bash
+# Verify layer dependency contracts
+PYTHONPATH=src lint-imports
 ```
 
 ---
@@ -343,9 +346,10 @@ API documentation is auto-generated from docstrings using mkdocstrings:
 6. **Lint and format**
 
    ```bash
-   black ezcompiler/ tests/
-   ruff check --fix ezcompiler/ tests/
-   mypy ezcompiler/
+   ruff format src/ezcompiler/ tests/
+   ruff check --fix src/ezcompiler/ tests/
+   pyright src/ezcompiler/
+   PYTHONPATH=src lint-imports
    ```
 
 7. **Commit your changes**
@@ -400,7 +404,7 @@ git commit -m "test: Add tests for template service"
 
 Update version in:
 
-- `ezcompiler/__init__.py`
+- `src/ezcompiler/__init__.py`
 - `pyproject.toml`
 
 ### Creating a Release
@@ -408,7 +412,7 @@ Update version in:
 1. **Update version**
 
    ```python
-   # ezcompiler/__init__.py
+   # src/ezcompiler/__init__.py
    __version__ = "2.3.0"
    ```
 
@@ -480,7 +484,7 @@ If mypy reports errors:
 
 ```bash
 # Run mypy with detailed output
-mypy ezcompiler/ --show-error-codes
+mypy src/ezcompiler/ --show-error-codes
 ```
 
 ---

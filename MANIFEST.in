@@ -2,7 +2,7 @@
 include README.md
 
 # Include all template files
-recursive-include ezcompiler/templates *.template
+recursive-include src/ezcompiler/templates *.template
 
 # Include configuration files
 include pyproject.toml

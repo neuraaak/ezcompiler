@@ -53,7 +53,7 @@ def read_version() -> str:
     """
     # Project root is the parent of the .scripts/dev directory
     project_root = Path(__file__).resolve().parents[2]
-    init_path = project_root / project_name.lower() / "__init__.py"
+    init_path = project_root / "src" / project_name.lower() / "__init__.py"
     content = init_path.read_text(encoding="utf-8")
 
     # Match __version__ = "X.Y.Z"
@@ -65,7 +65,7 @@ def read_version() -> str:
         )
         return version
 
-    error_msg = f"Unable to find __version__ in {project_name}/__init__.py"
+    error_msg = f"Unable to find __version__ in src/{project_name}/__init__.py"
     console.print(f"[red]❌[/red] {error_msg}")
     raise RuntimeError(error_msg)
 

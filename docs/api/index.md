@@ -12,7 +12,7 @@ The EzCompiler API provides a comprehensive framework for Python project compila
 | --------------------------- | -------------------------------------- | --------------------------------- |
 | [Interfaces](interfaces.md) | Public APIs and user-facing interfaces | Main facade and CLI               |
 | [Services](services.md)     | Business logic and orchestration       | Core service implementations      |
-| [Protocols](protocols.md)   | Compiler and uploader implementations  | Protocol adapters and backends    |
+| [Adapters](adapters.md)     | Compiler and uploader implementations  | Concrete adapters and backends    |
 | [Shared](shared.md)         | Configuration and exceptions           | Shared data structures            |
 | [Utils](utils.md)           | Utility functions and validators       | File, config, template operations |
 
@@ -30,7 +30,7 @@ Or from submodules:
 from ezcompiler.interfaces import EzCompiler
 from ezcompiler.shared import CompilerConfig
 from ezcompiler.services import CompilerService
-from ezcompiler.protocols import CxFreezeCompiler
+from ezcompiler.adapters import CxFreezeCompiler
 ```
 
 ---
@@ -52,14 +52,15 @@ The services layer implements business logic and orchestration:
 
 - **`CompilerService`** – Manages compiler selection and compilation process
 - **`ConfigService`** – Handles configuration loading and validation
+- **`PipelineService`** – Orchestrates compile → zip → upload pipeline
 - **`TemplateService`** – Processes templates and generates files
 - **`UploaderService`** – Orchestrates upload operations
 
 [View Services Documentation →](services.md)
 
-### Protocols Layer
+### Adapters Layer
 
-The protocols layer defines implementation protocols:
+The adapters layer contains concrete implementations for compilation and upload:
 
 **Compilers:**
 
@@ -67,20 +68,28 @@ The protocols layer defines implementation protocols:
 - **`CxFreezeCompiler`** – Cx_Freeze implementation
 - **`PyInstallerCompiler`** – PyInstaller implementation
 - **`NuitkaCompiler`** – Nuitka implementation
+- **`CompilerFactory`** – Factory for creating compiler instances
+
+**File Writers:**
+
+- **`BaseFileWriter`** – Abstract base class for file writers
+- **`DiskFileWriter`** – Local disk file writer
 
 **Uploaders:**
 
 - **`BaseUploader`** – Abstract base class for all uploaders
 - **`DiskUploader`** – Local disk upload backend
 - **`ServerUploader`** – HTTP/HTTPS server upload backend
+- **`UploaderFactory`** – Factory for creating uploader instances
 
-[View Protocols Documentation →](protocols.md)
+[View Adapters Documentation →](adapters.md)
 
 ### Shared Layer
 
 The shared layer contains common data structures and exceptions:
 
 - **`CompilerConfig`** – Main configuration dataclass
+- **`CompilationResult`** – Result type for compilation operations
 - **Exception hierarchy** – Typed exceptions for error handling
 
 [View Shared Documentation →](shared.md)
@@ -249,7 +258,7 @@ Select a module from the navigation menu or the table above to view detailed doc
 | --------------------------- | -------------------------------------------------- |
 | [Interfaces](interfaces.md) | Public APIs and user-facing interfaces             |
 | [Services](services.md)     | Business logic services and orchestration          |
-| [Protocols](protocols.md)   | Compiler and uploader protocol implementations     |
+| [Adapters](adapters.md)     | Compiler and uploader concrete implementations     |
 | [Shared](shared.md)         | Configuration dataclasses and exception hierarchy  |
 | [Utils](utils.md)           | Utility functions, file operations, and validators |
 

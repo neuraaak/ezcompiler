@@ -21,6 +21,9 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+from ..adapters.base_file_writer import BaseFileWriter
+from ..adapters.disk_file_writer import DiskFileWriter
+
 # Local imports
 from ..assets.templates.template_loader import TemplateLoader
 from ..shared.exceptions import TemplateError, VersionError
@@ -54,7 +57,7 @@ class TemplateService:
     # INITIALIZATION
     # ////////////////////////////////////////////////
 
-    def __init__(self) -> None:
+    def __init__(self, file_writer: BaseFileWriter | None = None) -> None:
         """
         Initialize the template service.
 
@@ -68,6 +71,7 @@ class TemplateService:
 
         self.template_loader = TemplateLoader()
         self.processor = TemplateProcessor()
+        self.file_writer = file_writer or DiskFileWriter()
 
     # ////////////////////////////////////////////////
     # CONFIG FILE GENERATION
@@ -102,7 +106,7 @@ class TemplateService:
             content = self.template_loader.process_config_template(format_type, config)
 
             # Write file
-            output_path.write_text(content, encoding="utf-8")
+            self.file_writer.write_text(output_path, content, encoding="utf-8")
 
         except TemplateError:
             raise
@@ -153,7 +157,7 @@ class TemplateService:
             content = self.template_loader.process_setup_template("py", config)
 
             # Write file
-            final_path.write_text(content, encoding="utf-8")
+            self.file_writer.write_text(final_path, content, encoding="utf-8")
 
             return final_path
 
@@ -227,7 +231,7 @@ class TemplateService:
             )
 
             # Write file
-            final_path.write_text(content, encoding="utf-8")
+            self.file_writer.write_text(final_path, content, encoding="utf-8")
 
             return final_path
 

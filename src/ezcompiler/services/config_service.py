@@ -168,6 +168,48 @@ class ConfigService:
             raise ConfigurationError(f"Failed to build CompilerConfig: {e}") from e
 
     # ////////////////////////////////////////////////
+    # UTILITIES (public, for use by interfaces layer)
+    # ////////////////////////////////////////////////
+
+    @staticmethod
+    def load_pyproject_as_dict(pyproject_path: Path) -> dict[str, Any]:
+        """
+        Load and extract configuration from a pyproject.toml file.
+
+        Args:
+            pyproject_path: Path to the pyproject.toml file
+
+        Returns:
+            dict[str, Any]: Extracted configuration dictionary
+
+        Raises:
+            ConfigurationError: If the file cannot be loaded or parsed
+        """
+        try:
+            toml_data = ConfigUtils.load_toml_config(pyproject_path)
+            return ConfigUtils.extract_pyproject_config(toml_data)
+        except (
+            ConfigFileNotFoundError,
+            ConfigFileParseError,
+            TomlNotAvailableError,
+        ) as e:
+            raise ConfigurationError(f"Failed to load pyproject.toml: {e}") from e
+
+    @staticmethod
+    def merge_configs(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:
+        """
+        Deep-merge two configuration dictionaries (override wins on conflicts).
+
+        Args:
+            base: Base configuration dictionary
+            override: Override dictionary (values win over base)
+
+        Returns:
+            dict[str, Any]: Merged configuration dictionary
+        """
+        return ConfigUtils.merge_config_dicts(base, override)
+
+    # ////////////////////////////////////////////////
     # PRIVATE HELPERS
     # ////////////////////////////////////////////////
 

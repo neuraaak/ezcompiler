@@ -38,7 +38,7 @@ except ModuleNotFoundError:
     import tomli as tomllib  # type: ignore[no-redef]  # ty:ignore[unused-ignore-comment]
 
 # Local imports
-from ..services import CompilerService, ConfigService, TemplateService, UploaderService
+from ..services import ConfigService, PipelineService, TemplateService, UploaderService
 from ..shared.exceptions import (
     CompilationError,
     ConfigurationError,
@@ -48,8 +48,7 @@ from ..shared.exceptions import (
 )
 from ..shared.exceptions.utils.config_exceptions import ConfigError
 from ..shared.exceptions.utils.zip_exceptions import ZipError
-from ..utils.config_utils import ConfigUtils
-from ..utils.zip_utils import ZipUtils
+from ..version import __version__
 
 # ///////////////////////////////////////////////////////////////
 # LAZY ACCESSORS (avoid circular import with interfaces/__init__.py)
@@ -70,13 +69,33 @@ def _get_logger() -> EzLogger:
     return get_logger()
 
 
+_template_service: TemplateService | None = None
+_pipeline_service: PipelineService | None = None
+
+
+def _get_template_service() -> TemplateService:
+    """Get the shared TemplateService instance (created once, reused across commands)."""
+    global _template_service  # noqa: PLW0603
+    if _template_service is None:
+        _template_service = TemplateService()
+    return _template_service
+
+
+def _get_pipeline_service() -> PipelineService:
+    """Get the shared PipelineService instance (injectable in tests via module attribute)."""
+    global _pipeline_service  # noqa: PLW0603
+    if _pipeline_service is None:
+        _pipeline_service = PipelineService()
+    return _pipeline_service
+
+
 # ///////////////////////////////////////////////////////////////
 # CLI COMMANDS AND GROUPS
 # ///////////////////////////////////////////////////////////////
 
 
 @click.group(context_settings={"help_option_names": ["-h", "--help"]})
-@click.version_option(version="2.0.0", prog_name="EzCompiler")
+@click.version_option(version=__version__, prog_name="EzCompiler")
 def main() -> None:
     """
     EzCompiler - CLI for Python project compilation and distribution.
@@ -284,8 +303,7 @@ def config(
         # 1. Load base from pyproject.toml if requested
         config_dict: dict[str, Any] = {}
         if from_pyproject:
-            toml_data = ConfigUtils.load_toml_config(from_pyproject)
-            config_dict = ConfigUtils.extract_pyproject_config(toml_data)
+            config_dict = ConfigService.load_pyproject_as_dict(from_pyproject)
             printer.info(f"Loaded base configuration from {from_pyproject}")
             logger.info(f"Loaded base configuration from {from_pyproject}")
 
@@ -339,7 +357,7 @@ def config(
         )
 
         if cli_overrides:
-            config_dict = ConfigUtils.merge_config_dicts(config_dict, cli_overrides)
+            config_dict = ConfigService.merge_configs(config_dict, cli_overrides)
 
         # 3. Interactive prompts for missing required values
         if interactive:
@@ -399,7 +417,7 @@ def config(
         output_path.mkdir(parents=True, exist_ok=True)
 
         # Generate configuration file in chosen format
-        template_service = TemplateService()
+        template_service = _get_template_service()
         content = template_service.process_config_template(format, config_dict)
         filename = "ezcompiler.yaml" if format == "yaml" else "ezcompiler.json"
         target = output_path / filename
@@ -534,8 +552,7 @@ def setup(
         # 1. Load base from pyproject.toml if requested
         config_dict: dict[str, Any] = {}
         if from_pyproject:
-            toml_data = ConfigUtils.load_toml_config(from_pyproject)
-            config_dict = ConfigUtils.extract_pyproject_config(toml_data)
+            config_dict = ConfigService.load_pyproject_as_dict(from_pyproject)
             printer.info(f"Loaded base configuration from {from_pyproject}")
             logger.info(f"Loaded base configuration from {from_pyproject}")
 
@@ -550,7 +567,7 @@ def setup(
                     file_config = json.load(f)
             else:
                 raise click.BadParameter("Configuration file must be YAML or JSON")
-            config_dict = ConfigUtils.merge_config_dicts(config_dict, file_config)
+            config_dict = ConfigService.merge_configs(config_dict, file_config)
 
         # 3. Override with explicitly provided CLI options
         cli_overrides: dict[str, Any] = {}
@@ -586,7 +603,7 @@ def setup(
             cli_overrides["excludes"] = list(excludes)
 
         if cli_overrides:
-            config_dict = ConfigUtils.merge_config_dicts(config_dict, cli_overrides)
+            config_dict = ConfigService.merge_configs(config_dict, cli_overrides)
 
         # 4. Interactive prompts for missing required values
         if interactive:
@@ -631,7 +648,7 @@ def setup(
         output_path.mkdir(parents=True, exist_ok=True)
 
         # Generate setup.py using TemplateService
-        template_service = TemplateService()
+        template_service = _get_template_service()
         setup_file_path = template_service.generate_setup_file(
             config_dict, output_dir=output_path
         )
@@ -724,7 +741,7 @@ def template_raw(
             filename = default_filenames[(type, format)]
 
         # Initialize template service
-        template_service = TemplateService()
+        template_service = _get_template_service()
 
         # Write file to disk
         output_path = Path(output)
@@ -870,48 +887,15 @@ def compile_project(
         logger.error(str(e))
         sys.exit(1)
 
-    # Build dynamic stages based on config
-    stages: list[StageConfig] = [
-        {
-            "name": "main",
-            "type": "main",
-            "description": f"Building {config_obj.project_name} v{config_obj.version}",
-        },
-        {
-            "name": "version",
-            "type": "spinner",
-            "description": "Generating version file",
-        },
-        {
-            "name": "compile",
-            "type": "spinner",
-            "description": f"Compiling with {config_obj.compiler}",
-        },
-    ]
-
     should_zip = not no_zip and config_obj.zip_needed
     should_upload = not no_upload and (
         upload_structure is not None or config_obj.repo_needed
     )
 
-    if should_zip:
-        stages.append(
-            {
-                "name": "zip",
-                "type": "progress",
-                "description": "Creating ZIP archive",
-                "total": 100,
-            }
-        )
-    effective_upload_structure = upload_structure or config_obj.upload_structure
-    if should_upload:
-        stages.append(
-            {
-                "name": "upload",
-                "type": "spinner",
-                "description": f"Uploading ({effective_upload_structure})",
-            }
-        )
+    # Build dynamic stages based on config
+    stages: list[StageConfig] = PipelineService.build_stages(  # type: ignore[assignment]
+        config_obj, should_zip=should_zip, should_upload=should_upload
+    )
 
     # Phase 2-5: Execute pipeline with progress
     current_phase = "version"
@@ -922,7 +906,7 @@ def compile_project(
             # Version file generation
             current_phase = "version"
             dlp.update_layer("version", 0, "Processing template...")
-            template_service = TemplateService()
+            template_service = _get_template_service()
             version_file_path = Path(config_obj.version_filename)
             template_service.generate_version_file(
                 config_obj.to_dict(), version_file_path
@@ -933,10 +917,10 @@ def compile_project(
             # Compilation
             current_phase = "compile"
             dlp.update_layer("compile", 0, "Initializing compiler...")
-            compiler_service = CompilerService(config_obj)
-            result = compiler_service.compile(
+            compiler_service, result = _get_pipeline_service().compile_project(
+                config_obj,
                 console=config_obj.console,
-                compiler=config_obj.compiler,  # type: ignore[arg-type]
+                compiler=config_obj.compiler,
             )
             logger.info("Compilation completed successfully")
             dlp.complete_layer("compile")
@@ -957,8 +941,7 @@ def compile_project(
                         """
                         dlp.update_layer("zip", progress, Path(filename).name)
 
-                    ZipUtils.create_zip_archive(
-                        source_path=str(config_obj.output_folder),
+                    compiler_service.zip_artifact(
                         output_path=zip_path,
                         progress_callback=_zip_progress,
                     )
@@ -1101,7 +1084,7 @@ def init(
             {"name": "setup", "type": "spinner", "description": "Generating setup.py"},
         ]
 
-        template_service = TemplateService()
+        template_service = _get_template_service()
         current_phase = "config"
         pipeline_error: Exception | None = None
 

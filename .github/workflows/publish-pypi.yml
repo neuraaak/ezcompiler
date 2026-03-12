@@ -114,6 +114,11 @@ jobs:
           echo "🧪 Running test suite..."
           pytest tests/ -v --tb=short
 
+      - name: Enforce import contracts
+        run: |
+          echo "🧭 Enforcing import contracts with import-linter..."
+          lint-imports
+
   # Job de build et publication
   publish:
     name: Build and Publish
@@ -158,7 +163,7 @@ jobs:
         run: |
           echo "🧪 Verifying package can be installed..."
           pip install dist/*.whl --force-reinstall
-          python -c "import sys; import importlib; pkg = importlib.import_module('ezpl'); print(f'✅ Package installed successfully: ${{ env.PACKAGE_NAME }} {getattr(pkg, \"__version__\", \"unknown\")}')"
+          python -c "import ezcompiler; print(f'✅ Package installed successfully: ezcompiler {ezcompiler.__version__}')"
           pip uninstall -y ${{ env.PACKAGE_NAME }}
 
       - name: Publish to PyPI

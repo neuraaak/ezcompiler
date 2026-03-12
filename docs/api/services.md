@@ -30,6 +30,14 @@ Service for processing templates and generating dynamic files.
 
 ---
 
+## PipelineService
+
+Service for orchestrating the full compile → zip → upload pipeline with injectable factory.
+
+::: ezcompiler.services.pipeline_service.PipelineService
+
+---
+
 ## UploaderService
 
 Service for orchestrating upload operations to various backends.
