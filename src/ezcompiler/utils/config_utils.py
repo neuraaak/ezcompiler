@@ -23,19 +23,12 @@ from __future__ import annotations
 # ///////////////////////////////////////////////////////////////
 # Standard library imports
 import json
+import tomllib
 from pathlib import Path
 from typing import Any
 
 # Third-party imports
 import yaml
-
-try:
-    import tomllib  # ty:ignore[unresolved-import]
-except ModuleNotFoundError:
-    try:
-        import tomli as tomllib
-    except ModuleNotFoundError:
-        tomllib = None  # ty:ignore[conflicting-declarations]
 
 # Local imports
 from ..shared.compiler_config import CompilerConfig
@@ -45,7 +38,6 @@ from ..shared.exceptions.utils.config_exceptions import (
     ConfigFileParseError,
     ConfigPathError,
     MissingRequiredConfigError,
-    TomlNotAvailableError,
 )
 from .file_utils import FileUtils
 from .validators import validate_string_length
@@ -237,15 +229,9 @@ class ConfigUtils:
             dict[str, Any]: Parsed TOML dictionary
 
         Raises:
-            TomlNotAvailableError: If no TOML parser is available
             ConfigFileNotFoundError: If the file does not exist
             ConfigFileParseError: If the file cannot be parsed
         """
-        if tomllib is None:
-            raise TomlNotAvailableError(
-                "TOML parsing requires Python 3.11+ or the 'tomli' package. "
-                "Install with: pip install tomli"
-            )
         if not path.exists():
             raise ConfigFileNotFoundError(f"TOML config file not found: {path}")
         try:
@@ -329,7 +315,7 @@ class ConfigUtils:
 
         # Check pyproject.toml (only if it has [tool.ezcompiler])
         toml_path = search_dir / "pyproject.toml"
-        if toml_path.exists() and tomllib is not None:
+        if toml_path.exists():
             try:
                 with open(toml_path, "rb") as f:
                     data = tomllib.load(f)

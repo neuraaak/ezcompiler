@@ -187,6 +187,47 @@ class CodeQualityChecker:
             )
             return True
 
+    def run_ty(self) -> bool:
+        """Run ty type checker.
+
+        Returns:
+            bool: True if type checking succeeded, False otherwise
+        """
+        command = ["ty", "check", "--output-format=concise"]
+        command.extend([str(p) for p in self._get_scan_paths()])
+
+        if self.verbose:
+            self.console.print("[cyan]Running ty...[/cyan]")
+            self.console.print(f"  [dim]Command: {' '.join(command)}[/dim]")
+
+        try:
+            result = subprocess.run(  # noqa: S603
+                command,
+                check=True,
+                capture_output=not self.verbose,
+                text=True,
+                cwd=self.project_root,
+            )
+        except subprocess.CalledProcessError as e:
+            self.console.print("[red]❌ ERROR:[/red] ty type checking failed:")
+            if e.stdout:
+                self.console.print(f"[dim]STDOUT:[/dim]\n{e.stdout}")
+            if e.stderr:
+                self.console.print(f"[dim]STDERR:[/dim]\n{e.stderr}")
+            return False
+        except FileNotFoundError:
+            self.console.print(
+                "[yellow]⚠[/yellow]  ty not found — skipping (install with: pip install ty)"
+            )
+            return True
+        else:
+            if self.verbose and result.stdout:
+                self.console.print(result.stdout)
+            self.console.print(
+                "[green]✓[/green] [green]SUCCESS:[/green] ty type checking completed successfully"
+            )
+            return True
+
     def run_ruff(self) -> bool:
         """Run Ruff linter.
 
@@ -194,7 +235,14 @@ class CodeQualityChecker:
             bool: True if linting succeeded, False otherwise
         """
         if self.check_only:
-            command = [sys.executable, "-m", "ruff", "check", "--line-length=88"]
+            command = [
+                sys.executable,
+                "-m",
+                "ruff",
+                "check",
+                "--line-length=88",
+                "--output-format=concise",
+            ]
         else:
             command = [
                 sys.executable,
@@ -203,6 +251,7 @@ class CodeQualityChecker:
                 "check",
                 "--fix",
                 "--line-length=88",
+                "--output-format=concise",
             ]
 
         # Use directories instead of individual files for better performance
@@ -253,10 +302,11 @@ class CodeQualityChecker:
         self.console.print(f"[bold]Scanning directories:[/bold] {dirs_text}")
         self.console.print()
 
-        # Order matters: format first, then lint, then architecture contracts
+        # Order matters: format first, then lint, then types, then architecture contracts
         checks = [
             ("Ruff Format", self.run_ruff_format, "🎨"),
             ("Ruff", self.run_ruff, "🔍"),
+            ("Ty", self.run_ty, "🔎"),
             ("Import Linter", self.run_import_linter, "🏗️"),
         ]
 

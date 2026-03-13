@@ -14,10 +14,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ezcompiler"
-version = "2.3.0"
+version = "2.3.1"
 description = "Project compilation and distribution framework for Python projects"
 readme = { file = "README.md", content-type = "text/markdown" }
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 license = { text = "MIT" }
 authors = [{ name = "Neuraaak" }]
 maintainers = [{ name = "Neuraaak" }]
@@ -31,7 +31,6 @@ keywords = [
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -58,7 +57,6 @@ dependencies = [
     "click>=8.0.0",
     "PyYAML>=6.0",
     "ezplog>=1.0.0",
-    "tomli>=1.0.0; python_version < '3.11'",
     "tomli-w>=1.0.0",
     "packaging>=23.0",
 ]
@@ -167,6 +165,7 @@ exclude = [
 ]
 
 [tool.setuptools.package-data]
+"ezcompiler" = ["py.typed"]
 "ezcompiler.assets.templates" = ["**/*.template"]
 
 
@@ -177,7 +176,7 @@ exclude = [
 
 # Ruff: All-in-one linter with comprehensive rule sets
 [tool.ruff]
-target-version = "py310"
+target-version = "py311"
 line-length = 88
 
 [tool.ruff.lint]
@@ -225,17 +224,11 @@ line-ending = "auto"
 
 # ty: Type checking with minimal configuration
 [tool.ty.environment]
-# Target Python version
-python-version = "3.10"
-
-# Project root paths (first-party modules)
+python-version = "3.11"
 root = ["src", "src/ezcompiler"]
 
 [tool.ty.src]
-# Files to check
 include = ["src/ezcompiler/**/*.py"]
-
-# Files/directories to exclude
 exclude = [
     "**/__pycache__",
     ".venv",
@@ -251,18 +244,12 @@ exclude = [
 respect-ignore-files = true
 
 [tool.ty.terminal]
-# Output format (full or concise)
 output-format = "full"
-
-# Warnings are not treated as errors
 error-on-warning = false
 
 # Pyright: Comprehensive type checking with detailed reporting
 [tool.pyright]
-# Target Python version
-pythonVersion = "3.10"
-
-# Type checking mode (off, basic, standard, strict)
+pythonVersion = "3.11"
 typeCheckingMode = "basic"
 
 # Include/exclude paths
@@ -276,6 +263,8 @@ exclude = [
     "tests",
     "docs",
     "examples",
+    "**/node_modules",
+    "**/.*",
 ]
 
 # Reporting rules: flag missing imports and duplicates
