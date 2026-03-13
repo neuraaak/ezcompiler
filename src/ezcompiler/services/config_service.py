@@ -28,7 +28,6 @@ from ..shared.exceptions import ConfigurationError
 from ..shared.exceptions.utils.config_exceptions import (
     ConfigFileNotFoundError,
     ConfigFileParseError,
-    TomlNotAvailableError,
 )
 from ..utils.config_utils import ConfigUtils
 
@@ -115,11 +114,7 @@ class ConfigService:
 
         except ConfigurationError:
             raise
-        except (
-            ConfigFileNotFoundError,
-            ConfigFileParseError,
-            TomlNotAvailableError,
-        ) as e:
+        except (ConfigFileNotFoundError, ConfigFileParseError) as e:
             raise ConfigurationError(f"Configuration loading failed: {e}") from e
         except Exception as e:
             raise ConfigurationError(
@@ -188,11 +183,7 @@ class ConfigService:
         try:
             toml_data = ConfigUtils.load_toml_config(pyproject_path)
             return ConfigUtils.extract_pyproject_config(toml_data)
-        except (
-            ConfigFileNotFoundError,
-            ConfigFileParseError,
-            TomlNotAvailableError,
-        ) as e:
+        except (ConfigFileNotFoundError, ConfigFileParseError) as e:
             raise ConfigurationError(f"Failed to load pyproject.toml: {e}") from e
 
     @staticmethod
@@ -235,14 +226,10 @@ class ConfigService:
         if not toml_path.exists():
             return merged
 
-        try:
-            toml_data = ConfigUtils.load_toml_config(toml_path)
-            pyproject_config = ConfigUtils.extract_pyproject_config(toml_data)
-            if pyproject_config:
-                merged = ConfigUtils.merge_config_dicts(merged, pyproject_config)
-        except TomlNotAvailableError:
-            pass  # Skip TOML if parser not available
-
+        toml_data = ConfigUtils.load_toml_config(toml_path)
+        pyproject_config = ConfigUtils.extract_pyproject_config(toml_data)
+        if pyproject_config:
+            merged = ConfigUtils.merge_config_dicts(merged, pyproject_config)
         return merged
 
     @staticmethod
