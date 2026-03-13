@@ -20,6 +20,7 @@ from __future__ import annotations
 # Standard library imports
 import json
 import sys
+import tomllib
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -31,11 +32,6 @@ import click
 import tomli_w
 import yaml
 from ezpl import EzLogger, EzPrinter
-
-try:
-    import tomllib  # type: ignore[no-redef]  # ty:ignore[unused-ignore-comment, unused-ignore-comment]
-except ModuleNotFoundError:
-    import tomli as tomllib  # type: ignore[no-redef]  # ty:ignore[unused-ignore-comment]
 
 # Local imports
 from ..services import ConfigService, PipelineService, TemplateService, UploaderService

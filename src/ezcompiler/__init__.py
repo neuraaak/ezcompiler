@@ -60,6 +60,7 @@ from .shared import (
     UploadError,
     VersionError,
 )
+from .types import CompilerName, FilePath, IncludeFiles, JsonMap, UploadTarget
 from .version import __version__
 
 # ///////////////////////////////////////////////////////////////
@@ -100,6 +101,12 @@ __all__ = [
     "EzCompiler",
     # Configuration
     "CompilerConfig",
+    # Type aliases
+    "FilePath",
+    "CompilerName",
+    "UploadTarget",
+    "IncludeFiles",
+    "JsonMap",
     # Exceptions
     "EzCompilerError",
     "CompilationError",

@@ -1,8 +1,12 @@
 # Include documentation
 include README.md
+include LICENSE
 
-# Include all template files
-recursive-include src/ezcompiler/templates *.template
+# PEP 561 type information marker
+include src/ezcompiler/py.typed
+
+# Include all template files (used at runtime for file generation)
+recursive-include src/ezcompiler/assets/templates *.template
 
 # Include configuration files
 include pyproject.toml
