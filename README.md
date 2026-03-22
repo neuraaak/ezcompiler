@@ -1,14 +1,14 @@
-# 🚀 EzCompiler
+# EzCompiler
 
-[![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg?style=for-the-badge&logo=python)](https://www.python.org/)
-[![Platform](https://img.shields.io/badge/Platform-Windows-lightgray.svg?style=for-the-badge&logo=windows)](https://pypi.org/project/ezcompiler/)
-[![Version](https://img.shields.io/badge/Version-2.3.1-orange.svg?style=for-the-badge)](https://github.com/neuraaak/ezcompiler)
-[![PyPI](https://img.shields.io/badge/PyPI-ezcompiler-green.svg?style=for-the-badge&logo=pypi)](https://pypi.org/project/ezcompiler/)
-[![Docs](https://img.shields.io/badge/Docs-Online-blue.svg?style=for-the-badge&logo=readthedocs)](https://neuraaak.github.io/ezcompiler/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
-[![Status](https://img.shields.io/badge/Status-Production%20Ready-success.svg?style=for-the-badge)](https://github.com/neuraaak/ezcompiler)
-[![Tests](https://img.shields.io/badge/Tests-233%20passing-success.svg?style=for-the-badge)](https://github.com/neuraaak/ezcompiler)
-[![Coverage](https://img.shields.io/badge/Coverage-63%25-green.svg?style=for-the-badge)](https://github.com/neuraaak/ezcompiler)
+[![PyPI version](https://img.shields.io/pypi/v/ezcompiler?style=flat&logo=pypi&logoColor=white)](https://pypi.org/project/ezcompiler/)
+[![Python versions](https://img.shields.io/pypi/pyversions/ezcompiler?style=flat&logo=python&logoColor=white)](https://pypi.org/project/ezcompiler/)
+[![PyPI status](https://img.shields.io/pypi/status/ezcompiler?style=flat&logo=pypi&logoColor=white)](https://pypi.org/project/ezcompiler/)
+[![License](https://img.shields.io/badge/license-MIT-green?style=flat&logo=github&logoColor=white)](https://github.com/neuraaak/ezcompiler/blob/main/LICENSE)
+[![CI](https://img.shields.io/github/actions/workflow/status/neuraaak/ezcompiler/publish-pypi.yml?style=flat&label=publish&logo=githubactions&logoColor=white)](https://github.com/neuraaak/ezcompiler/actions/workflows/publish-pypi.yml)
+[![Docs](https://img.shields.io/badge/docs-Github%20Pages-blue?style=flat&logo=materialformkdocs&logoColor=white)](https://neuraaak.github.io/ezcompiler/)
+[![uv](https://img.shields.io/badge/package%20manager-uv-DE5FE9?style=flat&logo=uv&logoColor=white)](https://github.com/astral-sh/uv)
+[![linter](https://img.shields.io/badge/linter-ruff-orange?style=flat&logo=ruff&logoColor=white)](https://github.com/astral-sh/ruff)
+[![type checker](https://img.shields.io/badge/type%20checker-ty-orange?style=flat&logo=astral&logoColor=white)](https://github.com/astral-sh/ty)
 
 ![EzCompiler Logo](docs/assets/logo-min.png)
 
@@ -109,6 +109,7 @@ pytest tests/
 # Run linting and formatting
 ruff check .
 ruff format --check .
+ty check src/ezcompiler/
 pyright src/ezcompiler/
 PYTHONPATH=src lint-imports
 ```
@@ -143,7 +144,7 @@ PYTHONPATH=src lint-imports
 | **requests**    | 2.32.3+ | HTTP library for uploads      |
 | **PyYAML**      | 6.0+    | YAML file processing          |
 | **click**       | 8.0.0+  | CLI framework                 |
-| **ezpl**        | latest  | Structured logging framework  |
+| **ezplog**      | 1.0.0+  | Structured logging framework  |
 
 ## 🔧 Quick API Reference
 

@@ -401,7 +401,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
-          python-version: "3.10"
+          python-version: "3.11"
       - name: Install EzCompiler
         run: pip install ezcompiler
       - name: Generate config

@@ -420,7 +420,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ["3.10", "3.11"]
+        python-version: ["3.11", "3.12", "3.13"]
 
     steps:
       - uses: actions/checkout@v3
@@ -478,7 +478,7 @@ stages:
 
 build:
   stage: build
-  image: python:3.10
+  image: python:3.11
   script:
     - pip install ezcompiler
     - pip install -r requirements.txt
