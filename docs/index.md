@@ -1,9 +1,14 @@
-# Welcome to EzCompiler Documentation
+# EzCompiler
 
-[![PyPI](https://img.shields.io/badge/PyPI-ezcompiler-orange.svg)](https://pypi.org/project/ezcompiler/)
-[![PyPI version](https://img.shields.io/pypi/v/ezcompiler)](https://pypi.org/project/ezcompiler/)
-[![Python versions](https://img.shields.io/pypi/pyversions/ezcompiler)](https://pypi.org/project/ezcompiler/)
-[![License](https://img.shields.io/pypi/l/ezcompiler)](https://github.com/neuraaak/ezcompiler/blob/main/LICENSE)
+[![PyPI version](https://img.shields.io/pypi/v/ezcompiler?style=flat&logo=pypi&logoColor=white)](https://pypi.org/project/ezcompiler/)
+[![Python versions](https://img.shields.io/pypi/pyversions/ezcompiler?style=flat&logo=python&logoColor=white)](https://pypi.org/project/ezcompiler/)
+[![PyPI status](https://img.shields.io/pypi/status/ezcompiler?style=flat&logo=pypi&logoColor=white)](https://pypi.org/project/ezcompiler/)
+[![License](https://img.shields.io/badge/license-MIT-green?style=flat&logo=github&logoColor=white)](https://github.com/neuraaak/ezcompiler/blob/main/LICENSE)
+[![CI](https://img.shields.io/github/actions/workflow/status/neuraaak/ezcompiler/publish-pypi.yml?style=flat&label=publish&logo=githubactions&logoColor=white)](https://github.com/neuraaak/ezcompiler/actions/workflows/publish-pypi.yml)
+[![Docs](https://img.shields.io/badge/docs-Github%20Pages-blue?style=flat&logo=materialformkdocs&logoColor=white)](https://neuraaak.github.io/ezcompiler/)
+[![uv](https://img.shields.io/badge/package%20manager-uv-DE5FE9?style=flat&logo=uv&logoColor=white)](https://github.com/astral-sh/uv)
+[![linter](https://img.shields.io/badge/linter-ruff-orange?style=flat&logo=ruff&logoColor=white)](https://github.com/astral-sh/ruff)
+[![type checker](https://img.shields.io/badge/type%20checker-ty-orange?style=flat&logo=astral&logoColor=white)](https://github.com/astral-sh/ty)
 
 ![EzCompiler Logo](https://raw.githubusercontent.com/neuraaak/ezcompiler/refs/heads/main/docs/assets/logo-min.png)
 
@@ -16,7 +21,7 @@
 - **✅ Project Packaging**: ZIP archive creation with configurable compression
 - **✅ Upload Backends**: Disk and HTTP server distribution support
 - **✅ Template System**: Template-based generation for configuration, setup, and version files
-- **✅ Fully Typed API**: Complete Python 3.10+ type hints for excellent IDE support
+- **✅ Fully Typed API**: Complete Python 3.11+ type hints for excellent IDE support
 - **✅ Modular Validators**: 9 specialized validation modules for robust input validation
 - **✅ CLI Interface**: Interactive command-line tool for automation and batch operations
 - **✅ Production Ready**: Battle-tested framework for professional applications
@@ -131,7 +136,7 @@ See the [CLI Reference](cli/index.md) for complete documentation.
 
 ## 📦 Core Dependencies
 
-- **Python >= 3.10** – Modern Python with type hints support
+- **Python >= 3.11** – Modern Python with type hints support
 - **PyYAML >= 6.0** – YAML configuration support
 - **cx_Freeze / PyInstaller / Nuitka** – Compilation backends (optional)
 

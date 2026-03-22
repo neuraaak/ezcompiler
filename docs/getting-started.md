@@ -32,7 +32,7 @@ This installs EzCompiler in editable mode with all development dependencies (tes
 
 ## Requirements
 
-- **Python** >= 3.10
+- **Python** >= 3.11
 - **PyYAML** >= 6.0
 - **One or more compilers**:
   - **cx_Freeze** >= 7.2.6 (for directory-based builds)
@@ -466,7 +466,6 @@ EzCompiler provides full type hints for better IDE support:
 
 ```python
 from ezcompiler import EzCompiler, CompilerConfig
-from typing import Dict, List
 
 # Type-annotated configuration
 config: CompilerConfig = CompilerConfig(
@@ -534,7 +533,7 @@ Check your installed version:
 
 ```python
 import ezcompiler
-print(ezcompiler.__version__)  # Should be 2.2.1 or higher
+print(ezcompiler.__version__)  # Should be 2.3.1 or higher
 ```
 
 Or from command line:

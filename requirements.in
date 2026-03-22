@@ -5,5 +5,5 @@ InquirerPy>=0.3.0
 requests>=2.28.0
 click>=8.0.0
 PyYAML>=6.0
-ezplog>=1.0.0
+ezplog>=2.0.2
 tomli-w>=1.0.0

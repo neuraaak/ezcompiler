@@ -24,10 +24,13 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 
 if TYPE_CHECKING:
-    from ezpl.handlers.wizard.dynamic import StageConfig
+    import logging
+
+    from ezplog.handlers.wizard.dynamic import StageConfig
+    from ezplog.lib_mode import _LazyPrinter
 
 # Third-party imports
-from ezpl import EzLogger, EzPrinter
+from ezplog.lib_mode import get_logger, get_printer
 
 # Local imports
 from ..services import (
@@ -62,9 +65,8 @@ class EzCompiler:
 
     Attributes:
         config: CompilerConfig instance with project settings
-        ezpl: Ezpl logging instance
-        printer: EzPrinter for console output
-        logger: EzLogger for file logging
+        printer: Lazy printer proxy — silent until host app initializes Ezpl
+        logger: Stdlib logger — silent until host app configures logging
 
     Example:
         >>> config = CompilerConfig(...)
@@ -87,47 +89,28 @@ class EzCompiler:
         template_service: TemplateService | None = None,
         uploader_service: UploaderService | None = None,
         pipeline_service: PipelineService | None = None,
-        log_file: Path | None = None,
-        log_rotation: str = "1 day",
-        log_retention: str = "14 days",
-        log_compression: str = "zip",
-        log_level: str = "INFO",
     ) -> None:
         """
         Initialize the EzCompiler orchestrator.
 
-        Sets up logging via ezpl (configured in interfaces/__init__.py),
-        initializes service instances, and prepares for compilation workflow.
+        Logging follows the lib_mode pattern: both the printer and logger are
+        passive proxies that produce no output until the host application
+        initializes Ezpl. No logging configuration happens here — that is an
+        application-level concern.
 
         Args:
             config: Optional CompilerConfig instance (can be set later via init_project)
-            log_file: Optional path to log file (default: None)
-            log_rotation: Log rotation setting (default: "1 day")
-            log_retention: Log retention setting (default: "14 days")
-            log_compression: Log compression setting (default: "zip")
-            log_level: Log level (default: "INFO")
-
-        Note:
-            Ezpl logging is configured via interfaces/__init__.py and can be
-            accessed via get_ezpl(), get_printer(), and get_logger().
+            compiler_service_factory: Optional factory for CompilerService (for testing)
+            template_service: Optional TemplateService instance (for testing)
+            uploader_service: Optional UploaderService instance (for testing)
+            pipeline_service: Optional PipelineService instance (for testing)
         """
         # Configuration management
         self.config = config
 
-        # Configure ezpl via interfaces module (import here to avoid circular import)
-        from . import configure_ezpl as configure_ezpl_fn
-        from . import get_logger as get_logger_fn
-        from . import get_printer as get_printer_fn
-
-        self._ezpl = configure_ezpl_fn(
-            log_file=log_file,
-            log_rotation=log_rotation,
-            log_retention=log_retention,
-            log_compression=log_compression,
-            log_level=log_level,
-        )
-        self._printer: EzPrinter = get_printer_fn()
-        self._logger: EzLogger = get_logger_fn()
+        # Passive lib-mode logging — silent until host app initializes Ezpl
+        self._printer: _LazyPrinter = get_printer()
+        self._logger: logging.Logger = get_logger(__name__)
 
         # Service instances
         self._compiler_service_factory = compiler_service_factory or CompilerService
@@ -144,32 +127,22 @@ class EzCompiler:
     # ////////////////////////////////////////////////
 
     @property
-    def ezpl(self) -> Any:
+    def printer(self) -> _LazyPrinter:
         """
-        Get the Ezpl logging instance.
+        Get the console printer proxy.
 
         Returns:
-            Ezpl: Ezpl instance for logging configuration
-        """
-        return self._ezpl
-
-    @property
-    def printer(self) -> EzPrinter:
-        """
-        Get the console printer instance.
-
-        Returns:
-            EzPrinter: Printer for console output
+            _LazyPrinter: Lazy printer — silent until host app initializes Ezpl
         """
         return self._printer
 
     @property
-    def logger(self) -> EzLogger:
+    def logger(self) -> logging.Logger:
         """
-        Get the file logger instance.
+        Get the stdlib logger.
 
         Returns:
-            EzLogger: Logger for file output
+            logging.Logger: Stdlib logger — silent until host app configures logging
         """
         return self._logger
 

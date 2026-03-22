@@ -10,6 +10,13 @@ repo_url: https://github.com/neuraaak/ezcompiler
 repo_name: neuraaak/ezcompiler
 edit_uri: edit/main/docs/
 
+strict: true
+
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+
 # ///////////////////////////////////////////////////////////////
 # THEME
 # ///////////////////////////////////////////////////////////////
@@ -44,6 +51,7 @@ theme:
     - content.code.copy
     - content.code.annotate
     - content.tabs.link
+    - content.tooltips
     - toc.follow
   icon:
     repo: fontawesome/brands/github
@@ -69,6 +77,7 @@ nav:
       - Services: api/services.md
       - Adapters: api/adapters.md
       - Shared: api/shared.md
+      - Types: api/types.md
       - Utils: api/utils.md
   - CLI Reference:
       - cli/index.md
@@ -84,7 +93,6 @@ nav:
 
 plugins:
   - search
-  - section-index
   - coverage:
       page_path: coverage
       html_report_dir: htmlcov
@@ -95,8 +103,8 @@ plugins:
           paths: [src]
           options:
             docstring_style: google
-            docstring_section_style: spacy
-            show_source: true
+            docstring_section_style: table
+            show_source: false
             show_root_heading: true
             show_root_full_path: false
             show_symbol_type_heading: true
@@ -153,6 +161,8 @@ markdown_extensions:
 # ///////////////////////////////////////////////////////////////
 
 extra:
+  version:
+    provider: mike
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/neuraaak/ezcompiler
@@ -160,6 +170,7 @@ extra:
     - icon: fontawesome/brands/python
       link: https://pypi.org/project/ezcompiler/
       name: PyPI Package
+
 extra_css:
   - stylesheets/extra.css
 

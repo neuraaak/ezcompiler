@@ -43,7 +43,7 @@ This section provides comprehensive guides for mastering EzCompiler features and
 
 ### Framework Features
 
-- **Type Safety** - Using Python 3.10+ type hints for better IDE support
+- **Type Safety** - Using Python 3.11+ type hints for better IDE support
 - **Error Handling** - Comprehensive exception hierarchy
 - **Validation** - 9 specialized validation modules
 - **Logging** - Integrated logging and debugging
@@ -122,7 +122,7 @@ See the [Development Guide](development.md) for contribution guidelines.
 EzCompiler follows these coding standards:
 
 - **PEP 8** - Python style guide
-- **Type Hints** - Full type annotations for Python 3.10+
+- **Type Hints** - Full type annotations for Python 3.11+
 - **Docstrings** - Google-style docstrings for all public APIs
 - **Testing** - Comprehensive test coverage
 - **Black** - Code formatting (88 character line length)

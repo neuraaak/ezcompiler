@@ -70,7 +70,7 @@ from .version import __version__
 __author__ = "Neuraaak"
 __maintainer__ = "Neuraaak"
 __description__ = "Project compilation and distribution framework for Python"
-__python_requires__ = ">=3.10"
+__python_requires__ = ">=3.11"
 __keywords__ = [
     "compilation",
     "packaging",
@@ -86,9 +86,9 @@ __repository__ = "https://github.com/neuraaak/ezcompiler"
 # PYTHON VERSION CHECK
 # ///////////////////////////////////////////////////////////////
 
-if sys.version_info < (3, 10):  # noqa: UP036
+if sys.version_info < (3, 11):  # noqa: UP036
     raise RuntimeError(
-        f"EzCompiler {__version__} requires Python 3.10 or higher. "
+        f"EzCompiler {__version__} requires Python 3.11 or higher. "
         f"Current version: {sys.version}"
     )
 

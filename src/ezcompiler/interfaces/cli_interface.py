@@ -25,13 +25,16 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from ezpl.handlers.wizard.dynamic import StageConfig
+    import logging
+
+    from ezplog.handlers.wizard.dynamic import StageConfig
+    from ezplog.lib_mode import _LazyPrinter
 
 # Third-party imports
 import click
 import tomli_w
 import yaml
-from ezpl import EzLogger, EzPrinter
+from ezplog.lib_mode import get_logger, get_printer
 
 # Local imports
 from ..services import ConfigService, PipelineService, TemplateService, UploaderService
@@ -47,22 +50,23 @@ from ..shared.exceptions.utils.zip_exceptions import ZipError
 from ..version import __version__
 
 # ///////////////////////////////////////////////////////////////
-# LAZY ACCESSORS (avoid circular import with interfaces/__init__.py)
+# MODULE-LEVEL LOGGING (lib_mode — passive proxies)
 # ///////////////////////////////////////////////////////////////
 
-
-def _get_printer() -> EzPrinter:
-    """Get the global EzPrinter instance (lazy import)."""
-    from . import get_printer
-
-    return get_printer()
+# Module-level printer and logger obtained once at import time.
+# Both are passive proxies: silent until the host application initializes Ezpl.
+_printer: _LazyPrinter = get_printer()
+_logger: logging.Logger = get_logger(__name__)
 
 
-def _get_logger() -> EzLogger:
-    """Get the global EzLogger instance (lazy import)."""
-    from . import get_logger
+def _get_printer() -> _LazyPrinter:
+    """Return the module-level lazy printer proxy."""
+    return _printer
 
-    return get_logger()
+
+def _get_logger() -> logging.Logger:
+    """Return the module-level stdlib logger."""
+    return _logger
 
 
 _template_service: TemplateService | None = None

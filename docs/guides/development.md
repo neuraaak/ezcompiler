@@ -12,7 +12,7 @@ This guide covers setting up a development environment, running tests, contribut
 
 ### Prerequisites
 
-- **Python** >= 3.10
+- **Python** >= 3.11
 - **Git** for version control
 - **pip** for package management
 
@@ -56,6 +56,7 @@ ezcompiler/
 ├── src/
 │   └── ezcompiler/          # Main package
 │       ├── __init__.py         # Package initialization
+│       ├── types.py            # Public type aliases
 │       ├── interfaces/         # Public interfaces
 │       │   ├── python_api.py   # EzCompiler main class
 │       │   └── cli_interface.py # CLI interface
@@ -105,7 +106,7 @@ ezcompiler/
 EzCompiler follows these coding standards:
 
 - **PEP 8** - Python style guide
-- **Type Hints** - Full type annotations for Python 3.10+
+- **Type Hints** - Full type annotations for Python 3.11+
 - **Docstrings** - Google-style docstrings for all public APIs
 - **Line Length** - 88 characters (Ruff default)
 
@@ -114,13 +115,12 @@ EzCompiler follows these coding standards:
 Use type hints for all functions and methods:
 
 ```python
-from typing import Dict, List, Optional
 from pathlib import Path
 
 def process_files(
-    files: List[Path],
+    files: list[Path],
     output_dir: Path,
-    options: Optional[Dict[str, str]] = None
+    options: dict[str, str] | None = None,
 ) -> bool:
     """Process files and save to output directory.
 
@@ -258,10 +258,15 @@ ruff check src/ezcompiler/ tests/
 ruff check --fix src/ezcompiler/ tests/
 ```
 
-### Pyright (Type Checking)
+### Type Checking
+
+Two type checkers are configured for complementary coverage:
 
 ```bash
-# Type check code
+# ty (fast, Astral — used in lint pipeline)
+ty check src/ezcompiler/
+
+# pyright (comprehensive static analysis)
 pyright src/ezcompiler/
 ```
 
@@ -348,6 +353,7 @@ API documentation is auto-generated from docstrings using mkdocstrings:
    ```bash
    ruff format src/ezcompiler/ tests/
    ruff check --fix src/ezcompiler/ tests/
+   ty check src/ezcompiler/
    pyright src/ezcompiler/
    PYTHONPATH=src lint-imports
    ```
@@ -480,11 +486,14 @@ pytest tests/unit/test_specific.py::test_function -v
 
 ### Type Check Errors
 
-If mypy reports errors:
+If type checking reports errors, run the configured checkers:
 
 ```bash
-# Run mypy with detailed output
-mypy src/ezcompiler/ --show-error-codes
+# ty (fast, Astral)
+ty check src/ezcompiler/
+
+# pyright (comprehensive)
+pyright src/ezcompiler/
 ```
 
 ---
