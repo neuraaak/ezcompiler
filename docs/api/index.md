@@ -14,6 +14,7 @@ The EzCompiler API provides a comprehensive framework for Python project compila
 | [Services](services.md)     | Business logic and orchestration       | Core service implementations      |
 | [Adapters](adapters.md)     | Compiler and uploader implementations  | Concrete adapters and backends    |
 | [Shared](shared.md)         | Configuration and exceptions           | Shared data structures            |
+| [Types](types.md)           | Public type aliases                    | `FilePath`, `CompilerName`, etc.  |
 | [Utils](utils.md)           | Utility functions and validators       | File, config, template operations |
 
 ## Import Examples
@@ -94,6 +95,18 @@ The shared layer contains common data structures and exceptions:
 
 [View Shared Documentation →](shared.md)
 
+### Types Layer
+
+The types module centralizes public type aliases exported from the top-level package:
+
+- **`FilePath`** – `str | Path` for file path inputs
+- **`CompilerName`** – `str` for compiler selection (`"auto"`, `"Cx_Freeze"`, `"PyInstaller"`, `"Nuitka"`)
+- **`UploadTarget`** – `str` for upload destination selection (`"disk"`, `"server"`)
+- **`IncludeFiles`** – `dict[str, list[str]]` for the `include_files` configuration structure
+- **`JsonMap`** – `dict[str, object]` for generic JSON-serializable mappings
+
+[View Types Documentation →](types.md)
+
 ### Utils Layer
 
 The utils layer provides utility functions and validators:
@@ -114,7 +127,7 @@ The utils layer provides utility functions and validators:
 
 EzCompiler provides complete type hints for all public APIs:
 
-- **Full type annotations** – Python 3.10+ type hints throughout
+- **Full type annotations** – Python 3.11+ type hints throughout
 - **IDE support** – Excellent auto-completion and error detection
 - **Type checking** – Compatible with mypy, pyright, and other type checkers
 - **Runtime validation** – Type hints used for parameter validation
@@ -254,13 +267,14 @@ Select a module from the navigation menu or the table above to view detailed doc
 
 ## Module Documentation
 
-| Module                      | Description                                        |
-| --------------------------- | -------------------------------------------------- |
-| [Interfaces](interfaces.md) | Public APIs and user-facing interfaces             |
-| [Services](services.md)     | Business logic services and orchestration          |
-| [Adapters](adapters.md)     | Compiler and uploader concrete implementations     |
-| [Shared](shared.md)         | Configuration dataclasses and exception hierarchy  |
-| [Utils](utils.md)           | Utility functions, file operations, and validators |
+| Module                      | Description                                         |
+| --------------------------- | --------------------------------------------------- |
+| [Interfaces](interfaces.md) | Public APIs and user-facing interfaces              |
+| [Services](services.md)     | Business logic services and orchestration           |
+| [Adapters](adapters.md)     | Compiler and uploader concrete implementations      |
+| [Shared](shared.md)         | Configuration dataclasses and exception hierarchy   |
+| [Types](types.md)           | Public type aliases (`FilePath`, `CompilerName`, …) |
+| [Utils](utils.md)           | Utility functions, file operations, and validators  |
 
 ---
 

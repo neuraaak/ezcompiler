@@ -10,5 +10,5 @@ In production, this report is generated in CI before the documentation build.
     To generate the report locally:
 
     ```bash
-    pytest --cov=ezpl --cov-report=html
+    pytest --cov=ezcompiler --cov-report=html
     ```

@@ -58,15 +58,11 @@ class TestEzCompilerImport:
         # This is expected behavior
         assert hasattr(compiler, "config")
 
-    def test_ezcompiler_with_custom_log_level(self) -> None:
-        """Test creating EzCompiler with custom log level."""
-        compiler = EzCompiler(log_level="DEBUG")
-        assert compiler is not None
-
-    def test_ezcompiler_with_custom_log_rotation(self) -> None:
-        """Test creating EzCompiler with custom log rotation."""
-        compiler = EzCompiler(log_rotation="100 MB")
-        assert compiler is not None
+    def test_ezcompiler_logging_is_passive(self) -> None:
+        """Test that EzCompiler uses lib_mode passive logging (no logging args accepted)."""
+        compiler = EzCompiler()
+        assert compiler.logger is not None
+        assert compiler.printer is not None
 
     def test_ezcompiler_has_printer_attribute(self) -> None:
         """Test that printer attribute is accessible."""
@@ -80,11 +76,12 @@ class TestEzCompilerImport:
         logger = compiler.logger
         assert logger is not None
 
-    def test_ezcompiler_has_ezpl_attribute(self) -> None:
-        """Test that ezpl attribute is accessible."""
+    def test_ezcompiler_logger_is_stdlib(self) -> None:
+        """Test that logger is a stdlib logging.Logger (lib_mode pattern)."""
+        import logging
+
         compiler = EzCompiler()
-        ezpl = compiler.ezpl
-        assert ezpl is not None
+        assert isinstance(compiler.logger, logging.Logger)
 
 
 # ///////////////////////////////////////////////////////////////

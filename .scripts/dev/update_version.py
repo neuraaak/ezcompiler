@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 # ///////////////////////////////////////////////////////////////
-# UPDATE_README_VERSION - Sync README badge and pyproject.toml with version.py
+# UPDATE_VERSION - Sync version.py and README badge from pyproject.toml
 # ///////////////////////////////////////////////////////////////
 
-"""Update the version badge in README.md and pyproject.toml from version.py.
+"""Update version.py and README.md badge from the version defined in pyproject.toml.
 
-This keeps the visible version in sync with the canonical __version__ value
-defined in src/your-project/version.py, which is the single source of truth.
+pyproject.toml [project].version is the single source of truth.
 """
 
 from __future__ import annotations
@@ -18,6 +17,7 @@ from __future__ import annotations
 import io
 import re
 import sys
+import tomllib
 from pathlib import Path
 
 # Third-party imports
@@ -29,13 +29,12 @@ from rich.text import Text
 # VARIABLES
 # ///////////////////////////////////////////////////////////////
 
-project_name = "ezcompiler"
+project_name = "EzCompiler"
 
 # ///////////////////////////////////////////////////////////////
 # GLOBAL CONSOLE
 # ///////////////////////////////////////////////////////////////
 
-# Configure console with UTF-8 encoding for Windows emoji support
 # Force UTF-8 encoding on Windows
 if sys.platform == "win32":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
@@ -47,72 +46,37 @@ console = Console(legacy_windows=False)
 
 
 def read_version() -> str:
-    """Read version from src/{project_name}/version.py __version__.
+    """Read version from pyproject.toml [project].version.
 
     This is the canonical source of truth for the package version.
     """
-    # Project root is the parent of the .scripts/dev directory
-    project_root = Path(__file__).resolve().parents[2]
-    version_path = project_root / "src" / project_name.lower() / "version.py"
-    content = version_path.read_text(encoding="utf-8")
-
-    # Match __version__ = "X.Y.Z"
-    match = re.search(r'__version__\s*=\s*["\']([^"\']+)["\']', content)
-    if match:
-        version = match.group(1)
-        console.print(
-            f"[cyan]📖[/cyan] Found version: [bold green]{version}[/bold green]"
-        )
-        return version
-
-    error_msg = f"Unable to find __version__ in src/{project_name}/version.py"
-    console.print(f"[red]❌[/red] {error_msg}")
-    raise RuntimeError(error_msg)
-
-
-def update_pyproject(version: str) -> None:
-    """Update version in pyproject.toml [project].version."""
     project_root = Path(__file__).resolve().parents[2]
     pyproject_path = project_root / "pyproject.toml"
-    content = pyproject_path.read_text(encoding="utf-8")
 
-    # Match version = "X.Y.Z" in [project] section
-    in_project_section = False
-    lines = content.splitlines()
-    new_lines = []
+    with pyproject_path.open("rb") as f:
+        data = tomllib.load(f)
 
-    for line in lines:
-        stripped = line.strip()
+    version: str = data["project"]["version"]
+    console.print(f"[cyan]📖[/cyan] Found version: [bold green]{version}[/bold green]")
+    return version
 
-        if stripped.startswith("[project]"):
-            in_project_section = True
-            new_lines.append(line)
-            continue
 
-        if (
-            in_project_section
-            and stripped.startswith("[")
-            and not stripped.startswith("[project]")
-        ):
-            in_project_section = False
+def update_version_py(version: str) -> None:
+    """Update __version__ in src/{project_name}/version.py."""
+    project_root = Path(__file__).resolve().parents[2]
+    version_path = (
+        project_root / "src" / project_name.lower().replace("-", "_") / "version.py"
+    )
+    content = version_path.read_text(encoding="utf-8")
 
-        if in_project_section and stripped.startswith("version"):
-            # Replace the version line
-            match = re.match(r'version\s*=\s*["\']([^"\']+)["\']', stripped)
-            if match:
-                # Preserve the original formatting (quotes style)
-                quote_char = '"' if '"' in stripped else "'"
-                indent = len(line) - len(line.lstrip())
-                new_lines.append(
-                    f"{indent * ' '}version = {quote_char}{version}{quote_char}"
-                )
-                continue
-
-        new_lines.append(line)
-
-    pyproject_path.write_text("\n".join(new_lines), encoding="utf-8")
+    new_content = re.sub(
+        r'(__version__\s*=\s*)["\'][^"\']+["\']',
+        rf'\g<1>"{version}"',
+        content,
+    )
+    version_path.write_text(new_content, encoding="utf-8")
     console.print(
-        f"[green]✓[/green] Updated [cyan]pyproject.toml[/cyan] version to [bold]{version}[/bold]"
+        f"[green]✓[/green] Updated [cyan]version.py[/cyan] to [bold]{version}[/bold]"
     )
 
 
@@ -122,9 +86,6 @@ def update_readme(version: str) -> None:
     readme_path = project_root / "README.md"
     content = readme_path.read_text(encoding="utf-8")
 
-    # Match shields.io badge: Version-X.Y.Z-orange.svg?style=for-the-badge
-    # Format: [![Version](https://img.shields.io/badge/Version-3.1.0-orange.svg?style=for-the-badge)]
-    # Pattern matches: Version-<version>-orange.svg?style=for-the-badge)
     pattern = r"(Version-)(\d+\.\d+\.\d+)(-orange\.svg\?style=for-the-badge\))"
     new_content, count = re.subn(
         pattern,
@@ -157,7 +118,7 @@ def main() -> None:
 
     try:
         version = read_version()
-        update_pyproject(version)
+        update_version_py(version)
         update_readme(version)
 
         console.print()
@@ -168,7 +129,7 @@ def main() -> None:
                 border_style="green",
             )
         )
-    except (RuntimeError, FileNotFoundError) as e:
+    except (RuntimeError, FileNotFoundError, KeyError) as e:
         console.print()
         console.print(
             Panel.fit(
