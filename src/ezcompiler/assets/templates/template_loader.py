@@ -37,8 +37,8 @@ class TemplateLoader:
     and setup scripts.
 
     Attributes:
-        templates_dir: Base directory containing template subdirectories
-        processor: TemplateProcessor instance for variable substitution
+        _templates_dir: Base directory containing template subdirectories
+        _processor: TemplateProcessor instance for variable substitution
 
     Example:
         >>> loader = TemplateLoader()
@@ -57,14 +57,14 @@ class TemplateLoader:
         Note:
             Automatically detects templates_dir from module location.
         """
-        self.templates_dir = Path(__file__).parent
-        self.processor = TemplateProcessor()
+        self._templates_dir = Path(__file__).parent
+        self._processor = TemplateProcessor()
 
     # ////////////////////////////////////////////////
     # PATH AND LOADING METHODS
     # ////////////////////////////////////////////////
 
-    def get_template_path(self, template_type: str, format_type: str) -> Path:
+    def _get_template_path(self, template_type: str, format_type: str) -> Path:
         """
         Get the path to a specific template file.
 
@@ -82,13 +82,13 @@ class TemplateLoader:
         if template_type == "version":
             # Special case for version templates
             return (
-                self.templates_dir
+                self._templates_dir
                 / template_type
                 / f"version_info.{format_type}.template"
             )
         else:
             return (
-                self.templates_dir
+                self._templates_dir
                 / template_type
                 / f"{template_type}.{format_type}.template"
             )
@@ -107,7 +107,7 @@ class TemplateLoader:
         Raises:
             FileNotFoundError: If template file doesn't exist
         """
-        template_path = self.get_template_path(template_type, format_type)
+        template_path = self._get_template_path(template_type, format_type)
 
         if not template_path.exists():
             raise FileNotFoundError(f"Template not found: {template_path}")
@@ -128,7 +128,7 @@ class TemplateLoader:
         """
         templates: dict[str, list[str]] = {}
 
-        for template_dir in self.templates_dir.iterdir():
+        for template_dir in self._templates_dir.iterdir():
             if template_dir.is_dir():
                 template_type = template_dir.name
                 formats = []
@@ -162,7 +162,7 @@ class TemplateLoader:
             >>> content = loader.process_config_template("yaml", config)
         """
         template = self.load_template("config", format_type)
-        return self.processor.process_config_template(template, config)
+        return self._processor.process_config_template(template, config)
 
     def process_version_template(
         self,
@@ -186,7 +186,7 @@ class TemplateLoader:
             str: Processed template string
         """
         template = self.load_template("version", format_type)
-        return self.processor.process_version_template(
+        return self._processor.process_version_template(
             template, version, company_name, project_description, project_name
         )
 
@@ -202,7 +202,7 @@ class TemplateLoader:
             str: Processed template string
         """
         template = self.load_template("setup", format_type)
-        return self.processor.process_setup_template(template, config)
+        return self._processor.process_setup_template(template, config)
 
     # ////////////////////////////////////////////////
     # FILE GENERATION METHODS
@@ -274,10 +274,10 @@ class TemplateLoader:
 
             # Process with mockup values
             if template_type == "config":
-                content = self.processor.process_template_with_mockup(template)
+                content = self._processor.process_template_with_mockup(template)
             elif template_type == "version":
-                mockup_config = self.processor.create_mockup_config()
-                content = self.processor.process_version_template(
+                mockup_config = self._processor.create_mockup_config()
+                content = self._processor.process_version_template(
                     template,
                     mockup_config["version"],
                     mockup_config["company_name"],
@@ -285,8 +285,10 @@ class TemplateLoader:
                     mockup_config["project_name"],
                 )
             elif template_type == "setup":
-                mockup_config = self.processor.create_mockup_config()
-                content = self.processor.process_setup_template(template, mockup_config)
+                mockup_config = self._processor.create_mockup_config()
+                content = self._processor.process_setup_template(
+                    template, mockup_config
+                )
             else:
                 raise ValueError(f"Unknown template type: {template_type}")
 
@@ -351,6 +353,6 @@ class TemplateLoader:
         """
         try:
             template = self.load_template(template_type, format_type)
-            return self.processor.validate_template(template)
+            return self._processor.validate_template(template)
         except Exception:
             return False

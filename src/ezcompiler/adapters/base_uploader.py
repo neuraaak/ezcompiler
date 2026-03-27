@@ -39,7 +39,7 @@ class BaseUploader(ABC):
     common functionality for upload operations and validation.
 
     Attributes:
-        config: Configuration dictionary for the uploader
+        _config: Configuration dictionary for the uploader
 
     Example:
         >>> class MyUploader(BaseUploader):
@@ -65,7 +65,7 @@ class BaseUploader(ABC):
             Subclasses should call super().__init__(config) to initialize
             configuration and validation.
         """
-        self.config = config or {}
+        self._config = config or {}
         self._validate_config()
 
     # ////////////////////////////////////////////////
@@ -119,7 +119,7 @@ class BaseUploader(ABC):
         """
         # Base implementation intentionally empty - subclasses should override
 
-    def validate_source_path(self, source_path: Path) -> None:
+    def _validate_source_path(self, source_path: Path) -> None:
         """
         Validate that the source path exists and is accessible.
 

@@ -376,7 +376,7 @@ class TemplateProcessor:
     # ////////////////////////////////////////////////
 
     @staticmethod
-    def create_config_file(
+    def _create_config_file(
         template: str, _config: dict[str, Any], output_path: Path
     ) -> None:
         """

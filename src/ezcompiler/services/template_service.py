@@ -43,8 +43,8 @@ class TemplateService:
     configuration files, setup.py, and version information files.
 
     Attributes:
-        template_loader: TemplateLoader instance for template operations
-        processor: TemplateProcessor instance for variable substitution
+        _template_loader: TemplateLoader instance for template operations
+        _processor: TemplateProcessor instance for variable substitution
 
     Example:
         >>> service = TemplateService()
@@ -69,9 +69,9 @@ class TemplateService:
         if TemplateProcessor is None:
             raise TemplateError("TemplateProcessor is not available")
 
-        self.template_loader = TemplateLoader()
-        self.processor = TemplateProcessor()
-        self.file_writer = file_writer or DiskFileWriter()
+        self._template_loader = TemplateLoader()
+        self._processor = TemplateProcessor()
+        self._file_writer = file_writer or DiskFileWriter()
 
     # ////////////////////////////////////////////////
     # CONFIG FILE GENERATION
@@ -103,10 +103,10 @@ class TemplateService:
             FileUtils.ensure_parent_directory_exists(output_path)
 
             # Process template
-            content = self.template_loader.process_config_template(format_type, config)
+            content = self._template_loader.process_config_template(format_type, config)
 
             # Write file
-            self.file_writer.write_text(output_path, content, encoding="utf-8")
+            self._file_writer.write_text(output_path, content, encoding="utf-8")
 
         except TemplateError:
             raise
@@ -154,10 +154,10 @@ class TemplateService:
                 final_path = target_dir / "setup.py"
 
             # Process template
-            content = self.template_loader.process_setup_template("py", config)
+            content = self._template_loader.process_setup_template("py", config)
 
             # Write file
-            self.file_writer.write_text(final_path, content, encoding="utf-8")
+            self._file_writer.write_text(final_path, content, encoding="utf-8")
 
             return final_path
 
@@ -222,7 +222,7 @@ class TemplateService:
             project_name = config.get("project_name", "MyProject")
 
             # Process template
-            content = self.template_loader.process_version_template(
+            content = self._template_loader.process_version_template(
                 format_type=format_type,
                 version=version,
                 company_name=company_name,
@@ -231,7 +231,7 @@ class TemplateService:
             )
 
             # Write file
-            self.file_writer.write_text(final_path, content, encoding="utf-8")
+            self._file_writer.write_text(final_path, content, encoding="utf-8")
 
             return final_path
 
@@ -259,7 +259,7 @@ class TemplateService:
             >>> config = {"version": "1.0.0", "project_name": "MyApp"}
             >>> content = service.process_config_template("yaml", config)
         """
-        return self.template_loader.process_config_template(format_type, config)
+        return self._template_loader.process_config_template(format_type, config)
 
     def process_setup_template(self, config: dict[str, Any]) -> str:
         """
@@ -275,7 +275,7 @@ class TemplateService:
             >>> config = {"version": "1.0.0", "project_name": "MyApp"}
             >>> content = service.process_setup_template(config)
         """
-        return self.template_loader.process_setup_template("py", config)
+        return self._template_loader.process_setup_template("py", config)
 
     def process_version_template(
         self,
@@ -303,7 +303,7 @@ class TemplateService:
             ...     "1.0.0", "MyCompany", "Description", "MyApp"
             ... )
         """
-        return self.template_loader.process_version_template(
+        return self._template_loader.process_version_template(
             format_type, version, company_name, project_description, project_name
         )
 
@@ -323,7 +323,7 @@ class TemplateService:
             >>> print(templates)
             {'config': ['yaml', 'json'], 'version': ['txt'], 'setup': ['py']}
         """
-        return self.template_loader.list_available_templates()
+        return self._template_loader.list_available_templates()
 
     def validate_template(self, template_type: str, format_type: str) -> bool:
         """
@@ -339,7 +339,7 @@ class TemplateService:
         Example:
             >>> is_valid = service.validate_template("config", "yaml")
         """
-        return self.template_loader.validate_template(template_type, format_type)
+        return self._template_loader.validate_template(template_type, format_type)
 
     # ////////////////////////////////////////////////
     # RAW TEMPLATE GENERATION
@@ -366,7 +366,7 @@ class TemplateService:
             >>> service.generate_mockup_template("config", "yaml", Path("ezcompiler.yaml"))
         """
         try:
-            self.template_loader.generate_template_with_mockup(
+            self._template_loader.generate_template_with_mockup(
                 template_type, format_type, output_path
             )
         except TemplateError:
@@ -395,7 +395,7 @@ class TemplateService:
             >>> service.generate_raw_template("config", "yaml", Path("template.yaml"))
         """
         try:
-            self.template_loader.generate_raw_template(
+            self._template_loader.generate_raw_template(
                 template_type, format_type, output_path
             )
         except TemplateError:

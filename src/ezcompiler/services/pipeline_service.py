@@ -80,7 +80,7 @@ class PipelineService:
         if not zip_needed:
             return False
 
-        compiler_service.zip_artifact(
+        compiler_service._zip_artifact(
             output_path=str(config.zip_file_path),
             progress_callback=progress_callback,
         )

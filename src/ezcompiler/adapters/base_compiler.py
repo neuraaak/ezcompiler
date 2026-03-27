@@ -38,7 +38,7 @@ class BaseCompiler(ABC):
     the contract for concrete compiler classes.
 
     Attributes:
-        config: CompilerConfig instance with project settings
+        _config: CompilerConfig instance with project settings
         _zip_needed: Whether compilation output needs to be zipped
 
     Example:
@@ -61,12 +61,22 @@ class BaseCompiler(ABC):
         Args:
             config: CompilerConfig instance with project settings
         """
-        self.config = config
+        self._config = config
         self._zip_needed = False
 
     # ////////////////////////////////////////////////
     # PROPERTIES
     # ////////////////////////////////////////////////
+
+    @property
+    def config(self) -> CompilerConfig:
+        """
+        Get the compiler configuration.
+
+        Returns:
+            CompilerConfig: Configuration instance with project settings
+        """
+        return self._config
 
     @property
     def zip_needed(self) -> bool:
@@ -124,7 +134,7 @@ class BaseCompiler(ABC):
     # VALIDATION AND PREPARATION METHODS
     # ////////////////////////////////////////////////
 
-    def validate_config(self) -> None:
+    def _validate_config(self) -> None:
         """
         Validate configuration for this compiler.
 
@@ -140,9 +150,9 @@ class BaseCompiler(ABC):
         """
         from ..utils.compiler_utils import CompilerUtils
 
-        CompilerUtils.validate_compiler_config(self.config)
+        CompilerUtils.validate_compiler_config(self._config)
 
-    def prepare_output_directory(self) -> None:
+    def _prepare_output_directory(self) -> None:
         """
         Prepare the output directory for compilation.
 
@@ -155,10 +165,10 @@ class BaseCompiler(ABC):
         """
         from ..utils.compiler_utils import CompilerUtils
 
-        CompilerUtils.prepare_compiler_output_directory(self.config)
+        CompilerUtils.prepare_compiler_output_directory(self._config)
 
     @staticmethod
-    def extract_error_summary(raw_output: str) -> str:
+    def _extract_error_summary(raw_output: str) -> str:
         """
         Extract a concise error summary from compiler subprocess output.
 
@@ -199,7 +209,7 @@ class BaseCompiler(ABC):
         non_empty = [line for line in lines if line.strip()]
         return "\n".join(non_empty[-5:]).strip()
 
-    def get_include_files_data(self) -> list[str]:
+    def _get_include_files_data(self) -> list[str]:
         """
         Get formatted include files data for compilation.
 
@@ -217,10 +227,10 @@ class BaseCompiler(ABC):
             ...     "files": ["config.yaml"],
             ...     "folders": ["lib", "assets"]
             ... }
-            >>> files = compiler.get_include_files_data()
+            >>> files = compiler._get_include_files_data()
             >>> print(files)
             ['config.yaml', 'lib/', 'assets/']
         """
         from ..utils.compiler_utils import CompilerUtils
 
-        return CompilerUtils.format_include_files_data(self.config)
+        return CompilerUtils.format_include_files_data(self._config)
