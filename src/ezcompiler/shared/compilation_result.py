@@ -33,7 +33,7 @@ class CompilationResult:
     Attributes:
         zip_needed: Whether the compiled output needs to be zipped
         compiler_name: Name of the compiler used
-        compiler_instance: The compiler instance that performed the compilation
+        _compiler_instance: The compiler instance that performed the compilation
 
     Example:
         >>> result = service.compile(compiler="PyInstaller")
@@ -57,4 +57,4 @@ class CompilationResult:
         """
         self.zip_needed = zip_needed
         self.compiler_name = compiler_name
-        self.compiler_instance = compiler_instance
+        self._compiler_instance = compiler_instance

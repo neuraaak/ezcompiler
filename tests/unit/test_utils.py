@@ -843,7 +843,7 @@ class TestTemplateProcessor:
         self, temp_dir: Path
     ) -> None:
         out = temp_dir / "out.txt"
-        TemplateProcessor.create_config_file("content here", {}, out)
+        TemplateProcessor._create_config_file("content here", {}, out)
         assert out.read_text(encoding="utf-8") == "content here"
 
     def test_should_raise_template_file_write_error_when_path_is_invalid(
@@ -851,7 +851,7 @@ class TestTemplateProcessor:
     ) -> None:
         bad_path = temp_dir / "no_such_dir" / "out.txt"
         with pytest.raises(TemplateFileWriteError):
-            TemplateProcessor.create_config_file("x", {}, bad_path)
+            TemplateProcessor._create_config_file("x", {}, bad_path)
 
     def test_should_return_true_when_template_is_balanced(self) -> None:
         assert TemplateProcessor.validate_template('{"key": "value"}') is True

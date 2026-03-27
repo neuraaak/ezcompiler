@@ -48,7 +48,7 @@ class PyInstallerCompiler(BaseCompiler):
     output from interfering with the main process display (DLP).
 
     Attributes:
-        config: CompilerConfig with project settings
+        _config: CompilerConfig with project settings
 
     Example:
         >>> config = CompilerConfig(...)
@@ -117,8 +117,8 @@ class PyInstallerCompiler(BaseCompiler):
         """
         try:
             # Validate and prepare
-            self.validate_config()
-            self.prepare_output_directory()
+            self._validate_config()
+            self._prepare_output_directory()
 
             # Determine output type and ZIP behavior
             from ..utils.compiler_utils import CompilerUtils
@@ -131,57 +131,57 @@ class PyInstallerCompiler(BaseCompiler):
                 sys.executable,
                 "-m",
                 "PyInstaller",
-                self.config.main_file,
+                self._config.main_file,
                 "--console" if console else "--windowed",
                 "--onefile" if onefile else "--onedir",
                 "--clean",
                 "-y",
-                f"--distpath={self.config.output_folder}",
-                f"--name={self.config.project_name}",
+                f"--distpath={self._config.output_folder}",
+                f"--name={self._config.project_name}",
             ]
 
             # Add version file if it exists
             if (
-                self.config.version_filename
-                and Path(self.config.version_filename).exists()
+                self._config.version_filename
+                and Path(self._config.version_filename).exists()
             ):
-                cmd.append(f"--version-file={self.config.version_filename}")
+                cmd.append(f"--version-file={self._config.version_filename}")
 
             # Add icon if specified
-            if self.config.icon:
-                cmd.append(f"--icon={self.config.icon}")
+            if self._config.icon:
+                cmd.append(f"--icon={self._config.icon}")
 
             # Add include files
-            for file in self.config.include_files.get("files", []):
+            for file in self._config.include_files.get("files", []):
                 cmd.append(f"--add-data={file};.")
 
             # Add include folders
-            for folder in self.config.include_files.get("folders", []):
+            for folder in self._config.include_files.get("folders", []):
                 cmd.append(f"--add-data={folder};{folder}")
 
             # Add hidden imports (packages and includes)
-            for pkg in self.config.packages + self.config.includes:
+            for pkg in self._config.packages + self._config.includes:
                 cmd.append(f"--hidden-import={pkg}")
 
             # Add excluded modules
-            for mod in self.config.excludes:
+            for mod in self._config.excludes:
                 cmd.append(f"--exclude-module={mod}")
 
             # Advanced options
-            if self.config.optimize:
+            if self._config.optimize:
                 cmd.append("--optimize=1")
 
-            if self.config.strip:
+            if self._config.strip:
                 cmd.append("--strip")
 
-            if self.config.debug:
+            if self._config.debug:
                 cmd.append("--debug=all")
 
             # Add compiler-specific options from config.compiler_options
             # Format: {"option-name": "value"} -> --option-name=value
             #         {"option-flag": True} -> --option-flag
-            if self.config.compiler_options:
-                for key, value in self.config.compiler_options.items():
+            if self._config.compiler_options:
+                for key, value in self._config.compiler_options.items():
                     if isinstance(value, bool):
                         if value:  # Only add if True
                             cmd.append(f"--{key}")
@@ -198,7 +198,7 @@ class PyInstallerCompiler(BaseCompiler):
 
             if result.returncode != 0:
                 raw_output = result.stderr or result.stdout
-                error_detail = self.extract_error_summary(raw_output)
+                error_detail = self._extract_error_summary(raw_output)
                 raise CompilationError(
                     f"PyInstaller compilation failed: {error_detail}"
                 )
@@ -207,10 +207,10 @@ class PyInstallerCompiler(BaseCompiler):
             # named after the project inside distpath. Move its contents
             # up to output_folder so the layout matches Cx_Freeze.
             if not onefile:
-                nested = self.config.output_folder / self.config.project_name
+                nested = self._config.output_folder / self._config.project_name
                 if nested.is_dir():
                     for item in nested.iterdir():
-                        dest = self.config.output_folder / item.name
+                        dest = self._config.output_folder / item.name
                         if dest.exists():
                             if dest.is_dir():
                                 shutil.rmtree(dest)

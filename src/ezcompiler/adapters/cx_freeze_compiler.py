@@ -50,7 +50,7 @@ class CxFreezeCompiler(BaseCompiler):
     output from interfering with the main process display (DLP).
 
     Attributes:
-        config: CompilerConfig with project settings
+        _config: CompilerConfig with project settings
 
     Example:
         >>> config = CompilerConfig(...)
@@ -117,11 +117,11 @@ class CxFreezeCompiler(BaseCompiler):
         """
         try:
             # Validate and prepare
-            self.validate_config()
-            self.prepare_output_directory()
+            self._validate_config()
+            self._prepare_output_directory()
 
             # Prepare include files data
-            data = self.get_include_files_data()
+            data = self._get_include_files_data()
 
             # Determine base for executable (Win32GUI for no-console on Windows)
             from ..utils.compiler_utils import CompilerUtils
@@ -131,34 +131,34 @@ class CxFreezeCompiler(BaseCompiler):
             # Normalize version to PEP 440 format to avoid setuptools warning
             from packaging.version import Version
 
-            normalized_version = str(Version(self.config.version))
+            normalized_version = str(Version(self._config.version))
 
             # Build default build_exe options
             build_exe_options = {
                 "include_files": data,
-                "packages": self.config.packages,
-                "includes": self.config.includes,
-                "excludes": self.config.excludes,
-                "build_exe": str(self.config.output_folder),
-                "optimize": 1 if self.config.optimize else 0,
-                "silent_level": 0 if self.config.debug else 1,
+                "packages": self._config.packages,
+                "includes": self._config.includes,
+                "excludes": self._config.excludes,
+                "build_exe": str(self._config.output_folder),
+                "optimize": 1 if self._config.optimize else 0,
+                "silent_level": 0 if self._config.debug else 1,
             }
 
             # Merge with compiler-specific options (overrides defaults)
-            if self.config.compiler_options:
-                build_exe_options.update(self.config.compiler_options)
+            if self._config.compiler_options:
+                build_exe_options.update(self._config.compiler_options)
 
             # Build setup script configuration
             setup_config = {
-                "name": self.config.project_name,
+                "name": self._config.project_name,
                 "version": normalized_version,
-                "description": self.config.project_description,
-                "author": self.config.author,
-                "main_file": self.config.main_file,
-                "target_name": f"{self.config.project_name}.exe",
+                "description": self._config.project_description,
+                "author": self._config.author,
+                "main_file": self._config.main_file,
+                "target_name": f"{self._config.project_name}.exe",
                 "base": base,
-                "icon": self.config.icon if self.config.icon else None,
-                "debug": self.config.debug,
+                "icon": self._config.icon if self._config.icon else None,
+                "debug": self._config.debug,
                 "build_exe_options": build_exe_options,
             }
 
@@ -259,7 +259,7 @@ with warnings.catch_warnings():
 
             if result.returncode != 0:
                 raw_output = result.stderr or result.stdout
-                error_detail = self.extract_error_summary(raw_output)
+                error_detail = self._extract_error_summary(raw_output)
                 raise CompilationError(f"Cx_Freeze compilation failed: {error_detail}")
 
         finally:

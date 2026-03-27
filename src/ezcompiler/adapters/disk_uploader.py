@@ -103,7 +103,7 @@ class DiskUploader(BaseUploader):
             Creates parent directories automatically if they don't exist.
         """
         try:
-            self.validate_source_path(source_path)
+            self._validate_source_path(source_path)
             dest_path = Path(destination)
 
             # For file uploads, treat destination as a directory and
@@ -116,8 +116,8 @@ class DiskUploader(BaseUploader):
                 FileUtils.create_directory_if_not_exists(dest_path)
 
             # Handle existing destination
-            if not self.config["overwrite"] and dest_path.exists():
-                if self.config["create_backup"]:
+            if not self._config["overwrite"] and dest_path.exists():
+                if self._config["create_backup"]:
                     self._create_backup(dest_path)
                 else:
                     raise UploadError(
@@ -153,7 +153,7 @@ class DiskUploader(BaseUploader):
         shutil.copy2(source_path, dest_path)
 
         # Preserve permissions if configured
-        if self.config["preserve_permissions"]:
+        if self._config["preserve_permissions"]:
             with contextlib.suppress(OSError, AttributeError):
                 shutil.copystat(source_path, dest_path)
 
@@ -168,15 +168,15 @@ class DiskUploader(BaseUploader):
         Note:
             Removes destination if it exists and overwrite is enabled.
         """
-        if dest_path.exists() and self.config["overwrite"]:
+        if dest_path.exists() and self._config["overwrite"]:
             shutil.rmtree(dest_path)
 
         shutil.copytree(
             source_path,
             dest_path,
-            dirs_exist_ok=self.config["overwrite"],
+            dirs_exist_ok=self._config["overwrite"],
             copy_function=(
-                shutil.copy2 if self.config["preserve_permissions"] else shutil.copy
+                shutil.copy2 if self._config["preserve_permissions"] else shutil.copy
             ),
         )
 
@@ -210,8 +210,8 @@ class DiskUploader(BaseUploader):
         required_keys = ["preserve_permissions", "overwrite", "create_backup"]
 
         for key in required_keys:
-            if key not in self.config:
+            if key not in self._config:
                 raise UploadError(f"Missing required configuration key: {key}")
 
-            if not isinstance(self.config[key], bool):
+            if not isinstance(self._config[key], bool):
                 raise UploadError(f"Configuration key '{key}' must be a boolean")

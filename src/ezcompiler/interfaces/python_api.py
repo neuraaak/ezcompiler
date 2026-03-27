@@ -64,7 +64,7 @@ class EzCompiler:
     Provides high-level API for managing the full build pipeline.
 
     Attributes:
-        config: CompilerConfig instance with project settings
+        _config: CompilerConfig instance with project settings (read via .config property)
         printer: Lazy printer proxy — silent until host app initializes Ezpl
         logger: Stdlib logger — silent until host app configures logging
 
@@ -106,7 +106,7 @@ class EzCompiler:
             pipeline_service: Optional PipelineService instance (for testing)
         """
         # Configuration management
-        self.config = config
+        self._config = config
 
         # Passive lib-mode logging — silent until host app initializes Ezpl
         self._printer: _LazyPrinter = get_printer()
@@ -145,6 +145,16 @@ class EzCompiler:
             logging.Logger: Stdlib logger — silent until host app configures logging
         """
         return self._logger
+
+    @property
+    def config(self) -> CompilerConfig | None:
+        """
+        Get the current compiler configuration.
+
+        Returns:
+            CompilerConfig | None: Current configuration or None if not initialized
+        """
+        return self._config
 
     # ////////////////////////////////////////////////
     # PROJECT INITIALIZATION
@@ -199,7 +209,7 @@ class EzCompiler:
             }
 
             # Update configuration
-            self.config = CompilerConfig(**config_dict)
+            self._config = CompilerConfig(**config_dict)
 
             self._printer.success("Project configuration initialized successfully")
             self._logger.info("Project configuration initialized successfully")
@@ -232,13 +242,13 @@ class EzCompiler:
             Requires project to be initialized first via init_project().
         """
         try:
-            if not self.config:
+            if not self._config:
                 raise ConfigurationError(
                     "Project not initialized. Call init_project() first."
                 )
 
             # Generate using TemplateService
-            config_dict = self.config.to_dict()
+            config_dict = self._config.to_dict()
             version_file_path = Path(name)
             self._template_service.generate_version_file(config_dict, version_file_path)
 
@@ -269,13 +279,13 @@ class EzCompiler:
             Requires project to be initialized first via init_project().
         """
         try:
-            if not self.config:
+            if not self._config:
                 raise ConfigurationError(
                     "Project not initialized. Call init_project() first."
                 )
 
             # Generate using TemplateService
-            config_dict = self.config.to_dict()
+            config_dict = self._config.to_dict()
             output_path = Path(file_path)
             self._template_service.generate_setup_file(
                 config_dict, output_path=output_path
@@ -320,13 +330,13 @@ class EzCompiler:
             >>> compiler.compile_project(console=False, compiler="PyInstaller")
         """
         try:
-            if not self.config:
+            if not self._config:
                 raise ConfigurationError(
                     "Project not initialized. Call init_project() first."
                 )
 
             # Create compiler service and compile
-            self._compiler_service = self._compiler_service_factory(self.config)
+            self._compiler_service = self._compiler_service_factory(self._config)
             self._compilation_result = self._compiler_service.compile(
                 console=console,
                 compiler=compiler,  # type: ignore[arg-type]
@@ -356,7 +366,7 @@ class EzCompiler:
             ZIP creation is optional based on compiler type and settings.
         """
         try:
-            if not self.config:
+            if not self._config:
                 raise ConfigurationError(
                     "Project not initialized. Call init_project() first."
                 )
@@ -365,7 +375,7 @@ class EzCompiler:
             zip_needed = (
                 self._compilation_result.zip_needed
                 if self._compilation_result
-                else self.config.zip_needed
+                else self._config.zip_needed
             )
 
             if not zip_needed:
@@ -374,10 +384,10 @@ class EzCompiler:
 
             # Create ZIP archive via CompilerService
             if self._compiler_service is None:
-                self._compiler_service = self._compiler_service_factory(self.config)
+                self._compiler_service = self._compiler_service_factory(self._config)
 
             self._pipeline_service.zip_artifact(
-                config=self.config,
+                config=self._config,
                 compiler_service=self._compiler_service,
                 compilation_result=self._compilation_result,
                 progress_callback=self._zip_progress_callback,
@@ -423,14 +433,14 @@ class EzCompiler:
             >>> compiler.upload_to_repo("server", "https://example.com/upload")
         """
         try:
-            if not self.config:
+            if not self._config:
                 raise ConfigurationError(
                     "Project not initialized. Call init_project() first."
                 )
 
             # Perform upload using UploaderService
             self._pipeline_service.upload_artifact(
-                config=self.config,
+                config=self._config,
                 structure=structure,
                 destination=str(repo_path),
                 compilation_result=self._compilation_result,
@@ -483,20 +493,20 @@ class EzCompiler:
             >>> compiler = EzCompiler(config)
             >>> compiler.run_pipeline(console=False, skip_upload=True)
         """
-        if not self.config:
+        if not self._config:
             raise ConfigurationError(
                 "Project not initialized. Call init_project() first."
             )
 
         # Determine which optional stages to include
-        should_zip = not skip_zip and self.config.zip_needed
+        should_zip = not skip_zip and self._config.zip_needed
         should_upload = not skip_upload and (
-            upload_structure is not None or self.config.repo_needed
+            upload_structure is not None or self._config.repo_needed
         )
 
         # Build stages
         stages: list[StageConfig] = PipelineService.build_stages(  # type: ignore[assignment]
-            self.config, should_zip=should_zip, should_upload=should_upload
+            self._config, should_zip=should_zip, should_upload=should_upload
         )
 
         current_phase = "version"
@@ -507,8 +517,8 @@ class EzCompiler:
                 # Version file
                 current_phase = "version"
                 dlp.update_layer("version", 0, "Processing template...")
-                config_dict = self.config.to_dict()
-                version_file_path = Path(self.config.version_filename)
+                config_dict = self._config.to_dict()
+                version_file_path = Path(self._config.version_filename)
                 self._template_service.generate_version_file(
                     config_dict, version_file_path
                 )
@@ -520,7 +530,7 @@ class EzCompiler:
                 dlp.update_layer("compile", 0, "Initializing compiler...")
                 self._compiler_service, self._compilation_result = (
                     self._pipeline_service.compile_project(
-                        config=self.config,
+                        config=self._config,
                         console=console,
                         compiler=compiler,
                     )
@@ -532,7 +542,7 @@ class EzCompiler:
                 zip_needed = (
                     self._compilation_result.zip_needed
                     if self._compilation_result
-                    else self.config.zip_needed
+                    else self._config.zip_needed
                 )
                 if should_zip:
                     if zip_needed:
@@ -548,7 +558,7 @@ class EzCompiler:
                             dlp.update_layer("zip", progress, Path(filename).name)
 
                         self._pipeline_service.zip_artifact(
-                            config=self.config,
+                            config=self._config,
                             compiler_service=self._compiler_service,
                             compilation_result=self._compilation_result,
                             progress_callback=_zip_cb,
@@ -563,15 +573,15 @@ class EzCompiler:
                 # Upload
                 if should_upload:
                     current_phase = "upload"
-                    structure = upload_structure or self.config.upload_structure
+                    structure = upload_structure or self._config.upload_structure
                     destination = upload_destination or (
-                        self.config.server_url
+                        self._config.server_url
                         if structure == "server"
-                        else self.config.repo_path
+                        else self._config.repo_path
                     )
                     dlp.update_layer("upload", 0, f"Uploading to {destination}...")
                     self._pipeline_service.upload_artifact(
-                        config=self.config,
+                        config=self._config,
                         structure=structure,
                         destination=str(destination),
                         compilation_result=self._compilation_result,

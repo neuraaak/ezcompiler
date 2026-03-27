@@ -106,7 +106,7 @@ class ServerUploader(BaseUploader):
             Automatically retries on failure based on retry_attempts config.
         """
         try:
-            self.validate_source_path(source_path)
+            self._validate_source_path(source_path)
 
             if not source_path.is_file():
                 raise UploadError(
@@ -115,18 +115,18 @@ class ServerUploader(BaseUploader):
 
             # Retry logic
             last_error = None
-            for attempt in range(self.config["retry_attempts"]):
+            for attempt in range(self._config["retry_attempts"]):
                 try:
                     self._perform_upload(source_path, destination)
                     return  # Success
                 except Exception as e:
                     last_error = e
-                    if attempt == self.config["retry_attempts"] - 1:
+                    if attempt == self._config["retry_attempts"] - 1:
                         break
 
             # All retries failed
             raise UploadError(
-                f"Server upload failed after {self.config['retry_attempts']} attempts: {last_error}"
+                f"Server upload failed after {self._config['retry_attempts']} attempts: {last_error}"
             ) from last_error
 
         except UploadError:
@@ -134,7 +134,7 @@ class ServerUploader(BaseUploader):
         except Exception as e:
             raise UploadError(f"Server upload failed: {e}") from e
 
-    def test_connection(self) -> bool:
+    def _test_connection(self) -> bool:
         """
         Test the connection to the server.
 
@@ -145,7 +145,7 @@ class ServerUploader(BaseUploader):
             Attempts to reach /health endpoint on the server.
         """
         try:
-            test_url = f"{self.config['server_url'].rstrip('/')}/health"
+            test_url = f"{self._config['server_url'].rstrip('/')}/health"
             headers = self._prepare_headers()
             auth = self._prepare_auth()
 
@@ -153,8 +153,8 @@ class ServerUploader(BaseUploader):
                 test_url,
                 headers=headers,
                 auth=auth,
-                timeout=self.config["timeout"],
-                verify=self.config["verify_ssl"],
+                timeout=self._config["timeout"],
+                verify=self._config["verify_ssl"],
             )
 
             return response.ok
@@ -190,8 +190,8 @@ class ServerUploader(BaseUploader):
                 data=data,
                 headers=headers,
                 auth=auth,
-                timeout=self.config["timeout"],
-                verify=self.config["verify_ssl"],
+                timeout=self._config["timeout"],
+                verify=self._config["verify_ssl"],
             )
 
         if not response.ok:
@@ -209,7 +209,7 @@ class ServerUploader(BaseUploader):
         Returns:
             str: Complete upload URL
         """
-        base_url = self.config["server_url"].rstrip("/")
+        base_url = self._config["server_url"].rstrip("/")
         return f"{base_url}/upload"
 
     def _prepare_headers(self) -> dict[str, str]:
@@ -227,8 +227,8 @@ class ServerUploader(BaseUploader):
             "Accept": "application/json",
         }
 
-        if self.config["api_key"]:
-            headers["Authorization"] = f"Bearer {self.config['api_key']}"
+        if self._config["api_key"]:
+            headers["Authorization"] = f"Bearer {self._config['api_key']}"
 
         return headers
 
@@ -242,8 +242,8 @@ class ServerUploader(BaseUploader):
         Note:
             Returns (username, password) tuple for basic auth if configured.
         """
-        if self.config["username"] and self.config["password"]:
-            return (self.config["username"], self.config["password"])
+        if self._config["username"] and self._config["password"]:
+            return (self._config["username"], self._config["password"])
         return None
 
     # ////////////////////////////////////////////////
@@ -273,29 +273,29 @@ class ServerUploader(BaseUploader):
         ]
 
         for key in required_keys:
-            if key not in self.config:
+            if key not in self._config:
                 raise UploadError(f"Missing required configuration key: {key}")
 
         # Validate server URL using UploaderUtils
-        UploaderUtils.validate_server_url(self.config["server_url"])
+        UploaderUtils.validate_server_url(self._config["server_url"])
 
         if (
-            not isinstance(self.config["timeout"], (int, float))
-            or self.config["timeout"] <= 0
+            not isinstance(self._config["timeout"], (int, float))
+            or self._config["timeout"] <= 0
         ):
             raise UploadError("timeout must be a positive number")
 
         if (
-            not isinstance(self.config["chunk_size"], int)
-            or self.config["chunk_size"] <= 0
+            not isinstance(self._config["chunk_size"], int)
+            or self._config["chunk_size"] <= 0
         ):
             raise UploadError("chunk_size must be a positive integer")
 
         if (
-            not isinstance(self.config["retry_attempts"], int)
-            or self.config["retry_attempts"] < 0
+            not isinstance(self._config["retry_attempts"], int)
+            or self._config["retry_attempts"] < 0
         ):
             raise UploadError("retry_attempts must be a non-negative integer")
 
-        if not isinstance(self.config["verify_ssl"], bool):
+        if not isinstance(self._config["verify_ssl"], bool):
             raise UploadError("verify_ssl must be a boolean")

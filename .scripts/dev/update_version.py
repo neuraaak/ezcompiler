@@ -3,9 +3,10 @@
 # UPDATE_VERSION - Sync version.py and README badge from pyproject.toml
 # ///////////////////////////////////////////////////////////////
 
-"""Update version.py and README.md badge from the version defined in pyproject.toml.
+"""Update version.py from the version defined in pyproject.toml.
 
 pyproject.toml [project].version is the single source of truth.
+The README version badge is dynamic (shields.io PyPI) and does not need updating.
 """
 
 from __future__ import annotations
@@ -74,38 +75,12 @@ def update_version_py(version: str) -> None:
         rf'\g<1>"{version}"',
         content,
     )
+    if new_content == content:
+        console.print(f"[dim]✓ version.py already at {version} — no change[/dim]")
+        return
     version_path.write_text(new_content, encoding="utf-8")
     console.print(
         f"[green]✓[/green] Updated [cyan]version.py[/cyan] to [bold]{version}[/bold]"
-    )
-
-
-def update_readme(version: str) -> None:
-    """Replace version badge in README.md with the given version."""
-    project_root = Path(__file__).resolve().parents[2]
-    readme_path = project_root / "README.md"
-    content = readme_path.read_text(encoding="utf-8")
-
-    pattern = r"(Version-)(\d+\.\d+\.\d+)(-orange\.svg\?style=for-the-badge\))"
-    new_content, count = re.subn(
-        pattern,
-        rf"\g<1>{version}\g<3>",
-        content,
-        count=1,
-    )
-
-    if count == 0:
-        error_msg = "Version badge not found in README.md"
-        console.print(f"[red]❌[/red] {error_msg}")
-        console.print(
-            "[yellow]💡[/yellow] Expected format: "
-            "[![Version](.../Version-X.Y.Z-orange.svg?style=for-the-badge)]"
-        )
-        raise RuntimeError(error_msg)
-
-    readme_path.write_text(new_content, encoding="utf-8")
-    console.print(
-        f"[green]✓[/green] Updated [cyan]README.md[/cyan] badge to version [bold]{version}[/bold]"
     )
 
 
@@ -119,17 +94,16 @@ def main() -> None:
     try:
         version = read_version()
         update_version_py(version)
-        update_readme(version)
 
         console.print()
         console.print(
             Panel.fit(
                 f"[bold green]✓ Version synchronization completed![/bold green]\n"
-                f"[dim]All files updated to version {version}[/dim]",
+                f"[dim]version.py updated to {version}[/dim]",
                 border_style="green",
             )
         )
-    except (RuntimeError, FileNotFoundError, KeyError) as e:
+    except (FileNotFoundError, KeyError) as e:
         console.print()
         console.print(
             Panel.fit(

@@ -103,6 +103,9 @@ def main() -> None:
     Generates configuration files, setup.py, and version files from templates
     with support for multiple formats (YAML, JSON) and template types.
     """
+    from ezplog import Ezpl
+
+    Ezpl()
 
 
 @main.group()
@@ -941,7 +944,7 @@ def compile_project(
                         """
                         dlp.update_layer("zip", progress, Path(filename).name)
 
-                    compiler_service.zip_artifact(
+                    compiler_service._zip_artifact(
                         output_path=zip_path,
                         progress_callback=_zip_progress,
                     )

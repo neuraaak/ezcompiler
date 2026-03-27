@@ -23,9 +23,6 @@ from __future__ import annotations
 # ///////////////////////////////////////////////////////////////
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
-# Third-party imports
-from ezplog.lib_mode import get_logger, get_printer
-
 # Local imports
 from .cli_interface import main as cli_main
 from .python_api import EzCompiler
@@ -38,7 +35,4 @@ __all__ = [
     # Main interfaces
     "EzCompiler",
     "cli_main",
-    # Lib-mode logging accessors
-    "get_printer",
-    "get_logger",
 ]
