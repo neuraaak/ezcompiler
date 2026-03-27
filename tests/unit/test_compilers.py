@@ -14,12 +14,10 @@ from __future__ import annotations
 # ///////////////////////////////////////////////////////////////
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
-from ezcompiler.adapters import (
-    BaseCompiler,
-    CxFreezeCompiler,
-    NuitkaCompiler,
-    PyInstallerCompiler,
-)
+from ezcompiler.adapters import BaseCompiler
+from ezcompiler.adapters.cx_freeze_compiler import CxFreezeCompiler
+from ezcompiler.adapters.nuitka_compiler import NuitkaCompiler
+from ezcompiler.adapters.pyinstaller_compiler import PyInstallerCompiler
 from ezcompiler.shared import CompilerConfig
 
 # ///////////////////////////////////////////////////////////////

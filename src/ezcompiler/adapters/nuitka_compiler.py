@@ -41,7 +41,7 @@ class NuitkaCompiler(BaseCompiler):
     standalone folder or a single-file executable depending on options.
 
     Attributes:
-        config: CompilerConfig with project settings
+        _config: CompilerConfig with project settings
     """
 
     # ////////////////////////////////////////////////
@@ -86,8 +86,8 @@ class NuitkaCompiler(BaseCompiler):
         """
         try:
             # Validate and prepare
-            self.validate_config()
-            self.prepare_output_directory()
+            self._validate_config()
+            self._prepare_output_directory()
 
             # Choose output mode
             from ..utils.compiler_utils import CompilerUtils
@@ -96,13 +96,13 @@ class NuitkaCompiler(BaseCompiler):
             self._zip_needed = not onefile
 
             # Build Nuitka command
-            output_dir = str(self.config.output_folder)
-            output_name = self.config.project_name
+            output_dir = str(self._config.output_folder)
+            output_name = self._config.project_name
             cmd = [
                 sys.executable,
                 "-m",
                 "nuitka",
-                self.config.main_file,
+                self._config.main_file,
                 "--assume-yes-for-downloads",
                 "--remove-output",
                 f"--output-dir={output_dir}",
@@ -121,43 +121,43 @@ class NuitkaCompiler(BaseCompiler):
                     cmd.append("--windows-disable-console")
 
             # Icon support
-            if self.config.icon:
-                cmd.append(f"--windows-icon-from-ico={self.config.icon}")
+            if self._config.icon:
+                cmd.append(f"--windows-icon-from-ico={self._config.icon}")
 
             # Include data files
-            for file in self.config.include_files.get("files", []):
+            for file in self._config.include_files.get("files", []):
                 cmd.append(f"--include-data-file={file}={Path(file).name}")
 
-            for folder in self.config.include_files.get("folders", []):
+            for folder in self._config.include_files.get("folders", []):
                 cmd.append(f"--include-data-dir={folder}={folder}")
 
             # Include packages and modules (both use --include-module to avoid
             # crashes with stdlib built-in modules that have no __path__)
-            for mod in self.config.packages + self.config.includes:
+            for mod in self._config.packages + self._config.includes:
                 cmd.append(f"--include-module={mod}")
 
             # Exclude modules
-            for mod in self.config.excludes:
+            for mod in self._config.excludes:
                 cmd.append(f"--nofollow-import-to={mod}")
 
             # Windows metadata
             if sys.platform == "win32":
-                cmd.append(f"--product-name={self.config.project_name}")
-                cmd.append(f"--product-version={self.config.version}")
-                if self.config.company_name:
-                    cmd.append(f"--company-name={self.config.company_name}")
-                if self.config.project_description:
-                    cmd.append(f"--file-description={self.config.project_description}")
+                cmd.append(f"--product-name={self._config.project_name}")
+                cmd.append(f"--product-version={self._config.version}")
+                if self._config.company_name:
+                    cmd.append(f"--company-name={self._config.company_name}")
+                if self._config.project_description:
+                    cmd.append(f"--file-description={self._config.project_description}")
 
             # Advanced options
-            if self.config.debug:
+            if self._config.debug:
                 cmd.append("--debug")
 
             # Add compiler-specific options from config.compiler_options
             # Format: {"option-name": "value"} -> --option-name=value
             #         {"option-flag": True} -> --option-flag
-            if self.config.compiler_options:
-                for key, value in self.config.compiler_options.items():
+            if self._config.compiler_options:
+                for key, value in self._config.compiler_options.items():
                     if isinstance(value, bool):
                         if value:  # Only add if True
                             cmd.append(f"--{key}")
@@ -168,18 +168,18 @@ class NuitkaCompiler(BaseCompiler):
             result = subprocess.run(cmd, check=False, capture_output=True, text=True)  # noqa: S603
             if result.returncode != 0:
                 raw_output = result.stderr or result.stdout
-                error_detail = self.extract_error_summary(raw_output)
+                error_detail = self._extract_error_summary(raw_output)
                 raise CompilationError(f"Nuitka compilation failed: {error_detail}")
 
             # Flatten output: Nuitka --standalone creates a subfolder
             # named "{main_stem}.dist" inside output-dir. Move its contents
             # up to output_folder so the layout matches Cx_Freeze.
             if not onefile:
-                main_stem = Path(self.config.main_file).stem
-                nested = self.config.output_folder / f"{main_stem}.dist"
+                main_stem = Path(self._config.main_file).stem
+                nested = self._config.output_folder / f"{main_stem}.dist"
                 if nested.is_dir():
                     for item in nested.iterdir():
-                        dest = self.config.output_folder / item.name
+                        dest = self._config.output_folder / item.name
                         if dest.exists():
                             if dest.is_dir():
                                 shutil.rmtree(dest)

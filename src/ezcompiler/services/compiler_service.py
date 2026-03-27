@@ -41,7 +41,7 @@ from ..utils.zip_utils import ZipUtils
 # TYPE ALIASES
 # ///////////////////////////////////////////////////////////////
 
-CompilerName = Literal["Cx_Freeze", "PyInstaller", "Nuitka", "auto"]
+_CompilerName = Literal["Cx_Freeze", "PyInstaller", "Nuitka", "auto"]
 
 # ///////////////////////////////////////////////////////////////
 # CLASSES
@@ -56,7 +56,7 @@ class CompilerService:
     Handles compiler selection, validation, and execution.
 
     Attributes:
-        config: CompilerConfig instance with project settings
+        _config: CompilerConfig instance with project settings
 
     Example:
         >>> config = CompilerConfig(...)
@@ -83,7 +83,7 @@ class CompilerService:
         if not config:
             raise ConfigurationError("CompilerConfig is required")
 
-        self.config = config
+        self._config = config
         self._compiler_instance: BaseCompiler | None = None
 
     # ////////////////////////////////////////////////
@@ -93,7 +93,7 @@ class CompilerService:
     def compile(
         self,
         console: bool = True,
-        compiler: CompilerName | None = None,
+        compiler: _CompilerName | None = None,
     ) -> CompilationResult:
         """
         Compile the project using specified or auto-selected compiler.
@@ -131,7 +131,7 @@ class CompilerService:
                 raise CompilationError(f"Invalid compiler: {compiler_choice}")
 
             # Ensure output directory exists (moved out of CompilerConfig to avoid side effects)
-            self.config.output_folder.mkdir(parents=True, exist_ok=True)
+            self._config.output_folder.mkdir(parents=True, exist_ok=True)
 
             # Create and execute compiler
             self._compiler_instance = self._create_compiler(compiler_choice)
@@ -153,7 +153,7 @@ class CompilerService:
     # PRIVATE HELPER METHODS
     # ////////////////////////////////////////////////
 
-    def _determine_compiler(self, compiler: CompilerName | None) -> str:
+    def _determine_compiler(self, compiler: _CompilerName | None) -> str:
         """
         Determine which compiler to use.
 
@@ -171,8 +171,8 @@ class CompilerService:
             return compiler
 
         # Use config default if set and not auto
-        if self.config.compiler and self.config.compiler != "auto":
-            return self.config.compiler
+        if self._config.compiler and self._config.compiler != "auto":
+            return self._config.compiler
 
         # Interactive prompt for user choice
         return self._choose_compiler_interactively()
@@ -236,11 +236,11 @@ class CompilerService:
             CompilationError: If compiler name is unsupported
         """
         return CompilerFactory.create_compiler(
-            config=self.config,
+            config=self._config,
             compiler_name=compiler_name,
         )
 
-    def zip_artifact(
+    def _zip_artifact(
         self,
         output_path: str | Path,
         progress_callback: Callable[[str, int], None] | None = None,
@@ -256,7 +256,7 @@ class CompilerService:
             ZipError: If ZIP creation fails
         """
         ZipUtils.create_zip_archive(
-            source_path=self.config.output_folder,
+            source_path=self._config.output_folder,
             output_path=output_path,
             progress_callback=progress_callback,
         )
