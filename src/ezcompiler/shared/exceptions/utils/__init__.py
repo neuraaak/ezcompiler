@@ -24,12 +24,12 @@ from __future__ import annotations
 # ///////////////////////////////////////////////////////////////
 # IMPORTS - Base exception
 # ///////////////////////////////////////////////////////////////
-from .base import EzCompilerError
+from ._base import EzCompilerError
 
 # ///////////////////////////////////////////////////////////////
 # IMPORTS - Compiler exceptions
 # ///////////////////////////////////////////////////////////////
-from .compiler_exceptions import (
+from ._compiler_exceptions import (
     CompilationExecutionError,
     CompilerConfigValidationError,
     CompilerError,
@@ -42,7 +42,7 @@ from .compiler_exceptions import (
 # ///////////////////////////////////////////////////////////////
 # IMPORTS - Config exceptions
 # ///////////////////////////////////////////////////////////////
-from .config_exceptions import (
+from ._config_exceptions import (
     CompilerOptionError,
     ConfigError,
     ConfigFieldValidationError,
@@ -58,7 +58,7 @@ from .config_exceptions import (
 # ///////////////////////////////////////////////////////////////
 # IMPORTS - File exceptions
 # ///////////////////////////////////////////////////////////////
-from .file_exceptions import (
+from ._file_exceptions import (
     DirectoryCreationError,
     DirectoryListError,
     FileAccessError,
@@ -73,7 +73,7 @@ from .file_exceptions import (
 # ///////////////////////////////////////////////////////////////
 # IMPORTS - ZIP exceptions
 # ///////////////////////////////////////////////////////////////
-from .template_exceptions import (
+from ._template_exceptions import (
     TemplateFileWriteError,
     TemplateProcessingError,
     TemplateSubstitutionError,
@@ -83,7 +83,7 @@ from .template_exceptions import (
 # ///////////////////////////////////////////////////////////////
 # IMPORTS - Uploader exceptions
 # ///////////////////////////////////////////////////////////////
-from .uploader_exceptions import (
+from ._uploader_exceptions import (
     BackupGenerationError,
     ServerConfigError,
     SourcePathError,
@@ -96,7 +96,7 @@ from .uploader_exceptions import (
 # ///////////////////////////////////////////////////////////////
 # IMPORTS - Validation exceptions
 # ///////////////////////////////////////////////////////////////
-from .validation_exceptions import (
+from ._validation_exceptions import (
     ChoiceValidationError,
     FormatValidationError,
     LengthValidationError,
@@ -107,7 +107,7 @@ from .validation_exceptions import (
     TypeValidationError,
     ValidationError,
 )
-from .zip_exceptions import (
+from ._zip_exceptions import (
     ZipCompressionError,
     ZipCreationError,
     ZipError,

@@ -22,13 +22,13 @@ from __future__ import annotations
 from pathlib import Path
 
 # Local imports
-from ..shared.compiler_config import CompilerConfig
+from ..shared import CompilerConfig
 from ..shared.exceptions.utils import (
     CompilerConfigValidationError,
     MainFileNotFoundError,
     OutputDirectoryError,
 )
-from .file_utils import FileUtils
+from ._file_utils import FileUtils
 
 # ///////////////////////////////////////////////////////////////
 # CLASSES

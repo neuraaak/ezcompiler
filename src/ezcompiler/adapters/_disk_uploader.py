@@ -27,8 +27,7 @@ from typing import Any
 
 # Local imports
 from ..shared.exceptions import UploadError
-from ..utils.file_utils import FileUtils
-from ..utils.uploader_utils import UploaderUtils
+from ..utils import FileUtils, UploaderUtils
 from .base_uploader import BaseUploader
 
 # ///////////////////////////////////////////////////////////////

@@ -24,7 +24,7 @@ import sys
 from pathlib import Path
 
 # Local imports
-from ..shared.compiler_config import CompilerConfig
+from ..shared import CompilerConfig
 from ..shared.exceptions import CompilationError
 from .base_compiler import BaseCompiler
 
@@ -90,7 +90,7 @@ class NuitkaCompiler(BaseCompiler):
             self._prepare_output_directory()
 
             # Choose output mode
-            from ..utils.compiler_utils import CompilerUtils
+            from ..utils._compiler_utils import CompilerUtils
 
             onefile = CompilerUtils.check_onefile_mode()
             self._zip_needed = not onefile

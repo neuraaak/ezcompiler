@@ -21,7 +21,7 @@ from pathlib import Path
 from typing import Any
 
 # Local imports
-from ...utils.template_utils import TemplateProcessor
+from ...utils import TemplateProcessor
 
 # ///////////////////////////////////////////////////////////////
 # CLASSES

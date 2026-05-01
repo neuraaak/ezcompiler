@@ -28,7 +28,7 @@ import requests
 
 # Local imports
 from ..shared.exceptions import UploadError
-from ..utils.uploader_utils import UploaderUtils
+from ..utils import UploaderUtils
 from .base_uploader import BaseUploader
 
 # ///////////////////////////////////////////////////////////////

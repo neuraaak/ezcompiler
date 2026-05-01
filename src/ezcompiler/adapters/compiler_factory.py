@@ -16,12 +16,12 @@ from __future__ import annotations
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
 # Local imports
-from ..shared.compiler_config import CompilerConfig
+from ..shared import CompilerConfig
 from ..shared.exceptions import CompilationError
+from ._cx_freeze_compiler import CxFreezeCompiler
+from ._nuitka_compiler import NuitkaCompiler
+from ._pyinstaller_compiler import PyInstallerCompiler
 from .base_compiler import BaseCompiler
-from .cx_freeze_compiler import CxFreezeCompiler
-from .nuitka_compiler import NuitkaCompiler
-from .pyinstaller_compiler import PyInstallerCompiler
 
 # ///////////////////////////////////////////////////////////////
 # CLASSES

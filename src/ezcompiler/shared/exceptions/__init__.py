@@ -42,20 +42,22 @@ from .services import (
 # IMPORTS - Exception modules from utils
 # ///////////////////////////////////////////////////////////////
 from .utils import (
-    base,
-    compiler_exceptions,
-    config_exceptions,
-    file_exceptions,
-    template_exceptions,
-    uploader_exceptions,
-    validation_exceptions,
-    zip_exceptions,
+    _base,
+    _compiler_exceptions,
+    _config_exceptions,
+    _file_exceptions,
+    _template_exceptions,
+    _uploader_exceptions,
+    _validation_exceptions,
+    _zip_exceptions,
 )
 
 # ///////////////////////////////////////////////////////////////
 # RE-EXPORTS - Base exception for backward compatibility
 # ///////////////////////////////////////////////////////////////
-from .utils.base import EzCompilerError
+from .utils._base import EzCompilerError
+from .utils._config_exceptions import ConfigError
+from .utils._zip_exceptions import ZipError
 
 # ///////////////////////////////////////////////////////////////
 # PUBLIC API - Exception modules
@@ -64,14 +66,14 @@ from .utils.base import EzCompilerError
 __all__ = [
     # Exception modules
     "services",
-    "base",
-    "compiler_exceptions",
-    "config_exceptions",
-    "file_exceptions",
-    "uploader_exceptions",
-    "template_exceptions",
-    "validation_exceptions",
-    "zip_exceptions",
+    "_base",
+    "_compiler_exceptions",
+    "_config_exceptions",
+    "_file_exceptions",
+    "_uploader_exceptions",
+    "_template_exceptions",
+    "_validation_exceptions",
+    "_zip_exceptions",
     # Base exception (re-exported for convenience)
     "EzCompilerError",
     # Service exceptions (re-exported for convenience)
@@ -83,4 +85,7 @@ __all__ = [
     "VersionError",
     "UploaderServiceError",
     "UploadError",
+    # Util exceptions promoted for interface layer use
+    "ConfigError",
+    "ZipError",
 ]

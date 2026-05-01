@@ -4,6 +4,11 @@ Configuration dataclasses and exception hierarchy for **EzCompiler**.
 
 The shared layer contains data structures and exceptions used across all layers of the framework.
 
+!!! note "Public imports"
+    All shared symbols are re-exported from the package roots. Always import from
+    `ezcompiler.shared` (or `ezcompiler.shared.exceptions`) — never from the
+    underscore-prefixed private modules (e.g. `_compiler_config`).
+
 ---
 
 ## Configuration
@@ -12,7 +17,23 @@ The shared layer contains data structures and exceptions used across all layers 
 
 Main configuration dataclass containing all compilation settings.
 
-::: ezcompiler.shared.compiler_config.CompilerConfig
+```python
+from ezcompiler.shared import CompilerConfig
+```
+
+::: ezcompiler.shared.CompilerConfig
+
+---
+
+### CompilationResult
+
+Result type returned by compilation operations.
+
+```python
+from ezcompiler.shared import CompilationResult
+```
+
+::: ezcompiler.shared.CompilationResult
 
 ---
 
@@ -24,7 +45,11 @@ Main configuration dataclass containing all compilation settings.
 
 Base exception class for all EzCompiler errors.
 
-::: ezcompiler.shared.exceptions.utils.base.EzCompilerError
+```python
+from ezcompiler.shared.exceptions import EzCompilerError
+```
+
+::: ezcompiler.shared.exceptions.EzCompilerError
 
 ---
 
@@ -32,11 +57,21 @@ Base exception class for all EzCompiler errors.
 
 Exceptions raised by service layer components.
 
+```python
+from ezcompiler.shared.exceptions.services import (
+    CompilationError,
+    ConfigurationError,
+    TemplateServiceError,
+    UploaderServiceError,
+    CompilerServiceError,
+)
+```
+
 #### CompilationError
 
 Exception raised when compilation fails.
 
-::: ezcompiler.shared.exceptions.services.service_exceptions.CompilationError
+::: ezcompiler.shared.exceptions.services.CompilationError
 
 ---
 
@@ -44,7 +79,7 @@ Exception raised when compilation fails.
 
 Exception raised when configuration is invalid.
 
-::: ezcompiler.shared.exceptions.services.service_exceptions.ConfigurationError
+::: ezcompiler.shared.exceptions.services.ConfigurationError
 
 ---
 
@@ -52,7 +87,7 @@ Exception raised when configuration is invalid.
 
 Exception raised when template processing fails.
 
-::: ezcompiler.shared.exceptions.services.service_exceptions.TemplateServiceError
+::: ezcompiler.shared.exceptions.services.TemplateServiceError
 
 ---
 
@@ -60,7 +95,7 @@ Exception raised when template processing fails.
 
 Exception raised when upload operations fail.
 
-::: ezcompiler.shared.exceptions.services.service_exceptions.UploaderServiceError
+::: ezcompiler.shared.exceptions.services.UploaderServiceError
 
 ---
 
@@ -68,19 +103,32 @@ Exception raised when upload operations fail.
 
 Exception raised when compiler service operations fail.
 
-::: ezcompiler.shared.exceptions.services.service_exceptions.CompilerServiceError
+::: ezcompiler.shared.exceptions.services.CompilerServiceError
 
 ---
 
 ### Utils Exceptions
 
-Exceptions raised by utility modules.
+Exceptions raised by utility modules. `ConfigError`, `ZipError`, and
+`UploadError` are re-exported from `ezcompiler.shared.exceptions`. The
+remaining utility-layer exceptions are accessed via
+`ezcompiler.shared.exceptions.utils`.
+
+```python
+from ezcompiler.shared.exceptions import ConfigError, ZipError, UploadError
+from ezcompiler.shared.exceptions.utils import (
+    ValidationError,
+    FileError,
+    TemplateProcessingError,
+    CompilerError,
+)
+```
 
 #### ValidationError
 
 Exception raised when validation fails.
 
-::: ezcompiler.shared.exceptions.utils.validation_exceptions.ValidationError
+::: ezcompiler.shared.exceptions.utils.ValidationError
 
 ---
 
@@ -88,7 +136,7 @@ Exception raised when validation fails.
 
 Exception raised when file operations fail.
 
-::: ezcompiler.shared.exceptions.utils.file_exceptions.FileError
+::: ezcompiler.shared.exceptions.utils.FileError
 
 ---
 
@@ -96,7 +144,7 @@ Exception raised when file operations fail.
 
 Exception raised when configuration parsing fails.
 
-::: ezcompiler.shared.exceptions.utils.config_exceptions.ConfigError
+::: ezcompiler.shared.exceptions.ConfigError
 
 ---
 
@@ -104,7 +152,7 @@ Exception raised when configuration parsing fails.
 
 Exception raised when ZIP operations fail.
 
-::: ezcompiler.shared.exceptions.utils.zip_exceptions.ZipError
+::: ezcompiler.shared.exceptions.ZipError
 
 ---
 
@@ -112,7 +160,7 @@ Exception raised when ZIP operations fail.
 
 Exception raised when template operations fail.
 
-::: ezcompiler.shared.exceptions.utils.template_exceptions.TemplateProcessingError
+::: ezcompiler.shared.exceptions.utils.TemplateProcessingError
 
 ---
 
@@ -120,7 +168,7 @@ Exception raised when template operations fail.
 
 Exception raised when uploader operations fail.
 
-::: ezcompiler.shared.exceptions.utils.uploader_exceptions.UploadError
+::: ezcompiler.shared.exceptions.UploadError
 
 ---
 
@@ -128,4 +176,4 @@ Exception raised when uploader operations fail.
 
 Exception raised when compiler operations fail.
 
-::: ezcompiler.shared.exceptions.utils.compiler_exceptions.CompilerError
+::: ezcompiler.shared.exceptions.utils.CompilerError

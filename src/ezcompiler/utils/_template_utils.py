@@ -24,7 +24,7 @@ from pathlib import Path
 from typing import Any
 
 # Local imports
-from ..shared.exceptions.utils.template_exceptions import (
+from ..shared.exceptions.utils import (
     TemplateFileWriteError,
     TemplateSubstitutionError,
     TemplateValidationError,
