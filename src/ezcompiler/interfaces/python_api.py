@@ -39,16 +39,15 @@ from ..services import (
     TemplateService,
     UploaderService,
 )
-from ..shared import CompilationResult
-from ..shared.compiler_config import CompilerConfig
+from ..shared import CompilationResult, CompilerConfig
 from ..shared.exceptions import (
     CompilationError,
     ConfigurationError,
     TemplateError,
     UploadError,
     VersionError,
+    ZipError,
 )
-from ..shared.exceptions.utils.zip_exceptions import ZipError
 
 # ///////////////////////////////////////////////////////////////
 # CLASSES

@@ -31,11 +31,10 @@ from ..adapters import (
     BaseCompiler,
     CompilerFactory,
 )
-from ..shared.compilation_result import CompilationResult
-from ..shared.compiler_config import CompilerConfig
+from ..shared import CompilationResult, CompilerConfig
 from ..shared.exceptions import CompilationError, ConfigurationError
+from ..utils import ZipUtils
 from ..utils.validators import validate_compiler_name
-from ..utils.zip_utils import ZipUtils
 
 # ///////////////////////////////////////////////////////////////
 # TYPE ALIASES

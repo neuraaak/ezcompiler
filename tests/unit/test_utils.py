@@ -18,41 +18,32 @@ from pathlib import Path
 
 import pytest
 
-from ezcompiler.shared.exceptions.utils.file_exceptions import (
-    FileNotFoundError,
-)
-from ezcompiler.shared.exceptions.utils.template_exceptions import (
-    TemplateFileWriteError,
-    TemplateValidationError,
-)
-from ezcompiler.shared.exceptions.utils.validation_exceptions import (
+from ezcompiler.shared.exceptions.utils import (
     ChoiceValidationError,
+    FileNotFoundError,
     LengthValidationError,
     RangeValidationError,
     RequiredFieldError,
     SchemaValidationError,
+    TemplateFileWriteError,
+    TemplateValidationError,
     TypeValidationError,
-)
-from ezcompiler.shared.exceptions.utils.zip_exceptions import (
     ZipCreationError,
     ZipExtractionError,
     ZipFileCorruptedError,
 )
-from ezcompiler.utils import FileUtils, ZipUtils, validators
-from ezcompiler.utils.template_utils import TemplateProcessor
-from ezcompiler.utils.validators.schema_validators import (
+from ezcompiler.utils import FileUtils, TemplateProcessor, ZipUtils, validators
+from ezcompiler.utils.validators import (
+    validate_choice,
     validate_config_dict,
     validate_dict_schema,
     validate_field_types,
-    validate_required_fields,
-)
-from ezcompiler.utils.validators.value_validators import (
-    validate_choice,
     validate_length,
     validate_list_length,
     validate_not_empty,
     validate_numeric_range,
     validate_one_of,
+    validate_required_fields,
     validate_string_length,
     validate_value_in_range,
 )
@@ -1075,7 +1066,7 @@ class TestSchemaValidators:
     def test_should_raise_format_validation_error_when_version_format_is_invalid(
         self,
     ) -> None:
-        from ezcompiler.shared.exceptions.utils.validation_exceptions import (
+        from ezcompiler.shared.exceptions.utils._validation_exceptions import (
             FormatValidationError,
         )
 
@@ -1159,7 +1150,7 @@ class TestSchemaValidators:
             )
 
     def test_should_validate_pattern_when_string_does_not_match_regex(self) -> None:
-        from ezcompiler.shared.exceptions.utils.validation_exceptions import (
+        from ezcompiler.shared.exceptions.utils._validation_exceptions import (
             PatternValidationError,
         )
 

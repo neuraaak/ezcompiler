@@ -17,8 +17,8 @@ from __future__ import annotations
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
 # Local imports
-from .compilation_result import CompilationResult
-from .compiler_config import CompilerConfig
+from ._compilation_result import CompilationResult
+from ._compiler_config import CompilerConfig
 from .exceptions import (
     CompilationError,
     ConfigurationError,
@@ -27,7 +27,7 @@ from .exceptions import (
     UploadError,
     VersionError,
 )
-from .exceptions.utils.file_exceptions import FileError
+from .exceptions.utils._file_exceptions import FileError
 
 # ///////////////////////////////////////////////////////////////
 # TYPE ALIASES

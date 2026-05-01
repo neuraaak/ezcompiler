@@ -29,7 +29,7 @@ from pathlib import Path
 from typing import Any
 
 # Local imports
-from ..shared.compiler_config import CompilerConfig
+from ..shared import CompilerConfig
 from ..shared.exceptions import CompilationError
 from .base_compiler import BaseCompiler
 
@@ -124,7 +124,7 @@ class CxFreezeCompiler(BaseCompiler):
             data = self._get_include_files_data()
 
             # Determine base for executable (Win32GUI for no-console on Windows)
-            from ..utils.compiler_utils import CompilerUtils
+            from ..utils._compiler_utils import CompilerUtils
 
             base = CompilerUtils.get_windows_base_for_console(console)
 

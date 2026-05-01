@@ -11,7 +11,7 @@ This module defines the base exception class that all other exceptions inherit f
 
 from __future__ import annotations
 
-from ..utils.base import EzCompilerError
+from ..utils._base import EzCompilerError
 
 
 class EzCompilerServiceError(EzCompilerError):

@@ -4,6 +4,13 @@ Compiler and uploader adapter implementations for **EzCompiler**.
 
 The adapters layer defines abstract base classes and concrete implementations for compilation and upload operations.
 
+!!! note "Internal modules"
+    Concrete compiler/uploader implementations live in private modules
+    (prefixed with `_`) and are instantiated through the factories rather than
+    imported directly. Public consumers should use
+    [`CompilerFactory`](#compilerfactory) and [`UploaderFactory`](#uploaderfactory),
+    or the high-level [`EzCompiler`](interfaces.md) facade.
+
 ---
 
 ## Compiler Adapters
@@ -20,7 +27,7 @@ Abstract base class defining the compiler interface.
 
 Cx_Freeze compiler implementation for directory-based builds.
 
-::: ezcompiler.adapters.cx_freeze_compiler.CxFreezeCompiler
+::: ezcompiler.adapters._cx_freeze_compiler.CxFreezeCompiler
 
 ---
 
@@ -28,7 +35,7 @@ Cx_Freeze compiler implementation for directory-based builds.
 
 PyInstaller compiler implementation for single-file executables.
 
-::: ezcompiler.adapters.pyinstaller_compiler.PyInstallerCompiler
+::: ezcompiler.adapters._pyinstaller_compiler.PyInstallerCompiler
 
 ---
 
@@ -36,7 +43,7 @@ PyInstaller compiler implementation for single-file executables.
 
 Nuitka compiler implementation for optimized native compilation.
 
-::: ezcompiler.adapters.nuitka_compiler.NuitkaCompiler
+::: ezcompiler.adapters._nuitka_compiler.NuitkaCompiler
 
 ---
 
@@ -62,7 +69,7 @@ Abstract base class defining the file writer interface.
 
 Concrete file writer implementation for local disk operations.
 
-::: ezcompiler.adapters.disk_file_writer.DiskFileWriter
+::: ezcompiler.adapters._disk_file_writer.DiskFileWriter
 
 ---
 
@@ -80,7 +87,7 @@ Abstract base class defining the uploader interface.
 
 Local disk uploader for saving compiled projects to the file system.
 
-::: ezcompiler.adapters.disk_uploader.DiskUploader
+::: ezcompiler.adapters._disk_uploader.DiskUploader
 
 ---
 
@@ -88,7 +95,7 @@ Local disk uploader for saving compiled projects to the file system.
 
 HTTP/HTTPS server uploader for remote distribution.
 
-::: ezcompiler.adapters.server_uploader.ServerUploader
+::: ezcompiler.adapters._server_uploader.ServerUploader
 
 ---
 

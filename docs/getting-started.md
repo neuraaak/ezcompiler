@@ -549,11 +549,27 @@ If compilation fails:
 1. Check that all required files exist
 2. Verify package names are correct
 3. Check compiler-specific logs in the output folder
-4. Enable debug logging:
+4. Enable debug logging from the host application.
 
-```python
-ezcompiler = EzCompiler(config, log_level="DEBUG")
-```
+   EzCompiler uses the [`ezplog`](https://pypi.org/project/ezplog/) `lib_mode`
+   pattern: its printer and logger are passive proxies that produce no output
+   until the host application initializes Ezpl. The library never configures
+   logging on its own.
+
+   ```python
+   from ezplog import Ezpl
+   from ezcompiler import EzCompiler, CompilerConfig
+
+   # Host application configures logging once, at the entry point.
+   Ezpl(level="DEBUG")
+
+   ezcompiler = EzCompiler(config)
+   ezcompiler.compile_project()
+
+   # Direct access to the underlying proxies if needed:
+   ezcompiler.logger.debug("Custom debug message")
+   ezcompiler.printer.info("Custom console message")
+   ```
 
 ### Configuration Errors
 

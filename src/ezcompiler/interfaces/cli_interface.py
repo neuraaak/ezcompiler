@@ -37,17 +37,17 @@ import yaml
 from ezplog.lib_mode import get_logger, get_printer
 
 # Local imports
+from .._version import __version__
 from ..services import ConfigService, PipelineService, TemplateService, UploaderService
 from ..shared.exceptions import (
     CompilationError,
+    ConfigError,
     ConfigurationError,
     TemplateError,
     UploadError,
     VersionError,
+    ZipError,
 )
-from ..shared.exceptions.utils.config_exceptions import ConfigError
-from ..shared.exceptions.utils.zip_exceptions import ZipError
-from ..version import __version__
 
 # ///////////////////////////////////////////////////////////////
 # MODULE-LEVEL LOGGING (lib_mode — passive proxies)

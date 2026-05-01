@@ -22,7 +22,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 
 # Local imports
-from ..shared.compiler_config import CompilerConfig
+from ..shared import CompilerConfig
 
 # ///////////////////////////////////////////////////////////////
 # CLASSES
@@ -148,7 +148,7 @@ class BaseCompiler(ABC):
             Called at the start of compile() to ensure config is valid.
             Uses CompilerUtils internally.
         """
-        from ..utils.compiler_utils import CompilerUtils
+        from ..utils._compiler_utils import CompilerUtils
 
         CompilerUtils.validate_compiler_config(self._config)
 
@@ -163,7 +163,7 @@ class BaseCompiler(ABC):
             Called before compilation to ensure output directory is ready.
             Uses CompilerUtils internally.
         """
-        from ..utils.compiler_utils import CompilerUtils
+        from ..utils._compiler_utils import CompilerUtils
 
         CompilerUtils.prepare_compiler_output_directory(self._config)
 
@@ -231,6 +231,6 @@ class BaseCompiler(ABC):
             >>> print(files)
             ['config.yaml', 'lib/', 'assets/']
         """
-        from ..utils.compiler_utils import CompilerUtils
+        from ..utils._compiler_utils import CompilerUtils
 
         return CompilerUtils.format_include_files_data(self._config)

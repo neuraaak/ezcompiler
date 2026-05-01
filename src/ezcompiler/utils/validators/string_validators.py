@@ -19,7 +19,7 @@ from __future__ import annotations
 import re
 
 # Local imports
-from ...shared.exceptions.utils.validation_exceptions import PatternValidationError
+from ...shared.exceptions.utils import PatternValidationError
 
 # ///////////////////////////////////////////////////////////////
 # FUNCTIONS

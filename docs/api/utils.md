@@ -4,13 +4,28 @@ Utility functions, file operations, and validation modules for **EzCompiler**.
 
 The utils layer provides reusable utilities for file management, configuration parsing, template processing, ZIP operations, and comprehensive validation.
 
+!!! note "Public imports"
+    All utility classes are re-exported from `ezcompiler.utils`. Always import
+    from the package root, never from the underscore-prefixed private modules.
+
+    ```python
+    from ezcompiler.utils import (
+        FileUtils,
+        ConfigUtils,
+        TemplateProcessor,
+        CompilerUtils,
+        UploaderUtils,
+        ZipUtils,
+    )
+    ```
+
 ---
 
 ## File Utilities
 
 Utilities for file and directory operations.
 
-::: ezcompiler.utils.file_utils
+::: ezcompiler.utils.FileUtils
 
 ---
 
@@ -18,7 +33,7 @@ Utilities for file and directory operations.
 
 Utilities for parsing and validating configuration files (YAML/JSON).
 
-::: ezcompiler.utils.config_utils
+::: ezcompiler.utils.ConfigUtils
 
 ---
 
@@ -26,7 +41,7 @@ Utilities for parsing and validating configuration files (YAML/JSON).
 
 Utilities for template processing and variable substitution.
 
-::: ezcompiler.utils.template_utils
+::: ezcompiler.utils.TemplateProcessor
 
 ---
 
@@ -34,7 +49,7 @@ Utilities for template processing and variable substitution.
 
 Utilities for compiler-specific operations.
 
-::: ezcompiler.utils.compiler_utils
+::: ezcompiler.utils.CompilerUtils
 
 ---
 
@@ -42,7 +57,7 @@ Utilities for compiler-specific operations.
 
 Utilities for upload operations.
 
-::: ezcompiler.utils.uploader_utils
+::: ezcompiler.utils.UploaderUtils
 
 ---
 
@@ -50,7 +65,7 @@ Utilities for upload operations.
 
 Utilities for creating and managing ZIP archives.
 
-::: ezcompiler.utils.zip_utils
+::: ezcompiler.utils.ZipUtils
 
 ---
 

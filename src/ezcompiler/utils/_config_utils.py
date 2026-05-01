@@ -31,15 +31,15 @@ from typing import Any
 import yaml
 
 # Local imports
-from ..shared.compiler_config import CompilerConfig
-from ..shared.exceptions.utils.config_exceptions import (
+from ..shared import CompilerConfig
+from ..shared.exceptions.utils import (
     CompilerOptionError,
     ConfigFileNotFoundError,
     ConfigFileParseError,
     ConfigPathError,
     MissingRequiredConfigError,
 )
-from .file_utils import FileUtils
+from ._file_utils import FileUtils
 from .validators import validate_string_length
 
 # ///////////////////////////////////////////////////////////////

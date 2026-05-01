@@ -17,18 +17,22 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from ezcompiler.adapters import BaseFileWriter, CompilerFactory
-from ezcompiler.adapters.cx_freeze_compiler import CxFreezeCompiler
-from ezcompiler.adapters.disk_file_writer import DiskFileWriter
-from ezcompiler.adapters.nuitka_compiler import NuitkaCompiler
-from ezcompiler.adapters.pyinstaller_compiler import PyInstallerCompiler
+from ezcompiler.adapters._cx_freeze_compiler import CxFreezeCompiler
+from ezcompiler.adapters._disk_file_writer import DiskFileWriter
+from ezcompiler.adapters._nuitka_compiler import NuitkaCompiler
+from ezcompiler.adapters._pyinstaller_compiler import PyInstallerCompiler
 from ezcompiler.services import (
     CompilerService,
     ConfigService,
     PipelineService,
     TemplateService,
 )
-from ezcompiler.shared import CompilationError, CompilerConfig, ConfigurationError
-from ezcompiler.shared.exceptions import VersionError
+from ezcompiler.shared import (
+    CompilationError,
+    CompilerConfig,
+    ConfigurationError,
+    VersionError,
+)
 
 # ///////////////////////////////////////////////////////////////
 # HELPERS
@@ -305,7 +309,7 @@ class TestTemplateService:
     # --- __init__ ---
 
     def test_should_use_disk_file_writer_when_no_writer_is_provided(self) -> None:
-        from ezcompiler.adapters.disk_file_writer import DiskFileWriter
+        from ezcompiler.adapters._disk_file_writer import DiskFileWriter
 
         service = TemplateService()
         assert isinstance(service._file_writer, DiskFileWriter)
@@ -534,7 +538,7 @@ class TestCompilerServiceCompile:
     def test_should_return_compilation_result_when_compiler_succeeds(
         self, temp_dir: Path
     ) -> None:
-        from ezcompiler.services.compiler_service import CompilationResult
+        from ezcompiler.shared import CompilationResult
 
         config = self._build_config(temp_dir)
         service = CompilerService(config)

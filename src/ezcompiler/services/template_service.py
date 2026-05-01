@@ -21,14 +21,12 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from ..adapters.base_file_writer import BaseFileWriter
-from ..adapters.disk_file_writer import DiskFileWriter
-
 # Local imports
-from ..assets.templates.template_loader import TemplateLoader
+from ..adapters import BaseFileWriter
+from ..adapters._disk_file_writer import DiskFileWriter
+from ..assets import TemplateLoader
 from ..shared.exceptions import TemplateError, VersionError
-from ..utils.file_utils import FileUtils
-from ..utils.template_utils import TemplateProcessor
+from ..utils import FileUtils, TemplateProcessor
 
 # ///////////////////////////////////////////////////////////////
 # CLASSES

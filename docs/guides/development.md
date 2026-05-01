@@ -54,40 +54,44 @@ mkdocs serve
 ```text
 ezcompiler/
 ├── src/
-│   └── ezcompiler/          # Main package
-│       ├── __init__.py         # Package initialization
-│       ├── types.py            # Public type aliases
-│       ├── interfaces/         # Public interfaces
-│       │   ├── python_api.py   # EzCompiler main class
-│       │   └── cli_interface.py # CLI interface
-│       ├── services/           # Business logic
+│   └── ezcompiler/             # Main package
+│       ├── __init__.py            # Package initialization (public API)
+│       ├── _version.py            # Version constant (private)
+│       ├── types.py               # Public type aliases
+│       ├── interfaces/            # Public interfaces
+│       │   ├── python_api.py      # EzCompiler main class
+│       │   └── cli_interface.py   # CLI interface
+│       ├── services/              # Business logic
 │       │   ├── compiler_service.py
 │       │   ├── config_service.py
 │       │   ├── pipeline_service.py
 │       │   ├── template_service.py
 │       │   └── uploader_service.py
-│       ├── adapters/           # Concrete implementations
-│       │   ├── base_compiler.py
-│       │   ├── compiler_factory.py
-│       │   ├── cx_freeze_compiler.py
-│       │   ├── pyinstaller_compiler.py
-│       │   ├── nuitka_compiler.py
-│       │   ├── base_file_writer.py
-│       │   ├── disk_file_writer.py
-│       │   ├── base_uploader.py
-│       │   ├── disk_uploader.py
-│       │   └── server_uploader.py
-│       ├── shared/             # Shared components
-│       │   ├── compilation_result.py
-│       │   ├── compiler_config.py
-│       │   └── exceptions/
-│       ├── utils/              # Utilities
-│       │   ├── file_utils.py
-│       │   ├── config_utils.py
-│       │   ├── template_utils.py
-│       │   ├── zip_utils.py
-│       │   └── validators/     # Validation modules
-│       └── assets/             # Templates and resources
+│       ├── adapters/              # Concrete implementations
+│       │   ├── base_compiler.py        # Public abstract base
+│       │   ├── base_file_writer.py     # Public abstract base
+│       │   ├── base_uploader.py        # Public abstract base
+│       │   ├── compiler_factory.py     # Public factory
+│       │   ├── uploader_factory.py     # Public factory
+│       │   ├── _cx_freeze_compiler.py  # Private impl (via factory)
+│       │   ├── _pyinstaller_compiler.py
+│       │   ├── _nuitka_compiler.py
+│       │   ├── _disk_file_writer.py
+│       │   ├── _disk_uploader.py
+│       │   └── _server_uploader.py
+│       ├── shared/                # Shared components
+│       │   ├── _compilation_result.py  # Re-exported via shared/__init__
+│       │   ├── _compiler_config.py     # Re-exported via shared/__init__
+│       │   └── exceptions/             # Exception hierarchy
+│       ├── utils/                 # Utilities (re-exported via __init__)
+│       │   ├── _file_utils.py
+│       │   ├── _config_utils.py
+│       │   ├── _template_utils.py
+│       │   ├── _compiler_utils.py
+│       │   ├── _uploader_utils.py
+│       │   ├── _zip_utils.py
+│       │   └── validators/        # Public validation submodules
+│       └── assets/                # Templates and resources
 ├── tests/                  # Test suite
 │   ├── unit/              # Unit tests
 │   └── integration/       # Integration tests
@@ -109,6 +113,27 @@ EzCompiler follows these coding standards:
 - **Type Hints** - Full type annotations for Python 3.11+
 - **Docstrings** - Google-style docstrings for all public APIs
 - **Line Length** - 88 characters (Ruff default)
+
+### Symbol Visibility Convention
+
+Modules whose name starts with an underscore (e.g. `_compiler_config.py`,
+`_cx_freeze_compiler.py`) are **private implementation details**. Public
+symbols are re-exported through the package `__init__.py` files.
+
+```python
+# Correct — import from the public package surface
+from ezcompiler.shared import CompilerConfig, CompilationResult
+from ezcompiler.shared.exceptions import CompilationError
+from ezcompiler.utils import FileUtils
+from ezcompiler.adapters import CompilerFactory
+
+# Incorrect — never import from underscore-prefixed modules
+# from ezcompiler.shared._compiler_config import CompilerConfig  # Don't
+# from ezcompiler.adapters._pyinstaller_compiler import PyInstallerCompiler  # Don't
+```
+
+Concrete compiler and uploader implementations are constructed through
+`CompilerFactory` / `UploaderFactory` rather than imported directly.
 
 ### Type Hints
 
@@ -410,7 +435,7 @@ git commit -m "test: Add tests for template service"
 
 Update version in:
 
-- `src/ezcompiler/__init__.py`
+- `src/ezcompiler/_version.py` (single source of truth)
 - `pyproject.toml`
 
 ### Creating a Release
@@ -418,7 +443,7 @@ Update version in:
 1. **Update version**
 
    ```python
-   # src/ezcompiler/__init__.py
+   # src/ezcompiler/_version.py
    __version__ = "2.3.0"
    ```
 

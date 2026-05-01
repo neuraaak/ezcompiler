@@ -23,13 +23,13 @@ from pathlib import Path
 from typing import Any
 
 # Local imports
-from ..shared.compiler_config import CompilerConfig
+from ..shared import CompilerConfig
 from ..shared.exceptions import ConfigurationError
-from ..shared.exceptions.utils.config_exceptions import (
+from ..shared.exceptions.utils import (
     ConfigFileNotFoundError,
     ConfigFileParseError,
 )
-from ..utils.config_utils import ConfigUtils
+from ..utils._config_utils import ConfigUtils
 
 # ///////////////////////////////////////////////////////////////
 # CLASSES
