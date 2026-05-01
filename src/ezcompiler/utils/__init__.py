@@ -20,12 +20,12 @@ from __future__ import annotations
 # ///////////////////////////////////////////////////////////////
 # Local imports
 from . import validators
-from .compiler_utils import CompilerUtils
-from .config_utils import ConfigUtils
-from .file_utils import FileUtils
-from .template_utils import TemplateProcessor
-from .uploader_utils import UploaderUtils
-from .zip_utils import ZipUtils
+from ._compiler_utils import CompilerUtils
+from ._config_utils import ConfigUtils
+from ._file_utils import FileUtils
+from ._template_utils import TemplateProcessor
+from ._uploader_utils import UploaderUtils
+from ._zip_utils import ZipUtils
 
 # ///////////////////////////////////////////////////////////////
 # PUBLIC API

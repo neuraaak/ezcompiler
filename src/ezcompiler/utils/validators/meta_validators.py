@@ -20,7 +20,7 @@ from collections.abc import Callable
 from typing import Any
 
 # Local imports
-from ...shared.exceptions.utils.validation_exceptions import SchemaValidationError
+from ...shared.exceptions.utils import SchemaValidationError
 
 # ///////////////////////////////////////////////////////////////
 # FUNCTIONS

@@ -16,8 +16,8 @@ from __future__ import annotations
 # ///////////////////////////////////////////////////////////////
 # IMPORTS - Service exceptions
 # ///////////////////////////////////////////////////////////////
-from .base import EzCompilerServiceError
-from .service_exceptions import (
+from ._base import EzCompilerServiceError
+from ._service_exceptions import (
     CompilationError,
     CompilerServiceError,
     ConfigurationError,

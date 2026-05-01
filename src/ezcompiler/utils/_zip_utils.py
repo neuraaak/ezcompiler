@@ -22,14 +22,14 @@ from collections.abc import Callable
 from pathlib import Path
 
 # Local imports
-from ..shared.exceptions.utils.zip_exceptions import (
+from ..shared.exceptions.utils import (
     ZipCreationError,
     ZipExtractionError,
     ZipFileCorruptedError,
     ZipFileNotFoundError,
     ZipPathError,
 )
-from .file_utils import FileUtils
+from ._file_utils import FileUtils
 
 # ///////////////////////////////////////////////////////////////
 # CLASSES

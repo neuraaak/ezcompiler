@@ -18,7 +18,7 @@ from __future__ import annotations
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
 # Local imports
-from .template_loader import TemplateLoader
+from ._template_loader import TemplateLoader
 
 # ///////////////////////////////////////////////////////////////
 # PUBLIC API

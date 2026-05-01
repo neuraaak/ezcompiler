@@ -21,10 +21,10 @@ from typing import Any
 
 # Local imports
 from ..shared.exceptions import UploadError
-from ..utils.uploader_utils import UploaderUtils
+from ..utils import UploaderUtils
+from ._disk_uploader import DiskUploader
+from ._server_uploader import ServerUploader
 from .base_uploader import BaseUploader
-from .disk_uploader import DiskUploader
-from .server_uploader import ServerUploader
 
 # ///////////////////////////////////////////////////////////////
 # CLASSES

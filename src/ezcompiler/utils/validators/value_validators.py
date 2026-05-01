@@ -19,7 +19,7 @@ from __future__ import annotations
 from typing import Any
 
 # Local imports
-from ...shared.exceptions.utils.validation_exceptions import (
+from ...shared.exceptions.utils import (
     ChoiceValidationError,
     LengthValidationError,
     RangeValidationError,

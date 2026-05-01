@@ -49,6 +49,7 @@ from __future__ import annotations
 import sys
 
 # Local imports
+from ._version import __version__
 from .interfaces import EzCompiler
 from .shared import (
     CompilationError,
@@ -61,7 +62,6 @@ from .shared import (
     VersionError,
 )
 from .types import CompilerName, FilePath, IncludeFiles, JsonMap, UploadTarget
-from .version import __version__
 
 # ///////////////////////////////////////////////////////////////
 # METADATA INFORMATION

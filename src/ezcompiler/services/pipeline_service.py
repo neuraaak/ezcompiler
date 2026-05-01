@@ -20,10 +20,8 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from ..shared.compilation_result import CompilationResult
-
 # Local imports
-from ..shared.compiler_config import CompilerConfig
+from ..shared import CompilationResult, CompilerConfig
 from .compiler_service import CompilerService
 from .uploader_service import UploaderService
 
