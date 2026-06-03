@@ -29,6 +29,10 @@ from ..shared import CompilerConfig
 # ///////////////////////////////////////////////////////////////
 
 
+# TODO [AUDIT P3]: migrer ABC → Protocol (typing.Protocol) pour aligner avec l'architecture hexagonale
+# En Hexagonal, les Ports sont des contrats structurels, pas des hiérarchies d'héritage.
+# Créer adapters/ports.py avec CompilerPort(Protocol) + supprimer l'héritage ABC dans les implémentations.
+# Impact : CompilationResult.compiler_instance peut alors être typé CompilerPort au lieu de Any.
 class BaseCompiler(ABC):
     """
     Abstract base class for project compilers.

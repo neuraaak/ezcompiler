@@ -205,3 +205,124 @@ class TestCompilerNames:
         name = NuitkaCompiler(config).get_compiler_name()
         assert isinstance(name, str)
         assert "nuitka" in name.lower()
+
+
+# ///////////////////////////////////////////////////////////////
+# TESTS - PYINSTALLER COMPILER OPTIONS
+# ///////////////////////////////////////////////////////////////
+
+
+class TestPyInstallerCompilerOptions:
+    """Test compiler_options handling for PyInstallerCompiler."""
+
+    def _make_compiler(self, temp_dir, compiler_options: dict) -> PyInstallerCompiler:
+        main_file = temp_dir / "main.py"
+        main_file.write_text("# test")
+        config = CompilerConfig(
+            version="1.0.0",
+            project_name="TestProject",
+            main_file=str(main_file),
+            include_files={"files": [], "folders": []},
+            output_folder=str(temp_dir / "dist"),
+            compiler_options=compiler_options,
+        )
+        return PyInstallerCompiler(config)
+
+    def test_should_expand_list_option_to_multiple_flags_when_compiler_options_contains_list(
+        self, temp_dir, monkeypatch
+    ) -> None:
+        """Each list item must produce a separate --key=item flag."""
+        compiler = self._make_compiler(
+            temp_dir,
+            {"collect-all": ["webview", "fastexcel", "polars"]},
+        )
+
+        captured: list[list[str]] = []
+        import subprocess
+
+        monkeypatch.setattr(
+            subprocess,
+            "run",
+            lambda cmd, **_kwargs: (
+                captured.append(cmd)
+                or type("R", (), {"returncode": 0, "stdout": "", "stderr": ""})()
+            ),
+        )
+
+        compiler.compile()
+
+        assert captured, "subprocess.run was not called"
+        cmd = captured[0]
+        assert "--collect-all=webview" in cmd
+        assert "--collect-all=fastexcel" in cmd
+        assert "--collect-all=polars" in cmd
+
+    def test_should_add_single_flag_when_compiler_options_value_is_bool_true(
+        self, temp_dir, monkeypatch
+    ) -> None:
+        """Bool True must produce a bare --key flag (no value)."""
+        compiler = self._make_compiler(temp_dir, {"strip": True})
+
+        captured: list[list[str]] = []
+        import subprocess
+
+        monkeypatch.setattr(
+            subprocess,
+            "run",
+            lambda cmd, **_kwargs: (
+                captured.append(cmd)
+                or type("R", (), {"returncode": 0, "stdout": "", "stderr": ""})()
+            ),
+        )
+
+        compiler.compile()
+
+        cmd = captured[0]
+        assert "--strip" in cmd
+        assert not any(a.startswith("--strip=") for a in cmd)
+
+    def test_should_omit_flag_when_compiler_options_value_is_bool_false(
+        self, temp_dir, monkeypatch
+    ) -> None:
+        """Bool False must not add any flag to the command."""
+        compiler = self._make_compiler(temp_dir, {"strip": False})
+
+        captured: list[list[str]] = []
+        import subprocess
+
+        monkeypatch.setattr(
+            subprocess,
+            "run",
+            lambda cmd, **_kwargs: (
+                captured.append(cmd)
+                or type("R", (), {"returncode": 0, "stdout": "", "stderr": ""})()
+            ),
+        )
+
+        compiler.compile()
+
+        cmd = captured[0]
+        assert "--strip" not in cmd
+
+    def test_should_add_key_value_flag_when_compiler_options_value_is_string(
+        self, temp_dir, monkeypatch
+    ) -> None:
+        """String value must produce a --key=value flag."""
+        compiler = self._make_compiler(temp_dir, {"log-level": "WARN"})
+
+        captured: list[list[str]] = []
+        import subprocess
+
+        monkeypatch.setattr(
+            subprocess,
+            "run",
+            lambda cmd, **_kwargs: (
+                captured.append(cmd)
+                or type("R", (), {"returncode": 0, "stdout": "", "stderr": ""})()
+            ),
+        )
+
+        compiler.compile()
+
+        cmd = captured[0]
+        assert "--log-level=WARN" in cmd

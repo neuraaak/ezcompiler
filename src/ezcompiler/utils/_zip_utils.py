@@ -17,6 +17,8 @@ from __future__ import annotations
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
 # Standard library imports
+import stat
+import sys
 import zipfile
 from collections.abc import Callable
 from pathlib import Path
@@ -411,12 +413,8 @@ class ZipUtils:
             return True
 
         # Check hidden attribute on Windows
-        try:
-            import stat
-
+        if sys.platform == "win32":
             return bool(
                 file_path.stat().st_file_attributes & stat.FILE_ATTRIBUTE_HIDDEN
             )
-        except (AttributeError, ImportError):
-            # Not on Windows or attribute not available
-            return False
+        return False

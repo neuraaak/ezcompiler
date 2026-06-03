@@ -14,7 +14,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ezcompiler"
-version = "2.3.4"
+version = "2.3.5"
 description = "Project compilation and distribution framework for Python projects"
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.11"
@@ -49,9 +49,6 @@ classifiers = [
 # ///////////////////////////////////////////////////////////////
 
 dependencies = [
-    "cx_Freeze>=7.0,<9.0",
-    "Nuitka>=2.4",
-    "PyInstaller>=5.0",
     "InquirerPy>=0.3.0",
     "requests>=2.28.0",
     "click>=8.0.0",
@@ -67,6 +64,14 @@ dependencies = [
 # ///////////////////////////////////////////////////////////////
 
 [project.optional-dependencies]
+cx-freeze = ["cx_Freeze>=7.0,<9.0"]
+pyinstaller = ["PyInstaller>=5.0"]
+nuitka = ["Nuitka>=2.4"]
+all-compilers = [
+    "cx_Freeze>=7.0,<9.0",
+    "PyInstaller>=5.0",
+    "Nuitka>=2.4",
+]
 dev = [
     # Development tools
     "ruff>=0.1.0",
@@ -83,6 +88,11 @@ dev = [
     "pytest-cov>=4.0.0",
     "pytest-mock>=3.10.0",
     "pytest-xdist>=3.0.0",
+
+    # Compilers (all, for testing)
+    "cx_Freeze>=7.0,<9.0",
+    "PyInstaller>=5.0",
+    "Nuitka>=2.4",
 
     # Build and distribution
     "build>=1.0.0",
@@ -101,6 +111,8 @@ docs = [
     "mkdocstrings[python]>=0.27.0",
     "mkdocs-section-index>=0.3.0",
     "mkdocs-coverage>=1.1.0",
+    "mike>=2.0.0",
+    "pymdown-extensions>=10.7",
     "git-cliff>=2.7.0",
 ]
 

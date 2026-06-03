@@ -185,6 +185,9 @@ class PyInstallerCompiler(BaseCompiler):
                     if isinstance(value, bool):
                         if value:  # Only add if True
                             cmd.append(f"--{key}")
+                    elif isinstance(value, list):
+                        for item in value:
+                            cmd.append(f"--{key}={item}")
                     else:
                         cmd.append(f"--{key}={value}")
 

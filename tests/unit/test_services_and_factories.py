@@ -65,14 +65,16 @@ class TestCompilerFactory:
         self, temp_dir
     ) -> None:
         config = _build_config(temp_dir)
-        compiler = CompilerFactory.create_compiler(config, "Cx_Freeze")
+        with patch.object(CompilerFactory, "_check_compiler_available"):
+            compiler = CompilerFactory.create_compiler(config, "Cx_Freeze")
         assert isinstance(compiler, CxFreezeCompiler)
 
     def test_should_create_pyinstaller_compiler_when_name_is_pyinstaller(
         self, temp_dir
     ) -> None:
         config = _build_config(temp_dir)
-        compiler = CompilerFactory.create_compiler(config, "PyInstaller")
+        with patch.object(CompilerFactory, "_check_compiler_available"):
+            compiler = CompilerFactory.create_compiler(config, "PyInstaller")
         assert isinstance(compiler, PyInstallerCompiler)
 
     def test_should_raise_compilation_error_when_compiler_name_is_unknown(
@@ -139,7 +141,8 @@ class TestConfigAndCompilerService:
         config = _build_config(temp_dir)
         service = CompilerService(config)
 
-        compiler = service._create_compiler("Nuitka")
+        with patch.object(CompilerFactory, "_check_compiler_available"):
+            compiler = service._create_compiler("Nuitka")
 
         assert isinstance(compiler, NuitkaCompiler)
 
@@ -154,14 +157,16 @@ class TestCompilerFactoryExtended:
 
     def test_should_create_nuitka_compiler_when_name_is_nuitka(self, temp_dir) -> None:
         config = _build_config(temp_dir)
-        compiler = CompilerFactory.create_compiler(config, "Nuitka")
+        with patch.object(CompilerFactory, "_check_compiler_available"):
+            compiler = CompilerFactory.create_compiler(config, "Nuitka")
         assert isinstance(compiler, NuitkaCompiler)
 
     def test_should_return_cx_freeze_when_create_from_config_with_auto(
         self, temp_dir
     ) -> None:
         config = _build_config(temp_dir)  # compiler defaults to "auto"
-        compiler = CompilerFactory.create_from_config(config)
+        with patch.object(CompilerFactory, "_check_compiler_available"):
+            compiler = CompilerFactory.create_from_config(config)
         assert isinstance(compiler, CxFreezeCompiler)
 
     def test_should_return_pyinstaller_when_create_from_config_with_explicit_compiler(
@@ -177,7 +182,8 @@ class TestCompilerFactoryExtended:
             output_folder=temp_dir / "dist",
             compiler="PyInstaller",
         )
-        compiler = CompilerFactory.create_from_config(config)
+        with patch.object(CompilerFactory, "_check_compiler_available"):
+            compiler = CompilerFactory.create_from_config(config)
         assert isinstance(compiler, PyInstallerCompiler)
 
     def test_should_return_supported_compiler_names_when_get_supported_compilers_is_called(
@@ -299,12 +305,13 @@ class TestPipelineService:
 class TestTemplateService:
     """Test TemplateService with injected mock file writer."""
 
-    def _make_service(self) -> tuple[TemplateService, MagicMock]:
-        """Create a TemplateService with a mock file writer and mock template_loader."""
+    def _make_service(self) -> tuple[TemplateService, MagicMock, MagicMock]:
+        """Create a TemplateService with a mock writer and a mock template loader."""
         mock_writer = MagicMock(spec=BaseFileWriter)
+        mock_loader = MagicMock()
         service = TemplateService(file_writer=mock_writer)
-        service._template_loader = MagicMock()
-        return service, mock_writer
+        service._template_loader = mock_loader  # type: ignore[assignment]
+        return service, mock_writer, mock_loader
 
     # --- __init__ ---
 
@@ -322,8 +329,8 @@ class TestTemplateService:
     # --- generate_config_file ---
 
     def test_should_write_yaml_file_when_format_is_yaml(self, temp_dir: Path) -> None:
-        service, mock_writer = self._make_service()
-        service._template_loader.process_config_template.return_value = "yaml: content"
+        service, mock_writer, mock_loader = self._make_service()
+        mock_loader.process_config_template.return_value = "yaml: content"
         out = temp_dir / "ezcompiler.yaml"
 
         service.generate_config_file({}, out, format_type="yaml")
@@ -333,8 +340,8 @@ class TestTemplateService:
         )
 
     def test_should_write_json_file_when_format_is_json(self, temp_dir: Path) -> None:
-        service, mock_writer = self._make_service()
-        service._template_loader.process_config_template.return_value = '{"key": "val"}'
+        service, mock_writer, mock_loader = self._make_service()
+        mock_loader.process_config_template.return_value = '{"key": "val"}'
         out = temp_dir / "ezcompiler.json"
 
         service.generate_config_file({}, out, format_type="json")
@@ -346,8 +353,8 @@ class TestTemplateService:
     ) -> None:
         from ezcompiler.shared.exceptions import TemplateError
 
-        service, mock_writer = self._make_service()
-        service._template_loader.process_config_template.return_value = "content"
+        service, mock_writer, mock_loader = self._make_service()
+        mock_loader.process_config_template.return_value = "content"
         mock_writer.write_text.side_effect = OSError("disk full")
 
         with pytest.raises(TemplateError):
@@ -358,8 +365,8 @@ class TestTemplateService:
     def test_should_write_setup_py_when_output_path_is_given(
         self, temp_dir: Path
     ) -> None:
-        service, mock_writer = self._make_service()
-        service._template_loader.process_setup_template.return_value = "# setup"
+        service, mock_writer, mock_loader = self._make_service()
+        mock_loader.process_setup_template.return_value = "# setup"
         out = temp_dir / "setup.py"
 
         result = service.generate_setup_file({}, output_path=out)
@@ -370,8 +377,8 @@ class TestTemplateService:
     def test_should_write_setup_py_to_dir_when_output_dir_is_given(
         self, temp_dir: Path
     ) -> None:
-        service, mock_writer = self._make_service()
-        service._template_loader.process_setup_template.return_value = "# setup"
+        service, _, mock_loader = self._make_service()
+        mock_loader.process_setup_template.return_value = "# setup"
         out_dir = temp_dir / "build"
         out_dir.mkdir()
 
@@ -384,8 +391,8 @@ class TestTemplateService:
     ) -> None:
         from ezcompiler.shared.exceptions import TemplateError
 
-        service, mock_writer = self._make_service()
-        service._template_loader.process_setup_template.return_value = "# setup"
+        service, mock_writer, mock_loader = self._make_service()
+        mock_loader.process_setup_template.return_value = "# setup"
         mock_writer.write_text.side_effect = OSError("disk full")
 
         with pytest.raises(TemplateError):
@@ -396,8 +403,8 @@ class TestTemplateService:
     def test_should_write_version_file_when_output_path_is_provided(
         self, temp_dir: Path
     ) -> None:
-        service, mock_writer = self._make_service()
-        service._template_loader.process_version_template.return_value = "v1.0.0"
+        service, mock_writer, mock_loader = self._make_service()
+        mock_loader.process_version_template.return_value = "v1.0.0"
         out = temp_dir / "version_info.txt"
 
         result = service.generate_version_file({}, output_path=out)
@@ -408,8 +415,8 @@ class TestTemplateService:
     def test_should_build_path_from_config_when_output_path_is_none(
         self, temp_dir: Path
     ) -> None:
-        service, mock_writer = self._make_service()
-        service._template_loader.process_version_template.return_value = "v1.0.0"
+        service, _, mock_loader = self._make_service()
+        mock_loader.process_version_template.return_value = "v1.0.0"
         config = {
             "version": "1.0.0",
             "version_filename": "ver.txt",
@@ -423,8 +430,8 @@ class TestTemplateService:
     def test_should_raise_version_error_when_writer_fails_in_version(
         self, temp_dir: Path
     ) -> None:
-        service, mock_writer = self._make_service()
-        service._template_loader.process_version_template.return_value = "v1.0.0"
+        service, mock_writer, mock_loader = self._make_service()
+        mock_loader.process_version_template.return_value = "v1.0.0"
         mock_writer.write_text.side_effect = OSError("disk full")
 
         with pytest.raises(VersionError):
@@ -433,29 +440,27 @@ class TestTemplateService:
     # --- list_available_templates ---
 
     def test_should_return_dict_when_list_available_templates_is_called(self) -> None:
-        service, _ = self._make_service()
-        service._template_loader.list_available_templates.return_value = {
-            "config": ["yaml", "json"]
-        }
+        service, _, mock_loader = self._make_service()
+        mock_loader.list_available_templates.return_value = {"config": ["yaml", "json"]}
 
         result = service.list_available_templates()
 
         assert isinstance(result, dict)
-        service._template_loader.list_available_templates.assert_called_once()
+        mock_loader.list_available_templates.assert_called_once()
 
     # --- validate_template ---
 
     def test_should_return_true_when_template_type_and_format_are_valid(self) -> None:
-        service, _ = self._make_service()
-        service._template_loader.validate_template.return_value = True
+        service, _, mock_loader = self._make_service()
+        mock_loader.validate_template.return_value = True
 
         assert service.validate_template("config", "yaml") is True
 
     def test_should_return_false_when_template_type_or_format_is_invalid(
         self,
     ) -> None:
-        service, _ = self._make_service()
-        service._template_loader.validate_template.return_value = False
+        service, _, mock_loader = self._make_service()
+        mock_loader.validate_template.return_value = False
 
         assert service.validate_template("unknown", "xyz") is False
 
@@ -464,12 +469,12 @@ class TestTemplateService:
     def test_should_call_template_loader_when_generating_mockup(
         self, temp_dir: Path
     ) -> None:
-        service, _ = self._make_service()
+        service, _, mock_loader = self._make_service()
         out = temp_dir / "mockup.yaml"
 
         service.generate_mockup_template("config", "yaml", out)
 
-        service._template_loader.generate_template_with_mockup.assert_called_once_with(
+        mock_loader.generate_template_with_mockup.assert_called_once_with(
             "config", "yaml", out
         )
 
@@ -478,10 +483,8 @@ class TestTemplateService:
     ) -> None:
         from ezcompiler.shared.exceptions import TemplateError
 
-        service, _ = self._make_service()
-        service._template_loader.generate_template_with_mockup.side_effect = (
-            RuntimeError("boom")
-        )
+        service, _, mock_loader = self._make_service()
+        mock_loader.generate_template_with_mockup.side_effect = RuntimeError("boom")
 
         with pytest.raises(TemplateError):
             service.generate_mockup_template("config", "yaml", temp_dir / "out.yaml")
@@ -491,14 +494,12 @@ class TestTemplateService:
     def test_should_call_template_loader_when_generating_raw_template(
         self, temp_dir: Path
     ) -> None:
-        service, _ = self._make_service()
+        service, _, mock_loader = self._make_service()
         out = temp_dir / "raw.yaml"
 
         service.generate_raw_template("config", "yaml", out)
 
-        service._template_loader.generate_raw_template.assert_called_once_with(
-            "config", "yaml", out
-        )
+        mock_loader.generate_raw_template.assert_called_once_with("config", "yaml", out)
 
 
 # ///////////////////////////////////////////////////////////////
