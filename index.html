@@ -6,8 +6,10 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="A short description of your project">
+        <meta name="description" content="Comprehensive documentation for the EzCompiler project, covering user guides, API reference, CLI usage, and examples.">
       
+      
+        <meta name="author" content="Neuraaak">
       
       
         <link rel="canonical" href="https://neuraaak.github.io/ezcompiler/">
@@ -21,7 +23,7 @@
       
       
       <link rel="icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -80,7 +82,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#welcome-to-ezcompiler-documentation" class="md-skip">
+        <a href="#ezcompiler" class="md-skip">
           Skip to content
         </a>
       
@@ -89,10 +91,16 @@
       
     </div>
     
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
     
       
 
-<header class="md-header" data-md-component="header">
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href="." title="EzCompiler Documentation" class="md-header__button md-logo" aria-label="EzCompiler Documentation" data-md-component="logo">
       
@@ -127,9 +135,9 @@
     
     
     
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Dark mode"  type="radio" name="__palette" id="__palette_0">
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
     
-      <label class="md-header__button md-icon" title="Dark mode" for="__palette_1" hidden>
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
       </label>
     
@@ -137,9 +145,9 @@
     
     
     
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Light mode"  type="radio" name="__palette" id="__palette_1">
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
     
-      <label class="md-header__button md-icon" title="Light mode" for="__palette_0" hidden>
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
       </label>
     
@@ -170,6 +178,11 @@
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
       </label>
       <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
         
         <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
           
@@ -209,14 +222,8 @@
     
   </nav>
   
-</header>
     
-    <div class="md-container" data-md-component="container">
       
-      
-        
-          
-            
 <nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
   <div class="md-grid">
     <ul class="md-tabs__list">
@@ -337,10 +344,73 @@
   
 
       
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="architecture/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="coverage/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Coverage
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="changelog/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Changelog
+
+      </a>
+    </li>
+  
+
+      
     </ul>
   </div>
 </nav>
-          
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
         
       
       <main class="md-main" data-md-component="main">
@@ -452,7 +522,7 @@
   <a href="#key-features" class="md-nav__link">
     <span class="md-ellipsis">
       
-        ✨ Key Features
+        ✨ Key features
       
     </span>
   </a>
@@ -463,12 +533,12 @@
   <a href="#quick-start" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🚀 Quick Start
+        🚀 Quick start
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="🚀 Quick Start">
+    <nav class="md-nav" aria-label="🚀 Quick start">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -499,10 +569,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#documentation-structure" class="md-nav__link">
+  <a href="#documentation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        📚 Documentation Structure
+        📚 Documentation
       
     </span>
   </a>
@@ -513,12 +583,12 @@
   <a href="#main-components" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🎯 Main Components
+        🎯 Main components
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="🎯 Main Components">
+    <nav class="md-nav" aria-label="🎯 Main components">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -574,7 +644,7 @@
   <a href="#cli-commands" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🔧 CLI Commands
+        💻 CLI commands
       
     </span>
   </a>
@@ -582,10 +652,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#core-dependencies" class="md-nav__link">
+  <a href="#requirements" class="md-nav__link">
     <span class="md-ellipsis">
       
-        📦 Core Dependencies
+        📋 Requirements
       
     </span>
   </a>
@@ -596,7 +666,7 @@
   <a href="#architecture-layers" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🎨 Architecture Layers
+        Architecture layers
       
     </span>
   </a>
@@ -607,7 +677,7 @@
   <a href="#license" class="md-nav__link">
     <span class="md-ellipsis">
       
-        📝 License
+        ⚖️ License
       
     </span>
   </a>
@@ -667,6 +737,12 @@
   
   
     
+    
+      
+        
+      
+        
+      
     
     
     
@@ -790,6 +866,22 @@
   
     
     
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
     
     
       
@@ -904,14 +996,14 @@
   
   
     <li class="md-nav__item">
-      <a href="api/protocols/" class="md-nav__link">
+      <a href="api/adapters/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Protocols
+    Adapters
   
 
     
@@ -960,6 +1052,34 @@
   
   
     <li class="md-nav__item">
+      <a href="api/types/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="api/utils/" class="md-nav__link">
         
   
@@ -968,6 +1088,34 @@
     
   
     Utils
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="api/reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Auto-reference
   
 
     
@@ -1042,6 +1190,87 @@
   
 
     
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="coverage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coverage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -1072,7 +1301,7 @@
   <a href="#key-features" class="md-nav__link">
     <span class="md-ellipsis">
       
-        ✨ Key Features
+        ✨ Key features
       
     </span>
   </a>
@@ -1083,12 +1312,12 @@
   <a href="#quick-start" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🚀 Quick Start
+        🚀 Quick start
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="🚀 Quick Start">
+    <nav class="md-nav" aria-label="🚀 Quick start">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1119,10 +1348,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#documentation-structure" class="md-nav__link">
+  <a href="#documentation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        📚 Documentation Structure
+        📚 Documentation
       
     </span>
   </a>
@@ -1133,12 +1362,12 @@
   <a href="#main-components" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🎯 Main Components
+        🎯 Main components
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="🎯 Main Components">
+    <nav class="md-nav" aria-label="🎯 Main components">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1194,7 +1423,7 @@
   <a href="#cli-commands" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🔧 CLI Commands
+        💻 CLI commands
       
     </span>
   </a>
@@ -1202,10 +1431,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#core-dependencies" class="md-nav__link">
+  <a href="#requirements" class="md-nav__link">
     <span class="md-ellipsis">
       
-        📦 Core Dependencies
+        📋 Requirements
       
     </span>
   </a>
@@ -1216,7 +1445,7 @@
   <a href="#architecture-layers" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🎨 Architecture Layers
+        Architecture layers
       
     </span>
   </a>
@@ -1227,7 +1456,7 @@
   <a href="#license" class="md-nav__link">
     <span class="md-ellipsis">
       
-        📝 License
+        ⚖️ License
       
     </span>
   </a>
@@ -1256,6 +1485,14 @@
           
             <div class="md-content" data-md-component="content">
               
+                
+
+
+
+  
+
+
+              
               <article class="md-content__inner md-typeset">
                 
                   
@@ -1265,52 +1502,77 @@
   
 
 
-<h1 id="welcome-to-ezcompiler-documentation">Welcome to EzCompiler Documentation<a class="headerlink" href="#welcome-to-ezcompiler-documentation" title="Anchor link to this section">&para;</a></h1>
-<p><a href="https://pypi.org/project/ezcompiler/"><img alt="PyPI" src="https://img.shields.io/badge/PyPI-ezcompiler-orange.svg" /></a>
-<a href="https://pypi.org/project/ezcompiler/"><img alt="PyPI version" src="https://img.shields.io/pypi/v/ezcompiler" /></a>
-<a href="https://pypi.org/project/ezcompiler/"><img alt="Python versions" src="https://img.shields.io/pypi/pyversions/ezcompiler" /></a>
-<a href="https://github.com/neuraaak/ezcompiler/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/pypi/l/ezcompiler" /></a></p>
-<p><img alt="EzCompiler Logo" src="assets/logo-min.png" /></p>
+<h1 id="ezcompiler">EzCompiler<a class="headerlink" href="#ezcompiler" title="Anchor link to this section">&para;</a></h1>
+<p><a href="https://pypi.org/project/ezcompiler/"><img alt="PyPI version" src="https://img.shields.io/pypi/v/ezcompiler?style=flat&amp;logo=pypi&amp;logoColor=white" /></a>
+<a href="https://pypi.org/project/ezcompiler/"><img alt="Python versions" src="https://img.shields.io/pypi/pyversions/ezcompiler?style=flat&amp;logo=python&amp;logoColor=white" /></a>
+<a href="https://pypi.org/project/ezcompiler/"><img alt="PyPI status" src="https://img.shields.io/pypi/status/ezcompiler?style=flat&amp;logo=pypi&amp;logoColor=white" /></a>
+<a href="https://github.com/neuraaak/ezcompiler/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/badge/license-MIT-green?style=flat&amp;logo=github&amp;logoColor=white" /></a>
+<a href="https://github.com/neuraaak/ezcompiler/actions/workflows/publish-pypi.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/neuraaak/ezcompiler/publish-pypi.yml?style=flat&amp;label=ci&amp;logo=githubactions&amp;logoColor=white" /></a>
+<a href="https://neuraaak.github.io/ezcompiler/"><img alt="Docs" src="https://img.shields.io/badge/docs-GitHub%20Pages-blue?style=flat&amp;logo=materialformkdocs&amp;logoColor=white" /></a>
+<a href="https://github.com/astral-sh/uv"><img alt="uv" src="https://img.shields.io/badge/package%20manager-uv-DE5FE9?style=flat&amp;logo=uv&amp;logoColor=white" /></a>
+<a href="https://github.com/astral-sh/ruff"><img alt="linter" src="https://img.shields.io/badge/linter-ruff-orange?style=flat&amp;logo=ruff&amp;logoColor=white" /></a>
+<a href="https://github.com/astral-sh/ty"><img alt="type checker" src="https://img.shields.io/badge/type%20checker-ty-orange?style=flat&amp;logo=astral&amp;logoColor=white" /></a></p>
 <p><strong>EzCompiler</strong> is a comprehensive Python framework for project compilation, version file generation, packaging, and distribution. It provides a clean and typed API suitable for professional and industrial Python applications.</p>
-<h2 id="key-features">✨ Key Features<a class="headerlink" href="#key-features" title="Anchor link to this section">&para;</a></h2>
+<h2 id="key-features">✨ Key features<a class="headerlink" href="#key-features" title="Anchor link to this section">&para;</a></h2>
 <ul>
 <li><strong>✅ Multi-Compiler Support</strong>: Cx_Freeze, PyInstaller, and Nuitka compilation backends</li>
 <li><strong>✅ Version File Generation</strong>: Automatic version file creation for Windows executables</li>
 <li><strong>✅ Project Packaging</strong>: ZIP archive creation with configurable compression</li>
 <li><strong>✅ Upload Backends</strong>: Disk and HTTP server distribution support</li>
 <li><strong>✅ Template System</strong>: Template-based generation for configuration, setup, and version files</li>
-<li><strong>✅ Fully Typed API</strong>: Complete Python 3.10+ type hints for excellent IDE support</li>
+<li><strong>✅ Fully Typed API</strong>: Complete Python 3.11+ type hints for excellent IDE support</li>
 <li><strong>✅ Modular Validators</strong>: 9 specialized validation modules for robust input validation</li>
 <li><strong>✅ CLI Interface</strong>: Interactive command-line tool for automation and batch operations</li>
 <li><strong>✅ Production Ready</strong>: Battle-tested framework for professional applications</li>
 </ul>
-<h2 id="quick-start">🚀 Quick Start<a class="headerlink" href="#quick-start" title="Anchor link to this section">&para;</a></h2>
+<h2 id="quick-start">🚀 Quick start<a class="headerlink" href="#quick-start" title="Anchor link to this section">&para;</a></h2>
 <h3 id="installation">Installation<a class="headerlink" href="#installation" title="Anchor link to this section">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>ezcompiler
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">uv</label><label for="__tabbed_1_2">pip</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>uv<span class="w"> </span>add<span class="w"> </span>ezcompiler
 </span></code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pip<span class="w"> </span>install<span class="w"> </span>ezcompiler
+</span></code></pre></div>
+</div>
+</div>
+</div>
 <p>Or from source:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/neuraaak/ezcompiler.git
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nb">cd</span><span class="w"> </span>ezcompiler<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>.
+<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">uv</label><label for="__tabbed_2_2">pip</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/neuraaak/ezcompiler.git
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nb">cd</span><span class="w"> </span>ezcompiler<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>ezcompiler
 </span></code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/neuraaak/ezcompiler.git
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nb">cd</span><span class="w"> </span>ezcompiler<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>.
+</span></code></pre></div>
+</div>
+</div>
+</div>
 <h3 id="first-compilation">First Compilation<a class="headerlink" href="#first-compilation" title="Anchor link to this section">&para;</a></h3>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler</span><span class="w"> </span><span class="kn">import</span> <span class="n">EzCompiler</span><span class="p">,</span> <span class="n">CompilerConfig</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="c1"># Create configuration</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">config</span> <span class="o">=</span> <span class="n">CompilerConfig</span><span class="p">(</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">version</span><span class="o">=</span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="n">project_name</span><span class="o">=</span><span class="s2">&quot;MyProject&quot;</span><span class="p">,</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="n">main_file</span><span class="o">=</span><span class="s2">&quot;main.py&quot;</span><span class="p">,</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="n">include_files</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;files&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;folders&quot;</span><span class="p">:</span> <span class="p">[]},</span>
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>    <span class="n">output_folder</span><span class="o">=</span><span class="s2">&quot;dist&quot;</span><span class="p">,</span>
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="p">)</span>
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>
-</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="c1"># Initialize compiler</span>
-</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="n">ezcompiler</span> <span class="o">=</span> <span class="n">EzCompiler</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>
-</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="c1"># Compile project</span>
-</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="n">ezcompiler</span><span class="o">.</span><span class="n">compile_project</span><span class="p">(</span><span class="n">compiler</span><span class="o">=</span><span class="s2">&quot;PyInstaller&quot;</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler</span><span class="w"> </span><span class="kn">import</span> <span class="n">EzCompiler</span><span class="p">,</span> <span class="n">CompilerConfig</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="c1"># Create configuration</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="n">config</span> <span class="o">=</span> <span class="n">CompilerConfig</span><span class="p">(</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="n">version</span><span class="o">=</span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    <span class="n">project_name</span><span class="o">=</span><span class="s2">&quot;MyProject&quot;</span><span class="p">,</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    <span class="n">main_file</span><span class="o">=</span><span class="s2">&quot;main.py&quot;</span><span class="p">,</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>    <span class="n">include_files</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;files&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;folders&quot;</span><span class="p">:</span> <span class="p">[]},</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>    <span class="n">output_folder</span><span class="o">=</span><span class="s2">&quot;dist&quot;</span><span class="p">,</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="p">)</span>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="c1"># Initialize compiler</span>
+</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="n">ezcompiler</span> <span class="o">=</span> <span class="n">EzCompiler</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>
+</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="c1"># Compile project</span>
+</span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="n">ezcompiler</span><span class="o">.</span><span class="n">compile_project</span><span class="p">(</span><span class="n">compiler</span><span class="o">=</span><span class="s2">&quot;PyInstaller&quot;</span><span class="p">)</span>
 </span></code></pre></div>
-<h2 id="documentation-structure">📚 Documentation Structure<a class="headerlink" href="#documentation-structure" title="Anchor link to this section">&para;</a></h2>
+<h2 id="documentation">📚 Documentation<a class="headerlink" href="#documentation" title="Anchor link to this section">&para;</a></h2>
 <table>
 <thead>
 <tr>
@@ -1341,7 +1603,7 @@
 </tr>
 </tbody>
 </table>
-<h2 id="main-components">🎯 Main Components<a class="headerlink" href="#main-components" title="Anchor link to this section">&para;</a></h2>
+<h2 id="main-components">🎯 Main components<a class="headerlink" href="#main-components" title="Anchor link to this section">&para;</a></h2>
 <p>EzCompiler is organized into <strong>4 main layers</strong>:</p>
 <h3 id="interfaces-layer">Interfaces Layer<a class="headerlink" href="#interfaces-layer" title="Anchor link to this section">&para;</a></h3>
 <ul>
@@ -1376,31 +1638,31 @@
 <li><strong><code>Validators</code></strong> – Modular validation package (9 specialized modules)</li>
 </ul>
 <p>For detailed documentation, see <a href="api/">API Reference</a>.</p>
-<h2 id="cli-commands">🔧 CLI Commands<a class="headerlink" href="#cli-commands" title="Anchor link to this section">&para;</a></h2>
+<h2 id="cli-commands">💻 CLI commands<a class="headerlink" href="#cli-commands" title="Anchor link to this section">&para;</a></h2>
 <p>EzCompiler provides a comprehensive CLI interface:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Initialize project interactively</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>ezcompiler<span class="w"> </span>init
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># Generate configuration files</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>ezcompiler<span class="w"> </span>generate<span class="w"> </span>config<span class="w"> </span>--project-name<span class="w"> </span><span class="s2">&quot;MyApp&quot;</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="c1"># Generate setup.py</span>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>ezcompiler<span class="w"> </span>generate<span class="w"> </span>setup<span class="w"> </span>--config<span class="w"> </span>ezcompiler.yaml
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>
-</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="c1"># Generate version information</span>
-</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>ezcompiler<span class="w"> </span>generate<span class="w"> </span>version<span class="w"> </span>--config<span class="w"> </span>ezcompiler.yaml
-</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>
-</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="c1"># Generate template files</span>
-</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>ezcompiler<span class="w"> </span>generate<span class="w"> </span>template<span class="w"> </span>--type<span class="w"> </span>config<span class="w"> </span>--mockup
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Initialize project interactively</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>ezcompiler<span class="w"> </span>init
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1"># Generate configuration files</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>ezcompiler<span class="w"> </span>generate<span class="w"> </span>config<span class="w"> </span>--project-name<span class="w"> </span><span class="s2">&quot;MyApp&quot;</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="c1"># Generate setup.py</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>ezcompiler<span class="w"> </span>generate<span class="w"> </span>setup<span class="w"> </span>--config<span class="w"> </span>ezcompiler.yaml
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="c1"># Generate version information</span>
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>ezcompiler<span class="w"> </span>generate<span class="w"> </span>version<span class="w"> </span>--config<span class="w"> </span>ezcompiler.yaml
+</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>
+</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="c1"># Generate template files</span>
+</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>ezcompiler<span class="w"> </span>generate<span class="w"> </span>template<span class="w"> </span>--type<span class="w"> </span>config<span class="w"> </span>--mockup
 </span></code></pre></div>
 <p>See the <a href="cli/">CLI Reference</a> for complete documentation.</p>
-<h2 id="core-dependencies">📦 Core Dependencies<a class="headerlink" href="#core-dependencies" title="Anchor link to this section">&para;</a></h2>
+<h2 id="requirements">📋 Requirements<a class="headerlink" href="#requirements" title="Anchor link to this section">&para;</a></h2>
 <ul>
-<li><strong>Python &gt;= 3.10</strong> – Modern Python with type hints support</li>
+<li><strong>Python &gt;= 3.11</strong> – Modern Python with type hints support</li>
 <li><strong>PyYAML &gt;= 6.0</strong> – YAML configuration support</li>
 <li><strong>cx_Freeze / PyInstaller / Nuitka</strong> – Compilation backends (optional)</li>
 </ul>
-<h2 id="architecture-layers">🎨 Architecture Layers<a class="headerlink" href="#architecture-layers" title="Anchor link to this section">&para;</a></h2>
+<h2 id="architecture-layers">Architecture layers<a class="headerlink" href="#architecture-layers" title="Anchor link to this section">&para;</a></h2>
 <table>
 <thead>
 <tr>
@@ -1421,9 +1683,9 @@
 <td>Business logic and orchestration</td>
 </tr>
 <tr>
-<td><a href="api/protocols/">Protocols</a></td>
-<td>Compilers, Uploaders</td>
-<td>Implementation protocols and adapters</td>
+<td><a href="api/adapters/">Adapters</a></td>
+<td>Compilers, Uploaders, FileWriters</td>
+<td>Concrete adapter implementations</td>
 </tr>
 <tr>
 <td><a href="api/utils/">Utils</a></td>
@@ -1432,7 +1694,7 @@
 </tr>
 </tbody>
 </table>
-<h2 id="license">📝 License<a class="headerlink" href="#license" title="Anchor link to this section">&para;</a></h2>
+<h2 id="license">⚖️ License<a class="headerlink" href="#license" title="Anchor link to this section">&para;</a></h2>
 <p>MIT License – See <a href="https://github.com/neuraaak/ezcompiler/blob/main/LICENSE">LICENSE</a> file for details.</p>
 <h2 id="links">🔗 Links<a class="headerlink" href="#links" title="Anchor link to this section">&para;</a></h2>
 <ul>
@@ -1442,7 +1704,7 @@
 <li><strong>Documentation</strong>: <a href="https://neuraaak.github.io/ezcompiler/">https://neuraaak.github.io/ezcompiler/</a></li>
 </ul>
 <hr />
-<p><strong>EzCompiler</strong> – Professional Python project compilation and distribution. 🚀</p>
+<p><strong>EzCompiler</strong> – Professional Python project compilation and distribution.</p>
 
 
 
@@ -1474,6 +1736,30 @@
       </main>
       
         <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+        
+          
+          <a href="getting-started/" class="md-footer__link md-footer__link--next" aria-label="Next: Getting Started">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Getting Started
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
@@ -1526,7 +1812,7 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.tabs.link"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.path", "navigation.top", "navigation.footer", "navigation.indexes", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "toc.follow"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
       <script src="assets/javascripts/bundle.79ae519e.min.js"></script>

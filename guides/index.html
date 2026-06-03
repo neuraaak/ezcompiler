@@ -6,8 +6,10 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="A short description of your project">
+        <meta name="description" content="Comprehensive documentation for the EzCompiler project, covering user guides, API reference, CLI usage, and examples.">
       
+      
+        <meta name="author" content="Neuraaak">
       
       
         <link rel="canonical" href="https://neuraaak.github.io/ezcompiler/guides/">
@@ -23,7 +25,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -91,10 +93,16 @@
       
     </div>
     
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
     
       
 
-<header class="md-header" data-md-component="header">
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href=".." title="EzCompiler Documentation" class="md-header__button md-logo" aria-label="EzCompiler Documentation" data-md-component="logo">
       
@@ -129,9 +137,9 @@
     
     
     
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Dark mode"  type="radio" name="__palette" id="__palette_0">
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
     
-      <label class="md-header__button md-icon" title="Dark mode" for="__palette_1" hidden>
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
       </label>
     
@@ -139,9 +147,9 @@
     
     
     
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Light mode"  type="radio" name="__palette" id="__palette_1">
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
     
-      <label class="md-header__button md-icon" title="Light mode" for="__palette_0" hidden>
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
       </label>
     
@@ -172,6 +180,11 @@
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
       </label>
       <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
         
         <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
           
@@ -211,14 +224,8 @@
     
   </nav>
   
-</header>
     
-    <div class="md-container" data-md-component="container">
       
-      
-        
-          
-            
 <nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
   <div class="md-grid">
     <ul class="md-tabs__list">
@@ -339,10 +346,73 @@
   
 
       
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../architecture/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../coverage/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Coverage
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../changelog/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Changelog
+
+      </a>
+    </li>
+  
+
+      
     </ul>
   </div>
 </nav>
-          
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
         
       
       <main class="md-main" data-md-component="main">
@@ -447,6 +517,12 @@
   
   
     
+    
+      
+        
+      
+        
+      
     
     
     
@@ -573,6 +649,22 @@
   
     
     
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
     
     
       
@@ -687,14 +779,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/protocols/" class="md-nav__link">
+      <a href="../api/adapters/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Protocols
+    Adapters
   
 
     
@@ -743,6 +835,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../api/types/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../api/utils/" class="md-nav__link">
         
   
@@ -751,6 +871,34 @@
     
   
     Utils
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Auto-reference
   
 
     
@@ -825,6 +973,87 @@
   
 
     
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../coverage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coverage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -852,21 +1081,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Overview
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#available-guides" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Available Guides
+        Available guides
       
     </span>
   </a>
@@ -877,229 +1095,7 @@
   <a href="#quick-links" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Quick Links
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Quick Links">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#for-beginners" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        For Beginners
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#for-developers" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        For Developers
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#for-advanced-users" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        For Advanced Users
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#topics" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Topics
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Topics">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#core-concepts" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Core Concepts
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#framework-features" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Framework Features
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#integration" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Integration
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#best-practices" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Best Practices
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#development-workflow" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Development Workflow
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Development Workflow">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#setting-up" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Setting Up
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#testing" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Testing
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#contributing" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Contributing
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#code-style" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Code Style
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#documentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Documentation
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Documentation">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#building-docs" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Building Docs
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#writing-docs" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Writing Docs
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#see-also" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        See Also
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#need-help" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Need Help?
+        Quick links
       
     </span>
   </a>
@@ -1117,6 +1113,14 @@
           
             <div class="md-content" data-md-component="content">
               
+                
+
+
+
+  
+
+
+              
               <article class="md-content__inner md-typeset">
                 
                   
@@ -1126,168 +1130,37 @@
   
 
 
-<h1 id="user-guides">User Guides<a class="headerlink" href="#user-guides" title="Anchor link to this section">&para;</a></h1>
-<p>In-depth guides and tutorials for <strong>EzCompiler</strong> framework.</p>
-<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Anchor link to this section">&para;</a></h2>
-<p>This section provides comprehensive guides for mastering EzCompiler features and best practices. Whether you're just getting started or looking to contribute to the project, you'll find detailed documentation here.</p>
-<h2 id="available-guides">Available Guides<a class="headerlink" href="#available-guides" title="Anchor link to this section">&para;</a></h2>
+<h1 id="user-guides">User guides<a class="headerlink" href="#user-guides" title="Anchor link to this section">&para;</a></h1>
+<p>In-depth guides for configuring and extending <strong>EzCompiler</strong>.</p>
+<h2 id="available-guides">Available guides<a class="headerlink" href="#available-guides" title="Anchor link to this section">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>Guide</th>
-<th>Description</th>
-<th>Level</th>
+<th style="text-align: left;">Guide</th>
+<th style="text-align: left;">Description</th>
+<th style="text-align: left;">Level</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><a href="configuration/">Configuration Guide</a></td>
-<td>Detailed configuration options and best practices</td>
-<td>Beginner</td>
+<td style="text-align: left;"><a href="configuration/">Configuration guide</a></td>
+<td style="text-align: left;">All configuration keys, YAML/JSON formats, and validation</td>
+<td style="text-align: left;">Beginner</td>
 </tr>
 <tr>
-<td><a href="development/">Development Guide</a></td>
-<td>Development workflow and contribution guide</td>
-<td>Intermediate</td>
+<td style="text-align: left;"><a href="development/">Development guide</a></td>
+<td style="text-align: left;">Development workflow, testing, and contribution process</td>
+<td style="text-align: left;">Intermediate</td>
 </tr>
 </tbody>
 </table>
-<h2 id="quick-links">Quick Links<a class="headerlink" href="#quick-links" title="Anchor link to this section">&para;</a></h2>
-<h3 id="for-beginners">For Beginners<a class="headerlink" href="#for-beginners" title="Anchor link to this section">&para;</a></h3>
+<h2 id="quick-links">Quick links<a class="headerlink" href="#quick-links" title="Anchor link to this section">&para;</a></h2>
 <ul>
-<li><a href="../getting-started/">Getting Started</a> - Start here if you're new to EzCompiler</li>
-<li><a href="../examples/">Basic Examples</a> - Simple usage examples</li>
-<li><a href="configuration/">Configuration Guide</a> - Learn to configure your projects</li>
+<li><a href="../getting-started/">Getting Started</a> — install and first compilation</li>
+<li><a href="../api/">API Reference</a> — complete module documentation</li>
+<li><a href="../cli/">CLI Reference</a> — command-line interface</li>
+<li><a href="../examples/">Examples</a> — runnable code snippets</li>
 </ul>
-<h3 id="for-developers">For Developers<a class="headerlink" href="#for-developers" title="Anchor link to this section">&para;</a></h3>
-<ul>
-<li><a href="development/">Development Guide</a> - Set up your development environment</li>
-<li><a href="../api/">API Reference</a> - Complete API documentation</li>
-</ul>
-<h3 id="for-advanced-users">For Advanced Users<a class="headerlink" href="#for-advanced-users" title="Anchor link to this section">&para;</a></h3>
-<ul>
-<li><a href="../api/">API Reference</a> - Detailed module documentation</li>
-<li><a href="../cli/">CLI Reference</a> - Command-line interface usage</li>
-<li><a href="https://github.com/neuraaak/ezcompiler">GitHub Repository</a> - Source code and issues</li>
-</ul>
-<h2 id="topics">Topics<a class="headerlink" href="#topics" title="Anchor link to this section">&para;</a></h2>
-<h3 id="core-concepts">Core Concepts<a class="headerlink" href="#core-concepts" title="Anchor link to this section">&para;</a></h3>
-<ul>
-<li><strong>Compilation Backends</strong> - Understanding Cx_Freeze, PyInstaller, and Nuitka compilers</li>
-<li><strong>Configuration Management</strong> - YAML and JSON configuration files</li>
-<li><strong>Template System</strong> - Dynamic file generation with templates</li>
-<li><strong>Upload Backends</strong> - Distribution to disk and HTTP servers</li>
-</ul>
-<h3 id="framework-features">Framework Features<a class="headerlink" href="#framework-features" title="Anchor link to this section">&para;</a></h3>
-<ul>
-<li><strong>Type Safety</strong> - Using Python 3.10+ type hints for better IDE support</li>
-<li><strong>Error Handling</strong> - Comprehensive exception hierarchy</li>
-<li><strong>Validation</strong> - 9 specialized validation modules</li>
-<li><strong>Logging</strong> - Integrated logging and debugging</li>
-</ul>
-<h3 id="integration">Integration<a class="headerlink" href="#integration" title="Anchor link to this section">&para;</a></h3>
-<ul>
-<li><strong>Application Integration</strong> - Integrating EzCompiler into your build workflows</li>
-<li><strong>CI/CD Integration</strong> - GitHub Actions, GitLab CI, and other platforms</li>
-<li><strong>Template Customization</strong> - Creating custom templates</li>
-<li><strong>Custom Compilers</strong> - Extending the compiler protocol</li>
-</ul>
-<h3 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Anchor link to this section">&para;</a></h3>
-<ul>
-<li><strong>Project Structure</strong> - Organizing your project for compilation</li>
-<li><strong>Performance</strong> - Optimizing compilation and package size</li>
-<li><strong>Error Handling</strong> - Robust error handling in build scripts</li>
-<li><strong>Testing</strong> - Testing compiled applications</li>
-</ul>
-<h2 id="development-workflow">Development Workflow<a class="headerlink" href="#development-workflow" title="Anchor link to this section">&para;</a></h2>
-<h3 id="setting-up">Setting Up<a class="headerlink" href="#setting-up" title="Anchor link to this section">&para;</a></h3>
-<ol>
-<li><strong>Clone the repository</strong></li>
-</ol>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/neuraaak/ezcompiler.git
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">cd</span><span class="w"> </span>ezcompiler
-</span></code></pre></div>
-<ol>
-<li><strong>Install in development mode</strong></li>
-</ol>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[dev]&quot;</span>
-</span></code></pre></div>
-<ol>
-<li><strong>Install pre-commit hooks</strong> (if available)</li>
-</ol>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>pre-commit<span class="w"> </span>install
-</span></code></pre></div>
-<p>See the <a href="development/">Development Guide</a> for detailed setup instructions.</p>
-<h3 id="testing">Testing<a class="headerlink" href="#testing" title="Anchor link to this section">&para;</a></h3>
-<p>Run the test suite to ensure everything works:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Run all tests</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>pytest<span class="w"> </span>tests/
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># Run with coverage</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>pytest<span class="w"> </span>tests/<span class="w"> </span>--cov<span class="o">=</span>ezcompiler
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="c1"># Run specific test types</span>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>pytest<span class="w"> </span>tests/unit/
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>pytest<span class="w"> </span>tests/integration/
-</span></code></pre></div>
-<h3 id="contributing">Contributing<a class="headerlink" href="#contributing" title="Anchor link to this section">&para;</a></h3>
-<p>We welcome contributions! Here's how to get started:</p>
-<ol>
-<li><strong>Fork the repository</strong> on GitHub</li>
-<li><strong>Create a feature branch</strong> (<code>git checkout -b feature/amazing-feature</code>)</li>
-<li><strong>Make your changes</strong> with tests</li>
-<li><strong>Run tests and linting</strong> (<code>pytest</code>, <code>ruff check</code>)</li>
-<li><strong>Commit your changes</strong> with conventional commits</li>
-<li><strong>Push to your fork</strong> (<code>git push origin feature/amazing-feature</code>)</li>
-<li><strong>Open a Pull Request</strong> on GitHub</li>
-</ol>
-<p>See the <a href="development/">Development Guide</a> for contribution guidelines.</p>
-<h2 id="code-style">Code Style<a class="headerlink" href="#code-style" title="Anchor link to this section">&para;</a></h2>
-<p>EzCompiler follows these coding standards:</p>
-<ul>
-<li><strong>PEP 8</strong> - Python style guide</li>
-<li><strong>Type Hints</strong> - Full type annotations for Python 3.10+</li>
-<li><strong>Docstrings</strong> - Google-style docstrings for all public APIs</li>
-<li><strong>Testing</strong> - Comprehensive test coverage</li>
-<li><strong>Black</strong> - Code formatting (88 character line length)</li>
-<li><strong>Ruff</strong> - Linting and code quality</li>
-</ul>
-<h2 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Anchor link to this section">&para;</a></h2>
-<h3 id="building-docs">Building Docs<a class="headerlink" href="#building-docs" title="Anchor link to this section">&para;</a></h3>
-<p>Build the documentation locally:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Install docs dependencies</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[docs]&quot;</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1"># Build documentation</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>mkdocs<span class="w"> </span>build
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="c1"># Serve locally</span>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>mkdocs<span class="w"> </span>serve
-</span></code></pre></div>
-<p>Then open <a href="http://127.0.0.1:8000">http://127.0.0.1:8000</a> in your browser.</p>
-<h3 id="writing-docs">Writing Docs<a class="headerlink" href="#writing-docs" title="Anchor link to this section">&para;</a></h3>
-<p>Documentation is written in Markdown and built with MkDocs Material:</p>
-<ul>
-<li><strong>Guides</strong> - Located in <code>docs/guides/</code></li>
-<li><strong>API Reference</strong> - Auto-generated from docstrings with mkdocstrings</li>
-<li><strong>Examples</strong> - Code examples in <code>docs/examples/</code></li>
-<li><strong>CLI</strong> - Command-line interface docs in <code>docs/cli/</code></li>
-</ul>
-<h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Anchor link to this section">&para;</a></h2>
-<ul>
-<li><a href="../getting-started/">Getting Started</a> - Quick start guide</li>
-<li><a href="../api/">API Reference</a> - Complete API documentation</li>
-<li><a href="../examples/">Examples</a> - Practical code examples</li>
-<li><a href="../cli/">CLI Reference</a> - Command-line interface</li>
-</ul>
-<h2 id="need-help">Need Help?<a class="headerlink" href="#need-help" title="Anchor link to this section">&para;</a></h2>
-<ul>
-<li><strong>Issues</strong>: <a href="https://github.com/neuraaak/ezcompiler/issues">GitHub Issues</a></li>
-<li><strong>Discussions</strong>: <a href="https://github.com/neuraaak/ezcompiler/discussions">GitHub Discussions</a></li>
-<li><strong>Repository</strong>: <a href="https://github.com/neuraaak/ezcompiler">https://github.com/neuraaak/ezcompiler</a></li>
-</ul>
-<hr />
-<p><strong>Happy building with EzCompiler!</strong> 🚀</p>
 
 
 
@@ -1319,6 +1192,46 @@
       </main>
       
         <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../getting-started/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Getting Started">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Getting Started
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="configuration/" class="md-footer__link md-footer__link--next" aria-label="Next: Configuration">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Configuration
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
@@ -1371,7 +1284,7 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.tabs.link"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.path", "navigation.top", "navigation.footer", "navigation.indexes", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "toc.follow"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
       <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>

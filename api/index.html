@@ -6,8 +6,10 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="A short description of your project">
+        <meta name="description" content="Comprehensive documentation for the EzCompiler project, covering user guides, API reference, CLI usage, and examples.">
       
+      
+        <meta name="author" content="Neuraaak">
       
       
         <link rel="canonical" href="https://neuraaak.github.io/ezcompiler/api/">
@@ -23,7 +25,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -91,10 +93,16 @@
       
     </div>
     
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
     
       
 
-<header class="md-header" data-md-component="header">
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href=".." title="EzCompiler Documentation" class="md-header__button md-logo" aria-label="EzCompiler Documentation" data-md-component="logo">
       
@@ -129,9 +137,9 @@
     
     
     
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Dark mode"  type="radio" name="__palette" id="__palette_0">
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
     
-      <label class="md-header__button md-icon" title="Dark mode" for="__palette_1" hidden>
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
       </label>
     
@@ -139,9 +147,9 @@
     
     
     
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Light mode"  type="radio" name="__palette" id="__palette_1">
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
     
-      <label class="md-header__button md-icon" title="Light mode" for="__palette_0" hidden>
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
       </label>
     
@@ -172,6 +180,11 @@
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
       </label>
       <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
         
         <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
           
@@ -211,14 +224,8 @@
     
   </nav>
   
-</header>
     
-    <div class="md-container" data-md-component="container">
       
-      
-        
-          
-            
 <nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
   <div class="md-grid">
     <ul class="md-tabs__list">
@@ -339,10 +346,73 @@
   
 
       
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../architecture/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../coverage/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Coverage
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../changelog/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Changelog
+
+      </a>
+    </li>
+  
+
+      
     </ul>
   </div>
 </nav>
-          
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
         
       
       <main class="md-main" data-md-component="main">
@@ -445,6 +515,12 @@
   
   
     
+    
+      
+        
+      
+        
+      
     
     
     
@@ -570,6 +646,22 @@
   
     
     
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
     
     
       
@@ -687,14 +779,14 @@
   
   
     <li class="md-nav__item">
-      <a href="protocols/" class="md-nav__link">
+      <a href="adapters/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Protocols
+    Adapters
   
 
     
@@ -743,6 +835,34 @@
   
   
     <li class="md-nav__item">
+      <a href="types/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="utils/" class="md-nav__link">
         
   
@@ -751,6 +871,34 @@
     
   
     Utils
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Auto-reference
   
 
     
@@ -825,6 +973,87 @@
   
 
     
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../coverage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coverage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -852,10 +1081,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
+  <a href="#modules" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Overview
+        📦 Modules
       
     </span>
   </a>
@@ -863,10 +1092,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#quick-reference" class="md-nav__link">
+  <a href="#full-reference" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Quick Reference
+        🔍 Full reference
       
     </span>
   </a>
@@ -874,198 +1103,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#import-examples" class="md-nav__link">
+  <a href="#import-paths" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Import Examples
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#architecture-layers" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Architecture Layers
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Architecture Layers">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#interfaces-layer" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Interfaces Layer
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#services-layer" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Services Layer
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#protocols-layer" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Protocols Layer
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#shared-layer" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Shared Layer
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#utils-layer" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Utils Layer
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#api-design-principles" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        API Design Principles
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="API Design Principles">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#type-safety" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Type Safety
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#error-handling" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Error Handling
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#configuration-management" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Configuration Management
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#template-system" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Template System
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#quick-start-example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Quick Start Example
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#installation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Installation
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#detailed-documentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Detailed Documentation
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#module-documentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Module Documentation
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#need-help" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Need Help?
+        Import paths
       
     </span>
   </a>
@@ -1083,6 +1124,14 @@
           
             <div class="md-content" data-md-component="content">
               
+                
+
+
+
+  
+
+
+              
               <article class="md-content__inner md-typeset">
                 
                   
@@ -1092,264 +1141,59 @@
   
 
 
-<h1 id="api-reference">API Reference<a class="headerlink" href="#api-reference" title="Anchor link to this section">&para;</a></h1>
-<p>Complete API reference for <strong>EzCompiler</strong> framework.</p>
-<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Anchor link to this section">&para;</a></h2>
-<p>The EzCompiler API provides a comprehensive framework for Python project compilation and distribution. The framework is organized into <strong>4 main layers</strong> with complete type hints, Google-style docstrings, and extensive error handling.</p>
-<h2 id="quick-reference">Quick Reference<a class="headerlink" href="#quick-reference" title="Anchor link to this section">&para;</a></h2>
+<h1 id="api-reference">API reference<a class="headerlink" href="#api-reference" title="Anchor link to this section">&para;</a></h1>
+<p>Public API documentation for the <strong>EzCompiler</strong> framework, organized by layer.</p>
+<h2 id="modules">📦 Modules<a class="headerlink" href="#modules" title="Anchor link to this section">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>Component</th>
-<th>Description</th>
-<th>Documentation</th>
+<th style="text-align: left;">Module</th>
+<th style="text-align: left;">Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><a href="interfaces/">Interfaces</a></td>
-<td>Public APIs and user-facing interfaces</td>
-<td>Main facade and CLI</td>
+<td style="text-align: left;"><a href="interfaces/">Interfaces</a></td>
+<td style="text-align: left;"><code>EzCompiler</code> facade and <code>CLIInterface</code> — public entry points</td>
 </tr>
 <tr>
-<td><a href="services/">Services</a></td>
-<td>Business logic and orchestration</td>
-<td>Core service implementations</td>
+<td style="text-align: left;"><a href="services/">Services</a></td>
+<td style="text-align: left;"><code>CompilerService</code>, <code>ConfigService</code>, <code>PipelineService</code>, <code>TemplateService</code>, <code>UploaderService</code></td>
 </tr>
 <tr>
-<td><a href="protocols/">Protocols</a></td>
-<td>Compiler and uploader implementations</td>
-<td>Protocol adapters and backends</td>
+<td style="text-align: left;"><a href="adapters/">Adapters</a></td>
+<td style="text-align: left;">Compiler and uploader concrete implementations</td>
 </tr>
 <tr>
-<td><a href="shared/">Shared</a></td>
-<td>Configuration and exceptions</td>
-<td>Shared data structures</td>
+<td style="text-align: left;"><a href="shared/">Shared</a></td>
+<td style="text-align: left;"><code>CompilerConfig</code>, <code>CompilationResult</code>, exception hierarchy</td>
 </tr>
 <tr>
-<td><a href="utils/">Utils</a></td>
-<td>Utility functions and validators</td>
-<td>File, config, template operations</td>
+<td style="text-align: left;"><a href="types/">Types</a></td>
+<td style="text-align: left;">Public type aliases — <code>FilePath</code>, <code>CompilerName</code>, <code>UploadTarget</code>, <code>IncludeFiles</code>, <code>JsonMap</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="utils/">Utils</a></td>
+<td style="text-align: left;">File, config, template, zip utilities and 9 validator modules</td>
 </tr>
 </tbody>
 </table>
-<h2 id="import-examples">Import Examples<a class="headerlink" href="#import-examples" title="Anchor link to this section">&para;</a></h2>
-<p>The main classes can be imported directly from the package:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler</span><span class="w"> </span><span class="kn">import</span> <span class="n">EzCompiler</span><span class="p">,</span> <span class="n">CompilerConfig</span>
+<h2 id="full-reference">🔍 Full reference<a class="headerlink" href="#full-reference" title="Anchor link to this section">&para;</a></h2>
+<p>The exhaustive symbol listing (all classes, methods, and attributes generated from source docstrings) is available in <a href="reference/">API auto-reference</a>.</p>
+<h2 id="import-paths">Import paths<a class="headerlink" href="#import-paths" title="Anchor link to this section">&para;</a></h2>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Top-level public API</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler</span><span class="w"> </span><span class="kn">import</span> <span class="n">EzCompiler</span><span class="p">,</span> <span class="n">CompilerConfig</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># By layer</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler.interfaces</span><span class="w"> </span><span class="kn">import</span> <span class="n">EzCompiler</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler.shared</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompilerConfig</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler.services</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompilerService</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler.adapters</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompilerFactory</span><span class="p">,</span> <span class="n">UploaderFactory</span>
 </span></code></pre></div>
-<p>Or from submodules:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler.interfaces</span><span class="w"> </span><span class="kn">import</span> <span class="n">EzCompiler</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler.shared</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompilerConfig</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler.services</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompilerService</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler.protocols</span><span class="w"> </span><span class="kn">import</span> <span class="n">CxFreezeCompiler</span>
-</span></code></pre></div>
-<hr />
-<h2 id="architecture-layers">Architecture Layers<a class="headerlink" href="#architecture-layers" title="Anchor link to this section">&para;</a></h2>
-<h3 id="interfaces-layer">Interfaces Layer<a class="headerlink" href="#interfaces-layer" title="Anchor link to this section">&para;</a></h3>
-<p>The interfaces layer provides user-facing APIs:</p>
-<ul>
-<li><strong><code>EzCompiler</code></strong> – Main facade class that orchestrates the entire compilation workflow</li>
-<li><strong><code>CLIInterface</code></strong> – Interactive command-line interface with rich formatting</li>
-</ul>
-<p><a href="interfaces/">View Interfaces Documentation →</a></p>
-<h3 id="services-layer">Services Layer<a class="headerlink" href="#services-layer" title="Anchor link to this section">&para;</a></h3>
-<p>The services layer implements business logic and orchestration:</p>
-<ul>
-<li><strong><code>CompilerService</code></strong> – Manages compiler selection and compilation process</li>
-<li><strong><code>ConfigService</code></strong> – Handles configuration loading and validation</li>
-<li><strong><code>TemplateService</code></strong> – Processes templates and generates files</li>
-<li><strong><code>UploaderService</code></strong> – Orchestrates upload operations</li>
-</ul>
-<p><a href="services/">View Services Documentation →</a></p>
-<h3 id="protocols-layer">Protocols Layer<a class="headerlink" href="#protocols-layer" title="Anchor link to this section">&para;</a></h3>
-<p>The protocols layer defines implementation protocols:</p>
-<p><strong>Compilers:</strong></p>
-<ul>
-<li><strong><code>BaseCompiler</code></strong> – Abstract base class for all compilers</li>
-<li><strong><code>CxFreezeCompiler</code></strong> – Cx_Freeze implementation</li>
-<li><strong><code>PyInstallerCompiler</code></strong> – PyInstaller implementation</li>
-<li><strong><code>NuitkaCompiler</code></strong> – Nuitka implementation</li>
-</ul>
-<p><strong>Uploaders:</strong></p>
-<ul>
-<li><strong><code>BaseUploader</code></strong> – Abstract base class for all uploaders</li>
-<li><strong><code>DiskUploader</code></strong> – Local disk upload backend</li>
-<li><strong><code>ServerUploader</code></strong> – HTTP/HTTPS server upload backend</li>
-</ul>
-<p><a href="protocols/">View Protocols Documentation →</a></p>
-<h3 id="shared-layer">Shared Layer<a class="headerlink" href="#shared-layer" title="Anchor link to this section">&para;</a></h3>
-<p>The shared layer contains common data structures and exceptions:</p>
-<ul>
-<li><strong><code>CompilerConfig</code></strong> – Main configuration dataclass</li>
-<li><strong>Exception hierarchy</strong> – Typed exceptions for error handling</li>
-</ul>
-<p><a href="shared/">View Shared Documentation →</a></p>
-<h3 id="utils-layer">Utils Layer<a class="headerlink" href="#utils-layer" title="Anchor link to this section">&para;</a></h3>
-<p>The utils layer provides utility functions and validators:</p>
-<ul>
-<li><strong><code>FileUtils</code></strong> – File operations and management</li>
-<li><strong><code>ConfigUtils</code></strong> – Configuration parsing (YAML/JSON)</li>
-<li><strong><code>TemplateUtils</code></strong> – Template processing</li>
-<li><strong><code>ZipUtils</code></strong> – ZIP archive operations</li>
-<li><strong><code>Validators</code></strong> – 9 specialized validation modules</li>
-</ul>
-<p><a href="utils/">View Utils Documentation →</a></p>
-<hr />
-<h2 id="api-design-principles">API Design Principles<a class="headerlink" href="#api-design-principles" title="Anchor link to this section">&para;</a></h2>
-<h3 id="type-safety">Type Safety<a class="headerlink" href="#type-safety" title="Anchor link to this section">&para;</a></h3>
-<p>EzCompiler provides complete type hints for all public APIs:</p>
-<ul>
-<li><strong>Full type annotations</strong> – Python 3.10+ type hints throughout</li>
-<li><strong>IDE support</strong> – Excellent auto-completion and error detection</li>
-<li><strong>Type checking</strong> – Compatible with mypy, pyright, and other type checkers</li>
-<li><strong>Runtime validation</strong> – Type hints used for parameter validation</li>
-</ul>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler</span><span class="w"> </span><span class="kn">import</span> <span class="n">EzCompiler</span><span class="p">,</span> <span class="n">CompilerConfig</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="c1"># Type-safe configuration</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">config</span><span class="p">:</span> <span class="n">CompilerConfig</span> <span class="o">=</span> <span class="n">CompilerConfig</span><span class="p">(</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">version</span><span class="o">=</span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="n">project_name</span><span class="o">=</span><span class="s2">&quot;MyApp&quot;</span><span class="p">,</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="n">main_file</span><span class="o">=</span><span class="s2">&quot;main.py&quot;</span><span class="p">,</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="n">include_files</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;files&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;folders&quot;</span><span class="p">:</span> <span class="p">[]},</span>
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>    <span class="n">output_folder</span><span class="o">=</span><span class="s2">&quot;dist&quot;</span><span class="p">,</span>
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="p">)</span>
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>
-</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="c1"># Type-safe compiler</span>
-</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="n">ezcompiler</span><span class="p">:</span> <span class="n">EzCompiler</span> <span class="o">=</span> <span class="n">EzCompiler</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-</span></code></pre></div>
-<h3 id="error-handling">Error Handling<a class="headerlink" href="#error-handling" title="Anchor link to this section">&para;</a></h3>
-<p>Comprehensive exception hierarchy for granular error handling:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler</span><span class="w"> </span><span class="kn">import</span> <span class="n">EzCompiler</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler.shared.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="n">CompilationError</span><span class="p">,</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">ConfigurationError</span><span class="p">,</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="n">TemplateError</span><span class="p">,</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="n">UploadError</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="p">)</span>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="k">try</span><span class="p">:</span>
-</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>    <span class="n">ezcompiler</span> <span class="o">=</span> <span class="n">EzCompiler</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>    <span class="n">ezcompiler</span><span class="o">.</span><span class="n">compile_project</span><span class="p">()</span>
-</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="k">except</span> <span class="n">ConfigurationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Configuration error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="k">except</span> <span class="n">CompilationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Compilation failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="k">except</span> <span class="n">TemplateError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Template error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</span></code></pre></div>
-<h3 id="configuration-management">Configuration Management<a class="headerlink" href="#configuration-management" title="Anchor link to this section">&para;</a></h3>
-<p>Flexible configuration with YAML/JSON support:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompilerConfig</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1"># From dictionary</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="n">config</span> <span class="o">=</span> <span class="n">CompilerConfig</span><span class="o">.</span><span class="n">from_dict</span><span class="p">({</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    <span class="s2">&quot;project_name&quot;</span><span class="p">:</span> <span class="s2">&quot;MyApp&quot;</span><span class="p">,</span>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>    <span class="s2">&quot;main_file&quot;</span><span class="p">:</span> <span class="s2">&quot;main.py&quot;</span><span class="p">,</span>
-</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>    <span class="s2">&quot;include_files&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;files&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;folders&quot;</span><span class="p">:</span> <span class="p">[]},</span>
-</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>    <span class="s2">&quot;output_folder&quot;</span><span class="p">:</span> <span class="s2">&quot;dist&quot;</span><span class="p">,</span>
-</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="p">})</span>
-</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>
-</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="c1"># From YAML file</span>
-</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;ezcompiler.yaml&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>    <span class="n">config_dict</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-</span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>    <span class="n">config</span> <span class="o">=</span> <span class="n">CompilerConfig</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">config_dict</span><span class="p">)</span>
-</span></code></pre></div>
-<h3 id="template-system">Template System<a class="headerlink" href="#template-system" title="Anchor link to this section">&para;</a></h3>
-<p>Dynamic file generation with template processing:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler.services</span><span class="w"> </span><span class="kn">import</span> <span class="n">TemplateService</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">template_service</span> <span class="o">=</span> <span class="n">TemplateService</span><span class="p">()</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">content</span> <span class="o">=</span> <span class="n">template_service</span><span class="o">.</span><span class="n">process_template</span><span class="p">(</span>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">template_name</span><span class="o">=</span><span class="s2">&quot;config.yaml&quot;</span><span class="p">,</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    <span class="n">variables</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;PROJECT_NAME&quot;</span><span class="p">:</span> <span class="s2">&quot;MyApp&quot;</span><span class="p">,</span> <span class="s2">&quot;VERSION&quot;</span><span class="p">:</span> <span class="s2">&quot;1.0.0&quot;</span><span class="p">}</span>
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="p">)</span>
-</span></code></pre></div>
-<hr />
-<h2 id="quick-start-example">Quick Start Example<a class="headerlink" href="#quick-start-example" title="Anchor link to this section">&para;</a></h2>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler</span><span class="w"> </span><span class="kn">import</span> <span class="n">EzCompiler</span><span class="p">,</span> <span class="n">CompilerConfig</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="c1"># Create configuration</span>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="n">config</span> <span class="o">=</span> <span class="n">CompilerConfig</span><span class="p">(</span>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="n">version</span><span class="o">=</span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span>
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    <span class="n">project_name</span><span class="o">=</span><span class="s2">&quot;MyApp&quot;</span><span class="p">,</span>
-</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    <span class="n">main_file</span><span class="o">=</span><span class="s2">&quot;main.py&quot;</span><span class="p">,</span>
-</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>    <span class="n">include_files</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;files&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;folders&quot;</span><span class="p">:</span> <span class="p">[]},</span>
-</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>    <span class="n">output_folder</span><span class="o">=</span><span class="s2">&quot;dist&quot;</span><span class="p">,</span>
-</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="p">)</span>
-</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>
-</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="c1"># Initialize compiler</span>
-</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="n">ezcompiler</span> <span class="o">=</span> <span class="n">EzCompiler</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>
-</span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="c1"># Compile project</span>
-</span><span id="__span-6-16"><a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="n">ezcompiler</span><span class="o">.</span><span class="n">compile_project</span><span class="p">(</span><span class="n">compiler</span><span class="o">=</span><span class="s2">&quot;PyInstaller&quot;</span><span class="p">)</span>
-</span><span id="__span-6-17"><a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>
-</span><span id="__span-6-18"><a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a><span class="c1"># Package and upload</span>
-</span><span id="__span-6-19"><a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a><span class="n">ezcompiler</span><span class="o">.</span><span class="n">zip_compiled_project</span><span class="p">()</span>
-</span><span id="__span-6-20"><a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a><span class="n">ezcompiler</span><span class="o">.</span><span class="n">upload_to_repo</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="s2">&quot;disk&quot;</span><span class="p">,</span> <span class="n">repo_path</span><span class="o">=</span><span class="s2">&quot;./releases&quot;</span><span class="p">)</span>
-</span></code></pre></div>
-<hr />
-<h2 id="installation">Installation<a class="headerlink" href="#installation" title="Anchor link to this section">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>pip<span class="w"> </span>install<span class="w"> </span>ezcompiler
-</span></code></pre></div>
-<p>For development installation:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/neuraaak/ezcompiler.git
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="nb">cd</span><span class="w"> </span>ezcompiler
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[dev]&quot;</span>
-</span></code></pre></div>
-<hr />
-<h2 id="detailed-documentation">Detailed Documentation<a class="headerlink" href="#detailed-documentation" title="Anchor link to this section">&para;</a></h2>
-<p>Select a module from the navigation menu or the table above to view detailed documentation with:</p>
-<ul>
-<li>Complete class and method signatures</li>
-<li>Parameter descriptions</li>
-<li>Return value documentation</li>
-<li>Exception specifications</li>
-<li>Usage examples</li>
-<li>Type annotations</li>
-</ul>
-<h2 id="module-documentation">Module Documentation<a class="headerlink" href="#module-documentation" title="Anchor link to this section">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Module</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><a href="interfaces/">Interfaces</a></td>
-<td>Public APIs and user-facing interfaces</td>
-</tr>
-<tr>
-<td><a href="services/">Services</a></td>
-<td>Business logic services and orchestration</td>
-</tr>
-<tr>
-<td><a href="protocols/">Protocols</a></td>
-<td>Compiler and uploader protocol implementations</td>
-</tr>
-<tr>
-<td><a href="shared/">Shared</a></td>
-<td>Configuration dataclasses and exception hierarchy</td>
-</tr>
-<tr>
-<td><a href="utils/">Utils</a></td>
-<td>Utility functions, file operations, and validators</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2 id="need-help">Need Help?<a class="headerlink" href="#need-help" title="Anchor link to this section">&para;</a></h2>
-<ul>
-<li><strong>Quick Start</strong>: See <a href="../getting-started/">Getting Started</a></li>
-<li><strong>Examples</strong>: Check out <a href="../examples/">Examples</a></li>
-<li><strong>Guides</strong>: Read <a href="../guides/">User Guides</a></li>
-<li><strong>CLI</strong>: View <a href="../cli/">CLI Reference</a></li>
-<li><strong>Issues</strong>: Report bugs on <a href="https://github.com/neuraaak/ezcompiler/issues">GitHub</a></li>
-</ul>
+<div class="admonition note">
+<p class="admonition-title">Visibility conventions</p>
+<p>Concrete adapter classes (compilers, uploaders) are internal and accessed through their respective factories. Only <code>EzCompiler</code>, <code>CompilerConfig</code>, and the public type aliases in <code>types</code> are part of the stable public API.</p>
+</div>
 
 
 
@@ -1381,6 +1225,46 @@
       </main>
       
         <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../guides/development/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Development">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Development
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="interfaces/" class="md-footer__link md-footer__link--next" aria-label="Next: Interfaces">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Interfaces
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
@@ -1433,7 +1317,7 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.tabs.link"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.path", "navigation.top", "navigation.footer", "navigation.indexes", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "toc.follow"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
       <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
