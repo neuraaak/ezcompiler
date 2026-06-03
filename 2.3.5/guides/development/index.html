@@ -84,7 +84,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#development-guide" class="md-skip">
+        <a href="#how-to-contribute-changes-locally" class="md-skip">
           Skip to content
         </a>
       
@@ -673,82 +673,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Overview
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#development-setup" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Development Setup
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Development Setup">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
   <a href="#prerequisites" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Prerequisites
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#clone-repository" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Clone Repository
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#install-development-dependencies" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Install Development Dependencies
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#verify-installation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Verify Installation
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#project-structure" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Project Structure
+        🔧 Prerequisites
       
     </span>
   </a>
@@ -756,22 +684,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#code-standards" class="md-nav__link">
+  <a href="#steps" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Code Standards
+        📝 Steps
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Code Standards">
+    <nav class="md-nav" aria-label="📝 Steps">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#python-style" class="md-nav__link">
+  <a href="#1-create-your-environment-and-install-dependencies" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Python Style
+        1. Create your environment and install dependencies
       
     </span>
   </a>
@@ -779,10 +707,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#symbol-visibility-convention" class="md-nav__link">
+  <a href="#2-apply-formatting-and-linting-checks" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Symbol Visibility Convention
+        2. Apply formatting and linting checks
       
     </span>
   </a>
@@ -790,10 +718,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#type-hints" class="md-nav__link">
+  <a href="#3-run-type-checking" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Type Hints
+        3. Run type checking
       
     </span>
   </a>
@@ -801,10 +729,32 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#docstrings" class="md-nav__link">
+  <a href="#4-verify-layer-dependency-contracts" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Docstrings
+        4. Verify layer dependency contracts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-run-the-test-suite" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Run the test suite
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-build-the-documentation-in-strict-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Build the documentation in strict mode
       
     </span>
   </a>
@@ -817,299 +767,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#testing" class="md-nav__link">
+  <a href="#quality-gate-checklist" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Testing
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Testing">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#running-tests" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Running Tests
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#writing-tests" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Writing Tests
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#test-coverage" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Test Coverage
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#linting-and-formatting" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Linting and Formatting
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Linting and Formatting">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#ruff-linting" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Ruff (Linting)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#type-checking" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Type Checking
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#import-linter-architecture-contracts" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Import Linter (Architecture Contracts)
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#documentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Documentation
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Documentation">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#building-documentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Building Documentation
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#writing-documentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Writing Documentation
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#api-documentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        API Documentation
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#contributing" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Contributing
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Contributing">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#contribution-workflow" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Contribution Workflow
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#commit-message-convention" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Commit Message Convention
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#pull-request-guidelines" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Pull Request Guidelines
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#release-process" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Release Process
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Release Process">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#version-bumping" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Version Bumping
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#creating-a-release" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Creating a Release
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#troubleshooting" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Troubleshooting
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Troubleshooting">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#import-errors" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Import Errors
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#test-failures" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Test Failures
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#type-check-errors" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Type Check Errors
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#see-also" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        See Also
+        ✅ Quality gate checklist
       
     </span>
   </a>
@@ -1117,10 +778,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#need-help" class="md-nav__link">
+  <a href="#result" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Need Help?
+        ✅ Result
       
     </span>
   </a>
@@ -1583,82 +1244,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Overview
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#development-setup" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Development Setup
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Development Setup">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
   <a href="#prerequisites" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Prerequisites
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#clone-repository" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Clone Repository
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#install-development-dependencies" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Install Development Dependencies
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#verify-installation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Verify Installation
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#project-structure" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Project Structure
+        🔧 Prerequisites
       
     </span>
   </a>
@@ -1666,22 +1255,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#code-standards" class="md-nav__link">
+  <a href="#steps" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Code Standards
+        📝 Steps
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Code Standards">
+    <nav class="md-nav" aria-label="📝 Steps">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#python-style" class="md-nav__link">
+  <a href="#1-create-your-environment-and-install-dependencies" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Python Style
+        1. Create your environment and install dependencies
       
     </span>
   </a>
@@ -1689,10 +1278,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#symbol-visibility-convention" class="md-nav__link">
+  <a href="#2-apply-formatting-and-linting-checks" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Symbol Visibility Convention
+        2. Apply formatting and linting checks
       
     </span>
   </a>
@@ -1700,10 +1289,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#type-hints" class="md-nav__link">
+  <a href="#3-run-type-checking" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Type Hints
+        3. Run type checking
       
     </span>
   </a>
@@ -1711,10 +1300,32 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#docstrings" class="md-nav__link">
+  <a href="#4-verify-layer-dependency-contracts" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Docstrings
+        4. Verify layer dependency contracts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-run-the-test-suite" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Run the test suite
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-build-the-documentation-in-strict-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Build the documentation in strict mode
       
     </span>
   </a>
@@ -1727,299 +1338,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#testing" class="md-nav__link">
+  <a href="#quality-gate-checklist" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Testing
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Testing">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#running-tests" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Running Tests
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#writing-tests" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Writing Tests
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#test-coverage" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Test Coverage
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#linting-and-formatting" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Linting and Formatting
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Linting and Formatting">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#ruff-linting" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Ruff (Linting)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#type-checking" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Type Checking
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#import-linter-architecture-contracts" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Import Linter (Architecture Contracts)
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#documentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Documentation
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Documentation">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#building-documentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Building Documentation
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#writing-documentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Writing Documentation
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#api-documentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        API Documentation
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#contributing" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Contributing
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Contributing">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#contribution-workflow" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Contribution Workflow
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#commit-message-convention" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Commit Message Convention
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#pull-request-guidelines" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Pull Request Guidelines
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#release-process" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Release Process
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Release Process">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#version-bumping" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Version Bumping
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#creating-a-release" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Creating a Release
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#troubleshooting" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Troubleshooting
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Troubleshooting">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#import-errors" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Import Errors
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#test-failures" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Test Failures
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#type-check-errors" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Type Check Errors
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#see-also" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        See Also
+        ✅ Quality gate checklist
       
     </span>
   </a>
@@ -2027,10 +1349,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#need-help" class="md-nav__link">
+  <a href="#result" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Need Help?
+        ✅ Result
       
     </span>
   </a>
@@ -2105,443 +1427,58 @@
   
 
 
-<h1 id="development-guide">Development Guide<a class="headerlink" href="#development-guide" title="Anchor link to this section">&para;</a></h1>
-<p>Development workflow and contribution guide for <strong>EzCompiler</strong>.</p>
-<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Anchor link to this section">&para;</a></h2>
-<p>This guide covers setting up a development environment, running tests, contributing code, and following project conventions.</p>
-<hr />
-<h2 id="development-setup">Development Setup<a class="headerlink" href="#development-setup" title="Anchor link to this section">&para;</a></h2>
-<h3 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Anchor link to this section">&para;</a></h3>
+<h1 id="how-to-contribute-changes-locally">How to contribute changes locally<a class="headerlink" href="#how-to-contribute-changes-locally" title="Anchor link to this section">&para;</a></h1>
+<p>Set up a local development workflow for implementing and validating changes in EzCompiler.</p>
+<h2 id="prerequisites">🔧 Prerequisites<a class="headerlink" href="#prerequisites" title="Anchor link to this section">&para;</a></h2>
 <ul>
-<li><strong>Python</strong> &gt;= 3.11</li>
-<li><strong>Git</strong> for version control</li>
-<li><strong>pip</strong> for package management</li>
+<li>Python 3.11+</li>
+<li>Git</li>
+<li>A local clone of the repository</li>
 </ul>
-<h3 id="clone-repository">Clone Repository<a class="headerlink" href="#clone-repository" title="Anchor link to this section">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/neuraaak/ezcompiler.git
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">cd</span><span class="w"> </span>ezcompiler
+<h2 id="steps">📝 Steps<a class="headerlink" href="#steps" title="Anchor link to this section">&para;</a></h2>
+<h3 id="1-create-your-environment-and-install-dependencies">1. Create your environment and install dependencies<a class="headerlink" href="#1-create-your-environment-and-install-dependencies" title="Anchor link to this section">&para;</a></h3>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">uv workflow</label><label for="__tabbed_1_2">pip editable install</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>uv<span class="w"> </span>sync<span class="w"> </span>--extra<span class="w"> </span>dev<span class="w"> </span>--extra<span class="w"> </span>docs<span class="w"> </span>--extra<span class="w"> </span><span class="nb">test</span>
 </span></code></pre></div>
-<h3 id="install-development-dependencies">Install Development Dependencies<a class="headerlink" href="#install-development-dependencies" title="Anchor link to this section">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Install in editable mode with dev dependencies</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[dev]&quot;</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># Or install specific dependency groups</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[test]&quot;</span><span class="w">  </span><span class="c1"># Testing dependencies</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[docs]&quot;</span><span class="w">  </span><span class="c1"># Documentation dependencies</span>
+</div>
+<div class="tabbed-block">
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>.venv
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>.<span class="w"> </span>.venv/Scripts/activate
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[dev,docs,test]&quot;</span>
 </span></code></pre></div>
-<h3 id="verify-installation">Verify Installation<a class="headerlink" href="#verify-installation" title="Anchor link to this section">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Check installed version</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import ezcompiler; print(ezcompiler.__version__)&quot;</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># Run tests</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>pytest<span class="w"> </span>tests/
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="c1"># Build documentation</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>mkdocs<span class="w"> </span>serve
+</div>
+</div>
+</div>
+<h3 id="2-apply-formatting-and-linting-checks">2. Apply formatting and linting checks<a class="headerlink" href="#2-apply-formatting-and-linting-checks" title="Anchor link to this section">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>ruff<span class="w"> </span>format<span class="w"> </span>src<span class="w"> </span>tests
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>ruff<span class="w"> </span>check<span class="w"> </span>src<span class="w"> </span>tests
 </span></code></pre></div>
-<hr />
-<h2 id="project-structure">Project Structure<a class="headerlink" href="#project-structure" title="Anchor link to this section">&para;</a></h2>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>ezcompiler/
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>├── src/
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>│   └── ezcompiler/             # Main package
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>│       ├── __init__.py            # Package initialization (public API)
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>│       ├── _version.py            # Version constant (private)
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>│       ├── types.py               # Public type aliases
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>│       ├── interfaces/            # Public interfaces
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>│       │   ├── python_api.py      # EzCompiler main class
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>│       │   └── cli_interface.py   # CLI interface
-</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>│       ├── services/              # Business logic
-</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>│       │   ├── compiler_service.py
-</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>│       │   ├── config_service.py
-</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>│       │   ├── pipeline_service.py
-</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>│       │   ├── template_service.py
-</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>│       │   └── uploader_service.py
-</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>│       ├── adapters/              # Concrete implementations
-</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>│       │   ├── base_compiler.py        # Public abstract base
-</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>│       │   ├── base_file_writer.py     # Public abstract base
-</span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>│       │   ├── base_uploader.py        # Public abstract base
-</span><span id="__span-3-20"><a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a>│       │   ├── compiler_factory.py     # Public factory
-</span><span id="__span-3-21"><a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a>│       │   ├── uploader_factory.py     # Public factory
-</span><span id="__span-3-22"><a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a>│       │   ├── _cx_freeze_compiler.py  # Private impl (via factory)
-</span><span id="__span-3-23"><a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a>│       │   ├── _pyinstaller_compiler.py
-</span><span id="__span-3-24"><a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a>│       │   ├── _nuitka_compiler.py
-</span><span id="__span-3-25"><a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a>│       │   ├── _disk_file_writer.py
-</span><span id="__span-3-26"><a id="__codelineno-3-26" name="__codelineno-3-26" href="#__codelineno-3-26"></a>│       │   ├── _disk_uploader.py
-</span><span id="__span-3-27"><a id="__codelineno-3-27" name="__codelineno-3-27" href="#__codelineno-3-27"></a>│       │   └── _server_uploader.py
-</span><span id="__span-3-28"><a id="__codelineno-3-28" name="__codelineno-3-28" href="#__codelineno-3-28"></a>│       ├── shared/                # Shared components
-</span><span id="__span-3-29"><a id="__codelineno-3-29" name="__codelineno-3-29" href="#__codelineno-3-29"></a>│       │   ├── _compilation_result.py  # Re-exported via shared/__init__
-</span><span id="__span-3-30"><a id="__codelineno-3-30" name="__codelineno-3-30" href="#__codelineno-3-30"></a>│       │   ├── _compiler_config.py     # Re-exported via shared/__init__
-</span><span id="__span-3-31"><a id="__codelineno-3-31" name="__codelineno-3-31" href="#__codelineno-3-31"></a>│       │   └── exceptions/             # Exception hierarchy
-</span><span id="__span-3-32"><a id="__codelineno-3-32" name="__codelineno-3-32" href="#__codelineno-3-32"></a>│       ├── utils/                 # Utilities (re-exported via __init__)
-</span><span id="__span-3-33"><a id="__codelineno-3-33" name="__codelineno-3-33" href="#__codelineno-3-33"></a>│       │   ├── _file_utils.py
-</span><span id="__span-3-34"><a id="__codelineno-3-34" name="__codelineno-3-34" href="#__codelineno-3-34"></a>│       │   ├── _config_utils.py
-</span><span id="__span-3-35"><a id="__codelineno-3-35" name="__codelineno-3-35" href="#__codelineno-3-35"></a>│       │   ├── _template_utils.py
-</span><span id="__span-3-36"><a id="__codelineno-3-36" name="__codelineno-3-36" href="#__codelineno-3-36"></a>│       │   ├── _compiler_utils.py
-</span><span id="__span-3-37"><a id="__codelineno-3-37" name="__codelineno-3-37" href="#__codelineno-3-37"></a>│       │   ├── _uploader_utils.py
-</span><span id="__span-3-38"><a id="__codelineno-3-38" name="__codelineno-3-38" href="#__codelineno-3-38"></a>│       │   ├── _zip_utils.py
-</span><span id="__span-3-39"><a id="__codelineno-3-39" name="__codelineno-3-39" href="#__codelineno-3-39"></a>│       │   └── validators/        # Public validation submodules
-</span><span id="__span-3-40"><a id="__codelineno-3-40" name="__codelineno-3-40" href="#__codelineno-3-40"></a>│       └── assets/                # Templates and resources
-</span><span id="__span-3-41"><a id="__codelineno-3-41" name="__codelineno-3-41" href="#__codelineno-3-41"></a>├── tests/                  # Test suite
-</span><span id="__span-3-42"><a id="__codelineno-3-42" name="__codelineno-3-42" href="#__codelineno-3-42"></a>│   ├── unit/              # Unit tests
-</span><span id="__span-3-43"><a id="__codelineno-3-43" name="__codelineno-3-43" href="#__codelineno-3-43"></a>│   └── integration/       # Integration tests
-</span><span id="__span-3-44"><a id="__codelineno-3-44" name="__codelineno-3-44" href="#__codelineno-3-44"></a>├── docs/                   # Documentation
-</span><span id="__span-3-45"><a id="__codelineno-3-45" name="__codelineno-3-45" href="#__codelineno-3-45"></a>├── pyproject.toml         # Project metadata
-</span><span id="__span-3-46"><a id="__codelineno-3-46" name="__codelineno-3-46" href="#__codelineno-3-46"></a>├── README.md
-</span><span id="__span-3-47"><a id="__codelineno-3-47" name="__codelineno-3-47" href="#__codelineno-3-47"></a>└── LICENSE
+<h3 id="3-run-type-checking">3. Run type checking<a class="headerlink" href="#3-run-type-checking" title="Anchor link to this section">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>ty<span class="w"> </span>check<span class="w"> </span>src/ezcompiler/
 </span></code></pre></div>
-<hr />
-<h2 id="code-standards">Code Standards<a class="headerlink" href="#code-standards" title="Anchor link to this section">&para;</a></h2>
-<h3 id="python-style">Python Style<a class="headerlink" href="#python-style" title="Anchor link to this section">&para;</a></h3>
-<p>EzCompiler follows these coding standards:</p>
-<ul>
-<li><strong>PEP 8</strong> - Python style guide</li>
-<li><strong>Type Hints</strong> - Full type annotations for Python 3.11+</li>
-<li><strong>Docstrings</strong> - Google-style docstrings for all public APIs</li>
-<li><strong>Line Length</strong> - 88 characters (Ruff default)</li>
+<h3 id="4-verify-layer-dependency-contracts">4. Verify layer dependency contracts<a class="headerlink" href="#4-verify-layer-dependency-contracts" title="Anchor link to this section">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nv">PYTHONPATH</span><span class="o">=</span>src<span class="w"> </span>lint-imports
+</span></code></pre></div>
+<h3 id="5-run-the-test-suite">5. Run the test suite<a class="headerlink" href="#5-run-the-test-suite" title="Anchor link to this section">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>pytest<span class="w"> </span>tests/
+</span></code></pre></div>
+<h3 id="6-build-the-documentation-in-strict-mode">6. Build the documentation in strict mode<a class="headerlink" href="#6-build-the-documentation-in-strict-mode" title="Anchor link to this section">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>mkdocs<span class="w"> </span>build<span class="w"> </span>--strict
+</span></code></pre></div>
+<h2 id="quality-gate-checklist">✅ Quality gate checklist<a class="headerlink" href="#quality-gate-checklist" title="Anchor link to this section">&para;</a></h2>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>ruff format</code> and <code>ruff check</code> complete without errors.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>ty check</code> completes with expected diagnostics only.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>lint-imports</code> reports no contract violations.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>pytest</code> passes for all impacted modules.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <code>mkdocs build --strict</code> succeeds with no warnings.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Any changed docs remain copy-paste runnable.</li>
 </ul>
-<h3 id="symbol-visibility-convention">Symbol Visibility Convention<a class="headerlink" href="#symbol-visibility-convention" title="Anchor link to this section">&para;</a></h3>
-<p>Modules whose name starts with an underscore (e.g. <code>_compiler_config.py</code>,
-<code>_cx_freeze_compiler.py</code>) are <strong>private implementation details</strong>. Public
-symbols are re-exported through the package <code>__init__.py</code> files.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Correct — import from the public package surface</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler.shared</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompilerConfig</span><span class="p">,</span> <span class="n">CompilationResult</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler.shared.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompilationError</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileUtils</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler.adapters</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompilerFactory</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="c1"># Incorrect — never import from underscore-prefixed modules</span>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="c1"># from ezcompiler.shared._compiler_config import CompilerConfig  # Don&#39;t</span>
-</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="c1"># from ezcompiler.adapters._pyinstaller_compiler import PyInstallerCompiler  # Don&#39;t</span>
-</span></code></pre></div>
-<p>Concrete compiler and uploader implementations are constructed through
-<code>CompilerFactory</code> / <code>UploaderFactory</code> rather than imported directly.</p>
-<h3 id="type-hints">Type Hints<a class="headerlink" href="#type-hints" title="Anchor link to this section">&para;</a></h3>
-<p>Use type hints for all functions and methods:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="k">def</span><span class="w"> </span><span class="nf">process_files</span><span class="p">(</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="n">files</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">],</span>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">output_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    <span class="n">options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Process files and save to output directory.</span>
-</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>
-</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="sd">    Args:</span>
-</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="sd">        files: List of files to process</span>
-</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="sd">        output_dir: Output directory path</span>
-</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="sd">        options: Optional processing options</span>
-</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>
-</span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="sd">    Returns:</span>
-</span><span id="__span-5-16"><a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="sd">        True if successful, False otherwise</span>
-</span><span id="__span-5-17"><a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>
-</span><span id="__span-5-18"><a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="sd">    Raises:</span>
-</span><span id="__span-5-19"><a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="sd">        FileOperationError: If file processing fails</span>
-</span><span id="__span-5-20"><a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="__span-5-21"><a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a>    <span class="o">...</span>
-</span></code></pre></div>
-<h3 id="docstrings">Docstrings<a class="headerlink" href="#docstrings" title="Anchor link to this section">&para;</a></h3>
-<p>Use Google-style docstrings:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">compile_project</span><span class="p">(</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="bp">self</span><span class="p">,</span>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="n">compiler</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Cx_Freeze&quot;</span>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Compile the project using the specified compiler.</span>
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
-</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="sd">    This method compiles the configured project using one of the</span>
-</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="sd">    supported compilers (Cx_Freeze, PyInstaller, or Nuitka).</span>
-</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>
-</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="sd">    Args:</span>
-</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="sd">        compiler: Compiler name (&quot;Cx_Freeze&quot;, &quot;PyInstaller&quot;, &quot;Nuitka&quot;)</span>
-</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>
-</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="sd">    Returns:</span>
-</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="sd">        True if compilation succeeds, False otherwise</span>
-</span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>
-</span><span id="__span-6-16"><a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="sd">    Raises:</span>
-</span><span id="__span-6-17"><a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a><span class="sd">        CompilationError: If compilation fails</span>
-</span><span id="__span-6-18"><a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a><span class="sd">        ConfigurationError: If configuration is invalid</span>
-</span><span id="__span-6-19"><a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a>
-</span><span id="__span-6-20"><a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a><span class="sd">    Example:</span>
-</span><span id="__span-6-21"><a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a><span class="sd">        &gt;&gt;&gt; ezcompiler = EzCompiler(config)</span>
-</span><span id="__span-6-22"><a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a><span class="sd">        &gt;&gt;&gt; ezcompiler.compile_project(compiler=&quot;PyInstaller&quot;)</span>
-</span><span id="__span-6-23"><a id="__codelineno-6-23" name="__codelineno-6-23" href="#__codelineno-6-23"></a><span class="sd">        True</span>
-</span><span id="__span-6-24"><a id="__codelineno-6-24" name="__codelineno-6-24" href="#__codelineno-6-24"></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="__span-6-25"><a id="__codelineno-6-25" name="__codelineno-6-25" href="#__codelineno-6-25"></a>    <span class="o">...</span>
-</span></code></pre></div>
-<hr />
-<h2 id="testing">Testing<a class="headerlink" href="#testing" title="Anchor link to this section">&para;</a></h2>
-<h3 id="running-tests">Running Tests<a class="headerlink" href="#running-tests" title="Anchor link to this section">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># Run all tests</span>
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>pytest<span class="w"> </span>tests/
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
-</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="c1"># Run specific test file</span>
-</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>pytest<span class="w"> </span>tests/unit/test_compiler_service.py
-</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>
-</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="c1"># Run with coverage</span>
-</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>pytest<span class="w"> </span>tests/<span class="w"> </span>--cov<span class="o">=</span>ezcompiler
-</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>
-</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="c1"># Run with verbose output</span>
-</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>pytest<span class="w"> </span>tests/<span class="w"> </span>-v
-</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>
-</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="c1"># Run specific test type</span>
-</span><span id="__span-7-14"><a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>pytest<span class="w"> </span>tests/unit/
-</span><span id="__span-7-15"><a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>pytest<span class="w"> </span>tests/integration/
-</span></code></pre></div>
-<h3 id="writing-tests">Writing Tests<a class="headerlink" href="#writing-tests" title="Anchor link to this section">&para;</a></h3>
-<p>Create tests in the <code>tests/</code> directory:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># tests/unit/test_compiler_service.py</span>
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
-</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler.services</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompilerService</span>
-</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler.shared</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompilerConfig</span>
-</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>
-</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_compiler_service_initialization</span><span class="p">():</span>
-</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Test CompilerService initialization.&quot;&quot;&quot;</span>
-</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>    <span class="n">config</span> <span class="o">=</span> <span class="n">CompilerConfig</span><span class="p">(</span>
-</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>        <span class="n">version</span><span class="o">=</span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span>
-</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>        <span class="n">project_name</span><span class="o">=</span><span class="s2">&quot;Test&quot;</span><span class="p">,</span>
-</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>        <span class="n">main_file</span><span class="o">=</span><span class="s2">&quot;main.py&quot;</span><span class="p">,</span>
-</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>        <span class="n">include_files</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;files&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;folders&quot;</span><span class="p">:</span> <span class="p">[]},</span>
-</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>        <span class="n">output_folder</span><span class="o">=</span><span class="s2">&quot;dist&quot;</span><span class="p">,</span>
-</span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>    <span class="p">)</span>
-</span><span id="__span-8-16"><a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a>    <span class="n">service</span> <span class="o">=</span> <span class="n">CompilerService</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-</span><span id="__span-8-17"><a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a>    <span class="k">assert</span> <span class="n">service</span><span class="o">.</span><span class="n">config</span> <span class="o">==</span> <span class="n">config</span>
-</span><span id="__span-8-18"><a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a>
-</span><span id="__span-8-19"><a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_compiler_selection</span><span class="p">():</span>
-</span><span id="__span-8-20"><a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Test compiler selection logic.&quot;&quot;&quot;</span>
-</span><span id="__span-8-21"><a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a>    <span class="n">config</span> <span class="o">=</span> <span class="n">CompilerConfig</span><span class="p">(</span>
-</span><span id="__span-8-22"><a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a>        <span class="n">version</span><span class="o">=</span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span>
-</span><span id="__span-8-23"><a id="__codelineno-8-23" name="__codelineno-8-23" href="#__codelineno-8-23"></a>        <span class="n">project_name</span><span class="o">=</span><span class="s2">&quot;Test&quot;</span><span class="p">,</span>
-</span><span id="__span-8-24"><a id="__codelineno-8-24" name="__codelineno-8-24" href="#__codelineno-8-24"></a>        <span class="n">main_file</span><span class="o">=</span><span class="s2">&quot;main.py&quot;</span><span class="p">,</span>
-</span><span id="__span-8-25"><a id="__codelineno-8-25" name="__codelineno-8-25" href="#__codelineno-8-25"></a>        <span class="n">include_files</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;files&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;folders&quot;</span><span class="p">:</span> <span class="p">[]},</span>
-</span><span id="__span-8-26"><a id="__codelineno-8-26" name="__codelineno-8-26" href="#__codelineno-8-26"></a>        <span class="n">output_folder</span><span class="o">=</span><span class="s2">&quot;dist&quot;</span><span class="p">,</span>
-</span><span id="__span-8-27"><a id="__codelineno-8-27" name="__codelineno-8-27" href="#__codelineno-8-27"></a>        <span class="n">compiler</span><span class="o">=</span><span class="s2">&quot;PyInstaller&quot;</span>
-</span><span id="__span-8-28"><a id="__codelineno-8-28" name="__codelineno-8-28" href="#__codelineno-8-28"></a>    <span class="p">)</span>
-</span><span id="__span-8-29"><a id="__codelineno-8-29" name="__codelineno-8-29" href="#__codelineno-8-29"></a>    <span class="n">service</span> <span class="o">=</span> <span class="n">CompilerService</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-</span><span id="__span-8-30"><a id="__codelineno-8-30" name="__codelineno-8-30" href="#__codelineno-8-30"></a>    <span class="n">compiler</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">get_compiler</span><span class="p">()</span>
-</span><span id="__span-8-31"><a id="__codelineno-8-31" name="__codelineno-8-31" href="#__codelineno-8-31"></a>    <span class="k">assert</span> <span class="n">compiler</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;PyInstaller&quot;</span>
-</span></code></pre></div>
-<h3 id="test-coverage">Test Coverage<a class="headerlink" href="#test-coverage" title="Anchor link to this section">&para;</a></h3>
-<p>Target coverage is <strong>60%</strong> (threshold enforced in CI). Current coverage: <strong>~64%</strong>.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># Generate coverage report</span>
-</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>pytest<span class="w"> </span>tests/<span class="w"> </span>--cov<span class="o">=</span>src/ezcompiler<span class="w"> </span>--cov-report<span class="o">=</span>html
-</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
-</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="c1"># View coverage report</span>
-</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>open<span class="w"> </span>htmlcov/index.html
-</span></code></pre></div>
-<hr />
-<h2 id="linting-and-formatting">Linting and Formatting<a class="headerlink" href="#linting-and-formatting" title="Anchor link to this section">&para;</a></h2>
-<h3 id="ruff-linting">Ruff (Linting)<a class="headerlink" href="#ruff-linting" title="Anchor link to this section">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># Lint code</span>
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>ruff<span class="w"> </span>check<span class="w"> </span>src/ezcompiler/<span class="w"> </span>tests/
-</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
-</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="c1"># Fix auto-fixable issues</span>
-</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>ruff<span class="w"> </span>check<span class="w"> </span>--fix<span class="w"> </span>src/ezcompiler/<span class="w"> </span>tests/
-</span></code></pre></div>
-<h3 id="type-checking">Type Checking<a class="headerlink" href="#type-checking" title="Anchor link to this section">&para;</a></h3>
-<p>Two type checkers are configured for complementary coverage:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># ty (fast, Astral — used in lint pipeline)</span>
-</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>ty<span class="w"> </span>check<span class="w"> </span>src/ezcompiler/
-</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>
-</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="c1"># pyright (comprehensive static analysis)</span>
-</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>pyright<span class="w"> </span>src/ezcompiler/
-</span></code></pre></div>
-<h3 id="import-linter-architecture-contracts">Import Linter (Architecture Contracts)<a class="headerlink" href="#import-linter-architecture-contracts" title="Anchor link to this section">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># Verify layer dependency contracts</span>
-</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="nv">PYTHONPATH</span><span class="o">=</span>src<span class="w"> </span>lint-imports
-</span></code></pre></div>
-<hr />
-<h2 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Anchor link to this section">&para;</a></h2>
-<h3 id="building-documentation">Building Documentation<a class="headerlink" href="#building-documentation" title="Anchor link to this section">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1"># Install docs dependencies</span>
-</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[docs]&quot;</span>
-</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>
-</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="c1"># Build documentation</span>
-</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>mkdocs<span class="w"> </span>build
-</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>
-</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="c1"># Serve documentation locally</span>
-</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>mkdocs<span class="w"> </span>serve
-</span></code></pre></div>
-<p>Open <a href="http://127.0.0.1:8000">http://127.0.0.1:8000</a> in your browser.</p>
-<h3 id="writing-documentation">Writing Documentation<a class="headerlink" href="#writing-documentation" title="Anchor link to this section">&para;</a></h3>
-<p>Documentation is in <code>docs/</code> directory:</p>
-<ul>
-<li><strong>User Guides</strong> - <code>docs/guides/</code></li>
-<li><strong>API Reference</strong> - Auto-generated from docstrings</li>
-<li><strong>Examples</strong> - <code>docs/examples/</code></li>
-<li><strong>CLI Reference</strong> - <code>docs/cli/</code></li>
-</ul>
-<h3 id="api-documentation">API Documentation<a class="headerlink" href="#api-documentation" title="Anchor link to this section">&para;</a></h3>
-<p>API documentation is auto-generated from docstrings using mkdocstrings:</p>
-<div class="language-markdown highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="gh"># api/services.md</span>
-</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>
-</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="gu">## CompilerService</span>
-</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>
-</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>::: ezcompiler.services.compiler_service.CompilerService
-</span></code></pre></div>
-<hr />
-<h2 id="contributing">Contributing<a class="headerlink" href="#contributing" title="Anchor link to this section">&para;</a></h2>
-<h3 id="contribution-workflow">Contribution Workflow<a class="headerlink" href="#contribution-workflow" title="Anchor link to this section">&para;</a></h3>
-<ol>
-<li><strong>Fork the repository</strong> on GitHub</li>
-<li><strong>Clone your fork</strong></li>
-</ol>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/YOUR_USERNAME/ezcompiler.git
-</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="nb">cd</span><span class="w"> </span>ezcompiler
-</span></code></pre></div>
-<ol>
-<li><strong>Create a feature branch</strong></li>
-</ol>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>feature/my-feature
-</span></code></pre></div>
-<ol>
-<li><strong>Make your changes</strong></li>
-<li>Write code</li>
-<li>Add tests</li>
-<li>
-<p>Update documentation</p>
-</li>
-<li>
-<p><strong>Run tests</strong></p>
-</li>
-</ol>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>pytest<span class="w"> </span>tests/
-</span></code></pre></div>
-<ol>
-<li><strong>Lint and format</strong></li>
-</ol>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>ruff<span class="w"> </span>format<span class="w"> </span>src/ezcompiler/<span class="w"> </span>tests/
-</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>ruff<span class="w"> </span>check<span class="w"> </span>--fix<span class="w"> </span>src/ezcompiler/<span class="w"> </span>tests/
-</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>ty<span class="w"> </span>check<span class="w"> </span>src/ezcompiler/
-</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>pyright<span class="w"> </span>src/ezcompiler/
-</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="nv">PYTHONPATH</span><span class="o">=</span>src<span class="w"> </span>lint-imports
-</span></code></pre></div>
-<ol>
-<li><strong>Commit your changes</strong></li>
-</ol>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>git<span class="w"> </span>add<span class="w"> </span>.
-</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: Add amazing feature&quot;</span>
-</span></code></pre></div>
-<ol>
-<li><strong>Push to your fork</strong></li>
-</ol>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>feature/my-feature
-</span></code></pre></div>
-<ol>
-<li><strong>Open a Pull Request</strong> on GitHub</li>
-</ol>
-<h3 id="commit-message-convention">Commit Message Convention<a class="headerlink" href="#commit-message-convention" title="Anchor link to this section">&para;</a></h3>
-<p>Use conventional commits:</p>
-<ul>
-<li><code>feat:</code> - New feature</li>
-<li><code>fix:</code> - Bug fix</li>
-<li><code>docs:</code> - Documentation changes</li>
-<li><code>test:</code> - Test changes</li>
-<li><code>refactor:</code> - Code refactoring</li>
-<li><code>chore:</code> - Build/tooling changes</li>
-</ul>
-<p>Examples:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: Add Nuitka compiler support&quot;</span>
-</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: Handle missing config file gracefully&quot;</span>
-</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;docs: Update configuration guide&quot;</span>
-</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test: Add tests for template service&quot;</span>
-</span></code></pre></div>
-<h3 id="pull-request-guidelines">Pull Request Guidelines<a class="headerlink" href="#pull-request-guidelines" title="Anchor link to this section">&para;</a></h3>
-<ul>
-<li>Provide a clear description of changes</li>
-<li>Reference related issues</li>
-<li>Include tests for new features</li>
-<li>Update documentation</li>
-<li>Ensure all tests pass</li>
-<li>Follow code style guidelines</li>
-</ul>
-<hr />
-<h2 id="release-process">Release Process<a class="headerlink" href="#release-process" title="Anchor link to this section">&para;</a></h2>
-<h3 id="version-bumping">Version Bumping<a class="headerlink" href="#version-bumping" title="Anchor link to this section">&para;</a></h3>
-<p>Update version in:</p>
-<ul>
-<li><code>src/ezcompiler/_version.py</code> (single source of truth)</li>
-<li><code>pyproject.toml</code></li>
-</ul>
-<h3 id="creating-a-release">Creating a Release<a class="headerlink" href="#creating-a-release" title="Anchor link to this section">&para;</a></h3>
-<ol>
-<li><strong>Update version</strong></li>
-</ol>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="c1"># src/ezcompiler/_version.py</span>
-</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;2.3.0&quot;</span>
-</span></code></pre></div>
-<ol>
-<li><strong>Update CHANGELOG</strong></li>
-</ol>
-<div class="language-markdown highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="gu">## [2.3.0] - 2024-01-15</span>
-</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>
-</span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="gu">### Added</span>
-</span><span id="__span-23-4"><a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a>
-</span><span id="__span-23-5"><a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a><span class="k">-</span><span class="w"> </span>New feature X
-</span><span id="__span-23-6"><a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a><span class="k">-</span><span class="w"> </span>New feature Y
-</span><span id="__span-23-7"><a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a>
-</span><span id="__span-23-8"><a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a><span class="gu">### Fixed</span>
-</span><span id="__span-23-9"><a id="__codelineno-23-9" name="__codelineno-23-9" href="#__codelineno-23-9"></a>
-</span><span id="__span-23-10"><a id="__codelineno-23-10" name="__codelineno-23-10" href="#__codelineno-23-10"></a><span class="k">-</span><span class="w"> </span>Bug fix A
-</span><span id="__span-23-11"><a id="__codelineno-23-11" name="__codelineno-23-11" href="#__codelineno-23-11"></a><span class="k">-</span><span class="w"> </span>Bug fix B
-</span></code></pre></div>
-<ol>
-<li><strong>Commit changes</strong></li>
-</ol>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>git<span class="w"> </span>add<span class="w"> </span>.
-</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;chore: Bump version to 2.3.0&quot;</span>
-</span></code></pre></div>
-<ol>
-<li><strong>Create tag</strong></li>
-</ol>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>git<span class="w"> </span>tag<span class="w"> </span>v2.3.0
-</span><span id="__span-25-2"><a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>v2.3.0
-</span></code></pre></div>
-<ol>
-<li><strong>Build and publish</strong></li>
-</ol>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>python<span class="w"> </span>-m<span class="w"> </span>build
-</span><span id="__span-26-2"><a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>python<span class="w"> </span>-m<span class="w"> </span>twine<span class="w"> </span>upload<span class="w"> </span>dist/*
-</span></code></pre></div>
-<hr />
-<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Anchor link to this section">&para;</a></h2>
-<h3 id="import-errors">Import Errors<a class="headerlink" href="#import-errors" title="Anchor link to this section">&para;</a></h3>
-<p>If you encounter import errors:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="c1"># Reinstall in editable mode</span>
-</span><span id="__span-27-2"><a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
-</span></code></pre></div>
-<h3 id="test-failures">Test Failures<a class="headerlink" href="#test-failures" title="Anchor link to this section">&para;</a></h3>
-<p>If tests fail:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="c1"># Run with verbose output</span>
-</span><span id="__span-28-2"><a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a>pytest<span class="w"> </span>tests/<span class="w"> </span>-v
-</span><span id="__span-28-3"><a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a>
-</span><span id="__span-28-4"><a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a><span class="c1"># Run specific failing test</span>
-</span><span id="__span-28-5"><a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a>pytest<span class="w"> </span>tests/unit/test_specific.py::test_function<span class="w"> </span>-v
-</span></code></pre></div>
-<h3 id="type-check-errors">Type Check Errors<a class="headerlink" href="#type-check-errors" title="Anchor link to this section">&para;</a></h3>
-<p>If type checking reports errors, run the configured checkers:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="c1"># ty (fast, Astral)</span>
-</span><span id="__span-29-2"><a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a>ty<span class="w"> </span>check<span class="w"> </span>src/ezcompiler/
-</span><span id="__span-29-3"><a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a>
-</span><span id="__span-29-4"><a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a><span class="c1"># pyright (comprehensive)</span>
-</span><span id="__span-29-5"><a id="__codelineno-29-5" name="__codelineno-29-5" href="#__codelineno-29-5"></a>pyright<span class="w"> </span>src/ezcompiler/
-</span></code></pre></div>
-<hr />
-<h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Anchor link to this section">&para;</a></h2>
-<ul>
-<li><a href="../../getting-started/">Getting Started</a> - Installation and basic usage</li>
-<li><a href="../../api/">API Reference</a> - Complete API documentation</li>
-<li><a href="../configuration/">Configuration Guide</a> - Configuration options</li>
-<li><a href="../../examples/">Examples</a> - Code examples</li>
-</ul>
-<hr />
-<h2 id="need-help">Need Help?<a class="headerlink" href="#need-help" title="Anchor link to this section">&para;</a></h2>
-<ul>
-<li><strong>Issues</strong>: <a href="https://github.com/neuraaak/ezcompiler/issues">GitHub Issues</a></li>
-<li><strong>Discussions</strong>: <a href="https://github.com/neuraaak/ezcompiler/discussions">GitHub Discussions</a></li>
-<li><strong>Repository</strong>: <a href="https://github.com/neuraaak/ezcompiler">https://github.com/neuraaak/ezcompiler</a></li>
-</ul>
-<hr />
-<p><strong>Thank you for contributing to EzCompiler!</strong> 🙏</p>
+<h2 id="result">✅ Result<a class="headerlink" href="#result" title="Anchor link to this section">&para;</a></h2>
+<p>Your local environment is ready for safe contributions with formatting, typing,
+architecture contract validation, tests, and documentation checks all passing.</p>
 
 
 

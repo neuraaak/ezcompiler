@@ -842,12 +842,12 @@
   <a href="#compiler-adapters" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Compiler Adapters
+        Compiler adapters
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Compiler Adapters">
+    <nav class="md-nav" aria-label="Compiler adapters">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1153,12 +1153,12 @@
   <a href="#file-writer-adapters" class="md-nav__link">
     <span class="md-ellipsis">
       
-        File Writer Adapters
+        File writer adapters
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="File Writer Adapters">
+    <nav class="md-nav" aria-label="File writer adapters">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1248,12 +1248,12 @@
   <a href="#uploader-adapters" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Uploader Adapters
+        Uploader adapters
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Uploader Adapters">
+    <nav class="md-nav" aria-label="Uploader adapters">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1793,12 +1793,12 @@
   <a href="#compiler-adapters" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Compiler Adapters
+        Compiler adapters
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Compiler Adapters">
+    <nav class="md-nav" aria-label="Compiler adapters">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -2104,12 +2104,12 @@
   <a href="#file-writer-adapters" class="md-nav__link">
     <span class="md-ellipsis">
       
-        File Writer Adapters
+        File writer adapters
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="File Writer Adapters">
+    <nav class="md-nav" aria-label="File writer adapters">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -2199,12 +2199,12 @@
   <a href="#uploader-adapters" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Uploader Adapters
+        Uploader adapters
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Uploader Adapters">
+    <nav class="md-nav" aria-label="Uploader adapters">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -2519,7 +2519,7 @@
   
 
 
-<h1 id="adapters-layer">Adapters Layer<a class="headerlink" href="#adapters-layer" title="Anchor link to this section">&para;</a></h1>
+<h1 id="adapters-layer">Adapters layer<a class="headerlink" href="#adapters-layer" title="Anchor link to this section">&para;</a></h1>
 <p>Compiler and uploader adapter implementations for <strong>EzCompiler</strong>.</p>
 <p>The adapters layer defines abstract base classes and concrete implementations for compilation and upload operations.</p>
 <div class="admonition note">
@@ -2531,7 +2531,7 @@ imported directly. Public consumers should use
 or the high-level <a href="../interfaces/"><code>EzCompiler</code></a> facade.</p>
 </div>
 <hr />
-<h2 id="compiler-adapters">Compiler Adapters<a class="headerlink" href="#compiler-adapters" title="Anchor link to this section">&para;</a></h2>
+<h2 id="compiler-adapters">Compiler adapters<a class="headerlink" href="#compiler-adapters" title="Anchor link to this section">&para;</a></h2>
 <h3 id="basecompiler">BaseCompiler<a class="headerlink" href="#basecompiler" title="Anchor link to this section">&para;</a></h3>
 <p>Abstract base class defining the compiler interface.</p>
 
@@ -4082,7 +4082,7 @@ options from project settings, and runs compilation.</p>
     </div>
 
 </div><hr />
-<h2 id="file-writer-adapters">File Writer Adapters<a class="headerlink" href="#file-writer-adapters" title="Anchor link to this section">&para;</a></h2>
+<h2 id="file-writer-adapters">File writer adapters<a class="headerlink" href="#file-writer-adapters" title="Anchor link to this section">&para;</a></h2>
 <h3 id="basefilewriter">BaseFileWriter<a class="headerlink" href="#basefilewriter" title="Anchor link to this section">&para;</a></h3>
 <p>Abstract base class defining the file writer interface.</p>
 
@@ -4229,7 +4229,7 @@ options from project settings, and runs compilation.</p>
     </div>
 
 </div><hr />
-<h2 id="uploader-adapters">Uploader Adapters<a class="headerlink" href="#uploader-adapters" title="Anchor link to this section">&para;</a></h2>
+<h2 id="uploader-adapters">Uploader adapters<a class="headerlink" href="#uploader-adapters" title="Anchor link to this section">&para;</a></h2>
 <h3 id="baseuploader">BaseUploader<a class="headerlink" href="#baseuploader" title="Anchor link to this section">&para;</a></h3>
 <p>Abstract base class defining the uploader interface.</p>
 
@@ -4806,7 +4806,7 @@ retry_attempts (int): Number of retry attempts (default: 3)</p>
   <blockquote>
 <blockquote>
 <blockquote>
-<p>config = {"server_url": "https://example.com", "api_key": "abc123"}
+<p>config = {"server_url": "<a href="https://example.com">https://example.com</a>", "api_key": "abc123"}
 uploader = ServerUploader(config)
 uploader.upload(Path("file.zip"), "/uploads/file.zip")</p>
 </blockquote>
@@ -5192,7 +5192,7 @@ print(types)
 <blockquote>
 <p>disk_uploader = UploaderFactory.create_uploader("disk")
 server_uploader = UploaderFactory.create_uploader(
-...     "server", {"server_url": "https://example.com"}
+...     "server", {"server_url": "<a href="https://example.com">https://example.com</a>"}
 ... )</p>
 </blockquote>
 </blockquote>

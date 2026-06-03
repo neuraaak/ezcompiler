@@ -1142,44 +1142,51 @@
 
 
 <h1 id="api-reference">API reference<a class="headerlink" href="#api-reference" title="Anchor link to this section">&para;</a></h1>
-<p>Public API documentation for the <strong>EzCompiler</strong> framework, organized by layer.</p>
+<p>Curated index of the public <strong>EzCompiler</strong> API, organized by layer.</p>
 <h2 id="modules">📦 Modules<a class="headerlink" href="#modules" title="Anchor link to this section">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th style="text-align: left;">Module</th>
+<th style="text-align: left;">Component</th>
 <th style="text-align: left;">Description</th>
+<th style="text-align: left;">Page</th>
 </tr>
 </thead>
 <tbody>
 <tr>
+<td style="text-align: left;">Interfaces</td>
+<td style="text-align: left;"><code>EzCompiler</code> facade and <code>CLIInterface</code> entry points</td>
 <td style="text-align: left;"><a href="interfaces/">Interfaces</a></td>
-<td style="text-align: left;"><code>EzCompiler</code> facade and <code>CLIInterface</code> — public entry points</td>
 </tr>
 <tr>
+<td style="text-align: left;">Services</td>
+<td style="text-align: left;">Compiler, config, pipeline, template, upload logic</td>
 <td style="text-align: left;"><a href="services/">Services</a></td>
-<td style="text-align: left;"><code>CompilerService</code>, <code>ConfigService</code>, <code>PipelineService</code>, <code>TemplateService</code>, <code>UploaderService</code></td>
 </tr>
 <tr>
+<td style="text-align: left;">Adapters</td>
+<td style="text-align: left;">Compiler and uploader factories and implementations</td>
 <td style="text-align: left;"><a href="adapters/">Adapters</a></td>
-<td style="text-align: left;">Compiler and uploader concrete implementations</td>
 </tr>
 <tr>
+<td style="text-align: left;">Shared</td>
+<td style="text-align: left;"><code>CompilerConfig</code>, <code>CompilationResult</code>, exceptions</td>
 <td style="text-align: left;"><a href="shared/">Shared</a></td>
-<td style="text-align: left;"><code>CompilerConfig</code>, <code>CompilationResult</code>, exception hierarchy</td>
 </tr>
 <tr>
+<td style="text-align: left;">Types</td>
+<td style="text-align: left;"><code>FilePath</code>, <code>CompilerName</code>, <code>UploadTarget</code>, etc.</td>
 <td style="text-align: left;"><a href="types/">Types</a></td>
-<td style="text-align: left;">Public type aliases — <code>FilePath</code>, <code>CompilerName</code>, <code>UploadTarget</code>, <code>IncludeFiles</code>, <code>JsonMap</code></td>
 </tr>
 <tr>
+<td style="text-align: left;">Utils</td>
+<td style="text-align: left;">File, config, template, zip utilities and validators</td>
 <td style="text-align: left;"><a href="utils/">Utils</a></td>
-<td style="text-align: left;">File, config, template, zip utilities and 9 validator modules</td>
 </tr>
 </tbody>
 </table>
 <h2 id="full-reference">🔍 Full reference<a class="headerlink" href="#full-reference" title="Anchor link to this section">&para;</a></h2>
-<p>The exhaustive symbol listing (all classes, methods, and attributes generated from source docstrings) is available in <a href="reference/">API auto-reference</a>.</p>
+<p>For the complete auto-generated API dump from docstrings, open <a href="reference/">API auto-reference</a>.</p>
 <h2 id="import-paths">Import paths<a class="headerlink" href="#import-paths" title="Anchor link to this section">&para;</a></h2>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Top-level public API</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler</span><span class="w"> </span><span class="kn">import</span> <span class="n">EzCompiler</span><span class="p">,</span> <span class="n">CompilerConfig</span>
