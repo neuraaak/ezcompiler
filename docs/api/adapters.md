@@ -1,4 +1,4 @@
-# Adapters Layer
+# Adapters layer
 
 Compiler and uploader adapter implementations for **EzCompiler**.
 
@@ -13,7 +13,7 @@ The adapters layer defines abstract base classes and concrete implementations fo
 
 ---
 
-## Compiler Adapters
+## Compiler adapters
 
 ### BaseCompiler
 
@@ -55,7 +55,7 @@ Factory class for creating compiler instances based on name or configuration.
 
 ---
 
-## File Writer Adapters
+## File writer adapters
 
 ### BaseFileWriter
 
@@ -73,7 +73,7 @@ Concrete file writer implementation for local disk operations.
 
 ---
 
-## Uploader Adapters
+## Uploader adapters
 
 ### BaseUploader
 

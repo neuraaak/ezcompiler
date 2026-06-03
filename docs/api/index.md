@@ -1,21 +1,21 @@
 # API reference
 
-Public API documentation for the **EzCompiler** framework, organized by layer.
+Curated index of the public **EzCompiler** API, organized by layer.
 
 ## 📦 Modules
 
-| Module                      | Description                                                                                 |
-| :-------------------------- | :------------------------------------------------------------------------------------------ |
-| [Interfaces](interfaces.md) | `EzCompiler` facade and `CLIInterface` — public entry points                                |
-| [Services](services.md)     | `CompilerService`, `ConfigService`, `PipelineService`, `TemplateService`, `UploaderService` |
-| [Adapters](adapters.md)     | Compiler and uploader concrete implementations                                              |
-| [Shared](shared.md)         | `CompilerConfig`, `CompilationResult`, exception hierarchy                                  |
-| [Types](types.md)           | Public type aliases — `FilePath`, `CompilerName`, `UploadTarget`, `IncludeFiles`, `JsonMap` |
-| [Utils](utils.md)           | File, config, template, zip utilities and 9 validator modules                               |
+| Component  | Description                                          | Page                        |
+| :--------- | :--------------------------------------------------- | :-------------------------- |
+| Interfaces | `EzCompiler` facade and `CLIInterface` entry points  | [Interfaces](interfaces.md) |
+| Services   | Compiler, config, pipeline, template, upload logic   | [Services](services.md)     |
+| Adapters   | Compiler and uploader factories and implementations  | [Adapters](adapters.md)     |
+| Shared     | `CompilerConfig`, `CompilationResult`, exceptions    | [Shared](shared.md)         |
+| Types      | `FilePath`, `CompilerName`, `UploadTarget`, etc.     | [Types](types.md)           |
+| Utils      | File, config, template, zip utilities and validators | [Utils](utils.md)           |
 
 ## 🔍 Full reference
 
-The exhaustive symbol listing (all classes, methods, and attributes generated from source docstrings) is available in [API auto-reference](reference/index.md).
+For the complete auto-generated API dump from docstrings, open [API auto-reference](reference/index.md).
 
 ## Import paths
 

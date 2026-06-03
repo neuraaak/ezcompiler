@@ -1,4 +1,4 @@
-# Shared Layer
+# Shared layer
 
 Configuration dataclasses and exception hierarchy for **EzCompiler**.
 
@@ -39,7 +39,7 @@ from ezcompiler.shared import CompilationResult
 
 ## Exceptions
 
-### Base Exceptions
+### Base exceptions
 
 #### EzCompilerError
 
@@ -53,7 +53,7 @@ from ezcompiler.shared.exceptions import EzCompilerError
 
 ---
 
-### Service Exceptions
+### Service exceptions
 
 Exceptions raised by service layer components.
 
@@ -107,7 +107,7 @@ Exception raised when compiler service operations fail.
 
 ---
 
-### Utils Exceptions
+### Utils exceptions
 
 Exceptions raised by utility modules. `ConfigError`, `ZipError`, and
 `UploadError` are re-exported from `ezcompiler.shared.exceptions`. The

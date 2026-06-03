@@ -144,10 +144,16 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.tabbed:
       alternate_style: true
-  - pymdownx.snippets
+  - pymdownx.snippets:
+      check_paths: true
+      base_path: ['.', 'docs']
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.magiclink:
+      repo_url_shorthand: true
+      user: neuraaak
+      repo: ezcompiler
   - pymdownx.keys
   - pymdownx.mark
   - pymdownx.smartsymbols
