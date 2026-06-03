@@ -1,17 +1,10 @@
 # User guides
 
-In-depth guides for configuring and extending **EzCompiler**.
+Task-oriented guides for configuring and extending **EzCompiler**.
 
-## Available guides
+## 📋 Available guides
 
-| Guide                                   | Description                                               | Level        |
-| :-------------------------------------- | :-------------------------------------------------------- | :----------- |
-| [Configuration guide](configuration.md) | All configuration keys, YAML/JSON formats, and validation | Beginner     |
-| [Development guide](development.md)     | Development workflow, testing, and contribution process   | Intermediate |
-
-## Quick links
-
-- [Getting Started](../getting-started.md) — install and first compilation
-- [API Reference](../api/index.md) — complete module documentation
-- [CLI Reference](../cli/index.md) — command-line interface
-- [Examples](../examples/index.md) — runnable code snippets
+| Guide                                               | Goal                                                    |
+| :-------------------------------------------------- | :------------------------------------------------------ |
+| [How to configure a compiler](configuration.md)     | Select a backend and configure compilation settings.    |
+| [How to contribute changes locally](development.md) | Set up a local development workflow and quality checks. |

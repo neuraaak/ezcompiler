@@ -1,4 +1,4 @@
-# Services Layer
+# Services layer
 
 Business logic services and orchestration for **EzCompiler**.
 

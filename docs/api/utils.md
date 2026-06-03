@@ -1,4 +1,4 @@
-# Utils Layer
+# Utils layer
 
 Utility functions, file operations, and validation modules for **EzCompiler**.
 
@@ -21,7 +21,7 @@ The utils layer provides reusable utilities for file management, configuration p
 
 ---
 
-## File Utilities
+## File utilities
 
 Utilities for file and directory operations.
 
@@ -29,7 +29,7 @@ Utilities for file and directory operations.
 
 ---
 
-## Configuration Utilities
+## Configuration utilities
 
 Utilities for parsing and validating configuration files (YAML/JSON).
 
@@ -37,7 +37,7 @@ Utilities for parsing and validating configuration files (YAML/JSON).
 
 ---
 
-## Template Utilities
+## Template utilities
 
 Utilities for template processing and variable substitution.
 
@@ -45,7 +45,7 @@ Utilities for template processing and variable substitution.
 
 ---
 
-## Compiler Utilities
+## Compiler utilities
 
 Utilities for compiler-specific operations.
 
@@ -53,7 +53,7 @@ Utilities for compiler-specific operations.
 
 ---
 
-## Uploader Utilities
+## Uploader utilities
 
 Utilities for upload operations.
 
@@ -61,7 +61,7 @@ Utilities for upload operations.
 
 ---
 
-## ZIP Utilities
+## ZIP utilities
 
 Utilities for creating and managing ZIP archives.
 
@@ -73,7 +73,7 @@ Utilities for creating and managing ZIP archives.
 
 Comprehensive validation package with 9 specialized modules.
 
-### Domain Validators
+### Domain validators
 
 Validators for domain-specific entities (URLs, emails, etc.).
 
@@ -81,7 +81,7 @@ Validators for domain-specific entities (URLs, emails, etc.).
 
 ---
 
-### Format Validators
+### Format validators
 
 Validators for data format validation.
 
@@ -89,7 +89,7 @@ Validators for data format validation.
 
 ---
 
-### Meta Validators
+### Meta validators
 
 Meta-validators for composite and conditional validation.
 
@@ -97,7 +97,7 @@ Meta-validators for composite and conditional validation.
 
 ---
 
-### Path Validators
+### Path validators
 
 Validators for file and directory paths.
 
@@ -105,7 +105,7 @@ Validators for file and directory paths.
 
 ---
 
-### Schema Validators
+### Schema validators
 
 Validators for structured data schemas.
 
@@ -113,7 +113,7 @@ Validators for structured data schemas.
 
 ---
 
-### String Validators
+### String validators
 
 Validators for string format and content.
 
@@ -121,7 +121,7 @@ Validators for string format and content.
 
 ---
 
-### Type Validators
+### Type validators
 
 Validators for Python type checking and validation.
 
@@ -129,7 +129,7 @@ Validators for Python type checking and validation.
 
 ---
 
-### Value Validators
+### Value validators
 
 Validators for value ranges and constraints.
 

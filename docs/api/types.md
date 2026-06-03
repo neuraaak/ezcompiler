@@ -25,7 +25,7 @@ from ezcompiler.types import FilePath, IncludeFiles
 
 ---
 
-## Path Types
+## Path types
 
 ### FilePath
 
@@ -46,7 +46,7 @@ def load_config(path: FilePath) -> CompilerConfig:
 
 ---
 
-## Compiler Types
+## Compiler types
 
 ### CompilerName
 
@@ -91,7 +91,7 @@ def upload(target: UploadTarget, destination: str) -> None:
 
 ---
 
-## Configuration Types
+## Configuration types
 
 ### IncludeFiles
 
@@ -143,9 +143,14 @@ raw: JsonMap = {"version": "1.0.0", "project_name": "MyApp"}
 
 ---
 
-## API Reference
+## API reference
 
 ::: ezcompiler.types
-options:
-show_source: false
-members: - FilePath - CompilerName - UploadTarget - IncludeFiles - JsonMap
+    options:
+      show_source: false
+      members:
+        - FilePath
+        - CompilerName
+        - UploadTarget
+        - IncludeFiles
+        - JsonMap

@@ -1,4 +1,4 @@
-# Interfaces Layer
+# Interfaces layer
 
 Public APIs and user-facing interfaces for **EzCompiler**.
 
@@ -14,7 +14,7 @@ Main facade class that orchestrates the entire compilation, packaging, and distr
 
 ---
 
-## CLI Functions
+## CLI functions
 
 Command-line interface functions for interactive project management.
 
