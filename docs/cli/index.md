@@ -1,433 +1,126 @@
-# CLI Reference
+# CLI reference
 
-Command-line interface documentation for **EzCompiler**.
+Command-line interface for **EzCompiler** — project initialization, file generation, and build automation.
 
-## Overview
-
-EzCompiler provides a comprehensive command-line interface for interactive project initialization, configuration file generation, and automation tasks.
-
-## Installation
-
-The CLI is automatically available after installing EzCompiler:
+## 💻 Usage
 
 ```bash
-pip install ezcompiler
+ezcompiler [OPTIONS] COMMAND [ARGS]...
 ```
 
-Verify installation:
+## ⚙️ Global options
 
-```bash
-ezcompiler --version
-```
+| Option      | Short | Description               |
+| :---------- | :---- | :------------------------ |
+| `--version` |       | Show the version and exit |
+| `--help`    |       | Show help and exit        |
+| `--verbose` |       | Enable verbose output     |
+| `--quiet`   |       | Suppress non-error output |
+
+## 📋 Commands
+
+| Command             | Description                                        |
+| :------------------ | :------------------------------------------------- |
+| `init`              | Initialize a new project interactively             |
+| `generate config`   | Generate a configuration file                      |
+| `generate setup`    | Generate a `setup.py` from a configuration file    |
+| `generate version`  | Generate a Windows version information file        |
+| `generate template` | Generate a template file with optional mockup data |
 
 ---
 
-## Commands
+### `init`
 
-### Initialize Project
-
-Initialize a new EzCompiler project with interactive prompts:
+Initialize a new EzCompiler project with interactive prompts.
 
 ```bash
 ezcompiler init
 ```
 
-This command will guide you through:
-
-- Project name
-- Main script file
-- Output directory
-- Compiler selection
-- Package dependencies
-- Files and folders to include
+Guides through: project name, main script, output directory, compiler selection, dependencies, and files to include.
 
 ---
 
-### Generate Files
+### `generate config`
 
-EzCompiler can generate various configuration and setup files.
-
-#### Generate Configuration
-
-Create a configuration file with basic settings:
+Create a configuration file.
 
 ```bash
 ezcompiler generate config --project-name "MyApp" --main-file "main.py"
 ```
 
-**Options:**
+| Option           | Required | Default             | Description                      |
+| :--------------- | :------- | :------------------ | :------------------------------- |
+| `--project-name` | Yes      | —                   | Project name                     |
+| `--main-file`    | Yes      | —                   | Main Python file                 |
+| `--version`      | No       | `"1.0.0"`           | Project version                  |
+| `--output`       | No       | `"ezcompiler.yaml"` | Output file path                 |
+| `--format`       | No       | `yaml`              | Output format (`yaml` or `json`) |
 
-- `--project-name TEXT` – Project name (required)
-- `--main-file TEXT` – Main Python file (required)
-- `--version TEXT` – Project version (default: "1.0.0")
-- `--output PATH` – Output file path (default: "ezcompiler.yaml")
-- `--format [yaml|json]` – Output format (default: yaml)
+---
 
-**Example:**
+### `generate setup`
 
-```bash
-ezcompiler generate config \
-    --project-name "MyApp" \
-    --main-file "main.py" \
-    --version "2.0.0" \
-    --output "config/ezcompiler.yaml"
-```
-
-#### Generate Setup File
-
-Generate a `setup.py` file from a configuration:
+Generate a `setup.py` from a configuration file.
 
 ```bash
 ezcompiler generate setup --config ezcompiler.yaml
 ```
 
-**Options:**
+| Option     | Required | Default      | Description                |
+| :--------- | :------- | :----------- | :------------------------- |
+| `--config` | Yes      | —            | Path to configuration file |
+| `--output` | No       | `"setup.py"` | Output file path           |
 
-- `--config PATH` – Path to configuration file (required)
-- `--output PATH` – Output file path (default: "setup.py")
+---
 
-**Example:**
+### `generate version`
 
-```bash
-ezcompiler generate setup --config ezcompiler.yaml --output dist/setup.py
-```
-
-#### Generate Version File
-
-Generate a version information file for Windows executables:
+Generate a Windows version information file.
 
 ```bash
 ezcompiler generate version --config ezcompiler.yaml
 ```
 
-**Options:**
+| Option     | Required | Default         | Description                |
+| :--------- | :------- | :-------------- | :------------------------- |
+| `--config` | Yes      | —               | Path to configuration file |
+| `--output` | No       | `"version.txt"` | Output file path           |
 
-- `--config PATH` – Path to configuration file (required)
-- `--output PATH` – Output file path (default: "version.txt")
+---
 
-**Example:**
+### `generate template`
 
-```bash
-ezcompiler generate version --config ezcompiler.yaml --output version_info.txt
-```
-
-#### Generate Template
-
-Generate template files with optional mockup data:
+Generate a template file with optional mockup data.
 
 ```bash
 ezcompiler generate template --type config --mockup
 ```
 
-**Options:**
+| Option     | Required | Description                                    |
+| :--------- | :------- | :--------------------------------------------- |
+| `--type`   | Yes      | Template type: `config`, `setup`, or `version` |
+| `--mockup` | No       | Include sample data                            |
+| `--output` | No       | Output file path                               |
 
-- `--type [config|setup|version]` – Template type (required)
-- `--mockup` – Include mockup/sample data
-- `--output PATH` – Output file path
-
-**Examples:**
-
-```bash
-# Generate config template with sample data
-ezcompiler generate template --type config --mockup
-
-# Generate setup template
-ezcompiler generate template --type setup --output templates/setup_template.py
-
-# Generate version template
-ezcompiler generate template --type version
-```
-
----
-
-## Configuration File Format
-
-### YAML Format (Recommended)
-
-```yaml
-version: "1.0.0"
-project_name: "MyProject"
-main_file: "main.py"
-output_folder: "dist"
-compiler: "PyInstaller"
-
-# Dependencies
-packages:
-  - "requests"
-  - "pandas"
-  - "numpy"
-
-# Exclude development packages
-excludes:
-  - "debugpy"
-  - "pytest"
-  - "mypy"
-
-# Include files and folders
-include_files:
-  files:
-    - "config.yaml"
-    - "data.json"
-  folders:
-    - "assets"
-    - "templates"
-
-# Compiler-specific options
-compiler_options:
-  log-level: "DEBUG"
-  onefile: true
-```
-
-### JSON Format
-
-```json
-{
-  "version": "1.0.0",
-  "project_name": "MyProject",
-  "main_file": "main.py",
-  "output_folder": "dist",
-  "compiler": "PyInstaller",
-  "packages": ["requests", "pandas"],
-  "excludes": ["debugpy", "pytest"],
-  "include_files": {
-    "files": ["config.yaml"],
-    "folders": ["assets"]
-  }
-}
-```
-
----
-
-## Global Options
-
-These options are available for all commands:
-
-- `--help` – Show help message and exit
-- `--version` – Show version and exit
-- `--verbose` – Enable verbose output
-- `--quiet` – Suppress non-error output
-
-**Example:**
+## 🧪 Examples
 
 ```bash
-ezcompiler --verbose generate config --project-name "MyApp" --main-file "main.py"
-```
+# Show version
+ezcompiler --version
 
----
-
-## Environment Variables
-
-EzCompiler supports the following environment variables:
-
-- `EZCOMPILER_CONFIG` – Default configuration file path
-- `EZCOMPILER_LOG_LEVEL` – Logging level (DEBUG, INFO, WARNING, ERROR)
-- `EZCOMPILER_OUTPUT_DIR` – Default output directory
-
-**Example:**
-
-```bash
-export EZCOMPILER_CONFIG="config/ezcompiler.yaml"
-export EZCOMPILER_LOG_LEVEL="DEBUG"
-ezcompiler generate setup
-```
-
----
-
-## Usage Examples
-
-### Basic Workflow
-
-```bash
-# 1. Initialize project
+# Initialize project interactively
 ezcompiler init
 
-# 2. Generate setup file
+# Generate a YAML configuration
+ezcompiler generate config --project-name "MyApp" --main-file "main.py" --version "2.0.0"
+
+# Generate setup.py
 ezcompiler generate setup --config ezcompiler.yaml
 
-# 3. Generate version file
-ezcompiler generate version --config ezcompiler.yaml
+# Generate version information file
+ezcompiler generate version --config ezcompiler.yaml --output version_info.txt
+
+# Generate config template with sample data
+ezcompiler generate template --type config --mockup
 ```
-
-### Custom Configuration
-
-```bash
-# Generate config with specific settings
-ezcompiler generate config \
-    --project-name "AdvancedApp" \
-    --main-file "src/main.py" \
-    --version "2.1.0" \
-    --format json \
-    --output "configs/app.json"
-```
-
-### Template Generation
-
-```bash
-# Generate all template types
-ezcompiler generate template --type config --mockup --output templates/config.yaml
-ezcompiler generate template --type setup --mockup --output templates/setup.py
-ezcompiler generate template --type version --mockup --output templates/version.txt
-```
-
----
-
-## Configuration Reference
-
-### Required Fields
-
-- `version` – Project version (semantic versioning recommended)
-- `project_name` – Project name
-- `main_file` – Main Python script file
-- `output_folder` – Output directory for compiled project
-
-### Optional Fields
-
-- `compiler` – Compiler to use ("Cx_Freeze", "PyInstaller", "Nuitka")
-- `packages` – List of packages to include
-- `excludes` – List of packages to exclude
-- `include_files` – Dictionary with `files` and `folders` lists
-- `compiler_options` – Dictionary of compiler-specific options
-
-### Compiler Options
-
-#### Cx_Freeze
-
-```yaml
-compiler: "Cx_Freeze"
-compiler_options:
-  zip_include_packages: ["*"]
-  zip_exclude_packages: ["test", "tkinter"]
-  include_msvcr: true
-  optimize: 2
-```
-
-#### PyInstaller
-
-```yaml
-compiler: "PyInstaller"
-compiler_options:
-  log-level: "DEBUG"
-  collect-all: "numpy"
-  onefile: true
-  windowed: false
-```
-
-#### Nuitka
-
-```yaml
-compiler: "Nuitka"
-compiler_options:
-  show-progress: true
-  enable-plugin: "numpy"
-  onefile: true
-  windows-disable-console: false
-```
-
----
-
-## Troubleshooting
-
-### Command Not Found
-
-If `ezcompiler` command is not found:
-
-```bash
-# Ensure installation path is in PATH
-python -m pip install --user ezcompiler
-
-# Or use python module syntax
-python -m ezcompiler init
-```
-
-### Configuration Errors
-
-If configuration is invalid:
-
-```bash
-# Use verbose mode for detailed error messages
-ezcompiler --verbose generate setup --config ezcompiler.yaml
-```
-
-### Permission Errors
-
-If you encounter permission errors:
-
-```bash
-# Run with appropriate permissions
-sudo ezcompiler generate setup --config ezcompiler.yaml
-
-# Or change output directory
-ezcompiler generate setup --config ezcompiler.yaml --output ~/setup.py
-```
-
----
-
-## Advanced Usage
-
-### Scripting and Automation
-
-```bash
-#!/bin/bash
-# build.sh - Automated build script
-
-# Generate configuration
-ezcompiler generate config \
-    --project-name "$PROJECT_NAME" \
-    --main-file "$MAIN_FILE" \
-    --version "$VERSION" \
-    --output "ezcompiler.yaml"
-
-# Generate setup and version files
-ezcompiler generate setup --config ezcompiler.yaml
-ezcompiler generate version --config ezcompiler.yaml
-
-echo "Build configuration complete!"
-```
-
-### CI/CD Integration
-
-#### GitHub Actions
-
-```yaml
-name: Build
-
-on: [push]
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Setup Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: "3.11"
-      - name: Install EzCompiler
-        run: pip install ezcompiler
-      - name: Generate config
-        run: |
-          ezcompiler generate config \
-            --project-name "${{ github.event.repository.name }}" \
-            --main-file "main.py" \
-            --version "${{ github.ref_name }}"
-      - name: Generate setup
-        run: ezcompiler generate setup --config ezcompiler.yaml
-```
-
----
-
-## See Also
-
-- [Getting Started](../getting-started.md) – Installation and basic usage
-- [API Reference](../api/index.md) – Python API documentation
-- [Examples](../examples/index.md) – Code examples
-- [Configuration Guide](../guides/configuration.md) – Detailed configuration guide
-
----
-
-## Need Help?
-
-- **Documentation**: [Full Documentation](../index.md)
-- **Examples**: [Code Examples](../examples/index.md)
-- **Issues**: [GitHub Issues](https://github.com/neuraaak/ezcompiler/issues)
-- **Repository**: [https://github.com/neuraaak/ezcompiler](https://github.com/neuraaak/ezcompiler)

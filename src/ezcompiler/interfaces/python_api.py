@@ -21,7 +21,7 @@ from __future__ import annotations
 # Standard library imports
 from collections.abc import Callable
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, cast
 
 if TYPE_CHECKING:
     import logging
@@ -338,7 +338,10 @@ class EzCompiler:
             self._compiler_service = self._compiler_service_factory(self._config)
             self._compilation_result = self._compiler_service.compile(
                 console=console,
-                compiler=compiler,  # type: ignore[arg-type]
+                compiler=cast(
+                    Literal["Cx_Freeze", "PyInstaller", "Nuitka", "auto"] | None,
+                    compiler,
+                ),
             )
 
             self._printer.success("Project compiled successfully")
@@ -504,8 +507,11 @@ class EzCompiler:
         )
 
         # Build stages
-        stages: list[StageConfig] = PipelineService.build_stages(  # type: ignore[assignment]
-            self._config, should_zip=should_zip, should_upload=should_upload
+        stages: list[StageConfig] = cast(
+            list["StageConfig"],
+            PipelineService.build_stages(
+                self._config, should_zip=should_zip, should_upload=should_upload
+            ),
         )
 
         current_phase = "version"

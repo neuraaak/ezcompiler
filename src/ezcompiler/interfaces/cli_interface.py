@@ -22,7 +22,7 @@ import json
 import sys
 import tomllib
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal, cast
 
 if TYPE_CHECKING:
     import logging
@@ -896,8 +896,11 @@ def compile_project(
     )
 
     # Build dynamic stages based on config
-    stages: list[StageConfig] = PipelineService.build_stages(  # type: ignore[assignment]
-        config_obj, should_zip=should_zip, should_upload=should_upload
+    stages: list[StageConfig] = cast(
+        list["StageConfig"],
+        PipelineService.build_stages(
+            config_obj, should_zip=should_zip, should_upload=should_upload
+        ),
     )
 
     # Phase 2-5: Execute pipeline with progress
@@ -972,7 +975,7 @@ def compile_project(
                 dlp.update_layer("upload", 0, f"Connecting to {destination}...")
                 UploaderService.upload(
                     source_path=Path(source_file),
-                    upload_type=structure,  # type: ignore[arg-type]
+                    upload_type=cast(Literal["disk", "server"], structure),
                     destination=destination,
                 )
                 logger.info(f"Upload completed ({structure})")

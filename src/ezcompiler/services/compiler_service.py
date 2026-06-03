@@ -21,7 +21,7 @@ from __future__ import annotations
 import sys
 from collections.abc import Callable
 from pathlib import Path
-from typing import Literal
+from typing import Literal, cast
 
 # Third-party imports
 from InquirerPy.resolver import prompt
@@ -216,7 +216,7 @@ class CompilerService:
             ]
 
             result = prompt(questions)
-            return result["compiler"]  # type: ignore[return-value]
+            return cast(str, result["compiler"])
 
         except Exception as e:
             raise CompilationError(f"Failed to choose compiler: {e}") from e

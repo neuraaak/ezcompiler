@@ -45,6 +45,8 @@ class CompilationResult:
         self,
         zip_needed: bool,
         compiler_name: str,
+        # TODO [AUDIT P2]: remplacer Any par CompilerPort une fois BaseCompiler migré en Protocol
+        # Voir adapters/base_compiler.py — migrer ABC → Protocol (adapters/ports.py)
         compiler_instance: Any,
     ) -> None:
         """

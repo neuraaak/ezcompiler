@@ -57,8 +57,8 @@ theme:
     repo: fontawesome/brands/github
     edit: material/pencil
     view: material/eye
-  # logo: assets/logo.png       # Uncomment when docs/assets/logo.png exists
-  # favicon: assets/favicon.ico  # Uncomment when docs/assets/favicon.ico exists
+  # logo: assets/logo.png         # Uncomment when docs/assets/logo.png exists
+  # favicon: assets/favicon.ico   # Uncomment when docs/assets/favicon.ico exists
 
 # ///////////////////////////////////////////////////////////////
 # NAVIGATION
@@ -79,6 +79,7 @@ nav:
       - Shared: api/shared.md
       - Types: api/types.md
       - Utils: api/utils.md
+      - Auto-reference: api/reference/index.md
   - CLI Reference:
       - cli/index.md
   - Examples:
@@ -93,6 +94,7 @@ nav:
 
 plugins:
   - search
+  - section-index
   - coverage:
       page_path: coverage
       html_report_dir: htmlcov
@@ -113,6 +115,7 @@ plugins:
             separate_signature: true
             signature_crossrefs: true
             members_order: source
+            group_by_category: true
             merge_init_into_class: true
             filters:
               - "!^_"
@@ -125,6 +128,10 @@ plugins:
 markdown_extensions:
   - admonition
   - pymdownx.details
+  - pymdownx.caret
+  - pymdownx.tilde
+  - pymdownx.critic
+  - pymdownx.betterem
   - pymdownx.superfences:
       custom_fences:
         - name: mermaid
@@ -146,6 +153,7 @@ markdown_extensions:
   - pymdownx.smartsymbols
   - pymdownx.tasklist:
       custom_checkbox: true
+  - abbr
   - attr_list
   - md_in_html
   - def_list

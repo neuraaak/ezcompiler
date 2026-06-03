@@ -4,17 +4,15 @@
 [![Python versions](https://img.shields.io/pypi/pyversions/ezcompiler?style=flat&logo=python&logoColor=white)](https://pypi.org/project/ezcompiler/)
 [![PyPI status](https://img.shields.io/pypi/status/ezcompiler?style=flat&logo=pypi&logoColor=white)](https://pypi.org/project/ezcompiler/)
 [![License](https://img.shields.io/badge/license-MIT-green?style=flat&logo=github&logoColor=white)](https://github.com/neuraaak/ezcompiler/blob/main/LICENSE)
-[![CI](https://img.shields.io/github/actions/workflow/status/neuraaak/ezcompiler/publish-pypi.yml?style=flat&label=publish&logo=githubactions&logoColor=white)](https://github.com/neuraaak/ezcompiler/actions/workflows/publish-pypi.yml)
-[![Docs](https://img.shields.io/badge/docs-Github%20Pages-blue?style=flat&logo=materialformkdocs&logoColor=white)](https://neuraaak.github.io/ezcompiler/)
+[![CI](https://img.shields.io/github/actions/workflow/status/neuraaak/ezcompiler/publish-pypi.yml?style=flat&label=ci&logo=githubactions&logoColor=white)](https://github.com/neuraaak/ezcompiler/actions/workflows/publish-pypi.yml)
+[![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-blue?style=flat&logo=materialformkdocs&logoColor=white)](https://neuraaak.github.io/ezcompiler/)
 [![uv](https://img.shields.io/badge/package%20manager-uv-DE5FE9?style=flat&logo=uv&logoColor=white)](https://github.com/astral-sh/uv)
 [![linter](https://img.shields.io/badge/linter-ruff-orange?style=flat&logo=ruff&logoColor=white)](https://github.com/astral-sh/ruff)
 [![type checker](https://img.shields.io/badge/type%20checker-ty-orange?style=flat&logo=astral&logoColor=white)](https://github.com/astral-sh/ty)
 
-![EzCompiler Logo](https://raw.githubusercontent.com/neuraaak/ezcompiler/refs/heads/main/docs/assets/logo-min.png)
-
 **EzCompiler** is a comprehensive Python framework for project compilation, version file generation, packaging, and distribution. It provides a clean and typed API suitable for professional and industrial Python applications.
 
-## ✨ Key Features
+## ✨ Key features
 
 - **✅ Multi-Compiler Support**: Cx_Freeze, PyInstaller, and Nuitka compilation backends
 - **✅ Version File Generation**: Automatic version file creation for Windows executables
@@ -26,20 +24,37 @@
 - **✅ CLI Interface**: Interactive command-line tool for automation and batch operations
 - **✅ Production Ready**: Battle-tested framework for professional applications
 
-## 🚀 Quick Start
+## 🚀 Quick start
 
 ### Installation
 
-```bash
-pip install ezcompiler
-```
+=== "uv"
+
+    ```bash
+    uv add ezcompiler
+    ```
+
+=== "pip"
+
+    ```bash
+    pip install ezcompiler
+    ```
 
 Or from source:
 
-```bash
-git clone https://github.com/neuraaak/ezcompiler.git
-cd ezcompiler && pip install .
-```
+=== "uv"
+
+    ```bash
+    git clone https://github.com/neuraaak/ezcompiler.git
+    cd ezcompiler && uv pip install ezcompiler
+    ```
+
+=== "pip"
+
+    ```bash
+    git clone https://github.com/neuraaak/ezcompiler.git
+    cd ezcompiler && pip install .
+    ```
 
 ### First Compilation
 
@@ -62,7 +77,7 @@ ezcompiler = EzCompiler(config)
 ezcompiler.compile_project(compiler="PyInstaller")
 ```
 
-## 📚 Documentation Structure
+## 📚 Documentation
 
 | Section                               | Description                                          |
 | ------------------------------------- | ---------------------------------------------------- |
@@ -72,7 +87,7 @@ ezcompiler.compile_project(compiler="PyInstaller")
 | [Examples](examples/index.md)         | Practical examples and use cases                     |
 | [User Guides](guides/index.md)        | In-depth guides for configuration and best practices |
 
-## 🎯 Main Components
+## 🎯 Main components
 
 EzCompiler is organized into **4 main layers**:
 
@@ -111,7 +126,7 @@ EzCompiler is organized into **4 main layers**:
 
 For detailed documentation, see [API Reference](api/index.md).
 
-## 🔧 CLI Commands
+## 💻 CLI commands
 
 EzCompiler provides a comprehensive CLI interface:
 
@@ -134,13 +149,13 @@ ezcompiler generate template --type config --mockup
 
 See the [CLI Reference](cli/index.md) for complete documentation.
 
-## 📦 Core Dependencies
+## 📋 Requirements
 
 - **Python >= 3.11** – Modern Python with type hints support
 - **PyYAML >= 6.0** – YAML configuration support
 - **cx_Freeze / PyInstaller / Nuitka** – Compilation backends (optional)
 
-## 🎨 Architecture Layers
+## Architecture layers
 
 | Layer                           | Components                                            | Description                            |
 | ------------------------------- | ----------------------------------------------------- | -------------------------------------- |
@@ -149,7 +164,7 @@ See the [CLI Reference](cli/index.md) for complete documentation.
 | [Adapters](api/adapters.md)     | Compilers, Uploaders, FileWriters                     | Concrete adapter implementations       |
 | [Utils](api/utils.md)           | File, Config, Template, Zip, Validators               | Utility functions and validation       |
 
-## 📝 License
+## ⚖️ License
 
 MIT License – See [LICENSE](https://github.com/neuraaak/ezcompiler/blob/main/LICENSE) file for details.
 
@@ -162,4 +177,4 @@ MIT License – See [LICENSE](https://github.com/neuraaak/ezcompiler/blob/main/L
 
 ---
 
-**EzCompiler** – Professional Python project compilation and distribution. 🚀
+**EzCompiler** – Professional Python project compilation and distribution.

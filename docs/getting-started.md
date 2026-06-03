@@ -1,47 +1,66 @@
-# Getting Started
+# Getting started
 
-This guide will help you get started with **EzCompiler** quickly and easily.
+This guide walks you through installing EzCompiler and running your first compilation.
+
+## 🔧 Prerequisites
+
+- Python >= 3.11
+- One compilation backend: `cx_Freeze`, `PyInstaller`, or `Nuitka`
+- PyYAML >= 6.0
 
 ## Installation
 
-### From PyPI (Recommended)
+=== "uv"
 
-```bash
-pip install ezcompiler
-```
+    ```bash
+    uv add ezcompiler
+    ```
 
-### From Source
+=== "pip"
 
-```bash
-git clone https://github.com/neuraaak/ezcompiler.git
-cd ezcompiler
-pip install .
-```
+    ```bash
+    pip install ezcompiler
+    ```
 
-### Development Installation
+### From source
+
+=== "uv"
+
+    ```bash
+    git clone https://github.com/neuraaak/ezcompiler.git
+    cd ezcompiler
+    uv pip install -e .
+    ```
+
+=== "pip"
+
+    ```bash
+    git clone https://github.com/neuraaak/ezcompiler.git
+    cd ezcompiler
+    pip install .
+    ```
+
+### Development installation
 
 For contributors and developers:
 
-```bash
-pip install -e ".[dev]"
-```
+=== "uv"
+
+    ```bash
+    uv pip install -e ".[dev]"
+    ```
+
+=== "pip"
+
+    ```bash
+    pip install -e ".[dev]"
+    ```
 
 This installs EzCompiler in editable mode with all development dependencies (testing, linting, formatting tools).
 
 ---
 
-## Requirements
-
-- **Python** >= 3.11
-- **PyYAML** >= 6.0
-- **One or more compilers**:
-  - **cx_Freeze** >= 7.2.6 (for directory-based builds)
-  - **PyInstaller** >= 6.11.1 (for single-file executables)
-  - **Nuitka** >= 2.5.7 (for optimized compilation)
-
----
-
-## First Steps
+## 📝 First steps
 
 ### Basic Project Compilation
 
@@ -94,7 +113,7 @@ ezcompiler.upload_to_repo(structure="disk", repo_path="./releases")
 
 ---
 
-## Configuration Options
+## Configuration options
 
 ### From Python Code
 
@@ -167,6 +186,8 @@ Create `ezcompiler.json`:
 
 ## Using the CLI
 
+See the [CLI Reference](cli/index.md) for the full command listing and option tables.
+
 EzCompiler includes a powerful command-line interface:
 
 ### Initialize Project
@@ -212,7 +233,7 @@ For more details, see the [CLI Reference](cli/index.md).
 
 ---
 
-## Choosing a Compiler
+## Choosing a compiler
 
 EzCompiler supports three compilation backends:
 
@@ -287,7 +308,7 @@ ezcompiler.compile_project(compiler="Nuitka")
 
 ---
 
-## Compiler-Specific Options
+## Compiler-specific options
 
 ### Cx_Freeze Options
 
@@ -346,7 +367,7 @@ config = CompilerConfig(
 
 ---
 
-## Including Files and Folders
+## Including files and folders
 
 ### Include Specific Files
 
@@ -394,7 +415,7 @@ config = CompilerConfig(
 
 ---
 
-## Package Management
+## Package management
 
 ### Include Required Packages
 
@@ -426,7 +447,7 @@ config = CompilerConfig(
 
 ---
 
-## Packaging and Distribution
+## Packaging and distribution
 
 ### Create ZIP Archive
 
@@ -460,7 +481,7 @@ ezcompiler.upload_to_repo(
 
 ---
 
-## Type Hints Support
+## Type hints support
 
 EzCompiler provides full type hints for better IDE support:
 
@@ -494,9 +515,9 @@ With full type hints, you get:
 
 ---
 
-## Next Steps
+## ➡️ Next steps
 
-Now that you've set up EzCompiler, explore these resources:
+Now that you've compiled your first project, explore these resources:
 
 - **[API Reference](api/index.md)** – Detailed documentation for each module with all classes and methods
 - **[CLI Reference](cli/index.md)** – Complete command-line interface documentation
@@ -587,7 +608,7 @@ except ConfigurationError as e:
 
 ---
 
-## Need Help?
+## Need help?
 
 - **Documentation**: [Full API Reference](api/index.md)
 - **Examples**: [Code Examples](examples/index.md)
@@ -596,4 +617,4 @@ except ConfigurationError as e:
 
 ---
 
-**Ready to compile your Python projects!** 🚀
+**Ready to compile your Python projects.**

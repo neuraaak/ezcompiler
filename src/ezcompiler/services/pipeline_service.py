@@ -18,7 +18,7 @@ from __future__ import annotations
 # Standard library imports
 from collections.abc import Callable
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal, cast
 
 # Local imports
 from ..shared import CompilationResult, CompilerConfig
@@ -60,7 +60,10 @@ class PipelineService:
         compiler_service = self._compiler_service_factory(config)
         compilation_result = compiler_service.compile(
             console=console,
-            compiler=compiler,  # type: ignore[arg-type]
+            compiler=cast(
+                Literal["Cx_Freeze", "PyInstaller", "Nuitka", "auto"] | None,
+                compiler,
+            ),
         )
         return compiler_service, compilation_result
 
@@ -155,7 +158,7 @@ class PipelineService:
 
         UploaderService.upload(
             source_path=Path(source_file),
-            upload_type=structure,  # type: ignore[arg-type]
+            upload_type=cast(Literal["disk", "server"], structure),
             destination=destination,
             upload_config=upload_config,
         )

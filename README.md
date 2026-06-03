@@ -17,14 +17,21 @@
 ## 📦 Installation
 
 ```bash
+# With uv (recommended)
+uv add ezcompiler
+
+# With pip
 pip install ezcompiler
 ```
 
-Or from source:
+From source:
 
 ```bash
 git clone https://github.com/neuraaak/ezcompiler.git
-cd ezcompiler && pip install .
+cd ezcompiler
+
+uv pip install -e .   # uv
+pip install -e .      # pip
 ```
 
 ## 🚀 Quick Start
@@ -65,13 +72,13 @@ compiler.run_pipeline(
 
 ## 📚 Documentation
 
-- **[📖 Getting Started](docs/getting-started.md)** – Installation and first steps
-- **[📋 API Reference](docs/api/index.md)** – Complete API documentation with auto-generation
-- **[🖥️ CLI Reference](docs/cli/index.md)** – Command-line interface guide
-- **[⚙️ Configuration Guide](docs/guides/configuration.md)** – Detailed configuration options
-- **[💡 Examples](docs/examples/index.md)** – Usage examples and demonstrations
-- **[👨‍💻 Development Guide](docs/guides/development.md)** – Development workflow and contribution guide
-- **[🌐 Online Documentation](https://neuraaak.github.io/ezcompiler/)** – Full documentation website
+Complete documentation is available at **[neuraaak.github.io/ezcompiler](https://neuraaak.github.io/ezcompiler/)**
+
+- **[Getting Started](https://neuraaak.github.io/ezcompiler/getting-started/)** – Installation, basic usage, and first steps
+- **[API Reference](https://neuraaak.github.io/ezcompiler/api/)** – Complete API documentation with examples
+- **[CLI Reference](https://neuraaak.github.io/ezcompiler/cli/)** – Command-line interface guide
+- **[User Guides](https://neuraaak.github.io/ezcompiler/guides/)** – Configuration, development, and testing guides
+- **[Examples](https://neuraaak.github.io/ezcompiler/examples/)** – Practical examples and demonstrations
 
 ## 🧪 Testing
 
