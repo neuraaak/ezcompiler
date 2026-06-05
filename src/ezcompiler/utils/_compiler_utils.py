@@ -54,9 +54,6 @@ class CompilerUtils:
     # VALIDATION METHODS
     # ////////////////////////////////////////////////
 
-    # TODO [AUDIT P3]: cette méthode duplique la validation de CompilerConfig.__post_init__()
-    # Un seul point de validation devrait exister — idéalement dans le domain object (__post_init__).
-    # Évaluer si cette méthode peut être supprimée ou réduite à un appel vers CompilerConfig.
     @staticmethod
     def validate_compiler_config(config: CompilerConfig) -> None:
         """
