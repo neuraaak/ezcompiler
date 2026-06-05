@@ -14,7 +14,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ezcompiler"
-version = "2.3.5"
+version = "2.3.6"
 description = "Project compilation and distribution framework for Python projects"
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.11"
@@ -67,11 +67,7 @@ dependencies = [
 cx-freeze = ["cx_Freeze>=7.0,<9.0"]
 pyinstaller = ["PyInstaller>=5.0"]
 nuitka = ["Nuitka>=2.4"]
-all-compilers = [
-    "cx_Freeze>=7.0,<9.0",
-    "PyInstaller>=5.0",
-    "Nuitka>=2.4",
-]
+all-compilers = ["cx_Freeze>=7.0,<9.0", "PyInstaller>=5.0", "Nuitka>=2.4"]
 dev = [
     # Development tools
     "ruff>=0.1.0",
@@ -406,8 +402,8 @@ omit = [
     "examples/*",
     "_temp/*",
     # Modules non testables unitairement (subprocess vers outils externes / TTY interactif)
-    "*/adapters/nuitka_compiler.py",
-    "*/adapters/pyinstaller_compiler.py",
+    "*/adapters/_nuitka_compiler.py",
+    "*/adapters/_pyinstaller_compiler.py",
     "*/interfaces/cli_interface.py",
 ]
 

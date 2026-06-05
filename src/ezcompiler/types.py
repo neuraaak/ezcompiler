@@ -23,7 +23,10 @@ from __future__ import annotations
 # ///////////////////////////////////////////////////////////////
 # Standard library imports
 from pathlib import Path
-from typing import TypeAlias
+from typing import TYPE_CHECKING, Protocol, TypeAlias
+
+if TYPE_CHECKING:
+    from ezcompiler.shared._compiler_config import CompilerConfig
 
 # ///////////////////////////////////////////////////////////////
 # TYPE ALIASES
@@ -90,10 +93,45 @@ Used by: configuration parsers, template renderers, YAML/JSON loaders.
 # PUBLIC API
 # ///////////////////////////////////////////////////////////////
 
+# ///////////////////////////////////////////////////////////////
+# PROTOCOL TYPES
+# Structural contracts for compiler and uploader implementations.
+# Using Protocol (not ABC) so conformance is structural — no forced inheritance.
+# ///////////////////////////////////////////////////////////////
+
+
+class CompilerPort(Protocol):
+    """Structural contract for compiler implementations."""
+
+    def compile(self, console: bool = True) -> None: ...
+
+    def get_compiler_name(self) -> str: ...
+
+    @property
+    def config(self) -> CompilerConfig: ...
+
+    @property
+    def zip_needed(self) -> bool: ...
+
+
+class UploaderPort(Protocol):
+    """Structural contract for uploader implementations."""
+
+    def upload(self, source_path: Path, destination: str) -> None: ...
+
+    def get_uploader_name(self) -> str: ...
+
+
+# ///////////////////////////////////////////////////////////////
+# PUBLIC API
+# ///////////////////////////////////////////////////////////////
+
 __all__ = [
     "FilePath",
     "CompilerName",
     "UploadTarget",
     "IncludeFiles",
     "JsonMap",
+    "CompilerPort",
+    "UploaderPort",
 ]

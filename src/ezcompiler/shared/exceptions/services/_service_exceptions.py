@@ -59,7 +59,3 @@ class VersionError(TemplateServiceError):
 
 class UploaderServiceError(EzCompilerServiceError):
     """Base exception for uploader service operations."""
-
-
-class UploadError(UploaderServiceError):
-    """Raised when upload operation fails."""

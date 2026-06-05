@@ -13,6 +13,8 @@ error scenarios.
 
 from __future__ import annotations
 
+from ..utils._uploader_exceptions import UploadError
+
 # ///////////////////////////////////////////////////////////////
 # IMPORTS - Service exceptions
 # ///////////////////////////////////////////////////////////////
@@ -23,7 +25,6 @@ from ._service_exceptions import (
     ConfigurationError,
     TemplateError,
     TemplateServiceError,
-    UploadError,
     UploaderServiceError,
     VersionError,
 )
