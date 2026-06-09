@@ -17,8 +17,16 @@ Manual runs have a `skip_tests` option (default `false`, not recommended).
 
 Publishing uses **OIDC trusted publishing** — no stored secret. The workflow
 mints a short-lived token that PyPI trusts directly via the `id-token: write`
-permission. The trusted publisher is configured on pypi.org under the
-ezcompiler project settings.
+permission. The trusted publisher must be configured on pypi.org under the
+ezplog project settings:
+
+```text
+pypi.org → Manage project ezplog → Publishing → Add a new publisher
+  Owner:     neuraaak
+  Repo:      ezplog
+  Workflow:  publish-pypi.yml
+  Environment: pypi
+```
 
 ## Jobs
 
@@ -28,23 +36,29 @@ validate (build + test) ──► publish (OIDC deploy)
 
 ### `validate` — Validate & Build
 
-1. Extract version from `pyproject.toml` and compare with the `version` input
-   (mismatch → immediate failure)
-2. `uv sync --frozen --extra dev`
-3. `PYTHONPATH=src uv run lint-imports` — import contracts
-4. `uv run pytest` — full suite with coverage (skipped if `skip_tests=true`)
-5. `uv build` — produces `dist/*.whl` and `dist/*.tar.gz`
-6. `uv run twine check dist/*` — validates the package metadata
-7. Wheel smoke-test in an isolated venv
-8. Upload `dist/` as a job artifact (retained 1 day)
+1. Resolve version: uses `inputs.version` if provided (workflow_call), otherwise reads from `pyproject.toml`
+2. Preview mode summary — printed if triggered by push/PR or preview tag (no failure, informational only)
+3. `uv sync --frozen --extra dev`
+4. `PYTHONPATH=src uv run lint-imports` — import contracts
+5. `uv run pytest` — full suite (skipped if `skip_tests=true`)
+6. `uv build` — produces `dist/*.whl` and `dist/*.tar.gz`
+7. `uv run twine check dist/*` — validates package metadata
+8. Wheel integrity check: `python -m zipfile -t dist/*.whl` + inline script verifying `ezplog/` is present in the wheel
+9. Upload `dist/` as a job artifact (retained 1 day)
 
 ### `publish` — Publish to PyPI (OIDC)
 
-Runs only if `validate` succeeds. Downloads the artifact built upstream
-(no rebuild). Steps:
+Runs only if `validate` succeeds **and** the event is `workflow_dispatch` or a
+`workflow_call` whose `tag` input does not start with `preview-`. Downloads the
+artifact built upstream (no rebuild). Steps:
 
 1. `actions/download-artifact` — retrieves `dist/`
-2. `pypa/gh-action-pypi-publish` — publishes via OIDC, no password
+2. `pypa/gh-action-pypi-publish@v1.14.0` — publishes via OIDC, no password
+
+> **Note — attestations disabled:** when called as a reusable workflow from
+> `auto-tag.yml`, the OIDC token's Build Config URI reflects the caller
+> (`auto-tag.yml`) rather than `publish-pypi.yml`, causing PyPI Trusted
+> Publisher verification to fail. `attestations: false` works around this.
 
 The job runs in the `pypi` environment. Configure required reviewers there
 in Repository → Settings → Environments if you want a manual gate.
@@ -61,7 +75,7 @@ simultaneous publish runs. A run in progress is never interrupted.
 2. Commit & push to main
    → auto-tag.yml detects a new version, creates vX.Y.Z tag
    → triggers publish-pypi.yml automatically
-3. Verify on https://pypi.org/project/ezcompiler/
+3. Verify on https://pypi.org/project/ezplog/
 ```
 
 Manual trigger via gh CLI:
