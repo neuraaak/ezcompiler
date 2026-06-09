@@ -17,7 +17,7 @@ name = "ezcompiler"
 version = "2.3.5"
 description = "Project compilation and distribution framework for Python projects"
 readme = { file = "README.md", content-type = "text/markdown" }
-requires-python = ">=3.11"
+requires-python = ">=3.13"
 license = { text = "MIT" }
 authors = [{ name = "Neuraaak" }]
 maintainers = [{ name = "Neuraaak" }]
@@ -31,8 +31,6 @@ keywords = [
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "License :: OSI Approved :: MIT License",
     "Operating System :: Microsoft :: Windows",
@@ -221,7 +219,7 @@ line-ending = "auto"
 
 # ty: Type checking with minimal configuration
 [tool.ty.environment]
-python-version = "3.11"
+python-version = "3.13"
 root = ["src", "src/ezcompiler"]
 
 [tool.ty.src]
@@ -246,7 +244,7 @@ error-on-warning = false
 
 # Pyright: Comprehensive type checking with detailed reporting
 [tool.pyright]
-pythonVersion = "3.11"
+pythonVersion = "3.13"
 typeCheckingMode = "basic"
 venvPath = "."
 venv = ".venv"
