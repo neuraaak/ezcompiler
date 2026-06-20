@@ -6,8 +6,18 @@
 """
 Setup example - Sample compilation setup script for EzCompiler.
 
-This script demonstrates how to use EzCompiler programmatically
-via init_project() to compile, zip, and upload a Python project.
+Supports two modes:
+  - Config file mode  : pass --config <path> to load a JSON/YAML/TOML config.
+  - Inline mode       : no --config arg, uses hardcoded init_project() call below.
+
+After the build pipeline, an optional TUF release step runs when:
+  - release_needed is True in the config, OR
+  - --publish flag is passed on the command line.
+
+Usage:
+    python setup.py                            # inline config
+    python setup.py --config ezcompiler.config.json
+    python setup.py --config ezcompiler.config.yaml --publish
 """
 
 from __future__ import annotations
@@ -16,6 +26,7 @@ from __future__ import annotations
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
 # Standard library imports
+import argparse
 import locale
 import sys
 from datetime import datetime
@@ -23,6 +34,8 @@ from pathlib import Path
 
 # Third-party imports
 from ezcompiler import EzCompiler
+from ezcompiler.services import ConfigService
+from ezplog import Ezpl
 
 # ///////////////////////////////////////////////////////////////
 # CONSTANTS
@@ -33,7 +46,7 @@ __ZIP_NEEDED__ = True
 __REPO_NEEDED__ = True
 
 APP_PATH = (
-    Path(sys._MEIPASS)
+    Path(sys._MEIPASS) # type: ignore
     if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS")
     else Path(sys.argv[0]).parent
 )
@@ -94,46 +107,104 @@ ASCII_SCRIPT_FIN = """
 """
 
 # ///////////////////////////////////////////////////////////////
+# ARGS
+# ///////////////////////////////////////////////////////////////
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="EzCompiler setup script")
+    parser.add_argument(
+        "--config",
+        type=Path,
+        default=None,
+        metavar="PATH",
+        help="Path to a JSON, YAML or TOML config file (skips inline init_project)",
+    )
+    parser.add_argument(
+        "--publish",
+        action="store_true",
+        default=False,
+        help="Publish the TUF repository after the release step",
+    )
+    return parser.parse_args()
+
+
+# ///////////////////////////////////////////////////////////////
 # SCRIPT
 # ///////////////////////////////////////////////////////////////
 
 print(COPYRIGHT)
 print(ASCII_SCRIPT_DEBUT, end="\n")
 
-compiler = EzCompiler()
-compiler._ezpl.add_separator()
+args = parse_args()
+Ezpl().set_level("DEBUG")
 
+compiler = None
 try:
-    ## => INIT PROJECT
-    compiler.init_project(
-        version=version,
-        project_name=project_name,
-        project_description=project_description,
-        company_name=company_name,
-        author=author,
-        icon=icon,
-        main_file=main_file,
-        version_filename=version_file,
-        output_folder=output_folder,
-        include_files=include_files,
-        packages=packages,
-        includes=includes,
-        excludes=excludes,
-    )
+    if args.config:
+        # ------------------------------------------------
+        # CONFIG FILE MODE — load JSON / YAML / TOML
+        # ------------------------------------------------
+        config = ConfigService.build_compiler_config(config_path=args.config)
+        compiler = EzCompiler(config=config)
 
-    ## => RUN BUILD PIPELINE (version, compile, zip, upload with DLP)
-    compiler.run_pipeline(
-        console=True,
-        compiler=None,
-        skip_zip=not __ZIP_NEEDED__,
-        skip_upload=not __REPO_NEEDED__,
-        upload_structure="disk" if __REPO_NEEDED__ else None,
-        upload_destination=REPO_PATH if __REPO_NEEDED__ else None,
-    )
+        compiler.run_pipeline(
+            console=config.console,
+            compiler=config.compiler if config.compiler != "auto" else None,
+            skip_zip=not config.zip_needed,
+            skip_upload=not config.repo_needed,
+            upload_structure=config.upload_structure if config.repo_needed else None,
+            upload_destination=config.repo_path if config.repo_needed else None,
+        )
+
+        release_needed = config.release_needed or args.publish
+
+    else:
+        # ------------------------------------------------
+        # INLINE MODE — hardcoded project settings
+        # ------------------------------------------------
+        compiler = EzCompiler()
+
+        compiler.init_project(
+            version=version,
+            project_name=project_name,
+            project_description=project_description,
+            company_name=company_name,
+            author=author,
+            icon=icon,
+            main_file=main_file,
+            version_filename=version_file,
+            output_folder=output_folder,
+            include_files=include_files,
+            packages=packages,
+            includes=includes,
+            excludes=excludes,
+        )
+
+        compiler.run_pipeline(
+            console=True,
+            compiler=None,
+            skip_zip=not __ZIP_NEEDED__,
+            skip_upload=not __REPO_NEEDED__,
+            upload_structure="disk" if __REPO_NEEDED__ else None,
+            upload_destination=REPO_PATH if __REPO_NEEDED__ else None,
+        )
+
+        release_needed = args.publish
+
+    # ------------------------------------------------
+    # OPTIONAL RELEASE STEP (tufup)
+    # ------------------------------------------------
+    if release_needed and compiler.config is not None:
+        bundle_dir = compiler.config.output_folder
+        compiler.release(bundle_dir=bundle_dir, publish=args.publish)
 
 except Exception as e:
-    compiler.printer.error(e)
-    compiler.logger.error(e)
+    if compiler is not None:
+        compiler.printer.error(e)
+        compiler.logger.error(e)
+    else:
+        print(f"ERROR :: {e}", file=sys.stderr)
     raise SystemExit(1) from e
 
 # ///////////////////////////////////////////////////////////////

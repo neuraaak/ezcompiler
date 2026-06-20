@@ -3,6 +3,7 @@
 # =============================================================================
 # Ce fichier contient les exclusions GLOBALES et COMMUNES
 # Les sous-dossiers ont leurs propres .gitignore pour les exclusions spécifiques
+.superpowers/
 
 # =============================================================================
 # PYTHON - FICHIERS DE BASE (COMMUNS)

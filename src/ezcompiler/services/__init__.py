@@ -26,6 +26,7 @@ from ..shared import CompilationResult, CompilerConfig
 from .compiler_service import CompilerService
 from .config_service import ConfigService
 from .pipeline_service import PipelineService
+from .release_service import ReleaseService
 from .template_service import TemplateService
 from .uploader_service import UploaderService
 
@@ -39,6 +40,7 @@ __all__ = [
     "CompilerConfig",
     "ConfigService",
     "PipelineService",
+    "ReleaseService",
     "TemplateService",
     "UploaderService",
     # Result types

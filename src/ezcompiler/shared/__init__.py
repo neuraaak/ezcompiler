@@ -23,6 +23,7 @@ from .exceptions import (
     CompilationError,
     ConfigurationError,
     EzCompilerError,
+    ReleaseError,
     TemplateError,
     UploadError,
     VersionError,
@@ -51,6 +52,7 @@ __all__ = [
     # Service exceptions
     "CompilationError",
     "ConfigurationError",
+    "ReleaseError",
     "TemplateError",
     "UploadError",
     "VersionError",

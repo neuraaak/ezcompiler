@@ -36,6 +36,7 @@ from ezplog.lib_mode import get_logger, get_printer
 from ..services import (
     CompilerService,
     PipelineService,
+    ReleaseService,
     TemplateService,
     UploaderService,
 )
@@ -458,6 +459,47 @@ class EzCompiler:
             self._printer.error(f"Upload failed: {e}")
             self._logger.error(f"Upload failed: {e}")
             raise UploadError(f"Upload failed: {e}") from e
+
+    def release(
+        self,
+        bundle_dir: Path,
+        *,
+        publish: bool = False,
+    ) -> Path:
+        """Package a compiled bundle into a signed TUF repository.
+
+        Reads app name, version and tufup directories from the config.
+        When ``publish`` is True, the repository tree is transferred via the
+        configured uploader (``update_repo_url`` + upload_structure).
+
+        Args:
+            bundle_dir: Directory containing the compiled application artifacts.
+            publish: When True, upload the repository/ tree to ``update_repo_url``.
+
+        Returns:
+            Path: The local ``repository/`` tree produced by tufup.
+
+        Raises:
+            ConfigurationError: If project not initialized.
+            ReleaseError: If release packaging or remote publishing fails.
+        """
+        if not self._config:
+            raise ConfigurationError(
+                "Project not initialized. Call init_project() first."
+            )
+        repo_dir = self._config.tufup_repo_dir or (self._config.output_folder / "repo")
+        keys_dir = self._config.tufup_keys_dir or (repo_dir / "keystore")
+        return ReleaseService.release_and_publish(
+            bundle_dir=bundle_dir,
+            app_name=self._config.project_name,
+            version=self._config.version,
+            repo_dir=repo_dir,
+            release_type=self._config.release_type,
+            publish=publish,
+            upload_type=self._config.upload_structure if publish else None,
+            destination=self._config.update_repo_url if publish else None,
+            releaser_config={"keys_dir": keys_dir},
+        )
 
     def run_pipeline(
         self,

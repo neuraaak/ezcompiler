@@ -23,7 +23,7 @@ from __future__ import annotations
 # ///////////////////////////////////////////////////////////////
 # Standard library imports
 from pathlib import Path
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Literal, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from .shared import CompilerConfig
@@ -64,6 +64,14 @@ type UploadTarget = str
 Valid values: "disk", "server"
 
 Used by: CompilerConfig.upload_structure, EzCompiler.upload_to_repo().
+"""
+
+type ReleaseTarget = Literal["tufup"]
+"""Type alias for the secure-release backend selection.
+
+Valid values: "tufup"
+
+Used by: CompilerConfig.release_type, ReleaserFactory.
 """
 
 # ------------------------------------------------
@@ -142,6 +150,45 @@ class UploaderPort(Protocol):
         ...
 
 
+@runtime_checkable
+class ReleaserPort(Protocol):
+    """Structural contract for a secure-release packager (Port).
+
+    Any object exposing this surface is a valid releaser — no inheritance
+    required. ``adapters.BaseReleaser`` and its subclasses conform to it.
+
+    Used by: ReleaserFactory return type, ReleaseService boundaries.
+    """
+
+    def release(
+        self,
+        bundle_dir: Path,
+        app_name: str,
+        version: str,
+        repo_dir: Path,
+        *,
+        patch: bool = True,
+    ) -> Path:
+        """Build and sign the local TUF repository for ``bundle_dir``.
+
+        Returns the path to the produced ``repository/`` tree.
+        Raises ReleaseError on failure.
+        """
+        ...
+
+    def init_keys(self, app_name: str, repo_dir: Path, keys_dir: Path) -> bool:
+        """Initialise clés TUF + squelette repo. Idempotent.
+
+        Returns True si init effectuée, False si clés déjà présentes (skip).
+        Raises ReleaseError / SigningKeyError on failure.
+        """
+        ...
+
+    def get_releaser_name(self) -> str:
+        """Human-readable releaser name."""
+        ...
+
+
 # ///////////////////////////////////////////////////////////////
 # PUBLIC API
 # ///////////////////////////////////////////////////////////////
@@ -150,8 +197,10 @@ __all__ = [
     "FilePath",
     "CompilerName",
     "UploadTarget",
+    "ReleaseTarget",
     "IncludeFiles",
     "JsonMap",
     "CompilerPort",
     "UploaderPort",
+    "ReleaserPort",
 ]

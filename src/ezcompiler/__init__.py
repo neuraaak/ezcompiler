@@ -54,6 +54,7 @@ from .shared import (
     ConfigurationError,
     EzCompilerError,
     FileOperationError,
+    ReleaseError,
     TemplateError,
     UploadError,
     VersionError,
@@ -64,6 +65,8 @@ from .types import (
     FilePath,
     IncludeFiles,
     JsonMap,
+    ReleaserPort,
+    ReleaseTarget,
     UploaderPort,
     UploadTarget,
 )
@@ -102,13 +105,17 @@ __all__ = [
     "UploadTarget",
     "IncludeFiles",
     "JsonMap",
+    # Type aliases
+    "ReleaseTarget",
     # Ports (structural contracts)
     "CompilerPort",
     "UploaderPort",
+    "ReleaserPort",
     # Exceptions
     "EzCompilerError",
     "CompilationError",
     "ConfigurationError",
+    "ReleaseError",
     "TemplateError",
     "UploadError",
     "VersionError",

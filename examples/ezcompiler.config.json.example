@@ -47,5 +47,12 @@
     "optimize": true,
     "strip": true,
     "debug": false
+  },
+  "release": {
+    "release_needed": false,
+    "release_type": "tufup",
+    "tufup_repo_dir": "tuf_repository",
+    "tufup_keys_dir": "tuf_keys",
+    "update_repo_url": null
   }
 }

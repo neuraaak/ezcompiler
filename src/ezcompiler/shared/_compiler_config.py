@@ -125,6 +125,16 @@ class CompilerConfig:
     debug: bool = False
 
     # ////////////////////////////////////////////////
+    # SECURE RELEASE OPTIONS (tufup)
+    # ////////////////////////////////////////////////
+
+    release_needed: bool = False
+    release_type: str = "tufup"
+    tufup_repo_dir: Path | None = None
+    tufup_keys_dir: Path | None = None
+    update_repo_url: str | None = None
+
+    # ////////////////////////////////////////////////
     # COMPILER-SPECIFIC OPTIONS
     # ////////////////////////////////////////////////
 
@@ -308,6 +318,17 @@ class CompilerConfig:
                 "strip": self.strip,
                 "debug": self.debug,
             },
+            "release": {
+                "release_needed": self.release_needed,
+                "release_type": self.release_type,
+                "tufup_repo_dir": str(self.tufup_repo_dir)
+                if self.tufup_repo_dir
+                else None,
+                "tufup_keys_dir": str(self.tufup_keys_dir)
+                if self.tufup_keys_dir
+                else None,
+                "update_repo_url": self.update_repo_url,
+            },
             "compiler_options": self.compiler_options,
         }
 
@@ -345,15 +366,18 @@ class CompilerConfig:
         compilation = config_copy.get("compilation", {})
         upload = config_copy.get("upload", {})
         advanced = config_copy.get("advanced", {})
+        release = config_copy.get("release", {})
 
         config_copy.update(compilation)
         config_copy.update(upload)
         config_copy.update(advanced)
+        config_copy.update(release)
 
         # Remove nested keys
         config_copy.pop("compilation", None)
         config_copy.pop("upload", None)
         config_copy.pop("advanced", None)
+        config_copy.pop("release", None)
 
         # Remap nested key names to dataclass field names
         # "upload.structure" becomes "upload_structure" after flattening

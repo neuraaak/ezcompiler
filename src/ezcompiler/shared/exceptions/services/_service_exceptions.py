@@ -16,6 +16,7 @@ from __future__ import annotations
 # ///////////////////////////////////////////////////////////////
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
+from ..utils._release_exceptions import ReleaseError
 from ..utils._uploader_exceptions import UploadError
 from ._base import EzCompilerServiceError
 
@@ -77,4 +78,5 @@ __all__ = [
     "VersionError",
     "UploaderServiceError",
     "UploadError",
+    "ReleaseError",
 ]
