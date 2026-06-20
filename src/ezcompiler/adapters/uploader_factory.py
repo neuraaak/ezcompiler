@@ -21,10 +21,10 @@ from typing import Any
 
 # Local imports
 from ..shared.exceptions import UploadError
+from ..types import UploaderPort
 from ..utils import UploaderUtils
 from ._disk_uploader import DiskUploader
 from ._server_uploader import ServerUploader
-from .base_uploader import BaseUploader
 
 # ///////////////////////////////////////////////////////////////
 # CLASSES
@@ -52,7 +52,7 @@ class UploaderFactory:
     @staticmethod
     def create_uploader(
         upload_type: str, config: dict[str, Any] | None = None
-    ) -> BaseUploader:
+    ) -> UploaderPort:
         """
         Create an uploader instance based on the specified type.
 
@@ -61,7 +61,7 @@ class UploaderFactory:
             config: Configuration dictionary for the uploader (default: None)
 
         Returns:
-            BaseUploader: Configured uploader instance
+            UploaderPort: Configured uploader instance (satisfies the Port)
 
         Raises:
             UploadError: If upload type is not supported
@@ -86,7 +86,7 @@ class UploaderFactory:
             raise UploadError(f"Unsupported upload type: {upload_type}")
 
     @staticmethod
-    def create_from_config(config: dict[str, Any]) -> BaseUploader:
+    def create_from_config(config: dict[str, Any]) -> UploaderPort:
         """
         Create an uploader instance from a configuration dictionary.
 
@@ -96,7 +96,7 @@ class UploaderFactory:
                 - config: Uploader-specific configuration (optional)
 
         Returns:
-            BaseUploader: Configured uploader instance
+            UploaderPort: Configured uploader instance (satisfies the Port)
 
         Raises:
             UploadError: If configuration is invalid or type is missing

@@ -21,7 +21,7 @@ import importlib.util
 # Local imports
 from ..shared import CompilerConfig
 from ..shared.exceptions import CompilationError
-from .base_compiler import BaseCompiler
+from ..types import CompilerPort
 
 # ///////////////////////////////////////////////////////////////
 # CONSTANTS
@@ -60,7 +60,7 @@ class CompilerFactory:
             )
 
     @staticmethod
-    def create_compiler(config: CompilerConfig, compiler_name: str) -> BaseCompiler:
+    def create_compiler(config: CompilerConfig, compiler_name: str) -> CompilerPort:
         """
         Create a compiler instance from its name.
 
@@ -69,7 +69,7 @@ class CompilerFactory:
             compiler_name: Compiler name (Cx_Freeze, PyInstaller, Nuitka)
 
         Returns:
-            BaseCompiler: Concrete compiler instance
+            CompilerPort: Concrete compiler instance (satisfies the Port)
 
         Raises:
             CompilationError: If compiler name is unsupported or package not installed
@@ -97,7 +97,7 @@ class CompilerFactory:
         raise CompilationError(f"Unsupported compiler: {normalized_name}")
 
     @staticmethod
-    def create_from_config(config: CompilerConfig) -> BaseCompiler:
+    def create_from_config(config: CompilerConfig) -> CompilerPort:
         """
         Create a compiler instance using the config default compiler.
 
@@ -105,7 +105,7 @@ class CompilerFactory:
             config: Compiler configuration
 
         Returns:
-            BaseCompiler: Concrete compiler instance
+            CompilerPort: Concrete compiler instance (satisfies the Port)
 
         Raises:
             CompilationError: If config compiler is unsupported
