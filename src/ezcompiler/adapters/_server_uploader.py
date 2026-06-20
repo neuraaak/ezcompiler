@@ -149,7 +149,7 @@ class ServerUploader(BaseUploader):
             headers = self._prepare_headers()
             auth = self._prepare_auth()
 
-            response = requests.get(
+            response = requests.get(  # nosec B113 - timeout fourni et validé > 0 dans _validate_config
                 test_url,
                 headers=headers,
                 auth=auth,
@@ -184,7 +184,7 @@ class ServerUploader(BaseUploader):
             files = {"file": (source_path.name, file, "application/octet-stream")}
             data = {"destination": destination}
 
-            response = requests.post(
+            response = requests.post(  # nosec B113 - timeout fourni et validé > 0 dans _validate_config
                 upload_url,
                 files=files,
                 data=data,
@@ -293,9 +293,9 @@ class ServerUploader(BaseUploader):
 
         if (
             not isinstance(self._config["retry_attempts"], int)
-            or self._config["retry_attempts"] < 0
+            or self._config["retry_attempts"] < 1
         ):
-            raise UploadError("retry_attempts must be a non-negative integer")
+            raise UploadError("retry_attempts must be an integer >= 1")
 
         if not isinstance(self._config["verify_ssl"], bool):
             raise UploadError("verify_ssl must be a boolean")

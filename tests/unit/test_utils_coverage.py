@@ -21,7 +21,9 @@ from unittest.mock import patch
 
 import pytest
 
+from ezcompiler.adapters._server_uploader import ServerUploader
 from ezcompiler.shared import CompilerConfig
+from ezcompiler.shared.exceptions import UploadError
 from ezcompiler.shared.exceptions.utils import (
     CompilerConfigValidationError,
     CompilerOptionError,
@@ -422,6 +424,25 @@ class TestUploaderUtilsDefaults:
         assert cfg["verify_ssl"] is True
         assert cfg["chunk_size"] == 8192
         assert cfg["retry_attempts"] == 3
+
+
+# ///////////////////////////////////////////////////////////////
+# TESTS - SERVER UPLOADER CONFIG VALIDATION
+# ///////////////////////////////////////////////////////////////
+
+
+class TestServerUploaderRetryValidation:
+    def test_should_accept_valid_retry_attempts(self) -> None:
+        uploader = ServerUploader(
+            {"server_url": "https://example.com", "retry_attempts": 1}
+        )
+        assert uploader.get_uploader_name() == "Server Uploader"
+
+    def test_should_reject_zero_retry_attempts(self) -> None:
+        # Regression: retry_attempts=0 made range(0) skip the loop entirely,
+        # raising a misleading "failed after 0 attempts: None" without uploading.
+        with pytest.raises(UploadError, match="retry_attempts must be an integer >= 1"):
+            ServerUploader({"server_url": "https://example.com", "retry_attempts": 0})
 
 
 # ///////////////////////////////////////////////////////////////
