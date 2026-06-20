@@ -38,11 +38,19 @@ from ezplog.lib_mode import get_logger, get_printer
 
 # Local imports
 from .._version import __version__
-from ..services import ConfigService, PipelineService, TemplateService, UploaderService
+from ..services import (
+    ConfigService,
+    PipelineService,
+    ReleaseService,
+    TemplateService,
+    UploaderService,
+)
 from ..shared.exceptions import (
     CompilationError,
     ConfigError,
     ConfigurationError,
+    ReleaseError,
+    SigningKeyError,
     TemplateError,
     UploadError,
     VersionError,
@@ -1148,6 +1156,56 @@ def init(
         printer.tip("Run 'ezcompiler compile' to build your project.")
 
     except (TemplateError, ConfigError) as e:
+        printer.error(str(e))
+        logger.error(str(e))
+        sys.exit(1)
+
+
+@main.group()
+def release() -> None:
+    """Secure-release operations (TUF)."""
+
+
+@release.command("init")
+@click.option(
+    "--config",
+    "config_path",
+    default=None,
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    help="Path to ezcompiler config file (auto-detected if omitted).",
+)
+def release_init(config_path: Path | None) -> None:
+    """Initialise TUF signing keys and repository skeleton.
+
+    Run once per project, before the first `ezcompiler compile` with
+    release_needed = true. Keys are written to tufup_keys_dir (config).
+    Safe to re-run: skips silently when keys already exist.
+    """
+    printer = _get_printer()
+    logger = _get_logger()
+    try:
+        config_service = ConfigService()
+        cfg = config_service.load_config(config_path)
+        from ..shared import CompilerConfig  # noqa: PLC0415
+
+        compiler_config = CompilerConfig.from_dict(cfg)
+        repo_dir = compiler_config.tufup_repo_dir or (
+            compiler_config.output_folder / "repo"
+        )
+        keys_dir = compiler_config.tufup_keys_dir or (repo_dir / "keystore")
+        initialized = ReleaseService.init_release(
+            app_name=compiler_config.project_name,
+            repo_dir=repo_dir,
+            keys_dir=keys_dir,
+            release_type=compiler_config.release_type,
+        )
+        if initialized:
+            printer.success(f"TUF keys initialized in {keys_dir}")
+            logger.info("TUF keys initialized: %s", keys_dir)
+        else:
+            printer.info(f"Keys already present in {keys_dir} — skipped.")
+            logger.info("TUF keys already present, skipped.")
+    except (ReleaseError, SigningKeyError, ConfigError) as e:
         printer.error(str(e))
         logger.error(str(e))
         sys.exit(1)
