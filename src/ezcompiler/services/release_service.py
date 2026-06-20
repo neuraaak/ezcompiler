@@ -96,3 +96,21 @@ class ReleaseService:
             raise ReleaseError(f"Publishing release repository failed: {exc}") from exc
 
         return repository_path
+
+    @staticmethod
+    def init_release(
+        app_name: str,
+        repo_dir: Path,
+        keys_dir: Path,
+        *,
+        release_type: str = "tufup",
+        releaser_config: dict[str, Any] | None = None,
+    ) -> bool:
+        """Crée le releaser via la factory et délègue à init_keys.
+
+        Returns True si init effectuée, False si déjà présente (skip).
+        """
+        releaser = ReleaserFactory.create_releaser(release_type, releaser_config)
+        return releaser.init_keys(
+            app_name=app_name, repo_dir=repo_dir, keys_dir=keys_dir
+        )

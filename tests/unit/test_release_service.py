@@ -70,6 +70,56 @@ def test_release_with_publish_delegates_to_uploader(
     assert uploads[0]["source_path"] == tmp_path / "repo" / "repository"
 
 
+class _FakeReleaserWithInit:
+    def release(self, bundle_dir, app_name, version, repo_dir, *, patch=True) -> Path:
+        return repo_dir / "repository"
+
+    def init_keys(self, app_name: str, repo_dir: Path, keys_dir: Path) -> bool:
+        return True
+
+    def get_releaser_name(self) -> str:
+        return "fake"
+
+
+class _FakeReleaserInitAlreadyPresent:
+    def release(self, bundle_dir, app_name, version, repo_dir, *, patch=True) -> Path:
+        return repo_dir / "repository"
+
+    def init_keys(self, app_name: str, repo_dir: Path, keys_dir: Path) -> bool:
+        return False
+
+    def get_releaser_name(self) -> str:
+        return "fake-skip"
+
+
+def test_init_release_returns_true_when_init_done(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.setattr(
+        "ezcompiler.services.release_service.ReleaserFactory.create_releaser",
+        lambda *_a, **_k: _FakeReleaserWithInit(),
+    )
+    result = ReleaseService.init_release(
+        app_name="MyApp",
+        repo_dir=tmp_path / "repo",
+        keys_dir=tmp_path / "keystore",
+    )
+    assert result is True
+
+
+def test_init_release_returns_false_when_already_present(
+    monkeypatch, tmp_path: Path
+) -> None:
+    monkeypatch.setattr(
+        "ezcompiler.services.release_service.ReleaserFactory.create_releaser",
+        lambda *_a, **_k: _FakeReleaserInitAlreadyPresent(),
+    )
+    result = ReleaseService.init_release(
+        app_name="MyApp",
+        repo_dir=tmp_path / "repo",
+        keys_dir=tmp_path / "keystore",
+    )
+    assert result is False
+
+
 def test_publish_requires_destination(monkeypatch, tmp_path: Path) -> None:
     monkeypatch.setattr(
         "ezcompiler.services.release_service.ReleaserFactory.create_releaser",
