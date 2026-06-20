@@ -79,6 +79,45 @@ class TufupReleaser(BaseReleaser):
         return repo_dir / "repository"
 
     # ////////////////////////////////////////////////
+    # INIT
+    # ////////////////////////////////////////////////
+
+    def init_keys(self, app_name: str, repo_dir: Path, keys_dir: Path) -> bool:
+        """Initialise clés + squelette repo TUF. Idempotent.
+
+        Returns True si l'init a été effectuée, False si déjà présente (skip).
+        """
+        try:
+            keys_dir.mkdir(parents=True, exist_ok=True)
+        except OSError as exc:
+            raise SigningKeyError(f"Cannot create keys directory: {keys_dir}") from exc
+
+        if any(keys_dir.iterdir()):
+            return False
+
+        try:
+            from tufup.repo import Repository  # noqa: PLC0415
+        except ImportError as exc:
+            raise ReleaseError(
+                "tufup is not installed; install ezcompiler[tufup]"
+            ) from exc
+
+        try:
+            repository = Repository(
+                app_name=app_name,
+                repo_dir=str(repo_dir),
+                keys_dir=str(keys_dir),
+            )
+            repository.save_config()
+            repository.initialize()
+        except (ReleaseError, SigningKeyError):
+            raise
+        except Exception as exc:
+            raise ReleaseError(f"tufup init failed: {exc}") from exc
+
+        return True
+
+    # ////////////////////////////////////////////////
     # METADATA
     # ////////////////////////////////////////////////
 
