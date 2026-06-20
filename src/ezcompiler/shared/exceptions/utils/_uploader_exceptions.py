@@ -22,8 +22,11 @@ from ._base import EzCompilerError
 # ///////////////////////////////////////////////////////////////
 
 
+# UploadError canonique : défini ici (sous-arbre utils), sous EzCompilerError.
+# Le sous-arbre services le ré-importe (services/_service_exceptions.py) au lieu
+# d'en redéfinir un — un seul `UploadError` partagé par tout le code.
 class UploadError(EzCompilerError):
-    """Base exception for upload operation errors."""
+    """Base exception for upload operation errors (canonical)."""
 
 
 class SourcePathError(UploadError):
