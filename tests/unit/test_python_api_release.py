@@ -47,6 +47,7 @@ def test_release_delegates_to_service(
 def test_release_uses_output_folder_as_default_repo(
     monkeypatch, tmp_path: Path
 ) -> None:
+    (tmp_path / "main.py").write_text("# m", encoding="utf-8")
     cfg_no_repo = CompilerConfig(
         version="1.0.0",
         project_name="App",
@@ -54,7 +55,6 @@ def test_release_uses_output_folder_as_default_repo(
         include_files={"files": [], "folders": []},
         output_folder=tmp_path / "dist",
     )
-    (tmp_path / "main.py").write_text("# m", encoding="utf-8")
 
     captured: dict = {}
     monkeypatch.setattr(

@@ -23,6 +23,7 @@ from typing import Any, Literal, cast
 # Local imports
 from ..shared import CompilationResult, CompilerConfig
 from .compiler_service import CompilerService
+from .release_service import ReleaseService
 from .uploader_service import UploaderService
 
 # ///////////////////////////////////////////////////////////////
@@ -92,6 +93,7 @@ class PipelineService:
         config: CompilerConfig,
         should_zip: bool = False,
         should_upload: bool = False,
+        should_release: bool = False,
     ) -> list[dict[str, Any]]:
         """
         Build the stage list for dynamic_layered_progress.
@@ -138,6 +140,14 @@ class PipelineService:
                     "description": "Uploading artifacts",
                 }
             )
+        if should_release:
+            stages.append(
+                {
+                    "name": "release",
+                    "type": "spinner",
+                    "description": "Building TUF release",
+                }
+            )
         return stages
 
     def upload_artifact(
@@ -161,4 +171,21 @@ class PipelineService:
             upload_type=cast(Literal["disk", "server"], structure),
             destination=destination,
             upload_config=upload_config,
+        )
+
+    @staticmethod
+    def release_artifact(
+        config: CompilerConfig,
+        compilation_result: CompilationResult | None,  # noqa: ARG004
+    ) -> Path:
+        """Build le repo TUF local depuis output_folder. Ne publie jamais."""
+        repo_dir = config.tufup_repo_dir or (config.output_folder / "repo")
+        keys_dir = config.tufup_keys_dir or (repo_dir / "keystore")
+        return ReleaseService.release_and_publish(
+            bundle_dir=config.output_folder,
+            app_name=config.project_name,
+            version=config.version,
+            repo_dir=repo_dir,
+            publish=False,
+            releaser_config={"keys_dir": keys_dir},
         )
