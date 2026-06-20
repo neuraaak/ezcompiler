@@ -31,8 +31,10 @@ from ..shared.exceptions import UploadError
 # ///////////////////////////////////////////////////////////////
 
 
-# TODO [AUDIT P3]: migrer ABC → Protocol (typing.Protocol) pour aligner avec l'architecture hexagonale
-# Même approche que BaseCompiler — créer UploaderPort(Protocol) dans adapters/ports.py.
+# Le contrat structurel (Port) est défini par ``types.UploaderPort`` (Protocol).
+# Cette classe reste une base abstraite *concrète* : elle conforme au Port et
+# factorise le comportement partagé (validation de config et de source path).
+# Les frontières (factory, service) sont typées via le Port, pas via cette base.
 class BaseUploader(ABC):
     """
     Abstract base class for uploaders.

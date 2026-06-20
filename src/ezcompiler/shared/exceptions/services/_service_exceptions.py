@@ -16,6 +16,7 @@ from __future__ import annotations
 # ///////////////////////////////////////////////////////////////
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
+from ..utils._uploader_exceptions import UploadError
 from ._base import EzCompilerServiceError
 
 # ///////////////////////////////////////////////////////////////
@@ -58,8 +59,22 @@ class VersionError(TemplateServiceError):
 
 
 class UploaderServiceError(EzCompilerServiceError):
-    """Base exception for uploader service operations."""
+    """Base exception for uploader service operations.
+
+    Conservé pour compatibilité ; `UploadError` est désormais l'unique classe
+    canonique importée depuis utils/_uploader_exceptions.py (sous EzCompilerError).
+    """
 
 
-class UploadError(UploaderServiceError):
-    """Raised when upload operation fails."""
+# UploadError est ré-exporté ici (importé ci-dessus) pour préserver l'API publique
+# `from ..shared.exceptions import UploadError` sans dupliquer la classe.
+__all__ = [
+    "CompilerServiceError",
+    "CompilationError",
+    "ConfigurationError",
+    "TemplateServiceError",
+    "TemplateError",
+    "VersionError",
+    "UploaderServiceError",
+    "UploadError",
+]

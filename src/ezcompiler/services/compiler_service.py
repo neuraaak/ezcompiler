@@ -27,12 +27,10 @@ from typing import Literal, cast
 from InquirerPy.resolver import prompt
 
 # Local imports
-from ..adapters import (
-    BaseCompiler,
-    CompilerFactory,
-)
+from ..adapters import CompilerFactory
 from ..shared import CompilationResult, CompilerConfig
 from ..shared.exceptions import CompilationError, ConfigurationError
+from ..types import CompilerPort
 from ..utils import ZipUtils
 from ..utils.validators import validate_compiler_name
 
@@ -83,7 +81,7 @@ class CompilerService:
             raise ConfigurationError("CompilerConfig is required")
 
         self._config = config
-        self._compiler_instance: BaseCompiler | None = None
+        self._compiler_instance: CompilerPort | None = None
 
     # ////////////////////////////////////////////////
     # COMPILATION METHODS
@@ -221,7 +219,7 @@ class CompilerService:
         except Exception as e:
             raise CompilationError(f"Failed to choose compiler: {e}") from e
 
-    def _create_compiler(self, compiler_name: str) -> BaseCompiler:
+    def _create_compiler(self, compiler_name: str) -> CompilerPort:
         """
         Create compiler instance for the specified compiler.
 
@@ -229,7 +227,7 @@ class CompilerService:
             compiler_name: Name of the compiler to create
 
         Returns:
-            BaseCompiler: Compiler instance
+            CompilerPort: Compiler instance
 
         Raises:
             CompilationError: If compiler name is unsupported
@@ -265,11 +263,11 @@ class CompilerService:
     # ////////////////////////////////////////////////
 
     @property
-    def compiler_instance(self) -> BaseCompiler | None:
+    def compiler_instance(self) -> CompilerPort | None:
         """
         Get the current compiler instance.
 
         Returns:
-            BaseCompiler | None: Current compiler instance or None if not compiled yet
+            CompilerPort | None: Current compiler instance or None if not compiled yet
         """
         return self._compiler_instance

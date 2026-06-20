@@ -45,9 +45,6 @@ from __future__ import annotations
 # ///////////////////////////////////////////////////////////////
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
-# Standard library imports
-import sys
-
 # Local imports
 from ._version import __version__
 from .interfaces import EzCompiler
@@ -61,7 +58,15 @@ from .shared import (
     UploadError,
     VersionError,
 )
-from .types import CompilerName, FilePath, IncludeFiles, JsonMap, UploadTarget
+from .types import (
+    CompilerName,
+    CompilerPort,
+    FilePath,
+    IncludeFiles,
+    JsonMap,
+    UploaderPort,
+    UploadTarget,
+)
 
 # ///////////////////////////////////////////////////////////////
 # METADATA INFORMATION
@@ -70,7 +75,7 @@ from .types import CompilerName, FilePath, IncludeFiles, JsonMap, UploadTarget
 __author__ = "Neuraaak"
 __maintainer__ = "Neuraaak"
 __description__ = "Project compilation and distribution framework for Python"
-__python_requires__ = ">=3.11"
+__python_requires__ = ">=3.13"
 __keywords__ = [
     "compilation",
     "packaging",
@@ -81,16 +86,6 @@ __keywords__ = [
 ]
 __url__ = "https://github.com/neuraaak/ezcompiler"
 __repository__ = "https://github.com/neuraaak/ezcompiler"
-
-# ///////////////////////////////////////////////////////////////
-# PYTHON VERSION CHECK
-# ///////////////////////////////////////////////////////////////
-
-if sys.version_info < (3, 11):  # noqa: UP036
-    raise RuntimeError(
-        f"EzCompiler {__version__} requires Python 3.11 or higher. "
-        f"Current version: {sys.version}"
-    )
 
 # ///////////////////////////////////////////////////////////////
 # PUBLIC API
@@ -107,6 +102,9 @@ __all__ = [
     "UploadTarget",
     "IncludeFiles",
     "JsonMap",
+    # Ports (structural contracts)
+    "CompilerPort",
+    "UploaderPort",
     # Exceptions
     "EzCompilerError",
     "CompilationError",

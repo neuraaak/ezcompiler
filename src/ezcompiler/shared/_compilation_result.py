@@ -16,7 +16,10 @@ from __future__ import annotations
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
 # Standard library imports
-from typing import Any
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ..types import CompilerPort
 
 # ///////////////////////////////////////////////////////////////
 # CLASSES
@@ -45,9 +48,7 @@ class CompilationResult:
         self,
         zip_needed: bool,
         compiler_name: str,
-        # TODO [AUDIT P2]: remplacer Any par CompilerPort une fois BaseCompiler migré en Protocol
-        # Voir adapters/base_compiler.py — migrer ABC → Protocol (adapters/ports.py)
-        compiler_instance: Any,
+        compiler_instance: CompilerPort,
     ) -> None:
         """
         Initialize compilation result.

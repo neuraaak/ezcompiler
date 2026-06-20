@@ -23,7 +23,10 @@ from __future__ import annotations
 # ///////////////////////////////////////////////////////////////
 # Standard library imports
 from pathlib import Path
-from typing import TypeAlias
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
+
+if TYPE_CHECKING:
+    from .shared import CompilerConfig
 
 # ///////////////////////////////////////////////////////////////
 # TYPE ALIASES
@@ -33,7 +36,7 @@ from typing import TypeAlias
 # Path Types
 # ------------------------------------------------
 
-FilePath: TypeAlias = str | Path
+type FilePath = str | Path
 """Type alias for file path inputs.
 
 Accepts:
@@ -47,7 +50,7 @@ Used by: CompilerConfig, template loaders, file utilities.
 # Compiler Types
 # ------------------------------------------------
 
-CompilerName: TypeAlias = str
+type CompilerName = str
 """Type alias for compiler name selection.
 
 Valid values: "auto", "Cx_Freeze", "PyInstaller", "Nuitka"
@@ -55,7 +58,7 @@ Valid values: "auto", "Cx_Freeze", "PyInstaller", "Nuitka"
 Used by: CompilerConfig.compiler, EzCompiler.compile_project().
 """
 
-UploadTarget: TypeAlias = str
+type UploadTarget = str
 """Type alias for upload destination selection.
 
 Valid values: "disk", "server"
@@ -67,7 +70,7 @@ Used by: CompilerConfig.upload_structure, EzCompiler.upload_to_repo().
 # Configuration Types
 # ------------------------------------------------
 
-IncludeFiles: TypeAlias = dict[str, list[str]]
+type IncludeFiles = dict[str, list[str]]
 """Type alias for the include_files configuration structure.
 
 Expected shape::
@@ -80,11 +83,64 @@ Expected shape::
 Used by: CompilerConfig.include_files.
 """
 
-JsonMap: TypeAlias = dict[str, object]
+type JsonMap = dict[str, object]
 """Type alias for a generic JSON-serializable mapping.
 
 Used by: configuration parsers, template renderers, YAML/JSON loaders.
 """
+
+# ///////////////////////////////////////////////////////////////
+# PORTS (structural contracts — Hexagonal architecture)
+# ///////////////////////////////////////////////////////////////
+
+
+@runtime_checkable
+class CompilerPort(Protocol):
+    """Structural contract for a project compiler (Port).
+
+    Any object exposing this surface is a valid compiler — no inheritance
+    required. ``adapters.BaseCompiler`` and its subclasses conform to it.
+
+    Used by: CompilerFactory return type, CompilationResult.compiler_instance.
+    """
+
+    @property
+    def config(self) -> CompilerConfig:
+        """Configuration the compiler was built with."""
+        ...
+
+    @property
+    def zip_needed(self) -> bool:
+        """Whether the compiled output must be zipped."""
+        ...
+
+    def compile(self, console: bool = True) -> None:
+        """Compile the project. Raises CompilationError on failure."""
+        ...
+
+    def get_compiler_name(self) -> str:
+        """Human-readable compiler name."""
+        ...
+
+
+@runtime_checkable
+class UploaderPort(Protocol):
+    """Structural contract for an artifact uploader (Port).
+
+    Any object exposing this surface is a valid uploader — no inheritance
+    required. ``adapters.BaseUploader`` and its subclasses conform to it.
+
+    Used by: UploaderFactory return type, UploaderService boundaries.
+    """
+
+    def upload(self, source_path: Path, destination: str) -> None:
+        """Upload a file or directory. Raises UploadError on failure."""
+        ...
+
+    def get_uploader_name(self) -> str:
+        """Human-readable uploader name."""
+        ...
+
 
 # ///////////////////////////////////////////////////////////////
 # PUBLIC API
@@ -96,4 +152,6 @@ __all__ = [
     "UploadTarget",
     "IncludeFiles",
     "JsonMap",
+    "CompilerPort",
+    "UploaderPort",
 ]
