@@ -44,6 +44,8 @@ from ..shared import CompilationResult, CompilerConfig
 from ..shared.exceptions import (
     CompilationError,
     ConfigurationError,
+    ReleaseError,
+    SigningKeyError,
     TemplateError,
     UploadError,
     VersionError,
@@ -501,6 +503,31 @@ class EzCompiler:
             releaser_config={"keys_dir": keys_dir},
         )
 
+    def init_release(self) -> bool:
+        """Initialise les clés/repo TUF depuis la config courante.
+
+        Action explicite — jamais appelée par run_pipeline().
+
+        Returns:
+            bool: True si init effectuée, False si clés déjà présentes (skip).
+
+        Raises:
+            ConfigurationError: If project not initialized.
+            ReleaseError: If TUF initialization fails.
+        """
+        if not self._config:
+            raise ConfigurationError(
+                "Project not initialized. Call init_project() first."
+            )
+        repo_dir = self._config.tufup_repo_dir or (self._config.output_folder / "repo")
+        keys_dir = self._config.tufup_keys_dir or (repo_dir / "keystore")
+        return ReleaseService.init_release(
+            app_name=self._config.project_name,
+            repo_dir=repo_dir,
+            keys_dir=keys_dir,
+            release_type=self._config.release_type,
+        )
+
     def run_pipeline(
         self,
         console: bool = True,
@@ -510,6 +537,7 @@ class EzCompiler:
         upload_structure: Literal["server", "disk"] | None = None,
         upload_destination: str | None = None,
         upload_config: dict[str, Any] | None = None,
+        skip_release: bool = False,
     ) -> None:
         """
         Run the full build pipeline with visual progress tracking.
@@ -547,12 +575,26 @@ class EzCompiler:
         should_upload = not skip_upload and (
             upload_structure is not None or self._config.repo_needed
         )
+        should_release = not skip_release and getattr(
+            self._config, "release_needed", False
+        )
+
+        # Pre-flight: fail early if release needed but keys absent
+        if should_release:
+            repo_dir = self._config.tufup_repo_dir or (
+                self._config.output_folder / "repo"
+            )
+            keys_dir = self._config.tufup_keys_dir or (repo_dir / "keystore")
+            self._preflight_release(keys_dir)
 
         # Build stages
         stages: list[StageConfig] = cast(
             list["StageConfig"],
             PipelineService.build_stages(
-                self._config, should_zip=should_zip, should_upload=should_upload
+                self._config,
+                should_zip=should_zip,
+                should_upload=should_upload,
+                should_release=should_release,
             ),
         )
 
@@ -637,6 +679,17 @@ class EzCompiler:
                     self._logger.info(f"Upload completed ({structure})")
                     dlp.complete_layer("upload")
 
+                # Release
+                if should_release:
+                    current_phase = "release"
+                    dlp.update_layer("release", 0, "Signing bundle...")
+                    repo_path = self._pipeline_service.release_artifact(
+                        config=self._config,
+                        compilation_result=self._compilation_result,
+                    )
+                    self._logger.info(f"TUF release built: {repo_path}")
+                    dlp.complete_layer("release")
+
             except (
                 ConfigurationError,
                 CompilationError,
@@ -644,6 +697,8 @@ class EzCompiler:
                 VersionError,
                 UploadError,
                 ZipError,
+                ReleaseError,
+                SigningKeyError,
             ) as e:
                 dlp.handle_error(current_phase, str(e))
                 dlp.emergency_stop(str(e))
@@ -664,6 +719,14 @@ class EzCompiler:
     # ////////////////////////////////////////////////
     # PRIVATE HELPER METHODS
     # ////////////////////////////////////////////////
+
+    def _preflight_release(self, keys_dir: Path) -> None:
+        """Raise SigningKeyError before compilation if signing keys are absent."""
+        if not keys_dir.is_dir() or not any(keys_dir.iterdir()):
+            raise SigningKeyError(
+                f"Signing keys not found in {keys_dir}. "
+                "Run `ezcompiler release init` first."
+            )
 
     def _zip_progress_callback(self, filename: str, progress: int) -> None:
         """
