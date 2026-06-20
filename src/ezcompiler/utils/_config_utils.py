@@ -321,7 +321,7 @@ class ConfigUtils:
                     data = tomllib.load(f)
                 if data.get("tool", {}).get("ezcompiler"):
                     return toml_path
-            except Exception:  # noqa: S110
+            except Exception:  # noqa: S110  # nosec B110 - découverte best-effort : un pyproject illisible ne doit pas interrompre la recherche
                 pass
 
         return None

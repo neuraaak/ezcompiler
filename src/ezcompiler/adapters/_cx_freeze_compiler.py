@@ -22,7 +22,7 @@ from __future__ import annotations
 # ///////////////////////////////////////////////////////////////
 # Standard library imports
 import json
-import subprocess
+import subprocess  # nosec B404 - cœur d'un outil de compilation ; cmd interne, jamais shell=True
 import sys
 import tempfile
 from pathlib import Path
@@ -249,7 +249,7 @@ with warnings.catch_warnings():
                 f.write(self._SETUP_SCRIPT)
 
             # Run cx_Freeze in subprocess with captured output
-            result = subprocess.run(  # noqa: S603
+            result = subprocess.run(  # noqa: S603  # nosec B603 - args en liste, entrées contrôlées (config dev), pas de shell
                 [sys.executable, str(script_file), str(config_file)],
                 check=False,
                 capture_output=True,

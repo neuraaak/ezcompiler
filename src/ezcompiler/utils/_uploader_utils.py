@@ -188,7 +188,7 @@ class UploaderUtils:
         return {
             "server_url": "",
             "username": "",
-            "password": "",
+            "password": "",  # nosec B105 - placeholder vide, pas un secret en dur
             "api_key": "",
             "timeout": 30,
             "verify_ssl": True,

@@ -22,7 +22,7 @@ from __future__ import annotations
 # ///////////////////////////////////////////////////////////////
 # Standard library imports
 import shutil
-import subprocess
+import subprocess  # nosec B404 - cœur d'un outil de compilation ; cmd interne, jamais shell=True
 import sys
 from pathlib import Path
 
@@ -192,7 +192,7 @@ class PyInstallerCompiler(BaseCompiler):
                         cmd.append(f"--{key}={value}")
 
             # Run PyInstaller in subprocess with captured output
-            result = subprocess.run(  # noqa: S603
+            result = subprocess.run(  # noqa: S603  # nosec B603 - args en liste, entrées contrôlées (config dev), pas de shell
                 cmd,
                 check=False,
                 capture_output=True,
