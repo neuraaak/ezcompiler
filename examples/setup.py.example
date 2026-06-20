@@ -10,14 +10,18 @@ Supports two modes:
   - Config file mode  : pass --config <path> to load a JSON/YAML/TOML config.
   - Inline mode       : no --config arg, uses hardcoded init_project() call below.
 
-After the build pipeline, an optional TUF release step runs when:
-  - release_needed is True in the config, OR
-  - --publish flag is passed on the command line.
+One-time key setup (run before the first build with release_needed = True):
+    python setup.py --init
+    # or via the CLI: ezcompiler release init
+
+The TUF release step runs automatically when release_needed = True in config.
+Pass --skip-release to bypass it for a given build.
 
 Usage:
     python setup.py                            # inline config
     python setup.py --config ezcompiler.config.json
-    python setup.py --config ezcompiler.config.yaml --publish
+    python setup.py --init                     # first-time TUF key setup
+    python setup.py --skip-release             # build without release stage
 """
 
 from __future__ import annotations
@@ -121,10 +125,17 @@ def parse_args() -> argparse.Namespace:
         help="Path to a JSON, YAML or TOML config file (skips inline init_project)",
     )
     parser.add_argument(
-        "--publish",
+        "--init",
         action="store_true",
         default=False,
-        help="Publish the TUF repository after the release step",
+        help="Initialise TUF signing keys (one-time setup, then exit)",
+    )
+    parser.add_argument(
+        "--skip-release",
+        dest="skip_release",
+        action="store_true",
+        default=False,
+        help="Skip the release stage even when release_needed is True in config",
     )
     return parser.parse_args()
 
@@ -148,6 +159,11 @@ try:
         config = ConfigService.build_compiler_config(config_path=args.config)
         compiler = EzCompiler(config=config)
 
+        if args.init:
+            # One-time key setup — exits after completion
+            compiler.init_release()
+            raise SystemExit(0)
+
         compiler.run_pipeline(
             console=config.console,
             compiler=config.compiler if config.compiler != "auto" else None,
@@ -155,9 +171,8 @@ try:
             skip_upload=not config.repo_needed,
             upload_structure=config.upload_structure if config.repo_needed else None,
             upload_destination=config.repo_path if config.repo_needed else None,
+            skip_release=args.skip_release,
         )
-
-        release_needed = config.release_needed or args.publish
 
     else:
         # ------------------------------------------------
@@ -181,6 +196,10 @@ try:
             excludes=excludes,
         )
 
+        if args.init:
+            compiler.init_release()
+            raise SystemExit(0)
+
         compiler.run_pipeline(
             console=True,
             compiler=None,
@@ -188,16 +207,8 @@ try:
             skip_upload=not __REPO_NEEDED__,
             upload_structure="disk" if __REPO_NEEDED__ else None,
             upload_destination=REPO_PATH if __REPO_NEEDED__ else None,
+            skip_release=args.skip_release,
         )
-
-        release_needed = args.publish
-
-    # ------------------------------------------------
-    # OPTIONAL RELEASE STEP (tufup)
-    # ------------------------------------------------
-    if release_needed and compiler.config is not None:
-        bundle_dir = compiler.config.output_folder
-        compiler.release(bundle_dir=bundle_dir, publish=args.publish)
 
 except Exception as e:
     if compiler is not None:
