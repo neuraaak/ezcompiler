@@ -659,36 +659,55 @@ class EzCompiler:
                         dlp.update_layer("zip", 0, "Skipped (not needed)")
                         dlp.complete_layer("zip")
 
-                # Upload
-                if should_upload:
-                    current_phase = "upload"
-                    structure = upload_structure or self._config.upload_structure
-                    destination = upload_destination or (
-                        self._config.server_url
-                        if structure == "server"
-                        else self._config.repo_path
-                    )
-                    dlp.update_layer("upload", 0, f"Uploading to {destination}...")
-                    self._pipeline_service.upload_artifact(
-                        config=self._config,
-                        structure=structure,
-                        destination=str(destination),
-                        compilation_result=self._compilation_result,
-                        upload_config=upload_config,
-                    )
-                    self._logger.info(f"Upload completed ({structure})")
-                    dlp.complete_layer("upload")
-
-                # Release
+                # Release (build local TUF tree before upload)
+                repository_path: Path | None = None
                 if should_release:
                     current_phase = "release"
                     dlp.update_layer("release", 0, "Signing bundle...")
-                    repo_path = self._pipeline_service.release_artifact(
+                    repository_path = self._pipeline_service.release_artifact(
                         config=self._config,
                         compilation_result=self._compilation_result,
                     )
-                    self._logger.info(f"TUF release built: {repo_path}")
+                    self._logger.info(f"TUF release built: {repository_path}")
                     dlp.complete_layer("release")
+
+                # Upload (transfer publish root: downloads/ + repository/)
+                if should_upload:
+                    current_phase = "upload"
+                    structure = upload_structure or self._config.upload_structure
+                    if should_release:
+                        destination = (
+                            upload_destination
+                            or self._config.resolved_upload_destination
+                        )
+                        dlp.update_layer("upload", 0, f"Uploading to {destination}...")
+                        publish_root = self._pipeline_service.assemble_publish_root(
+                            self._config,
+                            self._compilation_result,
+                            repository_path,
+                        )
+                        UploaderService.upload(
+                            source_path=publish_root,
+                            upload_type=cast(Literal["disk", "server"], structure),
+                            destination=str(destination),
+                            upload_config=upload_config,
+                        )
+                    else:
+                        destination = upload_destination or (
+                            self._config.server_url
+                            if structure == "server"
+                            else self._config.repo_path
+                        )
+                        dlp.update_layer("upload", 0, f"Uploading to {destination}...")
+                        self._pipeline_service.upload_artifact(
+                            config=self._config,
+                            structure=structure,
+                            destination=str(destination),
+                            compilation_result=self._compilation_result,
+                            upload_config=upload_config,
+                        )
+                    self._logger.info(f"Upload completed ({structure})")
+                    dlp.complete_layer("upload")
 
             except (
                 ConfigurationError,

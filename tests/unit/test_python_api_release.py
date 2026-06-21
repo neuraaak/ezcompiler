@@ -119,6 +119,69 @@ def test_run_pipeline_preflight_raises_before_compile_when_keys_missing(
     assert compile_called == [], "compile_project must NOT be called before pre-flight"
 
 
+def test_run_pipeline_uploads_publish_root_after_release(
+    monkeypatch, tmp_path: Path
+) -> None:
+    cfg = _make_cfg(
+        tmp_path,
+        zip_needed=True,
+        repo_needed=True,
+        release_needed=True,
+        upload_structure="disk",
+        update_repo_url=str(tmp_path / "remote"),
+    )
+    # preflight passes: keys present
+    (tmp_path / "keystore").mkdir()
+    (tmp_path / "keystore" / "root").write_bytes(b"k")
+
+    # local TUF tree produced by the release stage
+    repo_tree = tmp_path / "repo" / "repository"
+    repo_tree.mkdir(parents=True)
+    (repo_tree / "metadata").mkdir()
+    (repo_tree / "metadata" / "root.json").write_text("{}", "utf-8")
+
+    calls: list[tuple[str, str]] = []
+
+    monkeypatch.setattr(
+        "ezcompiler.interfaces.python_api.PipelineService.release_artifact",
+        staticmethod(lambda **_: repo_tree),
+    )
+    monkeypatch.setattr(
+        "ezcompiler.interfaces.python_api.UploaderService.upload",
+        staticmethod(
+            lambda *, source_path, destination, **_kw: calls.append(
+                (str(source_path), destination)
+            )
+        ),
+    )
+    monkeypatch.setattr(
+        "ezcompiler.interfaces.python_api.PipelineService.compile_project",
+        lambda *_a, **_kw: (MagicMock(), MagicMock(zip_needed=True)),
+    )
+    monkeypatch.setattr(
+        "ezcompiler.interfaces.python_api.PipelineService.zip_artifact",
+        lambda *_a, **_kw: True,
+    )
+    monkeypatch.setattr(
+        "ezcompiler.interfaces.python_api.TemplateService.generate_version_file",
+        lambda *_a, **_kw: None,
+    )
+
+    # fake produced zip so assemble_publish_root copies it
+    zp = Path(cfg.zip_file_path)
+    zp.parent.mkdir(parents=True, exist_ok=True)
+    zp.write_bytes(b"zip")
+
+    ez = EzCompiler(cfg)
+    ez._printer = MagicMock()
+    ez.run_pipeline(console=False)
+
+    assert len(calls) == 1
+    source, dest = calls[0]
+    assert source.endswith("publish")
+    assert dest == str(tmp_path / "remote")
+
+
 def test_run_pipeline_skip_release_bypasses_release_stage(
     monkeypatch, tmp_path: Path
 ) -> None:
