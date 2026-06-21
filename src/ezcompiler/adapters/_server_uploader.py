@@ -92,47 +92,59 @@ class ServerUploader(BaseUploader):
 
     def upload(self, source_path: Path, destination: str) -> None:
         """
-        Upload a file to a remote server.
+        Upload a file or a directory tree to a remote server.
+
+        For directories, walks recursively and POSTs each file using its
+        POSIX path relative to ``source_path`` as the server destination.
 
         Args:
-            source_path: Path to the source file
-            destination: Destination path on the server
+            source_path: Path to the source file or directory
+            destination: Destination path on the server (single-file uploads)
 
         Raises:
-            UploadError: If upload fails after all retry attempts
+            UploadError: If any file fails after all retry attempts.
 
         Note:
-            Only supports single files, not directories.
             Automatically retries on failure based on retry_attempts config.
         """
         try:
             self._validate_source_path(source_path)
 
-            if not source_path.is_file():
-                raise UploadError(
-                    "Server uploader only supports single files, not directories"
-                )
+            if source_path.is_dir():
+                for file_path in sorted(source_path.rglob("*")):
+                    if file_path.is_file():
+                        rel = file_path.relative_to(source_path).as_posix()
+                        self._upload_single_file_with_retry(file_path, rel)
+                return
 
-            # Retry logic
-            last_error = None
-            for attempt in range(self._config["retry_attempts"]):
-                try:
-                    self._perform_upload(source_path, destination)
-                    return  # Success
-                except Exception as e:
-                    last_error = e
-                    if attempt == self._config["retry_attempts"] - 1:
-                        break
-
-            # All retries failed
-            raise UploadError(
-                f"Server upload failed after {self._config['retry_attempts']} attempts: {last_error}"
-            ) from last_error
+            self._upload_single_file_with_retry(source_path, destination)
 
         except UploadError:
             raise
         except Exception as e:
             raise UploadError(f"Server upload failed: {e}") from e
+
+    def _upload_single_file_with_retry(
+        self, source_path: Path, destination: str
+    ) -> None:
+        """POST a single file, retrying per ``retry_attempts``.
+
+        Raises:
+            UploadError: If the file fails after all retry attempts.
+        """
+        last_error = None
+        for attempt in range(self._config["retry_attempts"]):
+            try:
+                self._perform_upload(source_path, destination)
+                return
+            except Exception as e:
+                last_error = e
+                if attempt == self._config["retry_attempts"] - 1:
+                    break
+        raise UploadError(
+            f"Server upload failed after {self._config['retry_attempts']} "
+            f"attempts: {last_error}"
+        ) from last_error
 
     def _test_connection(self) -> bool:
         """
