@@ -39,12 +39,13 @@ def test_build_stages_with_release_adds_release_stage(cfg: CompilerConfig) -> No
     assert "release" in names
 
 
-def test_build_stages_release_comes_after_upload(cfg: CompilerConfig) -> None:
+def test_build_stages_release_comes_before_upload(cfg: CompilerConfig) -> None:
     stages = PipelineService.build_stages(
-        cfg, should_zip=False, should_upload=True, should_release=True
+        cfg, should_zip=True, should_upload=True, should_release=True
     )
     names = [s["name"] for s in stages]
-    assert names.index("release") > names.index("upload")
+    assert names.index("release") < names.index("upload")
+    assert names == ["main", "version", "compile", "zip", "release", "upload"]
 
 
 def test_release_artifact_calls_release_and_publish_with_publish_false(

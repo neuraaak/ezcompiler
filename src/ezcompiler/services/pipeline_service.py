@@ -132,20 +132,20 @@ class PipelineService:
                     "total": 100,
                 }
             )
-        if should_upload:
-            stages.append(
-                {
-                    "name": "upload",
-                    "type": "spinner",
-                    "description": "Uploading artifacts",
-                }
-            )
         if should_release:
             stages.append(
                 {
                     "name": "release",
                     "type": "spinner",
                     "description": "Building TUF release",
+                }
+            )
+        if should_upload:
+            stages.append(
+                {
+                    "name": "upload",
+                    "type": "spinner",
+                    "description": "Uploading artifacts",
                 }
             )
         return stages
