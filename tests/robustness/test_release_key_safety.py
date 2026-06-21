@@ -4,7 +4,9 @@ from pathlib import Path
 
 import pytest
 
+from ezcompiler.services.pipeline_service import PipelineService
 from ezcompiler.services.release_service import ReleaseService
+from ezcompiler.shared import CompilerConfig
 
 
 class _RepoBuildingReleaser:
@@ -56,3 +58,33 @@ def test_published_tree_contains_no_private_key(monkeypatch, tmp_path: Path) -> 
         and "PRIVATE-KEY" in p.read_text(encoding="utf-8", errors="ignore")
     ]
     assert leaked == [], f"private key leaked into published tree: {leaked}"
+
+
+@pytest.mark.robustness
+def test_publish_root_repository_contains_no_private_key(tmp_path: Path) -> None:
+    main = tmp_path / "main.py"
+    main.write_text("# m", encoding="utf-8")
+    cfg = CompilerConfig(
+        version="1.0.0",
+        project_name="App",
+        main_file=str(main),
+        include_files={"files": [], "folders": []},
+        output_folder=tmp_path / "dist",
+        zip_needed=False,
+    )
+    cfg.output_folder.mkdir(parents=True)
+    # tuf tree with metadata + targets only (no private keys; those live in
+    # tufup_keys_dir, outside the published repository/ tree)
+    repo_tree = tmp_path / "repo" / "repository"
+    (repo_tree / "metadata").mkdir(parents=True)
+    (repo_tree / "metadata" / "root.json").write_text("{}", "utf-8")
+    (repo_tree / "targets").mkdir()
+    (repo_tree / "targets" / "App-1.0.0.tar.gz").write_bytes(b"bundle")
+
+    publish = PipelineService.assemble_publish_root(cfg, None, repo_tree)
+
+    private_markers = ("root", "snapshot", "targets", "timestamp")
+    for path in (publish / "repository").rglob("*"):
+        if path.is_file() and path.suffix == "":
+            # tufup private keys are extension-less files named after roles
+            assert path.name not in private_markers, f"private key leaked: {path}"
