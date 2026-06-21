@@ -16,6 +16,7 @@ from __future__ import annotations
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
 # Standard library imports
+import shutil
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any, Literal, cast
@@ -172,6 +173,49 @@ class PipelineService:
             destination=destination,
             upload_config=upload_config,
         )
+
+    @staticmethod
+    def assemble_publish_root(
+        config: CompilerConfig,
+        compilation_result: CompilationResult | None,
+        repository_path: Path | None,
+    ) -> Path:
+        """Assemble the single publish root transferred by the upload stage.
+
+        Layout (cleaned on each run)::
+
+            publish/
+            ├── downloads/<zip>     (if a ZIP was produced)
+            └── repository/         (if a TUF release tree was produced)
+
+        Args:
+            config: Compiler configuration (provides output_folder, zip path).
+            compilation_result: Result whose zip_needed drives the download copy;
+                falls back to config.zip_needed when None.
+            repository_path: Local TUF tree to embed, or None when no release ran.
+
+        Returns:
+            Path: The assembled ``publish/`` root directory.
+        """
+        publish_root = config.output_folder / "publish"
+        if publish_root.exists():
+            shutil.rmtree(publish_root)
+        publish_root.mkdir(parents=True)
+
+        zip_needed = (
+            compilation_result.zip_needed if compilation_result else config.zip_needed
+        )
+        if zip_needed:
+            zip_path = Path(config.zip_file_path)
+            if zip_path.is_file():
+                downloads = publish_root / "downloads"
+                downloads.mkdir()
+                shutil.copy2(zip_path, downloads / zip_path.name)
+
+        if repository_path is not None and Path(repository_path).is_dir():
+            shutil.copytree(repository_path, publish_root / "repository")
+
+        return publish_root
 
     @staticmethod
     def release_artifact(
