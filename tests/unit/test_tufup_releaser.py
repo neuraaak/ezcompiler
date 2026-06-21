@@ -44,6 +44,10 @@ def test_release_calls_tufup_and_returns_repository(
     class _FakeRepo:
         def __init__(self, **kwargs):
             calls["init"] = kwargs
+            self.targets_dir = Path(kwargs["repo_dir"]) / "targets"
+
+        def _load_keys_and_roles(self, create_keys=True):
+            calls["load_keys_and_roles"] = create_keys
 
         def add_bundle(self, new_bundle_dir, new_version=None, **_):
             calls["add_bundle"] = (Path(new_bundle_dir), new_version)
@@ -51,8 +55,14 @@ def test_release_calls_tufup_and_returns_repository(
         def publish_changes(self, private_key_dirs=None, **_):
             calls["publish"] = private_key_dirs
 
+    class _FakeTargetMeta:
+        @staticmethod
+        def compose_filename(name, version, **_):
+            return f"{name}-{version}.tar.gz"
+
     fake_repo_mod = _types.ModuleType("tufup.repo")
     fake_repo_mod.Repository = _FakeRepo  # type: ignore[attr-defined]
+    fake_repo_mod.TargetMeta = _FakeTargetMeta  # type: ignore[attr-defined]
     monkeypatch.setitem(sys.modules, "tufup.repo", fake_repo_mod)
 
     bundle = _make_bundle(tmp_path)
@@ -67,6 +77,41 @@ def test_release_calls_tufup_and_returns_repository(
     assert result == repo_dir / "repository"
     assert calls["add_bundle"][1] == "1.0.0"
     assert calls["publish"] == [keys]
+    # Roles loaded non-interactively (no key creation/overwrite prompt)
+    assert calls["load_keys_and_roles"] is False
+
+
+def test_release_fails_fast_when_version_already_released(
+    monkeypatch, tmp_path: Path
+) -> None:
+    class _FakeRepo:
+        def __init__(self, **kwargs):
+            self.targets_dir = Path(kwargs["repo_dir"]) / "targets"
+
+        def _load_keys_and_roles(self, create_keys=True):
+            raise AssertionError("must fail before loading roles")
+
+    class _FakeTargetMeta:
+        @staticmethod
+        def compose_filename(name, version, **_):
+            return f"{name}-{version}.tar.gz"
+
+    fake_repo_mod = _types.ModuleType("tufup.repo")
+    fake_repo_mod.Repository = _FakeRepo  # type: ignore[attr-defined]
+    fake_repo_mod.TargetMeta = _FakeTargetMeta  # type: ignore[attr-defined]
+    monkeypatch.setitem(sys.modules, "tufup.repo", fake_repo_mod)
+
+    bundle = _make_bundle(tmp_path)
+    keys = tmp_path / "keystore"
+    keys.mkdir()
+    repo_dir = tmp_path / "repo"
+    # Pre-existing archive for version 1.0.0
+    targets = repo_dir / "targets"
+    targets.mkdir(parents=True)
+    (targets / "MyApp-1.0.0.tar.gz").write_bytes(b"old")
+
+    with pytest.raises(ReleaseError, match="already released"):
+        TufupReleaser({"keys_dir": keys}).release(bundle, "MyApp", "1.0.0", repo_dir)
 
 
 def test_get_releaser_name() -> None:

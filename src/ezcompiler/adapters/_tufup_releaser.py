@@ -57,7 +57,7 @@ class TufupReleaser(BaseReleaser):
             )
 
         try:
-            from tufup.repo import Repository  # noqa: PLC0415
+            from tufup.repo import Repository, TargetMeta  # noqa: PLC0415
         except ImportError as exc:
             raise ReleaseError(
                 "tufup is not installed; install ezcompiler[tufup]"
@@ -69,6 +69,21 @@ class TufupReleaser(BaseReleaser):
                 repo_dir=str(repo_dir),
                 keys_dir=str(keys_dir),
             )
+            # Fail fast on an already-released version: TUF versions are immutable
+            # once published, and tufup would otherwise prompt interactively
+            # (input("Overwrite?")), hanging the automated build.
+            archive_path = repository.targets_dir / TargetMeta.compose_filename(
+                name=app_name, version=version, is_archive=True
+            )
+            if archive_path.exists():
+                raise ReleaseError(
+                    f"Version {version} already released for {app_name} "
+                    f"({archive_path}). Bump the version to release again."
+                )
+            # Load existing keys/roles from disk (self.roles stays None otherwise).
+            # Use create_keys=False — same path as Repository.from_config() — so the
+            # build never prompts to overwrite keys nor regenerates them.
+            repository._load_keys_and_roles(create_keys=False)
             repository.add_bundle(new_bundle_dir=bundle_dir, new_version=version)
             repository.publish_changes(private_key_dirs=[keys_dir])
         except (ReleaseError, SigningKeyError):
