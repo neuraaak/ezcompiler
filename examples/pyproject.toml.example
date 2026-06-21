@@ -42,4 +42,6 @@ release_needed = false
 release_type = "tufup"
 tufup_repo_dir = "tuf_repository"
 tufup_keys_dir = "tuf_keys"
+# Destination unifiée de l'upload (downloads/ + repository/).
+# Si vide, fallback sur upload.repo_path (disk) ou upload.server_url (server).
 update_repo_url = ""

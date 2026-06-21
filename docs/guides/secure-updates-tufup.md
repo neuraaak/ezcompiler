@@ -92,18 +92,32 @@ print(f"Signed repository written to: {repository_path}")
 
 ---
 
-## Step 4 — Publish the repository (optional)
+## Step 4 — Publish via the pipeline (recommended)
 
-To transfer the signed repository to a remote server, pass `publish=True`:
+The build pipeline runs the stages in order `compile → zip → release → upload`.
+When `release_needed` is set, `run_pipeline()` builds the signed TUF tree, then the
+**upload stage** transfers a single publish root to `update_repo_url`:
 
-```python
-repository_path = compiler.release(
-    bundle_dir=Path("dist/MyApp"),
-    publish=True,   # transfers repository/ via the configured uploader
-)
+```text
+publish/
+├── downloads/<App>.zip   # le zip distribuable
+└── repository/           # l'arbre TUF (metadata + targets)
 ```
 
-The remote destination is read from `config.update_repo_url` and the transfer backend from `config.upload_structure` (`"disk"` or `"server"`).
+```python
+compiler.run_pipeline(console=False)
+```
+
+`update_repo_url` is the **unified upload destination** under which both
+`downloads/` (zip) and `repository/` (TUF tree) land. When empty, the destination
+falls back to `upload.repo_path` (disk) or `upload.server_url` (server). The
+transfer backend is `config.upload_structure` (`"disk"` or `"server"`); the server
+uploader walks the tree recursively and POSTs each file at its relative path.
+
+!!! warning "Déprécié"
+    `compiler.release(bundle_dir, publish=True)` est déprécié : le transfert distant
+    est désormais assuré par le stage upload de `run_pipeline`. L'appel émet un
+    `DeprecationWarning` mais continue de fonctionner.
 
 You can also call `ReleaseService` directly for more control:
 
