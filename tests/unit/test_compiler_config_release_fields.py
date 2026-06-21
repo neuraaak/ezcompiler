@@ -51,6 +51,28 @@ def test_release_fields_in_to_dict(main_file: Path) -> None:
     assert "release_needed" in result.get("release", result)
 
 
+def test_resolved_upload_destination_prefers_update_repo_url(main_file: Path) -> None:
+    cfg = _base(
+        main_file,
+        update_repo_url="https://updates.example.com",
+        upload_structure="server",
+        server_url="https://old.example.com",
+    )
+    assert cfg.resolved_upload_destination == "https://updates.example.com"
+
+
+def test_resolved_upload_destination_falls_back_to_repo_path(main_file: Path) -> None:
+    cfg = _base(main_file, upload_structure="disk", repo_path="releases/App")
+    assert cfg.resolved_upload_destination == "releases/App"
+
+
+def test_resolved_upload_destination_falls_back_to_server_url(main_file: Path) -> None:
+    cfg = _base(
+        main_file, upload_structure="server", server_url="https://srv.example.com"
+    )
+    assert cfg.resolved_upload_destination == "https://srv.example.com"
+
+
 def test_tufup_dirs_coerced_from_str_to_path(main_file: Path) -> None:
     # Configs loaded from JSON/TOML/YAML pass these as plain strings;
     # they must be coerced to Path so downstream .mkdir()/path ops work.

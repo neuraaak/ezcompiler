@@ -274,6 +274,26 @@ class CompilerConfig:
         return self.output_folder.parent / f"{self.project_name}.zip"
 
     # ////////////////////////////////////////////////
+    # RELEASE HELPER PROPERTIES
+    # ////////////////////////////////////////////////
+
+    @property
+    def resolved_upload_destination(self) -> str | None:
+        """Destination unifiée de l'upload.
+
+        Priorité : update_repo_url, puis fallback rétro-compat selon la
+        structure (server_url pour server, repo_path pour disk).
+
+        Returns:
+            str | None: Destination résolue, ou None si aucune n'est définie.
+        """
+        if self.update_repo_url:
+            return self.update_repo_url
+        if self.upload_structure == "server":
+            return self.server_url or None
+        return self.repo_path or None
+
+    # ////////////////////////////////////////////////
     # SERIALIZATION METHODS
     # ////////////////////////////////////////////////
 
