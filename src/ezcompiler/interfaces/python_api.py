@@ -489,6 +489,15 @@ class EzCompiler:
             raise ConfigurationError(
                 "Project not initialized. Call init_project() first."
             )
+        if publish:
+            import warnings  # noqa: PLC0415
+
+            warnings.warn(
+                "release(publish=True) est déprécié : le transfert distant est "
+                "désormais assuré par le stage upload de run_pipeline.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
         repo_dir = self._config.tufup_repo_dir or (self._config.output_folder / "repo")
         keys_dir = self._config.tufup_keys_dir or (repo_dir / "keystore")
         return ReleaseService.release_and_publish(

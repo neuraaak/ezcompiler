@@ -182,6 +182,25 @@ def test_run_pipeline_uploads_publish_root_after_release(
     assert dest == str(tmp_path / "remote")
 
 
+def test_release_publish_true_warns(monkeypatch, tmp_path: Path) -> None:
+    import warnings
+
+    cfg = _make_cfg(
+        tmp_path,
+        upload_structure="disk",
+        update_repo_url=str(tmp_path / "remote"),
+    )
+    monkeypatch.setattr(
+        "ezcompiler.interfaces.python_api.ReleaseService.release_and_publish",
+        staticmethod(lambda **_: tmp_path / "repo" / "repository"),
+    )
+    compiler = EzCompiler(cfg)
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        compiler.release(tmp_path / "bundle", publish=True)
+    assert any(issubclass(w.category, DeprecationWarning) for w in caught)
+
+
 def test_run_pipeline_skip_release_bypasses_release_stage(
     monkeypatch, tmp_path: Path
 ) -> None:
