@@ -49,3 +49,15 @@ def test_release_fields_settable(main_file: Path) -> None:
 def test_release_fields_in_to_dict(main_file: Path) -> None:
     result = _base(main_file).to_dict()
     assert "release_needed" in result.get("release", result)
+
+
+def test_tufup_dirs_coerced_from_str_to_path(main_file: Path) -> None:
+    # Configs loaded from JSON/TOML/YAML pass these as plain strings;
+    # they must be coerced to Path so downstream .mkdir()/path ops work.
+    cfg = _base(
+        main_file,
+        tufup_repo_dir=str(main_file.parent / "repo"),
+        tufup_keys_dir=str(main_file.parent / "keystore"),
+    )
+    assert isinstance(cfg.tufup_repo_dir, Path)
+    assert isinstance(cfg.tufup_keys_dir, Path)

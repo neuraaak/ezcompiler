@@ -214,7 +214,7 @@ class CompilerConfig:
         Validate file and folder paths.
 
         Ensures main file exists and output folder is accessible.
-        Converts output_folder to Path if it's a string.
+        Converts output_folder and tufup dirs to Path if they are strings.
 
         Raises:
             ConfigurationError: If main file doesn't exist
@@ -224,6 +224,12 @@ class CompilerConfig:
 
         if isinstance(self.output_folder, str):
             self.output_folder = Path(self.output_folder)
+
+        if isinstance(self.tufup_repo_dir, str):
+            self.tufup_repo_dir = Path(self.tufup_repo_dir)
+
+        if isinstance(self.tufup_keys_dir, str):
+            self.tufup_keys_dir = Path(self.tufup_keys_dir)
 
     def _validate_compiler_option(self) -> None:
         """
