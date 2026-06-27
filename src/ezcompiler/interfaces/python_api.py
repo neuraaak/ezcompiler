@@ -616,37 +616,33 @@ class EzCompiler:
         console: bool = True,
         compiler: str | None = None,
         skip_zip: bool = False,
-        skip_upload: bool = False,
-        upload_structure: Literal["server", "disk"] | None = None,
-        upload_destination: str | None = None,
-        upload_config: dict[str, Any] | None = None,
         skip_release: bool = False,
     ) -> None:
         """
-        Run the full build pipeline with visual progress tracking.
+        Run the build pipeline with visual progress tracking.
 
-        Executes version generation, compilation, optional ZIP creation,
-        and optional upload in sequence with a DynamicLayeredProgress display.
+        Executes version generation, compilation, optional ZIP creation and
+        optional TUF release in sequence with a DynamicLayeredProgress display.
+        Upload is no longer part of the pipeline — call ``upload()`` explicitly
+        afterwards.
 
         Args:
             console: Whether to show console window (default: True)
             compiler: Compiler to use or None for auto-selection
             skip_zip: Skip ZIP archive creation
-            skip_upload: Skip upload step
-            upload_structure: Upload type ("server" or "disk")
-            upload_destination: Upload destination path or URL
-            upload_config: Additional uploader configuration
+            skip_release: Skip the TUF release stage
 
         Raises:
             ConfigurationError: If project not initialized
             CompilationError: If compilation fails
             VersionError: If version file generation fails
             ZipError: If ZIP creation fails
-            UploadError: If upload fails
+            ReleaseError: If the release stage fails
 
         Example:
             >>> compiler = EzCompiler(config)
-            >>> compiler.run_pipeline(console=False, skip_upload=True)
+            >>> compiler.run_pipeline(console=False)
+            >>> compiler.upload()
         """
         if not self._config:
             raise ConfigurationError(
@@ -655,9 +651,6 @@ class EzCompiler:
 
         # Determine which optional stages to include
         should_zip = not skip_zip and self._config.zip_needed
-        should_upload = not skip_upload and (
-            upload_structure is not None or self._config.repo_needed
-        )
         should_release = not skip_release and getattr(
             self._config, "release_needed", False
         )
@@ -676,7 +669,6 @@ class EzCompiler:
             PipelineService.build_stages(
                 self._config,
                 should_zip=should_zip,
-                should_upload=should_upload,
                 should_release=should_release,
             ),
         )
@@ -742,8 +734,7 @@ class EzCompiler:
                         dlp.update_layer("zip", 0, "Skipped (not needed)")
                         dlp.complete_layer("zip")
 
-                # Release (build local TUF tree before upload)
-                repository_path: Path | None = None
+                # Release (build the local TUF tree; upload is a separate step)
                 if should_release:
                     current_phase = "release"
                     dlp.update_layer("release", 0, "Signing bundle...")
@@ -753,45 +744,6 @@ class EzCompiler:
                     )
                     self._logger.info(f"TUF release built: {repository_path}")
                     dlp.complete_layer("release")
-
-                # Upload (transfer the flat release dir: metadata + targets + zip)
-                if should_upload:
-                    current_phase = "upload"
-                    structure = upload_structure or self._config.upload_structure
-                    if should_release:
-                        assert repository_path is not None
-                        destination = (
-                            upload_destination
-                            or self._config.resolved_upload_destination
-                        )
-                        dlp.update_layer("upload", 0, f"Uploading to {destination}...")
-                        release_root = self._pipeline_service.assemble_release_dir(
-                            self._config,
-                            self._compilation_result,
-                            repository_path,
-                        )
-                        UploaderService.upload(
-                            source_path=release_root,
-                            upload_type=cast(Literal["disk", "server"], structure),
-                            destination=str(destination),
-                            upload_config=upload_config,
-                        )
-                    else:
-                        destination = upload_destination or (
-                            self._config.server_url
-                            if structure == "server"
-                            else self._config.repo_path
-                        )
-                        dlp.update_layer("upload", 0, f"Uploading to {destination}...")
-                        self._pipeline_service.upload_artifact(
-                            config=self._config,
-                            structure=structure,
-                            destination=str(destination),
-                            compilation_result=self._compilation_result,
-                            upload_config=upload_config,
-                        )
-                    self._logger.info(f"Upload completed ({structure})")
-                    dlp.complete_layer("upload")
 
             except (
                 ConfigurationError,

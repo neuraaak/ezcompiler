@@ -119,68 +119,34 @@ def test_run_pipeline_preflight_raises_before_compile_when_keys_missing(
     assert compile_called == [], "compile_project must NOT be called before pre-flight"
 
 
-def test_run_pipeline_uploads_publish_root_after_release(
-    monkeypatch, tmp_path: Path
-) -> None:
-    cfg = _make_cfg(
-        tmp_path,
-        zip_needed=True,
-        repo_needed=True,
-        release_needed=True,
-        upload_structure="disk",
-        update_repo_url=str(tmp_path / "remote"),
-    )
-    # preflight passes: keys present
+def test_run_pipeline_does_not_upload(monkeypatch, tmp_path: Path) -> None:
+    cfg = _make_cfg(tmp_path, zip_needed=False, release_needed=True)
     (tmp_path / "keystore").mkdir()
     (tmp_path / "keystore" / "root").write_bytes(b"k")
 
-    # local TUF tree produced by the release stage (root with metadata/ + targets/)
-    repo_root = tmp_path / "repo"
-    (repo_root / "metadata").mkdir(parents=True)
-    (repo_root / "metadata" / "root.json").write_text("{}", "utf-8")
-    (repo_root / "targets").mkdir()
-    (repo_root / "targets" / "App-1.0.0.tar.gz").write_bytes(b"bundle")
-
-    calls: list[tuple[str, str]] = []
-
-    monkeypatch.setattr(
-        "ezcompiler.interfaces.python_api.PipelineService.release_artifact",
-        staticmethod(lambda **_: repo_root),
-    )
+    upload_calls: list = []
     monkeypatch.setattr(
         "ezcompiler.interfaces.python_api.UploaderService.upload",
-        staticmethod(
-            lambda *, source_path, destination, **_kw: calls.append(
-                (str(source_path), destination)
-            )
-        ),
+        staticmethod(lambda **_kw: upload_calls.append(True)),
+    )
+    monkeypatch.setattr(
+        "ezcompiler.interfaces.python_api.PipelineService.release_artifact",
+        staticmethod(lambda **_: tmp_path / "repo"),
     )
     monkeypatch.setattr(
         "ezcompiler.interfaces.python_api.PipelineService.compile_project",
-        lambda *_a, **_kw: (MagicMock(), MagicMock(zip_needed=True)),
-    )
-    monkeypatch.setattr(
-        "ezcompiler.interfaces.python_api.PipelineService.zip_artifact",
-        lambda *_a, **_kw: True,
+        lambda *_a, **_kw: (MagicMock(), MagicMock(zip_needed=False)),
     )
     monkeypatch.setattr(
         "ezcompiler.interfaces.python_api.TemplateService.generate_version_file",
         lambda *_a, **_kw: None,
     )
 
-    # fake produced zip so assemble_release_dir copies it
-    zp = Path(cfg.zip_file_path)
-    zp.parent.mkdir(parents=True, exist_ok=True)
-    zp.write_bytes(b"zip")
-
     ez = EzCompiler(cfg)
     ez._printer = MagicMock()
     ez.run_pipeline(console=False)
 
-    assert len(calls) == 1
-    source, dest = calls[0]
-    assert source.endswith("release")
-    assert dest == str(tmp_path / "remote")
+    assert upload_calls == [], "run_pipeline must not upload anymore"
 
 
 def test_release_publish_true_warns(monkeypatch, tmp_path: Path) -> None:
@@ -225,6 +191,6 @@ def test_run_pipeline_skip_release_bypasses_release_stage(
 
     ez = EzCompiler(cfg)
     ez._printer = MagicMock()
-    ez.run_pipeline(skip_release=True, skip_upload=True, skip_zip=True)
+    ez.run_pipeline(skip_release=True, skip_zip=True)
 
     assert release_calls == []
