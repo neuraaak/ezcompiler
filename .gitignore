@@ -82,6 +82,7 @@ node_modules/
 bandit-report.json
 bandit-report.xml
 bandit-report.html
+bandit_report.html
 
 # Rapports de couverture de code (pytest-cov, coverage)
 .coverage
