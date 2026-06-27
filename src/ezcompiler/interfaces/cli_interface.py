@@ -43,7 +43,6 @@ from ..services import (
     PipelineService,
     ReleaseService,
     TemplateService,
-    UploaderService,
 )
 from ..shared.exceptions import (
     CompilationError,
@@ -818,25 +817,6 @@ def template_raw(
     default=False,
     help="Skip ZIP archive creation",
 )
-@click.option(
-    "--no-upload",
-    is_flag=True,
-    default=False,
-    help="Skip upload step",
-)
-@click.option(
-    "--upload-structure",
-    "-us",
-    type=click.Choice(["disk", "server"]),
-    default=None,
-    help="Upload structure (overrides config)",
-)
-@click.option(
-    "--upload-destination",
-    "-ud",
-    default=None,
-    help="Upload destination path or URL (overrides config)",
-)
 def compile_project(
     config: str | None,
     pyproject: str | None,
@@ -845,9 +825,6 @@ def compile_project(
     output_folder: str | None,
     debug: bool,
     no_zip: bool,
-    no_upload: bool,
-    upload_structure: str | None,
-    upload_destination: str | None,
 ) -> None:
     """
     Compile the project.
@@ -864,8 +841,6 @@ def compile_project(
         ezcompiler compile --pyproject ../myproject/pyproject.toml
 
         ezcompiler compile --compiler PyInstaller --no-console
-
-        ezcompiler compile --upload-structure disk --upload-destination releases/
     """
     printer = _get_printer()
     logger = _get_logger()
@@ -882,10 +857,6 @@ def compile_project(
             cli_overrides["output_folder"] = output_folder
         if debug:
             cli_overrides["debug"] = True
-        if upload_structure is not None:
-            cli_overrides["upload_structure"] = upload_structure
-        if upload_destination is not None:
-            cli_overrides["repo_path"] = upload_destination
 
         # Load config with cascade
         config_obj = ConfigService.build_compiler_config(
@@ -899,16 +870,11 @@ def compile_project(
         sys.exit(1)
 
     should_zip = not no_zip and config_obj.zip_needed
-    should_upload = not no_upload and (
-        upload_structure is not None or config_obj.repo_needed
-    )
 
     # Build dynamic stages based on config
     stages: list[StageConfig] = cast(
         list["StageConfig"],
-        PipelineService.build_stages(
-            config_obj, should_zip=should_zip, should_upload=should_upload
-        ),
+        PipelineService.build_stages(config_obj, should_zip=should_zip),
     )
 
     # Phase 2-5: Execute pipeline with progress
@@ -965,29 +931,6 @@ def compile_project(
                     # Stage was added but not needed at runtime
                     dlp.update_layer("zip", 0, "Skipped (not needed)")
                     dlp.complete_layer("zip")
-
-            # Upload
-            if should_upload:
-                current_phase = "upload"
-                source_file = (
-                    str(config_obj.zip_file_path)
-                    if zip_needed
-                    else str(config_obj.output_folder)
-                )
-                structure = upload_structure or config_obj.upload_structure
-                destination = upload_destination or (
-                    config_obj.server_url
-                    if structure == "server"
-                    else config_obj.repo_path
-                )
-                dlp.update_layer("upload", 0, f"Connecting to {destination}...")
-                UploaderService.upload(
-                    source_path=Path(source_file),
-                    upload_type=cast(Literal["disk", "server"], structure),
-                    destination=destination,
-                )
-                logger.info(f"Upload completed ({structure})")
-                dlp.complete_layer("upload")
 
         except (
             ConfigurationError,
