@@ -74,7 +74,7 @@ def test_release_calls_tufup_and_returns_repository(
         bundle, "MyApp", "1.0.0", repo_dir
     )
 
-    assert result == repo_dir / "repository"
+    assert result == repo_dir
     assert calls["add_bundle"][1] == "1.0.0"
     assert calls["publish"] == [keys]
     # Roles loaded non-interactively (no key creation/overwrite prompt)

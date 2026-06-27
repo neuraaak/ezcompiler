@@ -12,7 +12,7 @@ requires the optional extra. This adapter only builds/signs the LOCAL
 repository tree; publishing it to a remote target is delegated to the existing
 uploaders by ``ReleaseService``.
 
-API pinned on tufup==0.10.0 (see .tmp/tufup-api-notes.md).
+API pinned on tufup==0.10.0 (see _temp/tufup-audit.md).
 """
 
 from __future__ import annotations
@@ -91,7 +91,7 @@ class TufupReleaser(BaseReleaser):
         except Exception as exc:
             raise ReleaseError(f"tufup release failed: {exc}") from exc
 
-        return repo_dir / "repository"
+        return repo_dir
 
     # ////////////////////////////////////////////////
     # INIT
