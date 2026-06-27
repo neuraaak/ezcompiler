@@ -63,7 +63,7 @@ type UploadTarget = str
 
 Valid values: "disk", "server"
 
-Used by: CompilerConfig.upload_structure, EzCompiler.upload_to_repo().
+Used by: CompilerConfig.upload_structure, EzCompiler.upload().
 """
 
 type ReleaseTarget = Literal["tufup"]

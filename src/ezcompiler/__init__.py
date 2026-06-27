@@ -37,7 +37,7 @@ for professional and industrial Python applications.
     >>> compiler = EzCompiler(config)
     >>> compiler.compile_project()
     >>> compiler.zip_compiled_project()
-    >>> compiler.upload_to_repo("disk", "releases/")
+    >>> compiler.upload()
 """
 
 from __future__ import annotations

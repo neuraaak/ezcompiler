@@ -75,7 +75,7 @@ class EzCompiler:
         >>> compiler = EzCompiler(config)
         >>> compiler.compile_project()
         >>> compiler.zip_compiled_project()
-        >>> compiler.upload_to_repo("disk", "releases")
+        >>> compiler.upload()
     """
 
     # ////////////////////////////////////////////////
@@ -411,56 +411,6 @@ class EzCompiler:
     # ////////////////////////////////////////////////
     # UPLOAD METHODS
     # ////////////////////////////////////////////////
-
-    def upload_to_repo(
-        self,
-        structure: Literal["server", "disk"],
-        repo_path: Path | str,
-        upload_config: dict[str, Any] | None = None,
-    ) -> None:
-        """
-        Upload compiled project to repository.
-
-        Uploads the compiled artifact (ZIP or directory) to the specified
-        repository using the appropriate uploader (disk or server).
-
-        Args:
-            structure: Upload type - "server" for HTTP/HTTPS, "disk" for local
-            repo_path: Repository path or server URL
-            upload_config: Additional uploader configuration options
-
-        Raises:
-            ConfigurationError: If project not initialized
-            EzCompilerError: If upload structure is invalid
-
-        Example:
-            >>> compiler.upload_to_repo("disk", "releases/")
-            >>> compiler.upload_to_repo("server", "https://example.com/upload")
-        """
-        try:
-            if not self._config:
-                raise ConfigurationError(
-                    "Project not initialized. Call init_project() first."
-                )
-
-            # Perform upload using UploaderService
-            self._pipeline_service.upload_artifact(
-                config=self._config,
-                structure=structure,
-                destination=str(repo_path),
-                compilation_result=self._compilation_result,
-                upload_config=upload_config,
-            )
-
-            self._printer.success(f"Project uploaded successfully to {structure}")
-            self._logger.info(f"Project uploaded successfully to {structure}")
-
-        except (ConfigurationError, UploadError):
-            raise
-        except Exception as e:
-            self._printer.error(f"Upload failed: {e}")
-            self._logger.error(f"Upload failed: {e}")
-            raise UploadError(f"Upload failed: {e}") from e
 
     def upload(
         self,
