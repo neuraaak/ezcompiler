@@ -56,6 +56,17 @@ class TufupReleaser(BaseReleaser):
                 "Initialize keys first (admin operation, never part of automated build)."
             )
 
+        # Fail fast on a half-initialized repo (keys present but metadata tree
+        # missing): tufup would otherwise prompt interactively to create the
+        # metadata directory (input("Create directory ...?")), hanging the build.
+        root_metadata = repo_dir / "metadata" / "root.json"
+        if not root_metadata.exists():
+            raise ReleaseError(
+                f"TUF repository not initialized at {repo_dir} "
+                f"(missing {root_metadata}). Run key/repo initialization first "
+                "(e.g. `ezcompiler release init`)."
+            )
+
         try:
             from tufup.repo import Repository, TargetMeta  # noqa: PLC0415
         except ImportError as exc:
@@ -107,7 +118,14 @@ class TufupReleaser(BaseReleaser):
         except OSError as exc:
             raise SigningKeyError(f"Cannot create keys directory: {keys_dir}") from exc
 
-        if any(keys_dir.iterdir()):
+        # Idempotent only when the repo is FULLY initialized: keys present AND
+        # the metadata tree exists. Keys and metadata live in separate dirs, so
+        # checking keys alone would skip initialize() on a repo whose metadata
+        # was never created (or was cleaned), leaving release() to hang on
+        # tufup's interactive metadata-dir prompt. tufup.initialize() is safe to
+        # call for existing keys (it never regenerates them).
+        root_metadata = repo_dir / "metadata" / "root.json"
+        if any(keys_dir.iterdir()) and root_metadata.exists():
             return False
 
         try:

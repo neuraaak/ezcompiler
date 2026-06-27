@@ -17,6 +17,13 @@ def _make_bundle(tmp_path: Path) -> Path:
     return bundle
 
 
+def _make_initialized_repo(repo_dir: Path) -> None:
+    """Create the minimal TUF metadata marking the repo as initialized."""
+    metadata = repo_dir / "metadata"
+    metadata.mkdir(parents=True)
+    (metadata / "root.json").write_bytes(b"{}")
+
+
 def test_release_raises_when_tufup_missing(monkeypatch, tmp_path: Path) -> None:
     monkeypatch.setitem(sys.modules, "tufup.repo", None)  # type: ignore[arg-type]
     bundle = _make_bundle(tmp_path)
@@ -69,6 +76,7 @@ def test_release_calls_tufup_and_returns_repository(
     keys = tmp_path / "keystore"
     keys.mkdir()
     repo_dir = tmp_path / "repo"
+    _make_initialized_repo(repo_dir)
 
     result = TufupReleaser({"keys_dir": keys}).release(
         bundle, "MyApp", "1.0.0", repo_dir
@@ -105,6 +113,7 @@ def test_release_fails_fast_when_version_already_released(
     keys = tmp_path / "keystore"
     keys.mkdir()
     repo_dir = tmp_path / "repo"
+    _make_initialized_repo(repo_dir)
     # Pre-existing archive for version 1.0.0
     targets = repo_dir / "targets"
     targets.mkdir(parents=True)
@@ -114,18 +123,83 @@ def test_release_fails_fast_when_version_already_released(
         TufupReleaser({"keys_dir": keys}).release(bundle, "MyApp", "1.0.0", repo_dir)
 
 
+def test_release_fails_fast_when_repo_not_initialized(
+    monkeypatch, tmp_path: Path
+) -> None:
+    """Keys exist but the TUF metadata tree is missing: fail fast, never prompt."""
+
+    class _FakeRepo:
+        def __init__(self, **kwargs):
+            self.targets_dir = Path(kwargs["repo_dir"]) / "targets"
+
+        def _load_keys_and_roles(self, create_keys=True):
+            raise AssertionError("must fail before touching tufup roles")
+
+    class _FakeTargetMeta:
+        @staticmethod
+        def compose_filename(name, version, **_):
+            return f"{name}-{version}.tar.gz"
+
+    fake_repo_mod = _types.ModuleType("tufup.repo")
+    fake_repo_mod.Repository = _FakeRepo  # type: ignore[attr-defined]
+    fake_repo_mod.TargetMeta = _FakeTargetMeta  # type: ignore[attr-defined]
+    monkeypatch.setitem(sys.modules, "tufup.repo", fake_repo_mod)
+
+    bundle = _make_bundle(tmp_path)
+    keys = tmp_path / "keystore"
+    keys.mkdir()
+    repo_dir = tmp_path / "repo"  # no metadata/root.json
+
+    with pytest.raises(ReleaseError, match="not initialized"):
+        TufupReleaser({"keys_dir": keys}).release(bundle, "MyApp", "1.0.0", repo_dir)
+
+
 def test_get_releaser_name() -> None:
     assert TufupReleaser().get_releaser_name() == "Tufup"
 
 
-def test_init_keys_skips_when_keys_already_present(tmp_path: Path) -> None:
+def test_init_keys_skips_when_repo_fully_initialized(tmp_path: Path) -> None:
     keys = tmp_path / "keystore"
     keys.mkdir()
     (keys / "root.pem").write_bytes(b"fake-key")
+    repo_dir = tmp_path / "repo"
+    _make_initialized_repo(repo_dir)
 
-    result = TufupReleaser().init_keys("MyApp", tmp_path / "repo", keys)
+    result = TufupReleaser().init_keys("MyApp", repo_dir, keys)
 
     assert result is False
+
+
+def test_init_keys_initializes_when_keys_present_but_metadata_missing(
+    monkeypatch, tmp_path: Path
+) -> None:
+    """Keys exist but the repo metadata was never created (or was cleaned):
+    init must (re)run initialize() instead of skipping."""
+    calls: dict[str, object] = {}
+
+    class _FakeRepo:
+        def __init__(self, **kwargs: object) -> None:
+            calls["init"] = kwargs
+
+        def save_config(self) -> None:
+            calls["save_config"] = True
+
+        def initialize(self) -> None:
+            calls["initialize"] = True
+
+    fake_repo_mod = _types.ModuleType("tufup.repo")
+    fake_repo_mod.Repository = _FakeRepo  # type: ignore[attr-defined]
+    monkeypatch.setitem(sys.modules, "tufup.repo", fake_repo_mod)
+
+    keys = tmp_path / "keystore"
+    keys.mkdir()
+    (keys / "root.pem").write_bytes(b"fake-key")  # keys already present
+    repo_dir = tmp_path / "repo"  # but no metadata/root.json
+
+    result = TufupReleaser().init_keys("MyApp", repo_dir, keys)
+
+    assert result is True
+    assert calls.get("initialize") is True
 
 
 def test_init_keys_raises_signing_key_error_when_keys_dir_not_creatable(
