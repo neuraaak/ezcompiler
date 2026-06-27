@@ -1013,6 +1013,73 @@ def compile_project(
     printer.success("Build pipeline finished")
 
 
+@main.command(name="upload")
+@click.option(
+    "--config",
+    "-c",
+    type=click.Path(exists=True),
+    help="Config file path (YAML, JSON)",
+)
+@click.option(
+    "--pyproject",
+    "-p",
+    type=click.Path(exists=True),
+    help="Explicit pyproject.toml path",
+)
+@click.option(
+    "--structure",
+    "-us",
+    "structure",
+    type=click.Choice(["disk", "server"]),
+    default=None,
+    help="Upload structure (overrides config)",
+)
+@click.option(
+    "--destination",
+    "-ud",
+    "destination",
+    default=None,
+    help="Upload destination path or URL (overrides config)",
+)
+def upload_command(
+    config: str | None,
+    pyproject: str | None,
+    structure: str | None,
+    destination: str | None,
+) -> None:
+    """Upload the build output to its destination.
+
+    Auto-detects what to upload: the flat release directory when
+    release_needed is set, otherwise the compiled artifact. Destination and
+    structure fall back to the config when not given.
+
+    Examples:
+
+        ezcompiler upload
+
+        ezcompiler upload --config ezcompiler.yaml
+
+        ezcompiler upload --structure disk --destination releases/
+    """
+    printer = _get_printer()
+    logger = _get_logger()
+    try:
+        config_obj = ConfigService.build_compiler_config(
+            config_path=Path(config) if config else None,
+            pyproject_path=Path(pyproject) if pyproject else None,
+        )
+        from .python_api import EzCompiler  # noqa: PLC0415
+
+        EzCompiler(config=config_obj).upload(
+            destination=destination,
+            structure=cast(Literal["server", "disk"], structure) if structure else None,
+        )
+    except (ConfigurationError, UploadError, ReleaseError) as e:
+        printer.error(str(e))
+        logger.error(str(e))
+        sys.exit(1)
+
+
 @main.command()
 @click.argument(
     "format_type",
