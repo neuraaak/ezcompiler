@@ -462,6 +462,80 @@ class EzCompiler:
             self._logger.error(f"Upload failed: {e}")
             raise UploadError(f"Upload failed: {e}") from e
 
+    def upload(
+        self,
+        destination: Path | str | None = None,
+        structure: Literal["server", "disk"] | None = None,
+        upload_config: dict[str, Any] | None = None,
+    ) -> None:
+        """Upload the build output, choosing the source automatically.
+
+        When ``release_needed`` is set, re-assembles the flat release directory
+        (TUF metadata + targets + zip) and uploads it; otherwise uploads the
+        compiled artifact (ZIP or output folder). Stateless: every path is
+        derived from the config, so it works after ``run_pipeline()`` or on its
+        own.
+
+        Args:
+            destination: Override for the upload destination. Defaults to
+                ``resolved_upload_destination`` (release) or the configured
+                ``repo_path``/``server_url`` (artifact).
+            structure: Override for the upload type ("disk" or "server").
+                Defaults to ``config.upload_structure``.
+            upload_config: Additional uploader configuration options.
+
+        Raises:
+            ConfigurationError: If project not initialized.
+            UploadError: If the upload fails.
+            ReleaseError: If assembling the release directory fails.
+        """
+        if not self._config:
+            raise ConfigurationError(
+                "Project not initialized. Call init_project() first."
+            )
+
+        structure_final = structure or self._config.upload_structure
+        try:
+            if self._config.release_needed:
+                repo_dir = self._config.tufup_repo_dir or (
+                    self._config.output_folder / "repo"
+                )
+                release_root = self._pipeline_service.assemble_release_dir(
+                    self._config,
+                    self._compilation_result,
+                    repo_dir,
+                )
+                dest = destination or self._config.resolved_upload_destination
+                UploaderService.upload(
+                    source_path=release_root,
+                    upload_type=cast(Literal["disk", "server"], structure_final),
+                    destination=str(dest),
+                    upload_config=upload_config,
+                )
+            else:
+                dest = destination or (
+                    self._config.server_url
+                    if structure_final == "server"
+                    else self._config.repo_path
+                )
+                self._pipeline_service.upload_artifact(
+                    config=self._config,
+                    structure=structure_final,
+                    destination=str(dest),
+                    compilation_result=self._compilation_result,
+                    upload_config=upload_config,
+                )
+
+            self._printer.success(f"Upload completed ({structure_final})")
+            self._logger.info(f"Upload completed ({structure_final})")
+
+        except (ConfigurationError, UploadError, ReleaseError):
+            raise
+        except Exception as e:
+            self._printer.error(f"Upload failed: {e}")
+            self._logger.error(f"Upload failed: {e}")
+            raise UploadError(f"Upload failed: {e}") from e
+
     def release(
         self,
         bundle_dir: Path,
