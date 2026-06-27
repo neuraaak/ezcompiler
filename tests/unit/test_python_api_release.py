@@ -134,17 +134,18 @@ def test_run_pipeline_uploads_publish_root_after_release(
     (tmp_path / "keystore").mkdir()
     (tmp_path / "keystore" / "root").write_bytes(b"k")
 
-    # local TUF tree produced by the release stage
-    repo_tree = tmp_path / "repo" / "repository"
-    repo_tree.mkdir(parents=True)
-    (repo_tree / "metadata").mkdir()
-    (repo_tree / "metadata" / "root.json").write_text("{}", "utf-8")
+    # local TUF tree produced by the release stage (root with metadata/ + targets/)
+    repo_root = tmp_path / "repo"
+    (repo_root / "metadata").mkdir(parents=True)
+    (repo_root / "metadata" / "root.json").write_text("{}", "utf-8")
+    (repo_root / "targets").mkdir()
+    (repo_root / "targets" / "App-1.0.0.tar.gz").write_bytes(b"bundle")
 
     calls: list[tuple[str, str]] = []
 
     monkeypatch.setattr(
         "ezcompiler.interfaces.python_api.PipelineService.release_artifact",
-        staticmethod(lambda **_: repo_tree),
+        staticmethod(lambda **_: repo_root),
     )
     monkeypatch.setattr(
         "ezcompiler.interfaces.python_api.UploaderService.upload",
@@ -167,7 +168,7 @@ def test_run_pipeline_uploads_publish_root_after_release(
         lambda *_a, **_kw: None,
     )
 
-    # fake produced zip so assemble_publish_root copies it
+    # fake produced zip so assemble_release_dir copies it
     zp = Path(cfg.zip_file_path)
     zp.parent.mkdir(parents=True, exist_ok=True)
     zp.write_bytes(b"zip")
@@ -178,7 +179,7 @@ def test_run_pipeline_uploads_publish_root_after_release(
 
     assert len(calls) == 1
     source, dest = calls[0]
-    assert source.endswith("publish")
+    assert source.endswith("release")
     assert dest == str(tmp_path / "remote")
 
 

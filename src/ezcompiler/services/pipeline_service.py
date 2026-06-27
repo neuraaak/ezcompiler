@@ -175,32 +175,43 @@ class PipelineService:
         )
 
     @staticmethod
-    def assemble_publish_root(
+    def assemble_release_dir(
         config: CompilerConfig,
         compilation_result: CompilationResult | None,
-        repository_path: Path | None,
+        repository_path: Path,
     ) -> Path:
-        """Assemble the single publish root transferred by the upload stage.
+        """Assemble the single flat release dir transferred by the upload stage.
 
-        Layout (cleaned on each run)::
+        Flattens the TUF working repo (metadata/ + targets/) into one directory
+        and drops the dist ZIP alongside, ready to publish as-is.
 
-            publish/
-            ├── downloads/<zip>     (if a ZIP was produced)
-            └── repository/         (if a TUF release tree was produced)
+        Layout (cleaned on each run, all files flat at the root)::
+
+            release/
+            ├── root.json, snapshot.json, targets.json, timestamp.json  (metadata)
+            ├── <App>-<ver>.tar.gz, <App>-<from>-<to>.patch             (targets)
+            └── <App>.zip                                               (if produced)
 
         Args:
             config: Compiler configuration (provides output_folder, zip path).
-            compilation_result: Result whose zip_needed drives the download copy;
+            compilation_result: Result whose zip_needed drives the ZIP copy;
                 falls back to config.zip_needed when None.
-            repository_path: Local TUF tree to embed, or None when no release ran.
+            repository_path: Local TUF tree root (contains metadata/ + targets/).
 
         Returns:
-            Path: The assembled ``publish/`` root directory.
+            Path: The assembled flat ``release/`` directory.
         """
-        publish_root = config.output_folder / "publish"
-        if publish_root.exists():
-            shutil.rmtree(publish_root)
-        publish_root.mkdir(parents=True)
+        release_dir = config.output_folder.parent / "release"
+        if release_dir.exists():
+            shutil.rmtree(release_dir)
+        release_dir.mkdir(parents=True)
+
+        for subdir in ("metadata", "targets"):
+            source = Path(repository_path) / subdir
+            if source.is_dir():
+                for item in source.iterdir():
+                    if item.is_file():
+                        shutil.copy2(item, release_dir / item.name)
 
         zip_needed = (
             compilation_result.zip_needed if compilation_result else config.zip_needed
@@ -208,14 +219,9 @@ class PipelineService:
         if zip_needed:
             zip_path = Path(config.zip_file_path)
             if zip_path.is_file():
-                downloads = publish_root / "downloads"
-                downloads.mkdir()
-                shutil.copy2(zip_path, downloads / zip_path.name)
+                shutil.copy2(zip_path, release_dir / zip_path.name)
 
-        if repository_path is not None and Path(repository_path).is_dir():
-            shutil.copytree(repository_path, publish_root / "repository")
-
-        return publish_root
+        return release_dir
 
     @staticmethod
     def release_artifact(

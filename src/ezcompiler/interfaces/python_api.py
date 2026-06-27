@@ -680,23 +680,24 @@ class EzCompiler:
                     self._logger.info(f"TUF release built: {repository_path}")
                     dlp.complete_layer("release")
 
-                # Upload (transfer publish root: downloads/ + repository/)
+                # Upload (transfer the flat release dir: metadata + targets + zip)
                 if should_upload:
                     current_phase = "upload"
                     structure = upload_structure or self._config.upload_structure
                     if should_release:
+                        assert repository_path is not None
                         destination = (
                             upload_destination
                             or self._config.resolved_upload_destination
                         )
                         dlp.update_layer("upload", 0, f"Uploading to {destination}...")
-                        publish_root = self._pipeline_service.assemble_publish_root(
+                        release_root = self._pipeline_service.assemble_release_dir(
                             self._config,
                             self._compilation_result,
                             repository_path,
                         )
                         UploaderService.upload(
-                            source_path=publish_root,
+                            source_path=release_root,
                             upload_type=cast(Literal["disk", "server"], structure),
                             destination=str(destination),
                             upload_config=upload_config,

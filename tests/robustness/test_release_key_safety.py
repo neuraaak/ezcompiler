@@ -61,7 +61,7 @@ def test_published_tree_contains_no_private_key(monkeypatch, tmp_path: Path) -> 
 
 
 @pytest.mark.robustness
-def test_publish_root_repository_contains_no_private_key(tmp_path: Path) -> None:
+def test_release_dir_contains_no_private_key(tmp_path: Path) -> None:
     main = tmp_path / "main.py"
     main.write_text("# m", encoding="utf-8")
     cfg = CompilerConfig(
@@ -73,18 +73,18 @@ def test_publish_root_repository_contains_no_private_key(tmp_path: Path) -> None
         zip_needed=False,
     )
     cfg.output_folder.mkdir(parents=True)
-    # tuf tree with metadata + targets only (no private keys; those live in
-    # tufup_keys_dir, outside the published repository/ tree)
-    repo_tree = tmp_path / "repo" / "repository"
-    (repo_tree / "metadata").mkdir(parents=True)
-    (repo_tree / "metadata" / "root.json").write_text("{}", "utf-8")
-    (repo_tree / "targets").mkdir()
-    (repo_tree / "targets" / "App-1.0.0.tar.gz").write_bytes(b"bundle")
+    # TUF root with metadata + targets only (private keys live in tufup_keys_dir,
+    # outside the published tree)
+    repo_root = tmp_path / "repo"
+    (repo_root / "metadata").mkdir(parents=True)
+    (repo_root / "metadata" / "root.json").write_text("{}", "utf-8")
+    (repo_root / "targets").mkdir()
+    (repo_root / "targets" / "App-1.0.0.tar.gz").write_bytes(b"bundle")
 
-    publish = PipelineService.assemble_publish_root(cfg, None, repo_tree)
+    release = PipelineService.assemble_release_dir(cfg, None, repo_root)
 
     private_markers = ("root", "snapshot", "targets", "timestamp")
-    for path in (publish / "repository").rglob("*"):
+    for path in release.rglob("*"):
         if path.is_file() and path.suffix == "":
             # tufup private keys are extension-less files named after roles
             assert path.name not in private_markers, f"private key leaked: {path}"
