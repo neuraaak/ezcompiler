@@ -70,7 +70,7 @@ all-compilers = [
     "PyInstaller>=5.0",
     "Nuitka>=2.4",
 ]
-tufup = ["tufup>=0.9"]
+tufup = ["tufup>=0.10"]
 dev = [
     # Development tools
     "ruff>=0.1.0",
