@@ -49,7 +49,7 @@
     "debug": false
   },
   "release": {
-    "release_needed": false,
+    "release_needed": true,
     "release_type": "tufup",
     "tufup_repo_dir": "tuf_repository",
     "tufup_keys_dir": "tuf_keys",

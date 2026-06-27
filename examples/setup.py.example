@@ -125,7 +125,7 @@ try:
         skip_zip=not config.zip_needed,
         skip_upload=not config.repo_needed,
         upload_structure=config.upload_structure if config.repo_needed else None,
-        upload_destination=config.repo_path if config.repo_needed else None,
+        upload_destination=config.resolved_upload_destination if config.repo_needed else None,
         skip_release=args.skip_release,
     )
 

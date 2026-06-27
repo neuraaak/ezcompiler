@@ -48,10 +48,10 @@ advanced:
   debug: true
 
 release:
-  release_needed: false
+  release_needed: true
   release_type: "tufup"
   tufup_repo_dir: "tuf_repository"
   tufup_keys_dir: "tuf_keys"
-  # Destination unifiée de l'upload (downloads/ + repository/).
+  # Destination de l'upload du dossier release plat (metadata + targets + zip, sans sous-dossiers).
   # Si vide, fallback sur upload.repo_path (disk) ou upload.server_url (server).
   update_repo_url: null
