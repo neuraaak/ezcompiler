@@ -123,11 +123,12 @@ try:
         console=config.console,
         compiler=config.compiler if config.compiler != "auto" else None,
         skip_zip=not config.zip_needed,
-        skip_upload=not config.repo_needed,
-        upload_structure=config.upload_structure if config.repo_needed else None,
-        upload_destination=config.resolved_upload_destination if config.repo_needed else None,
         skip_release=args.skip_release,
     )
+
+    # Upload is now an explicit step, separate from the build pipeline.
+    if config.repo_needed:
+        compiler.upload()
 
 except Exception as e:
     if compiler is not None:

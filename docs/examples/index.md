@@ -138,7 +138,7 @@ config = CompilerConfig(
 ezcompiler = EzCompiler(config)
 ezcompiler.compile_project(compiler="PyInstaller")
 ezcompiler.zip_compiled_project()
-ezcompiler.upload_to_repo(structure="disk", repo_path="./releases")
+ezcompiler.upload(destination="./releases", structure="disk")
 ```
 
 ## 💡 Upload to HTTP server
@@ -159,10 +159,10 @@ config = CompilerConfig(
 ezcompiler = EzCompiler(config)
 ezcompiler.compile_project(compiler="Cx_Freeze")
 ezcompiler.zip_compiled_project()
-ezcompiler.upload_to_repo(
+ezcompiler.upload(
+    destination="https://releases.example.com/upload",
     structure="server",
-    repo_url="https://releases.example.com/upload",
-    credentials={"username": "deploy_user", "password": "secure_password"},
+    upload_config={"username": "deploy_user", "password": "secure_password"},
 )
 ```
 
@@ -189,7 +189,7 @@ try:
     ezcompiler = EzCompiler(config)
     ezcompiler.compile_project(compiler="PyInstaller")
     ezcompiler.zip_compiled_project()
-    ezcompiler.upload_to_repo(structure="disk", repo_path="./releases")
+    ezcompiler.upload(destination="./releases", structure="disk")
 except ConfigurationError as e:
     raise SystemExit(1) from e
 except CompilationError as e:

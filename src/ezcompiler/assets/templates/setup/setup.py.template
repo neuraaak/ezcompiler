@@ -121,15 +121,19 @@ try:
         excludes=excludes,
     )
 
-    ## => RUN BUILD PIPELINE (version, compile, zip, upload with DLP)
+    ## => RUN BUILD PIPELINE (version, compile, zip, release with DLP)
     compiler.run_pipeline(
         console=#CONSOLE#,
         compiler=None,
         skip_zip=not __ZIP_NEEDED__,
-        skip_upload=not __REPO_NEEDED__,
-        upload_structure="#UPLOAD_STRUCTURE#" if __REPO_NEEDED__ else None,
-        upload_destination=REPO_PATH if __REPO_NEEDED__ else None,
     )
+
+    ## => UPLOAD (explicit step, separate from the build pipeline)
+    if __REPO_NEEDED__:
+        compiler.upload(
+            destination=REPO_PATH,
+            structure="#UPLOAD_STRUCTURE#",
+        )
 
 except Exception as e:
     compiler.printer.error(e)

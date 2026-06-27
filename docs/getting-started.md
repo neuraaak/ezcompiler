@@ -67,9 +67,9 @@ ezcompiler = EzCompiler(config)
 
 ezcompiler.compile_project(compiler="PyInstaller")  # (1)!
 ezcompiler.zip_compiled_project()                   # (2)!
-ezcompiler.upload_to_repo(                          # (3)!
+ezcompiler.upload(                                  # (3)!
+    destination="./releases",
     structure="disk",
-    repo_path="./releases",
 )
 ```
 
