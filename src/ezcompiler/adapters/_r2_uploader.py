@@ -122,6 +122,8 @@ class R2Uploader(BaseUploader):
                     self._client.download_file(
                         Bucket=self._bucket, Key=key, Filename=str(dest)
                     )
+        except UploadError:
+            raise
         except Exception as e:
             raise UploadError(f"R2 download failed: {e}") from e
 
@@ -167,7 +169,10 @@ class R2Uploader(BaseUploader):
 
     def _build_client(self) -> Any:
         """Build the boto3 S3 client (lazy import, extra ``[r2]``)."""
-        import boto3  # noqa: PLC0415  # pyright: ignore[reportMissingImports]
+        try:
+            import boto3  # noqa: PLC0415  # pyright: ignore[reportMissingImports]
+        except ImportError as exc:
+            raise UploadError("boto3 is not installed; install ezcompiler[r2]") from exc
 
         return boto3.client(
             "s3",
