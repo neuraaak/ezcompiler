@@ -445,78 +445,26 @@ class EzCompiler:
             )
 
         repo_dest = repo_destination or self._config.repo_destination
-        rel_dest = release_destination or self._config.release_destination
 
         try:
             if self._config.release_needed:
                 repo_dir = self._config.tufup_repo_dir or (
                     self._config.output_folder / "repo"
                 )
-
-                # Étape 1 — upload arbre TUF
-                try:
-                    if repo_dest == "r2":
-                        UploaderService.upload(
-                            source_path=repo_dir,
-                            upload_type="r2",
-                            destination=self._config.r2_remote_prefix,
-                            upload_config={"bucket": self._config.r2_bucket},
-                        )
-                    elif repo_dest == "server":
-                        base = (
-                            destination or self._config.resolved_repo_destination or ""
-                        )
-                        UploaderService.upload(
-                            source_path=repo_dir,
-                            upload_type="server",
-                            destination=base.rstrip("/") + "/update",
-                            upload_config=upload_config,
-                        )
-                    else:  # disk (default)
-                        base = (
-                            destination or self._config.resolved_repo_destination or ""
-                        )
-                        UploaderService.upload(
-                            source_path=repo_dir,
-                            upload_type="disk",
-                            destination=str(Path(base) / "update"),
-                            upload_config=upload_config,
-                        )
-                except UploadError as e:
-                    raise UploadError(f"TUF repo upload failed: {e}") from e
-
-                # Étape 2 — upload zip (ignoré si R2)
-                if repo_dest != "r2":
-                    release_root = self._pipeline_service.assemble_release_dir(
-                        self._config
-                    )
-                    try:
-                        if rel_dest == "server":
-                            base = (
-                                destination
-                                or self._config.resolved_release_destination
-                                or ""
-                            )
-                            UploaderService.upload(
-                                source_path=release_root,
-                                upload_type="server",
-                                destination=base.rstrip("/") + "/release",
-                                upload_config=upload_config,
-                            )
-                        else:  # disk (default)
-                            base = (
-                                destination
-                                or self._config.resolved_release_destination
-                                or ""
-                            )
-                            UploaderService.upload(
-                                source_path=release_root,
-                                upload_type="disk",
-                                destination=str(Path(base) / "release"),
-                                upload_config=upload_config,
-                            )
-                    except UploadError as e:
-                        raise UploadError(f"Release zip upload failed: {e}") from e
+                release_root = (
+                    None
+                    if repo_dest == "r2"
+                    else self._pipeline_service.assemble_release_dir(self._config)
+                )
+                UploaderService.upload_release(
+                    config=self._config,
+                    repo_dir=repo_dir,
+                    release_root=release_root,
+                    destination=destination,
+                    repo_destination=repo_destination,
+                    release_destination=release_destination,
+                    upload_config=upload_config,
+                )
 
             else:
                 dest = destination or (

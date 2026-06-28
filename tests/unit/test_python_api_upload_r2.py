@@ -31,10 +31,9 @@ def test_upload_r2_pushes_tuf_tree(mock_us, tmp_path):
     compiler = EzCompiler(cfg)
     compiler.upload()
 
-    # l'arbre TUF natif (repo_dir) est poussé, pas le dossier plat
-    assert mock_us.upload.called
-    call = mock_us.upload.call_args
-    assert call.kwargs["upload_type"] == "r2"
-    assert Path(call.kwargs["source_path"]) == tmp_path / "repo"
-    assert call.kwargs["destination"] == "myapp"
-    assert call.kwargs["upload_config"] == {"bucket": "updates"}
+    # upload_release() est désormais délégué à UploaderService
+    assert mock_us.upload_release.called
+    call = mock_us.upload_release.call_args
+    assert call.kwargs["config"] is cfg
+    assert Path(call.kwargs["repo_dir"]) == tmp_path / "repo"
+    assert call.kwargs["release_root"] is None  # r2 → pas de zip

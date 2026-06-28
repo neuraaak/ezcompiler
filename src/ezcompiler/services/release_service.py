@@ -18,11 +18,14 @@ from __future__ import annotations
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
 from pathlib import Path
-from typing import Any, Literal, cast
+from typing import TYPE_CHECKING, Any, Literal, cast
 
 from ..adapters import ReleaserFactory
 from ..shared.exceptions import ReleaseError
 from .uploader_service import UploaderService
+
+if TYPE_CHECKING:
+    from ..types import ReleaserPort
 
 # ///////////////////////////////////////////////////////////////
 # CLASSES
@@ -83,7 +86,9 @@ class ReleaseService:
                 upload_config=upload_config,
             )
 
-        releaser = ReleaserFactory.create_releaser(release_type, releaser_config)
+        releaser: ReleaserPort = ReleaserFactory.create_releaser(
+            release_type, releaser_config
+        )
         repository_path = releaser.release(
             bundle_dir=bundle_dir,
             app_name=app_name,
@@ -122,7 +127,9 @@ class ReleaseService:
 
         Returns True si init effectuée, False si déjà présente (skip).
         """
-        releaser = ReleaserFactory.create_releaser(release_type, releaser_config)
+        releaser: ReleaserPort = ReleaserFactory.create_releaser(
+            release_type, releaser_config
+        )
         return releaser.init_keys(
             app_name=app_name, repo_dir=repo_dir, keys_dir=keys_dir
         )
