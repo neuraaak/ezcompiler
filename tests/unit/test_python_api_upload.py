@@ -95,31 +95,6 @@ def test_upload_release_r2_only_uploads_tuf(monkeypatch, tmp_path: Path) -> None
     assert upload_calls[0]["upload_type"] == "r2"
 
 
-def test_upload_release_vcs_raises_not_implemented(monkeypatch, tmp_path: Path) -> None:
-    cfg = _cfg(
-        tmp_path,
-        release_needed=True,
-        repo_destination="disk",
-        repo_path=str(tmp_path / "remote"),
-        release_destination="vcs",
-    )
-    release_root = tmp_path / "dist" / "release"
-    release_root.mkdir(parents=True)
-    monkeypatch.setattr(
-        "ezcompiler.interfaces.python_api.PipelineService.assemble_release_dir",
-        staticmethod(lambda *_a: release_root),
-    )
-    monkeypatch.setattr(
-        "ezcompiler.interfaces.python_api.UploaderService.upload",
-        staticmethod(lambda **_kw: None),
-    )
-
-    ez = EzCompiler(cfg)
-    ez._printer = MagicMock()
-    with pytest.raises(NotImplementedError):
-        ez.upload()
-
-
 def test_upload_artifact_when_no_release(monkeypatch, tmp_path: Path) -> None:
     cfg = _cfg(
         tmp_path,

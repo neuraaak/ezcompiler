@@ -29,6 +29,8 @@ if TYPE_CHECKING:
     from ezplog.handlers.wizard.dynamic import StageConfig
     from ezplog.lib_mode import _LazyPrinter
 
+    from ..types import ReleaseDestination, RepoDestination
+
 # Third-party imports
 from ezplog.lib_mode import get_logger, get_printer
 
@@ -415,8 +417,8 @@ class EzCompiler:
     def upload(
         self,
         destination: str | None = None,
-        repo_destination: str | None = None,
-        release_destination: str | None = None,
+        repo_destination: RepoDestination | None = None,
+        release_destination: ReleaseDestination | None = None,
         upload_config: dict[str, Any] | None = None,
     ) -> None:
         """Upload le repo TUF et/ou le zip installeur selon la config.
@@ -436,7 +438,6 @@ class EzCompiler:
         Raises:
             ConfigurationError: Si le projet n'est pas initialisé.
             UploadError: Si un upload échoue.
-            NotImplementedError: Si release_destination="vcs".
         """
         if not self._config:
             raise ConfigurationError(
@@ -489,10 +490,6 @@ class EzCompiler:
                     release_root = self._pipeline_service.assemble_release_dir(
                         self._config
                     )
-                    if rel_dest == "vcs":
-                        raise NotImplementedError(
-                            "VCS release upload not yet implemented."
-                        )
                     try:
                         if rel_dest == "server":
                             base = (
@@ -538,7 +535,7 @@ class EzCompiler:
             self._printer.success(f"Upload completed ({repo_dest})")
             self._logger.info(f"Upload completed ({repo_dest})")
 
-        except (ConfigurationError, UploadError, ReleaseError, NotImplementedError):
+        except (ConfigurationError, UploadError, ReleaseError):
             raise
         except Exception as e:
             self._printer.error(f"Upload failed: {e}")

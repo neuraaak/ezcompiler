@@ -30,6 +30,8 @@ if TYPE_CHECKING:
     from ezplog.handlers.wizard.dynamic import StageConfig
     from ezplog.lib_mode import _LazyPrinter
 
+    from ..types import ReleaseDestination, RepoDestination
+
 # Third-party imports
 import click
 import tomli_w
@@ -283,8 +285,8 @@ def config(
     console: bool,
     compiler: str | None,
     repo_needed: bool,
-    repo_destination: str | None,
-    release_destination: str | None,
+    repo_destination: RepoDestination | None,
+    release_destination: ReleaseDestination | None,
     repo_path: str | None,
     server_url: str | None,
     optimize: bool,
@@ -1006,8 +1008,8 @@ def compile_project(
 def upload_command(
     config: str | None,
     pyproject: str | None,
-    repo_destination: str | None,
-    release_destination: str | None,
+    repo_destination: RepoDestination | None,
+    release_destination: ReleaseDestination | None,
     destination: str | None,
 ) -> None:
     """Upload l'arbre TUF et le zip installeur vers leur destination.

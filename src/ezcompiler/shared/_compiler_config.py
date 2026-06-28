@@ -19,10 +19,13 @@ from __future__ import annotations
 # Standard library imports
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 # Local imports
 from .exceptions import ConfigurationError
+
+if TYPE_CHECKING:
+    from ..types import ReleaseDestination, RepoDestination
 
 # ///////////////////////////////////////////////////////////////
 # CLASSES
@@ -56,8 +59,8 @@ class CompilerConfig:
         console: Show console window in compiled app (default: True)
         compiler: Compiler to use - "auto", "Cx_Freeze", "PyInstaller", "Nuitka"
         repo_needed: Use repository (default: False)
-        repo_destination: TUF repo upload backend - "disk" | "server" | "r2" | "s3"
-        release_destination: Zip installer upload backend - "disk" | "server" | "vcs"
+        repo_destination: TUF repo upload backend - "disk" | "server" | "r2"
+        release_destination: Zip installer upload backend - "disk" | "server"
         repo_path: Repository path (default: "releases")
         server_url: Server upload URL
         optimize: Optimize code (default: True)
@@ -111,8 +114,8 @@ class CompilerConfig:
     # UPLOAD OPTIONS
     # ////////////////////////////////////////////////
 
-    repo_destination: str = "disk"  # "disk" | "server" | "r2" | "s3"
-    release_destination: str = "disk"  # "disk" | "server" | "vcs"
+    repo_destination: RepoDestination = "disk"
+    release_destination: ReleaseDestination = "disk"
     repo_path: str = "releases"
     server_url: str = ""
 
@@ -160,6 +163,7 @@ class CompilerConfig:
         self._validate_include_files()
         self._validate_paths()
         self._validate_compiler_option()
+        self._validate_destinations()
 
     def _validate_required_fields(self) -> None:
         """
@@ -246,6 +250,30 @@ class CompilerConfig:
         if self.compiler not in valid_compilers:
             raise ConfigurationError(
                 f"Invalid compiler: {self.compiler}. Must be one of {valid_compilers}"
+            )
+
+    def _validate_destinations(self) -> None:
+        """
+        Validate upload destination backends.
+
+        The TUF repository may be uploaded to disk, server or r2; the release
+        zip only to disk or server. Any other value is rejected.
+
+        Raises:
+            ConfigurationError: If a destination is not supported
+        """
+        valid_repo = ["disk", "server", "r2"]
+        if self.repo_destination not in valid_repo:
+            raise ConfigurationError(
+                f"Invalid repo_destination: {self.repo_destination}. "
+                f"Must be one of {valid_repo}"
+            )
+
+        valid_release = ["disk", "server"]
+        if self.release_destination not in valid_release:
+            raise ConfigurationError(
+                f"Invalid release_destination: {self.release_destination}. "
+                f"Must be one of {valid_release}"
             )
 
     # ////////////////////////////////////////////////

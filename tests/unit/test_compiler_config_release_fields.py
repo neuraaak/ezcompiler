@@ -101,6 +101,32 @@ def test_from_dict_raises_on_upload_structure(main_file: Path) -> None:
         CompilerConfig.from_dict(raw)
 
 
+@pytest.mark.parametrize("value", ["disk", "server", "r2"])
+def test_repo_destination_accepts_valid_values(main_file: Path, value: str) -> None:
+    cfg = _base(main_file, repo_destination=value)
+    assert cfg.repo_destination == value
+
+
+@pytest.mark.parametrize("value", ["s3", "vcs", "ftp", ""])
+def test_repo_destination_rejects_invalid_values(main_file: Path, value: str) -> None:
+    with pytest.raises(ConfigurationError, match="repo_destination"):
+        _base(main_file, repo_destination=value)
+
+
+@pytest.mark.parametrize("value", ["disk", "server"])
+def test_release_destination_accepts_valid_values(main_file: Path, value: str) -> None:
+    cfg = _base(main_file, release_destination=value)
+    assert cfg.release_destination == value
+
+
+@pytest.mark.parametrize("value", ["r2", "s3", "vcs", "ftp", ""])
+def test_release_destination_rejects_invalid_values(
+    main_file: Path, value: str
+) -> None:
+    with pytest.raises(ConfigurationError, match="release_destination"):
+        _base(main_file, release_destination=value)
+
+
 def test_tufup_dirs_coerced_from_str_to_path(main_file: Path) -> None:
     # Configs loaded from JSON/TOML/YAML pass these as plain strings;
     # they must be coerced to Path so downstream .mkdir()/path ops work.

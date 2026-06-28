@@ -167,7 +167,7 @@ class R2Uploader(BaseUploader):
 
     def _build_client(self) -> Any:
         """Build the boto3 S3 client (lazy import, extra ``[r2]``)."""
-        import boto3  # noqa: PLC0415  # ty: ignore[unresolved-import]  # pyright: ignore[reportMissingImports]
+        import boto3  # noqa: PLC0415  # pyright: ignore[reportMissingImports]
 
         return boto3.client(
             "s3",

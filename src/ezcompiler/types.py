@@ -58,12 +58,20 @@ Valid values: "auto", "Cx_Freeze", "PyInstaller", "Nuitka"
 Used by: CompilerConfig.compiler, EzCompiler.compile_project().
 """
 
-type UploadTarget = str
-"""Type alias for upload destination selection.
+type RepoDestination = Literal["disk", "server", "r2"]
+"""Type alias for the TUF repository upload backend.
 
 Valid values: "disk", "server", "r2"
 
-Used by: CompilerConfig.repo_destination, CompilerConfig.release_destination, EzCompiler.upload().
+Used by: CompilerConfig.repo_destination, EzCompiler.upload().
+"""
+
+type ReleaseDestination = Literal["disk", "server"]
+"""Type alias for the release zip upload backend.
+
+Valid values: "disk", "server"
+
+Used by: CompilerConfig.release_destination, EzCompiler.upload().
 """
 
 type ReleaseTarget = Literal["tufup"]
@@ -200,7 +208,8 @@ class ReleaserPort(Protocol):
 __all__ = [
     "FilePath",
     "CompilerName",
-    "UploadTarget",
+    "RepoDestination",
+    "ReleaseDestination",
     "ReleaseTarget",
     "IncludeFiles",
     "JsonMap",

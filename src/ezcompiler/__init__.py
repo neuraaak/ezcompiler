@@ -65,10 +65,11 @@ from .types import (
     FilePath,
     IncludeFiles,
     JsonMap,
+    ReleaseDestination,
     ReleaserPort,
     ReleaseTarget,
+    RepoDestination,
     UploaderPort,
-    UploadTarget,
 )
 
 # ///////////////////////////////////////////////////////////////
@@ -102,7 +103,8 @@ __all__ = [
     # Type aliases
     "FilePath",
     "CompilerName",
-    "UploadTarget",
+    "RepoDestination",
+    "ReleaseDestination",
     "IncludeFiles",
     "JsonMap",
     # Type aliases
