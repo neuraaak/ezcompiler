@@ -134,6 +134,29 @@ class DiskUploader(BaseUploader):
         except Exception as e:
             raise UploadError(f"Disk upload failed: {e}") from e
 
+    def download(self, remote_source: str, local_dir: Path) -> None:
+        """
+        Copy a remote disk tree into ``local_dir`` (recursive).
+
+        Args:
+            remote_source: Filesystem path of the remote tree.
+            local_dir: Local directory to populate.
+
+        Raises:
+            UploadError: If the copy fails.
+
+        Note:
+            Missing remote source is a no-op (first run: empty channel).
+        """
+        try:
+            source = Path(remote_source)
+            if not source.exists():
+                return
+            local_dir.mkdir(parents=True, exist_ok=True)
+            shutil.copytree(source, local_dir, dirs_exist_ok=True)
+        except Exception as e:
+            raise UploadError(f"Disk download failed: {e}") from e
+
     # ////////////////////////////////////////////////
     # PRIVATE METHODS
     # ////////////////////////////////////////////////
