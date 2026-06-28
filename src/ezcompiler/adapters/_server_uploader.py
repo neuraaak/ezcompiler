@@ -27,6 +27,7 @@ from typing import Any
 import requests
 
 # Local imports
+from .._version import __version__
 from ..shared.exceptions import UploadError
 from ..utils import UploaderUtils
 from .base_uploader import BaseUploader
@@ -52,6 +53,11 @@ class ServerUploader(BaseUploader):
         verify_ssl (bool): Verify SSL certificates (default: True)
         chunk_size (int): Chunk size for uploads (default: 8192)
         retry_attempts (int): Number of retry attempts (default: 3)
+        proxies (dict): Proxy URLs keyed by scheme, e.g.
+            ``{"http": "http://proxy:3128", "https": "http://proxy:3128"}`` (default: {})
+        extra_headers (dict): Additional HTTP headers merged into every request (default: {})
+        cert (str | tuple | None): Client certificate for mTLS — path to a .pem file,
+            or a ``(certfile, keyfile)`` tuple (default: None)
 
     Example:
         >>> config = {"server_url": "https://example.com", "api_key": "abc123"}
@@ -179,6 +185,8 @@ class ServerUploader(BaseUploader):
             auth=self._prepare_auth(),
             timeout=self._config["timeout"],
             verify=self._config["verify_ssl"],
+            proxies=self._config["proxies"] or None,
+            cert=self._config["cert"],
         )
         if response.status_code == 404:
             return None
@@ -251,6 +259,8 @@ class ServerUploader(BaseUploader):
                 auth=auth,
                 timeout=self._config["timeout"],
                 verify=self._config["verify_ssl"],
+                proxies=self._config["proxies"] or None,
+                cert=self._config["cert"],
             )
 
             return response.ok
@@ -288,6 +298,8 @@ class ServerUploader(BaseUploader):
                 auth=auth,
                 timeout=self._config["timeout"],
                 verify=self._config["verify_ssl"],
+                proxies=self._config["proxies"] or None,
+                cert=self._config["cert"],
             )
 
         if not response.ok:
@@ -319,13 +331,14 @@ class ServerUploader(BaseUploader):
             Includes User-Agent and optional Bearer token authorization.
         """
         headers = {
-            "User-Agent": "EzCompiler/2.0.0",
+            "User-Agent": f"EzCompiler/{__version__}",
             "Accept": "application/json",
         }
 
         if self._config["api_key"]:
             headers["Authorization"] = f"Bearer {self._config['api_key']}"
 
+        headers.update(self._config.get("extra_headers", {}))
         return headers
 
     def _prepare_auth(self) -> tuple[str, str] | None:
@@ -366,6 +379,9 @@ class ServerUploader(BaseUploader):
             "verify_ssl",
             "chunk_size",
             "retry_attempts",
+            "proxies",
+            "extra_headers",
+            "cert",
         ]
 
         for key in required_keys:
@@ -395,3 +411,15 @@ class ServerUploader(BaseUploader):
 
         if not isinstance(self._config["verify_ssl"], bool):
             raise UploadError("verify_ssl must be a boolean")
+
+        if not isinstance(self._config["proxies"], dict):
+            raise UploadError("proxies must be a dict")
+
+        if not isinstance(self._config["extra_headers"], dict):
+            raise UploadError("extra_headers must be a dict")
+
+        cert = self._config["cert"]
+        if cert is not None and not isinstance(cert, (str, tuple)):
+            raise UploadError(
+                "cert must be a path string or a (certfile, keyfile) tuple"
+            )

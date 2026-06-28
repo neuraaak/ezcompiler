@@ -194,4 +194,7 @@ class UploaderUtils:
             "verify_ssl": True,
             "chunk_size": 8192,
             "retry_attempts": 3,
+            "proxies": {},
+            "extra_headers": {},
+            "cert": None,
         }
