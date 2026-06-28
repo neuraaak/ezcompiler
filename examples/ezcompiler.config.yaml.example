@@ -34,11 +34,11 @@ excludes:
 compilation:
   compiler: "Cx_Freeze"
   console: true
-  zip_needed: true
   repo_needed: true
 
 upload:
-  structure: "disk"
+  repo_destination: "disk"
+  release_destination: "disk"
   repo_path: "releases/CxFreeze"
   server_url: ""
 

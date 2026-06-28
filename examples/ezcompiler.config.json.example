@@ -35,11 +35,11 @@
   "compilation": {
     "compiler": "Nuitka",
     "console": true,
-    "zip_needed": true,
     "repo_needed": true
   },
   "upload": {
-    "structure": "disk",
+    "repo_destination": "disk",
+    "release_destination": "disk",
     "repo_path": "releases/Nuitka",
     "server_url": ""
   },

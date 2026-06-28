@@ -122,7 +122,6 @@ try:
     compiler.run_pipeline(
         console=config.console,
         compiler=config.compiler if config.compiler != "auto" else None,
-        skip_zip=not config.zip_needed,
         skip_release=args.skip_release,
     )
 

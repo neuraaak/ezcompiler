@@ -24,11 +24,11 @@ excludes = ["tkinter", "unittest", "test"]
 [tool.ezcompiler.compilation]
 compiler = "PyInstaller"
 console = true
-zip_needed = true
 repo_needed = true
 
 [tool.ezcompiler.upload]
-structure = "disk"
+repo_destination = "disk"
+release_destination = "disk"
 repo_path = "releases/PyInstaller"
 server_url = ""
 
