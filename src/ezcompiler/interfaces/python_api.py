@@ -380,7 +380,7 @@ class EzCompiler:
             zip_needed = (
                 self._compilation_result.zip_needed
                 if self._compilation_result
-                else self._config.zip_needed
+                else True
             )
 
             if not zip_needed:
@@ -414,82 +414,131 @@ class EzCompiler:
 
     def upload(
         self,
-        destination: Path | str | None = None,
-        structure: Literal["server", "disk", "r2"] | None = None,
+        destination: str | None = None,
+        repo_destination: str | None = None,
+        release_destination: str | None = None,
         upload_config: dict[str, Any] | None = None,
     ) -> None:
-        """Upload the build output, choosing the source automatically.
+        """Upload le repo TUF et/ou le zip installeur selon la config.
 
-        When ``release_needed`` is set, re-assembles the flat release directory
-        (TUF metadata + targets + zip) and uploads it; otherwise uploads the
-        compiled artifact (ZIP or output folder). Stateless: every path is
-        derived from the config, so it works after ``run_pipeline()`` or on its
-        own.
+        Quand ``release_needed`` est True, effectue deux uploads séquentiels :
+        1. arbre TUF → ``<dest>/update/``
+        2. zip installeur → ``<dest>/release/`` (ignoré si repo_destination="r2")
+
+        Sinon, uploade l'artefact compilé (comportement inchangé).
 
         Args:
-            destination: Override for the upload destination. Defaults to
-                ``resolved_upload_destination`` (release) or the configured
-                ``repo_path``/``server_url`` (artifact).
-            structure: Override for the upload type ("disk" or "server").
-                Defaults to ``config.upload_structure``.
-            upload_config: Additional uploader configuration options.
+            destination: Override commun pour les deux destinations.
+            repo_destination: Override de ``config.repo_destination``.
+            release_destination: Override de ``config.release_destination``.
+            upload_config: Options supplémentaires passées aux uploaders.
 
         Raises:
-            ConfigurationError: If project not initialized.
-            UploadError: If the upload fails.
-            ReleaseError: If assembling the release directory fails.
+            ConfigurationError: Si le projet n'est pas initialisé.
+            UploadError: Si un upload échoue.
+            NotImplementedError: Si release_destination="vcs".
         """
         if not self._config:
             raise ConfigurationError(
                 "Project not initialized. Call init_project() first."
             )
 
-        structure_final = structure or self._config.upload_structure
+        repo_dest = repo_destination or self._config.repo_destination
+        rel_dest = release_destination or self._config.release_destination
+
         try:
             if self._config.release_needed:
                 repo_dir = self._config.tufup_repo_dir or (
                     self._config.output_folder / "repo"
                 )
-                if structure_final == "r2":
-                    # Canal auto-update : on pousse l'arbre TUF natif (repo_dir),
-                    # pas le dossier release plat (réservé disk/server).
-                    UploaderService.upload(
-                        source_path=repo_dir,
-                        upload_type="r2",
-                        destination=self._config.r2_remote_prefix,
-                        upload_config={"bucket": self._config.r2_bucket},
-                    )
-                else:
+
+                # Étape 1 — upload arbre TUF
+                try:
+                    if repo_dest == "r2":
+                        UploaderService.upload(
+                            source_path=repo_dir,
+                            upload_type="r2",
+                            destination=self._config.r2_remote_prefix,
+                            upload_config={"bucket": self._config.r2_bucket},
+                        )
+                    elif repo_dest == "server":
+                        base = (
+                            destination or self._config.resolved_repo_destination or ""
+                        )
+                        UploaderService.upload(
+                            source_path=repo_dir,
+                            upload_type="server",
+                            destination=base.rstrip("/") + "/update",
+                            upload_config=upload_config,
+                        )
+                    else:  # disk (default)
+                        base = (
+                            destination or self._config.resolved_repo_destination or ""
+                        )
+                        UploaderService.upload(
+                            source_path=repo_dir,
+                            upload_type="disk",
+                            destination=str(Path(base) / "update"),
+                            upload_config=upload_config,
+                        )
+                except UploadError as e:
+                    raise UploadError(f"TUF repo upload failed: {e}") from e
+
+                # Étape 2 — upload zip (ignoré si R2)
+                if repo_dest != "r2":
                     release_root = self._pipeline_service.assemble_release_dir(
-                        self._config,
-                        self._compilation_result,
-                        repo_dir,
+                        self._config
                     )
-                    dest = destination or self._config.resolved_upload_destination
-                    UploaderService.upload(
-                        source_path=release_root,
-                        upload_type=cast(Literal["disk", "server"], structure_final),
-                        destination=str(dest),
-                        upload_config=upload_config,
-                    )
+                    if rel_dest == "vcs":
+                        raise NotImplementedError(
+                            "VCS release upload not yet implemented."
+                        )
+                    try:
+                        if rel_dest == "server":
+                            base = (
+                                destination
+                                or self._config.resolved_release_destination
+                                or ""
+                            )
+                            UploaderService.upload(
+                                source_path=release_root,
+                                upload_type="server",
+                                destination=base.rstrip("/") + "/release",
+                                upload_config=upload_config,
+                            )
+                        else:  # disk (default)
+                            base = (
+                                destination
+                                or self._config.resolved_release_destination
+                                or ""
+                            )
+                            UploaderService.upload(
+                                source_path=release_root,
+                                upload_type="disk",
+                                destination=str(Path(base) / "release"),
+                                upload_config=upload_config,
+                            )
+                    except UploadError as e:
+                        raise UploadError(f"Release zip upload failed: {e}") from e
+
             else:
                 dest = destination or (
                     self._config.server_url
-                    if structure_final == "server"
+                    if repo_dest == "server"
                     else self._config.repo_path
                 )
                 self._pipeline_service.upload_artifact(
                     config=self._config,
-                    structure=structure_final,
+                    structure=repo_dest,
                     destination=str(dest),
                     compilation_result=self._compilation_result,
                     upload_config=upload_config,
                 )
 
-            self._printer.success(f"Upload completed ({structure_final})")
-            self._logger.info(f"Upload completed ({structure_final})")
+            self._printer.success(f"Upload completed ({repo_dest})")
+            self._logger.info(f"Upload completed ({repo_dest})")
 
-        except (ConfigurationError, UploadError, ReleaseError):
+        except (ConfigurationError, UploadError, ReleaseError, NotImplementedError):
             raise
         except Exception as e:
             self._printer.error(f"Upload failed: {e}")
@@ -506,7 +555,7 @@ class EzCompiler:
 
         Reads app name, version and tufup directories from the config.
         When ``publish`` is True, the repository tree is transferred via the
-        configured uploader (``update_repo_url`` + upload_structure).
+        configured uploader (``update_repo_url`` + repo_destination).
 
         Args:
             bundle_dir: Directory containing the compiled application artifacts.
@@ -541,7 +590,7 @@ class EzCompiler:
             repo_dir=repo_dir,
             release_type=self._config.release_type,
             publish=publish,
-            upload_type=self._config.upload_structure if publish else None,
+            upload_type=self._config.repo_destination if publish else None,
             destination=self._config.update_repo_url if publish else None,
             releaser_config={"keys_dir": keys_dir},
         )
@@ -610,7 +659,7 @@ class EzCompiler:
             )
 
         # Determine which optional stages to include
-        should_zip = not skip_zip and self._config.zip_needed
+        should_zip = not skip_zip
         should_release = not skip_release and getattr(
             self._config, "release_needed", False
         )
@@ -666,7 +715,7 @@ class EzCompiler:
                 zip_needed = (
                     self._compilation_result.zip_needed
                     if self._compilation_result
-                    else self._config.zip_needed
+                    else True
                 )
                 if should_zip:
                     if zip_needed:

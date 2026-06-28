@@ -120,7 +120,7 @@ def test_run_pipeline_preflight_raises_before_compile_when_keys_missing(
 
 
 def test_run_pipeline_does_not_upload(monkeypatch, tmp_path: Path) -> None:
-    cfg = _make_cfg(tmp_path, zip_needed=False, release_needed=True)
+    cfg = _make_cfg(tmp_path, release_needed=True)
     (tmp_path / "keystore").mkdir()
     (tmp_path / "keystore" / "root").write_bytes(b"k")
 
@@ -154,7 +154,7 @@ def test_release_publish_true_warns(monkeypatch, tmp_path: Path) -> None:
 
     cfg = _make_cfg(
         tmp_path,
-        upload_structure="disk",
+        repo_destination="disk",
         update_repo_url=str(tmp_path / "remote"),
     )
     monkeypatch.setattr(

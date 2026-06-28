@@ -61,9 +61,9 @@ Used by: CompilerConfig.compiler, EzCompiler.compile_project().
 type UploadTarget = str
 """Type alias for upload destination selection.
 
-Valid values: "disk", "server"
+Valid values: "disk", "server", "r2"
 
-Used by: CompilerConfig.upload_structure, EzCompiler.upload().
+Used by: CompilerConfig.repo_destination, CompilerConfig.release_destination, EzCompiler.upload().
 """
 
 type ReleaseTarget = Literal["tufup"]

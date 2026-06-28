@@ -14,7 +14,7 @@ def _config(tmp_path: Path) -> CompilerConfig:
         main_file=str(main),
         include_files={"files": [], "folders": []},
         output_folder=tmp_path / "dist",
-        upload_structure="r2",
+        repo_destination="r2",
         r2_bucket="updates",
         r2_remote_prefix="myapp",
         update_repo_url="https://x.r2.dev/myapp",

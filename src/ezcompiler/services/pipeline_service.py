@@ -77,9 +77,7 @@ class PipelineService:
         progress_callback: Callable[[str, int], None] | None = None,
     ) -> bool:
         """Create ZIP artifact when required and return True when created."""
-        zip_needed = (
-            compilation_result.zip_needed if compilation_result else config.zip_needed
-        )
+        zip_needed = compilation_result.zip_needed if compilation_result else True
         if not zip_needed:
             return False
 
@@ -160,9 +158,7 @@ class PipelineService:
         upload_config: dict[str, Any] | None = None,
     ) -> None:
         """Upload project artifact to a destination."""
-        zip_needed = (
-            compilation_result.zip_needed if compilation_result else config.zip_needed
-        )
+        zip_needed = compilation_result.zip_needed if compilation_result else True
         source_file = (
             str(config.zip_file_path) if zip_needed else str(config.output_folder)
         )
@@ -175,51 +171,31 @@ class PipelineService:
         )
 
     @staticmethod
-    def assemble_release_dir(
-        config: CompilerConfig,
-        compilation_result: CompilationResult | None,
-        repository_path: Path,
-    ) -> Path:
-        """Assemble the single flat release dir transferred by the upload stage.
+    def assemble_release_dir(config: CompilerConfig) -> Path:
+        """Assemble le dossier release contenant uniquement le zip installeur.
 
-        Flattens the TUF working repo (metadata/ + targets/) into one directory
-        and drops the dist ZIP alongside, ready to publish as-is.
-
-        Layout (cleaned on each run, all files flat at the root)::
+        Layout (nettoyé à chaque run)::
 
             release/
-            ├── root.json, snapshot.json, targets.json, timestamp.json  (metadata)
-            ├── <App>-<ver>.tar.gz, <App>-<from>-<to>.patch             (targets)
-            └── <App>.zip                                               (if produced)
+            └── <App>.zip    (si le fichier existe)
+
+        L'arbre TUF (metadata/ + targets/) reste dans tufup_repo_dir et est
+        poussé directement vers le backend d'update par upload().
 
         Args:
-            config: Compiler configuration (provides output_folder, zip path).
-            compilation_result: Result whose zip_needed drives the ZIP copy;
-                falls back to config.zip_needed when None.
-            repository_path: Local TUF tree root (contains metadata/ + targets/).
+            config: Configuration (fournit output_folder et zip_file_path).
 
         Returns:
-            Path: The assembled flat ``release/`` directory.
+            Path: Le dossier ``release/`` assemblé.
         """
         release_dir = config.output_folder.parent / "release"
         if release_dir.exists():
             shutil.rmtree(release_dir)
         release_dir.mkdir(parents=True)
 
-        for subdir in ("metadata", "targets"):
-            source = Path(repository_path) / subdir
-            if source.is_dir():
-                for item in source.iterdir():
-                    if item.is_file():
-                        shutil.copy2(item, release_dir / item.name)
-
-        zip_needed = (
-            compilation_result.zip_needed if compilation_result else config.zip_needed
-        )
-        if zip_needed:
-            zip_path = Path(config.zip_file_path)
-            if zip_path.is_file():
-                shutil.copy2(zip_path, release_dir / zip_path.name)
+        zip_path = Path(config.zip_file_path)
+        if zip_path.is_file():
+            shutil.copy2(zip_path, release_dir / zip_path.name)
 
         return release_dir
 

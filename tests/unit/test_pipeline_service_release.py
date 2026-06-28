@@ -48,7 +48,7 @@ def test_build_stages_release_comes_before_upload(cfg: CompilerConfig) -> None:
     assert names == ["main", "version", "compile", "zip", "release", "upload"]
 
 
-def test_assemble_release_dir_is_flat(tmp_path: Path) -> None:
+def test_assemble_release_dir_contains_only_zip(tmp_path: Path) -> None:
     main = tmp_path / "main.py"
     main.write_text("# m", encoding="utf-8")
     cfg = CompilerConfig(
@@ -57,34 +57,24 @@ def test_assemble_release_dir_is_flat(tmp_path: Path) -> None:
         main_file=str(main),
         include_files={"files": [], "folders": []},
         output_folder=tmp_path / "dist",
-        zip_needed=True,
     )
     cfg.output_folder.mkdir(parents=True, exist_ok=True)
-    # fake produced zip (next to output_folder: dist/../App.zip)
     zip_path = Path(cfg.zip_file_path)
     zip_path.parent.mkdir(parents=True, exist_ok=True)
     zip_path.write_bytes(b"zip")
-    # fake TUF repo root with metadata/ + targets/
-    repo_root = tmp_path / "repo"
-    (repo_root / "metadata").mkdir(parents=True)
-    (repo_root / "metadata" / "root.json").write_text("{}", "utf-8")
-    (repo_root / "targets").mkdir()
-    (repo_root / "targets" / "App-1.0.0.tar.gz").write_bytes(b"bundle")
 
-    release = PipelineService.assemble_release_dir(cfg, None, repo_root)
+    release = PipelineService.assemble_release_dir(cfg)
 
     assert release.name == "release"
-    # all files flat at the root
-    assert (release / "root.json").is_file()
-    assert (release / "App-1.0.0.tar.gz").is_file()
     assert (release / zip_path.name).is_file()
-    # no nested layout
+    # aucun fichier TUF dans le dossier release
+    assert not any(f.suffix == ".json" for f in release.iterdir())
+    assert not any(f.suffix == ".gz" for f in release.iterdir())
     assert not (release / "metadata").exists()
     assert not (release / "targets").exists()
-    assert not (release / "downloads").exists()
 
 
-def test_assemble_release_dir_without_zip_omits_zip(tmp_path: Path) -> None:
+def test_assemble_release_dir_without_zip_file_is_empty(tmp_path: Path) -> None:
     main = tmp_path / "main.py"
     main.write_text("# m", encoding="utf-8")
     cfg = CompilerConfig(
@@ -93,18 +83,14 @@ def test_assemble_release_dir_without_zip_omits_zip(tmp_path: Path) -> None:
         main_file=str(main),
         include_files={"files": [], "folders": []},
         output_folder=tmp_path / "dist",
-        zip_needed=False,
     )
     cfg.output_folder.mkdir(parents=True, exist_ok=True)
-    repo_root = tmp_path / "repo"
-    (repo_root / "metadata").mkdir(parents=True)
-    (repo_root / "metadata" / "root.json").write_text("{}", "utf-8")
-    (repo_root / "targets").mkdir()
+    # zip file n'existe pas → dossier release vide
 
-    release = PipelineService.assemble_release_dir(cfg, None, repo_root)
+    release = PipelineService.assemble_release_dir(cfg)
 
-    assert (release / "root.json").is_file()
-    assert not (release / f"{cfg.project_name}.zip").exists()
+    assert release.is_dir()
+    assert list(release.iterdir()) == []
 
 
 def test_release_artifact_calls_release_and_publish_with_publish_false(

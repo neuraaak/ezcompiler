@@ -45,7 +45,9 @@ def test_upload_invokes_api_upload_and_exits_0(monkeypatch, tmp_path: Path) -> N
     assert len(calls) == 1
 
 
-def test_upload_passes_overrides(monkeypatch, tmp_path: Path) -> None:
+def test_upload_passes_repo_and_release_destination_overrides(
+    monkeypatch, tmp_path: Path
+) -> None:
     calls: list[dict] = []
     monkeypatch.setattr(
         "ezcompiler.interfaces.cli_interface.ConfigService.build_compiler_config",
@@ -64,15 +66,18 @@ def test_upload_passes_overrides(monkeypatch, tmp_path: Path) -> None:
             "upload",
             "--config",
             str(cfg_file),
-            "--structure",
+            "--repo-destination",
             "server",
+            "--release-destination",
+            "disk",
             "--destination",
             "https://h/up",
         ],
     )
 
     assert result.exit_code == 0, result.output
-    assert calls[0]["structure"] == "server"
+    assert calls[0]["repo_destination"] == "server"
+    assert calls[0]["release_destination"] == "disk"
     assert calls[0]["destination"] == "https://h/up"
 
 

@@ -55,9 +55,9 @@ class CompilerConfig:
         excludes: List of modules to exclude
         console: Show console window in compiled app (default: True)
         compiler: Compiler to use - "auto", "Cx_Freeze", "PyInstaller", "Nuitka"
-        zip_needed: Create zip archive (default: True)
         repo_needed: Use repository (default: False)
-        upload_structure: Upload target - "disk" or "server"
+        repo_destination: TUF repo upload backend - "disk" | "server" | "r2" | "s3"
+        release_destination: Zip installer upload backend - "disk" | "server" | "vcs"
         repo_path: Repository path (default: "releases")
         server_url: Server upload URL
         optimize: Optimize code (default: True)
@@ -105,14 +105,14 @@ class CompilerConfig:
 
     console: bool = True
     compiler: str = "auto"  # "auto", "Cx_Freeze", "PyInstaller", "Nuitka"
-    zip_needed: bool = True
     repo_needed: bool = False
 
     # ////////////////////////////////////////////////
     # UPLOAD OPTIONS
     # ////////////////////////////////////////////////
 
-    upload_structure: str = "disk"  # "disk" or "server"
+    repo_destination: str = "disk"  # "disk" | "server" | "r2" | "s3"
+    release_destination: str = "disk"  # "disk" | "server" | "vcs"
     repo_path: str = "releases"
     server_url: str = ""
 
@@ -280,18 +280,21 @@ class CompilerConfig:
     # ////////////////////////////////////////////////
 
     @property
-    def resolved_upload_destination(self) -> str | None:
-        """Destination unifiée de l'upload.
+    def resolved_repo_destination(self) -> str | None:
+        """Destination résolue pour l'arbre TUF.
 
-        Priorité : update_repo_url, puis fallback rétro-compat selon la
-        structure (server_url pour server, repo_path pour disk).
-
-        Returns:
-            str | None: Destination résolue, ou None si aucune n'est définie.
+        Priorité : update_repo_url, puis server_url / repo_path selon repo_destination.
         """
         if self.update_repo_url:
             return self.update_repo_url
-        if self.upload_structure == "server":
+        if self.repo_destination == "server":
+            return self.server_url or None
+        return self.repo_path or None
+
+    @property
+    def resolved_release_destination(self) -> str | None:
+        """Destination résolue pour le zip installeur."""
+        if self.release_destination == "server":
             return self.server_url or None
         return self.repo_path or None
 
@@ -333,11 +336,11 @@ class CompilerConfig:
             "compilation": {
                 "console": self.console,
                 "compiler": self.compiler,
-                "zip_needed": self.zip_needed,
                 "repo_needed": self.repo_needed,
             },
             "upload": {
-                "structure": self.upload_structure,
+                "repo_destination": self.repo_destination,
+                "release_destination": self.release_destination,
                 "repo_path": self.repo_path,
                 "server_url": self.server_url,
             },
@@ -409,13 +412,19 @@ class CompilerConfig:
         config_copy.pop("advanced", None)
         config_copy.pop("release", None)
 
-        # Remap nested key names to dataclass field names
-        # "upload.structure" becomes "upload_structure" after flattening
-        if "structure" in config_copy:
-            if "upload_structure" not in config_copy:
-                config_copy["upload_structure"] = config_copy.pop("structure")
-            else:
-                config_copy.pop("structure")
+        # "upload.structure" / "upload_structure" supprimés (breaking).
+        if "structure" in config_copy or "upload_structure" in config_copy:
+            raise ConfigurationError(
+                "'upload.structure' / 'upload_structure' a été supprimé. "
+                "Utiliser 'upload.repo_destination' et 'upload.release_destination'."
+            )
+
+        if "zip_needed" in config_copy:
+            raise ConfigurationError(
+                "'zip_needed' a été supprimé. Le zip est toujours produit quand "
+                "release_needed=True. Pour le flux sans release, le zip dépend du "
+                "résultat de compilation."
+            )
 
         # Handle backward compatibility
         if "version_file" in config_copy and "version_filename" not in config_copy:

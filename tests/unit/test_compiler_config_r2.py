@@ -34,11 +34,11 @@ def test_r2_config_fields_default_empty(main_file: Path) -> None:
 def test_r2_config_fields_settable(main_file: Path) -> None:
     cfg = _base(
         main_file,
-        upload_structure="r2",
+        repo_destination="r2",
         r2_bucket="updates",
         r2_remote_prefix="myapp",
     )
-    assert cfg.upload_structure == "r2"
+    assert cfg.repo_destination == "r2"
     assert cfg.r2_bucket == "updates"
     assert cfg.r2_remote_prefix == "myapp"
 

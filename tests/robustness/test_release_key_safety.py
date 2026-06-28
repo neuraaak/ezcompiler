@@ -70,18 +70,10 @@ def test_release_dir_contains_no_private_key(tmp_path: Path) -> None:
         main_file=str(main),
         include_files={"files": [], "folders": []},
         output_folder=tmp_path / "dist",
-        zip_needed=False,
     )
     cfg.output_folder.mkdir(parents=True)
-    # TUF root with metadata + targets only (private keys live in tufup_keys_dir,
-    # outside the published tree)
-    repo_root = tmp_path / "repo"
-    (repo_root / "metadata").mkdir(parents=True)
-    (repo_root / "metadata" / "root.json").write_text("{}", "utf-8")
-    (repo_root / "targets").mkdir()
-    (repo_root / "targets" / "App-1.0.0.tar.gz").write_bytes(b"bundle")
 
-    release = PipelineService.assemble_release_dir(cfg, None, repo_root)
+    release = PipelineService.assemble_release_dir(cfg)
 
     private_markers = ("root", "snapshot", "targets", "timestamp")
     for path in release.rglob("*"):

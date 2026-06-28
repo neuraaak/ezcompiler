@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 
 from ezcompiler.shared import CompilerConfig
+from ezcompiler.shared.exceptions import ConfigurationError
 
 
 @pytest.fixture()
@@ -51,26 +52,53 @@ def test_release_fields_in_to_dict(main_file: Path) -> None:
     assert "release_needed" in result.get("release", result)
 
 
-def test_resolved_upload_destination_prefers_update_repo_url(main_file: Path) -> None:
+def test_resolved_repo_destination_prefers_update_repo_url(main_file: Path) -> None:
     cfg = _base(
         main_file,
+        repo_destination="server",
+        server_url="https://srv.example.com",
         update_repo_url="https://updates.example.com",
-        upload_structure="server",
-        server_url="https://old.example.com",
     )
-    assert cfg.resolved_upload_destination == "https://updates.example.com"
+    assert cfg.resolved_repo_destination == "https://updates.example.com"
 
 
-def test_resolved_upload_destination_falls_back_to_repo_path(main_file: Path) -> None:
-    cfg = _base(main_file, upload_structure="disk", repo_path="releases/App")
-    assert cfg.resolved_upload_destination == "releases/App"
+def test_resolved_repo_destination_falls_back_to_repo_path(main_file: Path) -> None:
+    cfg = _base(main_file, repo_destination="disk", repo_path="releases/App")
+    assert cfg.resolved_repo_destination == "releases/App"
 
 
-def test_resolved_upload_destination_falls_back_to_server_url(main_file: Path) -> None:
+def test_resolved_repo_destination_falls_back_to_server_url(main_file: Path) -> None:
     cfg = _base(
-        main_file, upload_structure="server", server_url="https://srv.example.com"
+        main_file, repo_destination="server", server_url="https://srv.example.com"
     )
-    assert cfg.resolved_upload_destination == "https://srv.example.com"
+    assert cfg.resolved_repo_destination == "https://srv.example.com"
+
+
+def test_resolved_release_destination_disk_returns_repo_path(main_file: Path) -> None:
+    cfg = _base(main_file, release_destination="disk", repo_path="releases/App")
+    assert cfg.resolved_release_destination == "releases/App"
+
+
+def test_resolved_release_destination_server_returns_server_url(
+    main_file: Path,
+) -> None:
+    cfg = _base(
+        main_file, release_destination="server", server_url="https://srv.example.com"
+    )
+    assert cfg.resolved_release_destination == "https://srv.example.com"
+
+
+def test_from_dict_raises_on_upload_structure(main_file: Path) -> None:
+    raw = {
+        "version": "1.0.0",
+        "project_name": "App",
+        "main_file": str(main_file),
+        "include_files": {"files": [], "folders": []},
+        "output_folder": str(main_file.parent / "dist"),
+        "upload": {"structure": "disk", "repo_path": "releases", "server_url": ""},
+    }
+    with pytest.raises(ConfigurationError, match="upload_structure"):
+        CompilerConfig.from_dict(raw)
 
 
 def test_tufup_dirs_coerced_from_str_to_path(main_file: Path) -> None:

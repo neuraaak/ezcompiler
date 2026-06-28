@@ -26,40 +26,105 @@ def _cfg(tmp_path: Path, **kwargs: object) -> CompilerConfig:
     )
 
 
-def test_upload_release_dir_when_release_needed(monkeypatch, tmp_path: Path) -> None:
+def test_upload_release_pushes_tuf_to_update_and_zip_to_release(
+    monkeypatch, tmp_path: Path
+) -> None:
     cfg = _cfg(
         tmp_path,
         release_needed=True,
-        upload_structure="disk",
-        update_repo_url=str(tmp_path / "remote"),
+        repo_destination="disk",
+        repo_path=str(tmp_path / "remote"),
     )
+    # Créer le zip pour que assemble_release_dir le copie
+    zip_path = tmp_path / "MyApp.zip"
+    zip_path.write_bytes(b"zip")
     release_root = tmp_path / "dist" / "release"
+    release_root.mkdir(parents=True)
+    (release_root / "MyApp.zip").write_bytes(b"zip")
+
     monkeypatch.setattr(
         "ezcompiler.interfaces.python_api.PipelineService.assemble_release_dir",
-        staticmethod(lambda *_a, **_kw: release_root),
+        staticmethod(lambda *_a: release_root),
     )
-    calls: list[tuple[str, str]] = []
+    upload_calls: list[dict] = []
     monkeypatch.setattr(
         "ezcompiler.interfaces.python_api.UploaderService.upload",
-        staticmethod(
-            lambda *, source_path, destination, **_kw: calls.append(
-                (str(source_path), destination)
-            )
-        ),
+        staticmethod(lambda **kw: upload_calls.append(kw)),
     )
 
     ez = EzCompiler(cfg)
     ez._printer = MagicMock()
     ez.upload()
 
-    assert calls == [(str(release_root), str(tmp_path / "remote"))]
+    assert len(upload_calls) == 2
+    # 1er appel : arbre TUF vers update/
+    repo_call = upload_calls[0]
+    assert repo_call["upload_type"] == "disk"
+    assert str(repo_call["source_path"]) == str(cfg.tufup_repo_dir)
+    assert repo_call["destination"].endswith("/update") or repo_call[
+        "destination"
+    ].endswith("\\update")
+    # 2e appel : zip vers release/
+    zip_call = upload_calls[1]
+    assert zip_call["upload_type"] == "disk"
+    assert str(zip_call["source_path"]) == str(release_root)
+    assert zip_call["destination"].endswith("/release") or zip_call[
+        "destination"
+    ].endswith("\\release")
+
+
+def test_upload_release_r2_only_uploads_tuf(monkeypatch, tmp_path: Path) -> None:
+    cfg = _cfg(
+        tmp_path,
+        release_needed=True,
+        repo_destination="r2",
+        r2_bucket="my-bucket",
+        r2_remote_prefix="chan",
+    )
+    upload_calls: list[dict] = []
+    monkeypatch.setattr(
+        "ezcompiler.interfaces.python_api.UploaderService.upload",
+        staticmethod(lambda **kw: upload_calls.append(kw)),
+    )
+
+    ez = EzCompiler(cfg)
+    ez._printer = MagicMock()
+    ez.upload()
+
+    assert len(upload_calls) == 1
+    assert upload_calls[0]["upload_type"] == "r2"
+
+
+def test_upload_release_vcs_raises_not_implemented(monkeypatch, tmp_path: Path) -> None:
+    cfg = _cfg(
+        tmp_path,
+        release_needed=True,
+        repo_destination="disk",
+        repo_path=str(tmp_path / "remote"),
+        release_destination="vcs",
+    )
+    release_root = tmp_path / "dist" / "release"
+    release_root.mkdir(parents=True)
+    monkeypatch.setattr(
+        "ezcompiler.interfaces.python_api.PipelineService.assemble_release_dir",
+        staticmethod(lambda *_a: release_root),
+    )
+    monkeypatch.setattr(
+        "ezcompiler.interfaces.python_api.UploaderService.upload",
+        staticmethod(lambda **_kw: None),
+    )
+
+    ez = EzCompiler(cfg)
+    ez._printer = MagicMock()
+    with pytest.raises(NotImplementedError):
+        ez.upload()
 
 
 def test_upload_artifact_when_no_release(monkeypatch, tmp_path: Path) -> None:
     cfg = _cfg(
         tmp_path,
         release_needed=False,
-        upload_structure="disk",
+        repo_destination="disk",
         repo_path=str(tmp_path / "releases"),
     )
     captured: dict = {}
@@ -76,10 +141,10 @@ def test_upload_artifact_when_no_release(monkeypatch, tmp_path: Path) -> None:
     assert captured["destination"] == str(tmp_path / "releases")
 
 
-def test_upload_overrides_destination_and_structure(
+def test_upload_overrides_repo_and_release_destination(
     monkeypatch, tmp_path: Path
 ) -> None:
-    cfg = _cfg(tmp_path, release_needed=False, upload_structure="disk")
+    cfg = _cfg(tmp_path, release_needed=False, repo_destination="disk")
     captured: dict = {}
     monkeypatch.setattr(
         "ezcompiler.interfaces.python_api.PipelineService.upload_artifact",
@@ -88,14 +153,14 @@ def test_upload_overrides_destination_and_structure(
 
     ez = EzCompiler(cfg)
     ez._printer = MagicMock()
-    ez.upload(destination="https://h/up", structure="server")
+    ez.upload(destination="https://h/up", repo_destination="server")
 
     assert captured["structure"] == "server"
     assert captured["destination"] == "https://h/up"
 
 
 def test_upload_raises_when_not_initialized() -> None:
-    ez = EzCompiler.__new__(EzCompiler)  # bypass __init__
+    ez = EzCompiler.__new__(EzCompiler)
     ez._config = None
     with pytest.raises(ConfigurationError):
         ez.upload()
