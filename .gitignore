@@ -264,3 +264,4 @@ temp_projects/
 # Configuration locale utilisateur
 local_config/
 user_settings/
+.senior-review/
