@@ -156,10 +156,12 @@ class ServerUploader(BaseUploader):
             targets_path = local_dir / "metadata" / "targets.json"
             if targets_path.exists():
                 doc = json.loads(targets_path.read_text())
+                targets_root = local_dir / "targets"
                 for name in doc.get("signed", {}).get("targets", {}):
+                    dest = self._safe_join(targets_root, name)
                     body = self._get(f"{base}/targets/{name}")
                     if body is not None:
-                        self._save(local_dir / "targets" / name, body)
+                        self._save(dest, body)
         except UploadError:
             raise
         except Exception as e:
@@ -183,6 +185,22 @@ class ServerUploader(BaseUploader):
         if not response.ok:
             raise UploadError(f"Server returned error {response.status_code} for {url}")
         return response.content
+
+    @staticmethod
+    def _safe_join(root: Path, name: str) -> Path:
+        """Join ``name`` under ``root``, rejecting path traversal.
+
+        Target names come from a remote, not-yet-verified ``targets.json``;
+        a crafted ``name`` (``../`` or absolute) must never escape ``root``.
+
+        Raises:
+            UploadError: If ``name`` resolves outside ``root``.
+        """
+        root_resolved = root.resolve()
+        candidate = (root / name).resolve()
+        if root_resolved != candidate and root_resolved not in candidate.parents:
+            raise UploadError(f"Unsafe target name rejected: {name}")
+        return candidate
 
     @staticmethod
     def _save(path: Path, content: bytes) -> None:

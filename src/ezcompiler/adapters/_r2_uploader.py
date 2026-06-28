@@ -117,7 +117,7 @@ class R2Uploader(BaseUploader):
                 for obj in page.get("Contents", []):
                     key = obj["Key"]
                     rel = key[len(prefix) :].lstrip("/")
-                    dest = local_dir / rel
+                    dest = self._safe_join(local_dir, rel)
                     dest.parent.mkdir(parents=True, exist_ok=True)
                     self._client.download_file(
                         Bucket=self._bucket, Key=key, Filename=str(dest)
@@ -128,6 +128,22 @@ class R2Uploader(BaseUploader):
     # ////////////////////////////////////////////////
     # PRIVATE METHODS
     # ////////////////////////////////////////////////
+
+    @staticmethod
+    def _safe_join(root: Path, rel: str) -> Path:
+        """Join ``rel`` under ``root``, rejecting path traversal.
+
+        Object keys come from the remote bucket listing; a crafted key must
+        never let the downloaded file escape ``root``.
+
+        Raises:
+            UploadError: If ``rel`` resolves outside ``root``.
+        """
+        root_resolved = root.resolve()
+        candidate = (root / rel).resolve()
+        if root_resolved != candidate and root_resolved not in candidate.parents:
+            raise UploadError(f"Unsafe object key rejected: {rel}")
+        return candidate
 
     def _put(self, source_path: Path, key: str) -> None:
         """Upload a single file to the bucket under ``key``."""
