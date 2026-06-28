@@ -145,6 +145,10 @@ class UploaderPort(Protocol):
         """Upload a file or directory. Raises UploadError on failure."""
         ...
 
+    def download(self, remote_source: str, local_dir: Path) -> None:
+        """Download a remote tree into ``local_dir``. Raises UploadError."""
+        ...
+
     def get_uploader_name(self) -> str:
         """Human-readable uploader name."""
         ...
