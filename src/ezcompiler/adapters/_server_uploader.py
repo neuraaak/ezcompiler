@@ -124,6 +124,72 @@ class ServerUploader(BaseUploader):
         except Exception as e:
             raise UploadError(f"Server upload failed: {e}") from e
 
+    def download(self, remote_source: str, local_dir: Path) -> None:
+        """
+        Fetch the current TUF tree from ``remote_source`` (metadata-driven).
+
+        Reads the role metadata by known names, then the targets listed in
+        ``targets.json``. A 404 on ``timestamp.json`` means the channel is
+        empty (first run) -> no-op.
+
+        Args:
+            remote_source: Base read URL of the update channel.
+            local_dir: Local directory to populate with the TUF tree.
+
+        Raises:
+            UploadError: On any non-404 transport failure.
+        """
+        import json  # noqa: PLC0415
+
+        base = remote_source.rstrip("/")
+        try:
+            ts = self._get(f"{base}/metadata/timestamp.json")
+            if ts is None:
+                return  # premier run : canal vide
+            self._save(local_dir / "metadata" / "timestamp.json", ts)
+
+            for role in ("snapshot.json", "root.json", "targets.json"):
+                body = self._get(f"{base}/metadata/{role}")
+                if body is not None:
+                    self._save(local_dir / "metadata" / role, body)
+
+            targets_path = local_dir / "metadata" / "targets.json"
+            if targets_path.exists():
+                doc = json.loads(targets_path.read_text())
+                for name in doc.get("signed", {}).get("targets", {}):
+                    body = self._get(f"{base}/targets/{name}")
+                    if body is not None:
+                        self._save(local_dir / "targets" / name, body)
+        except UploadError:
+            raise
+        except Exception as e:
+            raise UploadError(f"Server download failed: {e}") from e
+
+    def _get(self, url: str) -> bytes | None:
+        """GET ``url``; return bytes, or None on 404.
+
+        Raises:
+            UploadError: On any non-404 error response.
+        """
+        response = requests.get(  # nosec B113 - timeout fourni et validé > 0 dans _validate_config
+            url,
+            headers=self._prepare_headers(),
+            auth=self._prepare_auth(),
+            timeout=self._config["timeout"],
+            verify=self._config["verify_ssl"],
+        )
+        if response.status_code == 404:
+            return None
+        if not response.ok:
+            raise UploadError(f"Server returned error {response.status_code} for {url}")
+        return response.content
+
+    @staticmethod
+    def _save(path: Path, content: bytes) -> None:
+        """Write ``content`` to ``path``, creating parent directories."""
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(content)
+
     def _upload_single_file_with_retry(
         self, source_path: Path, destination: str
     ) -> None:
