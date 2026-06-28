@@ -24,6 +24,7 @@ from ..shared.exceptions import UploadError
 from ..types import UploaderPort
 from ..utils import UploaderUtils
 from ._disk_uploader import DiskUploader
+from ._r2_uploader import R2Uploader
 from ._server_uploader import ServerUploader
 
 # ///////////////////////////////////////////////////////////////
@@ -81,6 +82,8 @@ class UploaderFactory:
             return DiskUploader(config)
         elif upload_type == "server":
             return ServerUploader(config)
+        elif upload_type == "r2":
+            return R2Uploader(config)
         else:
             # This should not happen due to validation above, but kept for safety
             raise UploadError(f"Unsupported upload type: {upload_type}")
@@ -131,9 +134,9 @@ class UploaderFactory:
         Example:
             >>> types = UploaderFactory.get_supported_types()
             >>> print(types)
-            ['disk', 'server']
+            ['disk', 'server', 'r2']
         """
-        return ["disk", "server"]
+        return ["disk", "server", "r2"]
 
     @staticmethod
     def validate_config(upload_type: str, config: dict[str, Any] | None = None) -> bool:

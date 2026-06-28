@@ -69,5 +69,5 @@ def validate_upload_structure(structure: str) -> bool:
         >>> validate_upload_structure("cloud")
         False
     """
-    valid_structures = ["disk", "server"]
+    valid_structures = ["disk", "server", "r2"]
     return validate_choice(structure, valid_structures)
