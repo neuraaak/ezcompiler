@@ -18,8 +18,8 @@ def cfg(tmp_path: Path) -> CompilerConfig:
         main_file=str(main),
         include_files={"files": [], "folders": []},
         output_folder=tmp_path / "dist",
-        tufup_repo_dir=tmp_path / "repo",
-        tufup_keys_dir=tmp_path / "keystore",
+        tuf_repo_dir=tmp_path / "repo",
+        tuf_keys_dir=tmp_path / "keystore",
     )
 
 
@@ -100,7 +100,7 @@ def test_release_artifact_calls_release_and_publish_with_publish_false(
 
     def _fake_release(**kwargs) -> Path:
         captured.update(kwargs)
-        return cfg.tufup_repo_dir / "repository"
+        return cfg.tuf_repo_dir / "repository"
 
     monkeypatch.setattr(
         "ezcompiler.services.pipeline_service.ReleaseService.release_and_publish",
@@ -131,8 +131,8 @@ def test_release_artifact_never_publishes_even_if_url_set(
         main_file=str(main),
         include_files={"files": [], "folders": []},
         output_folder=tmp_path / "dist",
-        tufup_repo_dir=tmp_path / "repo",
-        update_repo_url="https://updates.example.com",
+        tuf_repo_dir=tmp_path / "repo",
+        repo_endpoint="https://updates.example.com",
     )
     PipelineService.release_artifact(cfg_with_url, compilation_result=None)
 
@@ -143,7 +143,7 @@ def test_release_artifact_never_publishes_even_if_url_set(
 def test_release_artifact_returns_repository_path(
     monkeypatch, cfg: CompilerConfig
 ) -> None:
-    expected = cfg.tufup_repo_dir / "repository"
+    expected = cfg.tuf_repo_dir / "repository"
     monkeypatch.setattr(
         "ezcompiler.services.pipeline_service.ReleaseService.release_and_publish",
         staticmethod(lambda **_: expected),

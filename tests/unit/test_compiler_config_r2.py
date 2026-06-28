@@ -25,26 +25,19 @@ def _base(main_file: Path, **extra) -> CompilerConfig:
     )
 
 
-def test_r2_config_fields_default_empty(main_file: Path) -> None:
-    cfg = _base(main_file)
-    assert cfg.r2_bucket == ""
-    assert cfg.r2_remote_prefix == ""
-
-
-def test_r2_config_fields_settable(main_file: Path) -> None:
-    cfg = _base(
-        main_file,
-        repo_destination="r2",
-        r2_bucket="updates",
-        r2_remote_prefix="myapp",
-    )
+def test_r2_repo_endpoint_accepted(main_file: Path) -> None:
+    cfg = _base(main_file, repo_destination="r2", repo_endpoint="my-bucket/tuf")
     assert cfg.repo_destination == "r2"
-    assert cfg.r2_bucket == "updates"
-    assert cfg.r2_remote_prefix == "myapp"
+    assert cfg.repo_endpoint == "my-bucket/tuf"
 
 
-def test_r2_config_roundtrips_through_dict(main_file: Path) -> None:
-    cfg = _base(main_file, r2_bucket="updates", r2_remote_prefix="myapp")
+def test_r2_repo_endpoint_roundtrips(main_file: Path) -> None:
+    cfg = _base(main_file, repo_destination="r2", repo_endpoint="my-bucket/tuf")
     restored = CompilerConfig.from_dict(cfg.to_dict())
-    assert restored.r2_bucket == "updates"
-    assert restored.r2_remote_prefix == "myapp"
+    assert restored.repo_destination == "r2"
+    assert restored.repo_endpoint == "my-bucket/tuf"
+
+
+def test_r2_resolved_repo_destination_returns_endpoint(main_file: Path) -> None:
+    cfg = _base(main_file, repo_destination="r2", repo_endpoint="my-bucket/tuf")
+    assert cfg.resolved_repo_destination == "my-bucket/tuf"

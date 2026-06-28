@@ -17,14 +17,13 @@
   "excludes": #EXCLUDES#,
   "compilation": {
     "console": #CONSOLE#,
-    "compiler": "#COMPILER#",
-    "zip_needed": #ZIP_NEEDED#,
-    "repo_needed": #REPO_NEEDED#
+    "compiler": "#COMPILER#"
   },
   "upload": {
-    "structure": "#UPLOAD_STRUCTURE#",
-    "repo_path": "#REPO_PATH#",
-    "server_url": "#SERVER_URL#"
+    "repo_destination": "#REPO_DESTINATION#",
+    "repo_endpoint": "#REPO_ENDPOINT#",
+    "release_destination": "#RELEASE_DESTINATION#",
+    "release_endpoint": "#RELEASE_ENDPOINT#"
   },
   "advanced": {
     "optimize": #OPTIMIZE#,

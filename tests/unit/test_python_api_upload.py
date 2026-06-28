@@ -20,8 +20,8 @@ def _cfg(tmp_path: Path, **kwargs: object) -> CompilerConfig:
         main_file=str(main),
         include_files={"files": [], "folders": []},
         output_folder=tmp_path / "dist",
-        tufup_repo_dir=tmp_path / "repo",
-        tufup_keys_dir=tmp_path / "keystore",
+        tuf_repo_dir=tmp_path / "repo",
+        tuf_keys_dir=tmp_path / "keystore",
         **kwargs,
     )
 
@@ -31,9 +31,11 @@ def test_upload_release_pushes_tuf_to_update_and_zip_to_release(
 ) -> None:
     cfg = _cfg(
         tmp_path,
-        release_needed=True,
+        tuf_enabled=True,
         repo_destination="disk",
-        repo_path=str(tmp_path / "remote"),
+        repo_endpoint=str(tmp_path / "remote"),
+        release_destination="disk",
+        release_endpoint=str(tmp_path / "remote"),
     )
     # Créer le zip pour que assemble_release_dir le copie
     zip_path = tmp_path / "MyApp.zip"
@@ -60,7 +62,7 @@ def test_upload_release_pushes_tuf_to_update_and_zip_to_release(
     # 1er appel : arbre TUF vers update/
     repo_call = upload_calls[0]
     assert repo_call["upload_type"] == "disk"
-    assert str(repo_call["source_path"]) == str(cfg.tufup_repo_dir)
+    assert str(repo_call["source_path"]) == str(cfg.tuf_repo_dir)
     assert repo_call["destination"].endswith("/update") or repo_call[
         "destination"
     ].endswith("\\update")
@@ -76,10 +78,9 @@ def test_upload_release_pushes_tuf_to_update_and_zip_to_release(
 def test_upload_release_r2_only_uploads_tuf(monkeypatch, tmp_path: Path) -> None:
     cfg = _cfg(
         tmp_path,
-        release_needed=True,
+        tuf_enabled=True,
         repo_destination="r2",
-        r2_bucket="my-bucket",
-        r2_remote_prefix="chan",
+        repo_endpoint="my-bucket/chan",
     )
     upload_calls: list[dict] = []
     monkeypatch.setattr(
@@ -98,9 +99,9 @@ def test_upload_release_r2_only_uploads_tuf(monkeypatch, tmp_path: Path) -> None
 def test_upload_artifact_when_no_release(monkeypatch, tmp_path: Path) -> None:
     cfg = _cfg(
         tmp_path,
-        release_needed=False,
+        tuf_enabled=False,
         repo_destination="disk",
-        repo_path=str(tmp_path / "releases"),
+        repo_endpoint=str(tmp_path / "releases"),
     )
     captured: dict = {}
     monkeypatch.setattr(
@@ -119,7 +120,7 @@ def test_upload_artifact_when_no_release(monkeypatch, tmp_path: Path) -> None:
 def test_upload_overrides_repo_and_release_destination(
     monkeypatch, tmp_path: Path
 ) -> None:
-    cfg = _cfg(tmp_path, release_needed=False, repo_destination="disk")
+    cfg = _cfg(tmp_path, tuf_enabled=False, repo_destination="disk")
     captured: dict = {}
     monkeypatch.setattr(
         "ezcompiler.interfaces.python_api.PipelineService.upload_artifact",

@@ -209,11 +209,11 @@ def generate() -> None:
     help="Compiler to use",
 )
 @click.option(
-    "--repo-needed",
-    "-r",
+    "--tuf-enabled",
+    "-te",
     is_flag=True,
     default=False,
-    help="Require repository upload (default: False)",
+    help="Enable TUF secure release (default: False)",
 )
 @click.option(
     "--repo-destination",
@@ -230,12 +230,17 @@ def generate() -> None:
     help="Zip installer upload backend",
 )
 @click.option(
-    "--repo-path",
-    "-rp",
+    "--repo-endpoint",
+    "-re",
     default=None,
-    help="Repository path",
+    help="Upload endpoint for TUF repo (path, URL, or bucket/prefix)",
 )
-@click.option("--server-url", "-su", default=None, help="Server URL for upload")
+@click.option(
+    "--release-endpoint",
+    "-rle",
+    default=None,
+    help="Upload endpoint for release zip (path or URL)",
+)
 @click.option(
     "--optimize",
     "-opt",
@@ -284,11 +289,11 @@ def config(
     excludes: tuple[str, ...],
     console: bool,
     compiler: str | None,
-    repo_needed: bool,
+    tuf_enabled: bool,
     repo_destination: RepoDestination | None,
     release_destination: ReleaseDestination | None,
-    repo_path: str | None,
-    server_url: str | None,
+    repo_endpoint: str | None,
+    release_endpoint: str | None,
     optimize: bool,
     strip: bool,
     debug: bool,
@@ -361,15 +366,17 @@ def config(
             cli_overrides.setdefault("upload", {})["release_destination"] = (
                 release_destination
             )
-        if repo_path is not None:
-            cli_overrides.setdefault("upload", {})["repo_path"] = repo_path
-        if server_url is not None:
-            cli_overrides.setdefault("upload", {})["server_url"] = server_url
+        if repo_endpoint is not None:
+            cli_overrides.setdefault("upload", {})["repo_endpoint"] = repo_endpoint
+        if release_endpoint is not None:
+            cli_overrides.setdefault("upload", {})["release_endpoint"] = (
+                release_endpoint
+            )
 
         # Flags always have a value — include them
-        cli_overrides.setdefault("compilation", {}).update(
-            {"console": console, "repo_needed": repo_needed}
-        )
+        cli_overrides.setdefault("compilation", {}).update({"console": console})
+        if tuf_enabled:
+            cli_overrides.setdefault("release", {})["tuf_enabled"] = True
         cli_overrides.setdefault("advanced", {}).update(
             {"optimize": optimize, "strip": strip, "debug": debug}
         )
@@ -412,7 +419,6 @@ def config(
             {
                 "console": True,
                 "compiler": "auto",
-                "repo_needed": False,
             },
         )
         config_dict.setdefault(
@@ -420,8 +426,8 @@ def config(
             {
                 "repo_destination": "disk",
                 "release_destination": "disk",
-                "repo_path": "releases",
-                "server_url": "",
+                "repo_endpoint": "",
+                "release_endpoint": "",
             },
         )
         config_dict.setdefault(
@@ -1108,13 +1114,12 @@ def init(
             "compilation": {
                 "console": True,
                 "compiler": "auto",
-                "repo_needed": False,
             },
             "upload": {
                 "repo_destination": "disk",
                 "release_destination": "disk",
-                "repo_path": "releases",
-                "server_url": "",
+                "repo_endpoint": "",
+                "release_endpoint": "",
             },
             "advanced": {"optimize": True, "strip": False, "debug": False},
         }
@@ -1209,7 +1214,7 @@ def release_init(config_path: Path | None) -> None:
     """Initialise TUF signing keys and repository skeleton.
 
     Run once per project, before the first `ezcompiler compile` with
-    release_needed = true. Keys are written to tufup_keys_dir (config).
+    tuf_enabled = true. Keys are written to tuf_keys_dir (config).
     Safe to re-run: skips silently when keys already exist.
     """
     printer = _get_printer()
@@ -1220,15 +1225,14 @@ def release_init(config_path: Path | None) -> None:
         from ..shared import CompilerConfig  # noqa: PLC0415
 
         compiler_config = CompilerConfig.from_dict(cfg)
-        repo_dir = compiler_config.tufup_repo_dir or (
+        repo_dir = compiler_config.tuf_repo_dir or (
             compiler_config.output_folder / "repo"
         )
-        keys_dir = compiler_config.tufup_keys_dir or (repo_dir / "keystore")
+        keys_dir = compiler_config.tuf_keys_dir or (repo_dir / "keystore")
         initialized = ReleaseService.init_release(
             app_name=compiler_config.project_name,
             repo_dir=repo_dir,
             keys_dir=keys_dir,
-            release_type=compiler_config.release_type,
         )
         if initialized:
             printer.success(f"TUF keys initialized in {keys_dir}")

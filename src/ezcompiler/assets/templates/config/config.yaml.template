@@ -35,14 +35,13 @@ excludes:
 compilation:
   console: #CONSOLE#
   compiler: "#COMPILER#"  # "auto", "Cx_Freeze", "PyInstaller", or "Nuitka"
-  zip_needed: #ZIP_NEEDED#
-  repo_needed: #REPO_NEEDED#
 
 # Upload Configuration
 upload:
-  structure: "#UPLOAD_STRUCTURE#"  # "disk" or "server"
-  repo_path: "#REPO_PATH#"
-  server_url: "#SERVER_URL#"  # Only needed for server upload
+  repo_destination: "#REPO_DESTINATION#"
+  repo_endpoint: "#REPO_ENDPOINT#"
+  release_destination: "#RELEASE_DESTINATION#"
+  release_endpoint: "#RELEASE_ENDPOINT#"
 
 # Advanced Options
 advanced:

@@ -20,8 +20,8 @@ def cfg(tmp_path: Path) -> CompilerConfig:
         main_file=str(main),
         include_files={"files": [], "folders": []},
         output_folder=tmp_path / "dist",
-        tufup_repo_dir=tmp_path / "repo",
-        tufup_keys_dir=tmp_path / "keystore",
+        tuf_repo_dir=tmp_path / "repo",
+        tuf_keys_dir=tmp_path / "keystore",
     )
 
 
@@ -79,8 +79,8 @@ def _make_cfg(tmp_path: Path, **kwargs: object) -> CompilerConfig:
         main_file=str(main),
         include_files={"files": [], "folders": []},
         output_folder=tmp_path / "dist",
-        tufup_repo_dir=tmp_path / "repo",
-        tufup_keys_dir=tmp_path / "keystore",
+        tuf_repo_dir=tmp_path / "repo",
+        tuf_keys_dir=tmp_path / "keystore",
         **kwargs,
     )
 
@@ -105,7 +105,7 @@ def test_init_release_delegates_to_service(monkeypatch, tmp_path: Path) -> None:
 def test_run_pipeline_preflight_raises_before_compile_when_keys_missing(
     monkeypatch, tmp_path: Path
 ) -> None:
-    cfg = _make_cfg(tmp_path, release_needed=True)
+    cfg = _make_cfg(tmp_path, tuf_enabled=True)
     compile_called: list = []
 
     monkeypatch.setattr(
@@ -120,7 +120,7 @@ def test_run_pipeline_preflight_raises_before_compile_when_keys_missing(
 
 
 def test_run_pipeline_does_not_upload(monkeypatch, tmp_path: Path) -> None:
-    cfg = _make_cfg(tmp_path, release_needed=True)
+    cfg = _make_cfg(tmp_path, tuf_enabled=True)
     (tmp_path / "keystore").mkdir()
     (tmp_path / "keystore" / "root").write_bytes(b"k")
 
@@ -155,7 +155,7 @@ def test_release_publish_true_warns(monkeypatch, tmp_path: Path) -> None:
     cfg = _make_cfg(
         tmp_path,
         repo_destination="disk",
-        update_repo_url=str(tmp_path / "remote"),
+        repo_endpoint=str(tmp_path / "remote"),
     )
     monkeypatch.setattr(
         "ezcompiler.interfaces.python_api.ReleaseService.release_and_publish",
@@ -171,7 +171,7 @@ def test_release_publish_true_warns(monkeypatch, tmp_path: Path) -> None:
 def test_run_pipeline_skip_release_bypasses_release_stage(
     monkeypatch, tmp_path: Path
 ) -> None:
-    cfg = _make_cfg(tmp_path, release_needed=True)
+    cfg = _make_cfg(tmp_path, tuf_enabled=True)
     release_calls: list = []
 
     monkeypatch.setattr(

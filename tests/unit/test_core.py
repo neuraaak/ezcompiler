@@ -108,9 +108,7 @@ class TestCompilerConfig:
             optimize=True,
             strip=False,
             debug=False,
-            repo_needed=False,
             repo_destination="disk",
-            repo_path="releases",
         )
         assert config.version == "2.0.0"
         assert config.project_name == "FullTestProject"
@@ -172,7 +170,7 @@ class TestCompilerConfig:
         assert config.optimize is True
         assert config.strip is False
         assert config.debug is False
-        assert config.repo_needed is False
+        assert config.tuf_enabled is False
         assert config.repo_destination == "disk"
         assert config.release_destination == "disk"
 

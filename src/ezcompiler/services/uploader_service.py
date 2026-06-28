@@ -194,11 +194,13 @@ class UploaderService:
         """Upload l'arbre TUF vers la destination configurée."""
         try:
             if repo_dest == "r2":
+                endpoint = config.repo_endpoint
+                bucket, _, prefix = endpoint.partition("/")
                 UploaderService.upload(
                     source_path=repo_dir,
                     upload_type="r2",
-                    destination=config.r2_remote_prefix,
-                    upload_config={"bucket": config.r2_bucket},
+                    destination=prefix,
+                    upload_config={"bucket": bucket},
                 )
             elif repo_dest == "server":
                 base = destination or config.resolved_repo_destination or ""

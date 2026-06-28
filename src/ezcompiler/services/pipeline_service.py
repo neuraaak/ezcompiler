@@ -205,8 +205,8 @@ class PipelineService:
         compilation_result: CompilationResult | None,  # noqa: ARG004
     ) -> Path:
         """Build le repo TUF local depuis output_folder. Ne publie jamais."""
-        repo_dir = config.tufup_repo_dir or (config.output_folder / "repo")
-        keys_dir = config.tufup_keys_dir or (repo_dir / "keystore")
+        repo_dir = config.tuf_repo_dir or (config.output_folder / "repo")
+        keys_dir = config.tuf_keys_dir or (repo_dir / "keystore")
         return ReleaseService.release_and_publish(
             bundle_dir=config.output_folder,
             app_name=config.project_name,

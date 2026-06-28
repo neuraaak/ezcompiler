@@ -15,12 +15,10 @@ def _config(tmp_path: Path) -> CompilerConfig:
         include_files={"files": [], "folders": []},
         output_folder=tmp_path / "dist",
         repo_destination="r2",
-        r2_bucket="updates",
-        r2_remote_prefix="myapp",
-        update_repo_url="https://x.r2.dev/myapp",
+        repo_endpoint="updates/myapp",
+        tuf_enabled=True,
+        tuf_repo_dir=tmp_path / "repo",
     )
-    cfg.release_needed = True
-    cfg.tufup_repo_dir = tmp_path / "repo"
     (tmp_path / "repo" / "metadata").mkdir(parents=True)
     return cfg
 
@@ -31,7 +29,6 @@ def test_upload_r2_pushes_tuf_tree(mock_us, tmp_path):
     compiler = EzCompiler(cfg)
     compiler.upload()
 
-    # upload_release() est désormais délégué à UploaderService
     assert mock_us.upload_release.called
     call = mock_us.upload_release.call_args
     assert call.kwargs["config"] is cfg

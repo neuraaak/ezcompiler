@@ -447,8 +447,8 @@ class EzCompiler:
         repo_dest = repo_destination or self._config.repo_destination
 
         try:
-            if self._config.release_needed:
-                repo_dir = self._config.tufup_repo_dir or (
+            if self._config.tuf_enabled:
+                repo_dir = self._config.tuf_repo_dir or (
                     self._config.output_folder / "repo"
                 )
                 release_root = (
@@ -467,11 +467,7 @@ class EzCompiler:
                 )
 
             else:
-                dest = destination or (
-                    self._config.server_url
-                    if repo_dest == "server"
-                    else self._config.repo_path
-                )
+                dest = destination or self._config.resolved_repo_destination or ""
                 self._pipeline_service.upload_artifact(
                     config=self._config,
                     structure=repo_dest,
@@ -526,17 +522,16 @@ class EzCompiler:
                 DeprecationWarning,
                 stacklevel=2,
             )
-        repo_dir = self._config.tufup_repo_dir or (self._config.output_folder / "repo")
-        keys_dir = self._config.tufup_keys_dir or (repo_dir / "keystore")
+        repo_dir = self._config.tuf_repo_dir or (self._config.output_folder / "repo")
+        keys_dir = self._config.tuf_keys_dir or (repo_dir / "keystore")
         return ReleaseService.release_and_publish(
             bundle_dir=bundle_dir,
             app_name=self._config.project_name,
             version=self._config.version,
             repo_dir=repo_dir,
-            release_type=self._config.release_type,
             publish=publish,
             upload_type=self._config.repo_destination if publish else None,
-            destination=self._config.update_repo_url if publish else None,
+            destination=self._config.repo_endpoint if publish else None,
             releaser_config={"keys_dir": keys_dir},
         )
 
@@ -556,13 +551,12 @@ class EzCompiler:
             raise ConfigurationError(
                 "Project not initialized. Call init_project() first."
             )
-        repo_dir = self._config.tufup_repo_dir or (self._config.output_folder / "repo")
-        keys_dir = self._config.tufup_keys_dir or (repo_dir / "keystore")
+        repo_dir = self._config.tuf_repo_dir or (self._config.output_folder / "repo")
+        keys_dir = self._config.tuf_keys_dir or (repo_dir / "keystore")
         return ReleaseService.init_release(
             app_name=self._config.project_name,
             repo_dir=repo_dir,
             keys_dir=keys_dir,
-            release_type=self._config.release_type,
         )
 
     def run_pipeline(
@@ -605,16 +599,14 @@ class EzCompiler:
 
         # Determine which optional stages to include
         should_zip = not skip_zip
-        should_release = not skip_release and getattr(
-            self._config, "release_needed", False
-        )
+        should_release = not skip_release and self._config.tuf_enabled
 
         # Pre-flight: fail early if release needed but keys absent
         if should_release:
-            repo_dir = self._config.tufup_repo_dir or (
+            repo_dir = self._config.tuf_repo_dir or (
                 self._config.output_folder / "repo"
             )
-            keys_dir = self._config.tufup_keys_dir or (repo_dir / "keystore")
+            keys_dir = self._config.tuf_keys_dir or (repo_dir / "keystore")
             self._preflight_release(keys_dir)
 
         # Build stages

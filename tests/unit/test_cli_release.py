@@ -14,8 +14,8 @@ def _fake_cfg(tmp_path: Path) -> dict:
         "main_file": str(tmp_path / "main.py"),
         "include_files": {"files": [], "folders": []},
         "output_folder": str(tmp_path / "dist"),
-        "tufup_repo_dir": str(tmp_path / "repo"),
-        "tufup_keys_dir": str(tmp_path / "keystore"),
+        "tuf_repo_dir": str(tmp_path / "repo"),
+        "tuf_keys_dir": str(tmp_path / "keystore"),
     }
 
 

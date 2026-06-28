@@ -8,11 +8,11 @@ Setup example - Sample compilation setup script for EzCompiler.
 
 Drives the build from a JSON/YAML/TOML config file (required via --config).
 
-One-time key setup (run before the first build with release_needed = True):
+One-time key setup (run before the first build with tuf_enabled = true):
     python setup.py --config ezcompiler.config.json --init
     # or via the CLI: ezcompiler release init
 
-The TUF release step runs automatically when release_needed = True in config.
+The TUF release step runs automatically when tuf_enabled = true in config.
 Pass --skip-release to bypass it for a given build.
 
 Usage:
@@ -91,7 +91,7 @@ def parse_args() -> argparse.Namespace:
         dest="skip_release",
         action="store_true",
         default=False,
-        help="Skip the release stage even when release_needed is True in config",
+        help="Skip the release stage even when tuf_enabled is true in config",
     )
     return parser.parse_args()
 
@@ -126,7 +126,7 @@ try:
     )
 
     # Upload is now an explicit step, separate from the build pipeline.
-    if config.repo_needed:
+    if config.tuf_enabled or config.repo_endpoint:
         compiler.upload()
 
 except Exception as e:
