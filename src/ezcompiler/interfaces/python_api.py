@@ -415,7 +415,7 @@ class EzCompiler:
     def upload(
         self,
         destination: Path | str | None = None,
-        structure: Literal["server", "disk"] | None = None,
+        structure: Literal["server", "disk", "r2"] | None = None,
         upload_config: dict[str, Any] | None = None,
     ) -> None:
         """Upload the build output, choosing the source automatically.
@@ -450,18 +450,28 @@ class EzCompiler:
                 repo_dir = self._config.tufup_repo_dir or (
                     self._config.output_folder / "repo"
                 )
-                release_root = self._pipeline_service.assemble_release_dir(
-                    self._config,
-                    self._compilation_result,
-                    repo_dir,
-                )
-                dest = destination or self._config.resolved_upload_destination
-                UploaderService.upload(
-                    source_path=release_root,
-                    upload_type=cast(Literal["disk", "server"], structure_final),
-                    destination=str(dest),
-                    upload_config=upload_config,
-                )
+                if structure_final == "r2":
+                    # Canal auto-update : on pousse l'arbre TUF natif (repo_dir),
+                    # pas le dossier release plat (réservé disk/server).
+                    UploaderService.upload(
+                        source_path=repo_dir,
+                        upload_type="r2",
+                        destination=self._config.r2_remote_prefix,
+                        upload_config={"bucket": self._config.r2_bucket},
+                    )
+                else:
+                    release_root = self._pipeline_service.assemble_release_dir(
+                        self._config,
+                        self._compilation_result,
+                        repo_dir,
+                    )
+                    dest = destination or self._config.resolved_upload_destination
+                    UploaderService.upload(
+                        source_path=release_root,
+                        upload_type=cast(Literal["disk", "server"], structure_final),
+                        destination=str(dest),
+                        upload_config=upload_config,
+                    )
             else:
                 dest = destination or (
                     self._config.server_url

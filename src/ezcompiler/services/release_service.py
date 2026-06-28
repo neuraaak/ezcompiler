@@ -45,6 +45,7 @@ class ReleaseService:
         *,
         release_type: str = "tufup",
         publish: bool = False,
+        pull_before: bool = False,
         upload_type: str | None = None,
         destination: str | None = None,
         releaser_config: dict[str, Any] | None = None,
@@ -59,6 +60,9 @@ class ReleaseService:
             repo_dir: Root directory for the local TUF repository tree.
             release_type: Release backend to use (default: "tufup").
             publish: When True, transfer the repository/ tree via an uploader.
+            pull_before: When True, download the current remote tree into
+                ``repo_dir`` before releasing (R2 source-of-truth cycle).
+                Requires upload_type and destination.
             upload_type: Upload backend ("disk" or "server"). Required when publish=True.
             destination: Upload destination path or URL. Required when publish=True.
             releaser_config: Extra config forwarded to the releaser adapter.
@@ -71,6 +75,14 @@ class ReleaseService:
             ValueError: When publish=True but upload_type or destination is missing.
             ReleaseError: When release packaging or publishing fails.
         """
+        if pull_before and upload_type and destination:
+            UploaderService.download(
+                remote_source=destination,
+                upload_type=cast(Literal["disk", "server", "r2"], upload_type),
+                destination_local=repo_dir,
+                upload_config=upload_config,
+            )
+
         releaser = ReleaserFactory.create_releaser(release_type, releaser_config)
         repository_path = releaser.release(
             bundle_dir=bundle_dir,
@@ -88,7 +100,7 @@ class ReleaseService:
         try:
             UploaderService.upload(
                 source_path=repository_path,
-                upload_type=cast(Literal["disk", "server"], upload_type),
+                upload_type=cast(Literal["disk", "server", "r2"], upload_type),
                 destination=destination,
                 upload_config=upload_config,
             )

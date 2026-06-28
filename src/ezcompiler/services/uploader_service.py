@@ -30,7 +30,7 @@ from ..utils.validators import validate_upload_structure
 # TYPE ALIASES
 # ///////////////////////////////////////////////////////////////
 
-UploadType = Literal["disk", "server"]
+UploadType = Literal["disk", "server", "r2"]
 
 # ///////////////////////////////////////////////////////////////
 # CLASSES
@@ -96,6 +96,7 @@ class UploaderService:
                 config["destination_path"] = destination
             elif upload_type == "server":
                 config["server_url"] = destination
+            # r2: bucket vient de upload_config, destination = préfixe objet
 
             # Create uploader and perform upload
             uploader = UploaderFactory.create_uploader(upload_type, config)
@@ -104,6 +105,32 @@ class UploaderService:
             raise
         except Exception as e:
             raise UploadError(f"Upload failed: {str(e)}") from e
+
+    @staticmethod
+    def download(
+        remote_source: str,
+        upload_type: UploadType,
+        destination_local: Path,
+        upload_config: dict[str, Any] | None = None,
+    ) -> None:
+        """Download a remote tree into ``destination_local`` via the backend.
+
+        Args:
+            remote_source: Remote source (path, URL or prefix) to fetch.
+            upload_type: Backend type ("disk", "server" or "r2").
+            destination_local: Local directory to populate.
+            upload_config: Additional uploader configuration options.
+
+        Raises:
+            UploadError: If the download fails or the type is invalid.
+        """
+        try:
+            uploader = UploaderFactory.create_uploader(upload_type, upload_config or {})
+            uploader.download(remote_source, destination_local)
+        except UploadError:
+            raise
+        except Exception as e:
+            raise UploadError(f"Download failed: {str(e)}") from e
 
     # ////////////////////////////////////////////////
     # UTILITY METHODS
