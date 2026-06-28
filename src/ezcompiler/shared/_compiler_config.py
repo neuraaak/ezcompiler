@@ -133,6 +133,8 @@ class CompilerConfig:
     tufup_repo_dir: Path | None = None
     tufup_keys_dir: Path | None = None
     update_repo_url: str | None = None
+    r2_bucket: str = ""
+    r2_remote_prefix: str = ""
 
     # ////////////////////////////////////////////////
     # COMPILER-SPECIFIC OPTIONS
@@ -354,6 +356,8 @@ class CompilerConfig:
                 if self.tufup_keys_dir
                 else None,
                 "update_repo_url": self.update_repo_url,
+                "r2_bucket": self.r2_bucket,
+                "r2_remote_prefix": self.r2_remote_prefix,
             },
             "compiler_options": self.compiler_options,
         }
