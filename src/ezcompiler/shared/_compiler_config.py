@@ -458,4 +458,15 @@ class CompilerConfig:
         if "version_file" in config_copy and "version_filename" not in config_copy:
             config_copy["version_filename"] = config_copy.pop("version_file")
 
+        # Reject unknown keys with a clear error
+        import dataclasses as _dc
+
+        valid_fields = {f.name for f in _dc.fields(cls)}
+        unknown = set(config_copy) - valid_fields
+        if unknown:
+            raise ConfigurationError(
+                f"Unknown configuration key(s): {sorted(unknown)}. "
+                "Check your config file for typos or removed keys."
+            )
+
         return cls(**config_copy)
