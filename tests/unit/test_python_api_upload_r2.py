@@ -18,6 +18,7 @@ def _config(
         output_folder=tmp_path / "dist",
         repo_destination="r2",
         repo_endpoint="updates/myapp",
+        repo_public_url="https://pub.r2.example.com",
         release_destination=release_destination,
         release_endpoint=release_endpoint,
         tuf_enabled=True,

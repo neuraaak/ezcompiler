@@ -81,6 +81,7 @@ def test_upload_release_r2_only_uploads_tuf(monkeypatch, tmp_path: Path) -> None
         tuf_enabled=True,
         repo_destination="r2",
         repo_endpoint="my-bucket/chan",
+        repo_public_url="https://pub.r2.example.com",
     )
     upload_calls: list[dict] = []
     monkeypatch.setattr(
