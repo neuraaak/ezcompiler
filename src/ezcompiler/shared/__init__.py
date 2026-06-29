@@ -25,6 +25,9 @@ from .exceptions import (
     EzCompilerError,
     ReleaseError,
     TemplateError,
+    UpdaterConfigError,
+    UpdaterError,
+    UpdaterGenerationError,
     UploadError,
     VersionError,
 )
@@ -58,4 +61,8 @@ __all__ = [
     "VersionError",
     # File exceptions (backward compatibility alias)
     "FileOperationError",
+    # Updater exceptions
+    "UpdaterError",
+    "UpdaterConfigError",
+    "UpdaterGenerationError",
 ]

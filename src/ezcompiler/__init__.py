@@ -56,6 +56,7 @@ from .shared import (
     FileOperationError,
     ReleaseError,
     TemplateError,
+    UpdaterError,
     UploadError,
     VersionError,
 )
@@ -119,6 +120,7 @@ __all__ = [
     "ConfigurationError",
     "ReleaseError",
     "TemplateError",
+    "UpdaterError",
     "UploadError",
     "VersionError",
     "FileOperationError",

@@ -34,6 +34,7 @@ from .services import (
     ReleaseError,
     TemplateError,
     TemplateServiceError,
+    UpdaterError,
     UploadError,
     UploaderServiceError,
     VersionError,
@@ -63,6 +64,10 @@ from .utils._release_exceptions import (
     ReleaseConfigError,
     ReleaserTypeError,
     SigningKeyError,
+)
+from .utils._updater_exceptions import (
+    UpdaterConfigError,
+    UpdaterGenerationError,
 )
 from .utils._zip_exceptions import ZipError
 
@@ -98,6 +103,10 @@ __all__ = [
     "BundleBuildError",
     "SigningKeyError",
     "ReleaseConfigError",
+    # Updater exceptions
+    "UpdaterError",
+    "UpdaterConfigError",
+    "UpdaterGenerationError",
     # Util exceptions promoted for interface layer use
     "ConfigError",
     "ZipError",

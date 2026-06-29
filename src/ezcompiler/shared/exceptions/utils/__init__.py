@@ -92,6 +92,15 @@ from ._template_exceptions import (
 )
 
 # ///////////////////////////////////////////////////////////////
+# IMPORTS - Updater exceptions
+# ///////////////////////////////////////////////////////////////
+from ._updater_exceptions import (
+    UpdaterConfigError,
+    UpdaterError,
+    UpdaterGenerationError,
+)
+
+# ///////////////////////////////////////////////////////////////
 # IMPORTS - Uploader exceptions
 # ///////////////////////////////////////////////////////////////
 from ._uploader_exceptions import (
@@ -160,6 +169,10 @@ __all__ = [
     "BundleBuildError",
     "SigningKeyError",
     "ReleaseConfigError",
+    # Updater exceptions
+    "UpdaterError",
+    "UpdaterConfigError",
+    "UpdaterGenerationError",
     # Uploader exceptions
     "SourcePathError",
     "UploaderTypeError",
