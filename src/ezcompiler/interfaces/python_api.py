@@ -451,9 +451,10 @@ class EzCompiler:
                 repo_dir = self._config.tuf_repo_dir or (
                     self._config.output_folder / "repo"
                 )
+                rel_dest = release_destination or self._config.release_destination
                 release_root = (
                     None
-                    if repo_dest == "r2"
+                    if repo_dest == "r2" and rel_dest == "disk"
                     else self._pipeline_service.assemble_release_dir(self._config)
                 )
                 UploaderService.upload_release(

@@ -178,7 +178,7 @@ class UploaderService:
             config, repo_dir, repo_dest, destination, upload_config
         )
 
-        if repo_dest != "r2" and release_root is not None:
+        if release_root is not None:
             UploaderService._upload_release_zip(
                 config, release_root, rel_dest, destination, upload_config
             )
@@ -231,7 +231,16 @@ class UploaderService:
     ) -> None:
         """Upload le zip installeur vers la destination configurée."""
         try:
-            if rel_dest == "server":
+            if rel_dest == "r2":
+                endpoint = config.release_endpoint
+                bucket, _, prefix = endpoint.partition("/")
+                UploaderService.upload(
+                    source_path=release_root,
+                    upload_type="r2",
+                    destination=prefix,
+                    upload_config={"bucket": bucket},
+                )
+            elif rel_dest == "server":
                 base = destination or config.resolved_release_destination or ""
                 UploaderService.upload(
                     source_path=release_root,

@@ -131,6 +131,11 @@ def test_release_destination_server_requires_release_endpoint(main_file: Path) -
         _base(main_file, release_destination="server", release_endpoint="")
 
 
+def test_release_destination_r2_requires_release_endpoint(main_file: Path) -> None:
+    with pytest.raises(ConfigurationError, match="release_endpoint"):
+        _base(main_file, release_destination="r2", release_endpoint="")
+
+
 def test_release_destination_disk_allows_empty_release_endpoint(
     main_file: Path,
 ) -> None:
@@ -158,14 +163,18 @@ def test_repo_destination_rejects_invalid_values(main_file: Path, value: str) ->
         _base(main_file, repo_destination=value)
 
 
-@pytest.mark.parametrize("value", ["disk", "server"])
+@pytest.mark.parametrize("value", ["disk", "server", "r2"])
 def test_release_destination_accepts_valid_values(main_file: Path, value: str) -> None:
-    endpoint = "https://x.com" if value == "server" else ""
+    endpoint = (
+        "bucket/prefix"
+        if value == "r2"
+        else ("https://x.com" if value == "server" else "")
+    )
     cfg = _base(main_file, release_destination=value, release_endpoint=endpoint)
     assert cfg.release_destination == value
 
 
-@pytest.mark.parametrize("value", ["r2", "s3", "vcs", "ftp", ""])
+@pytest.mark.parametrize("value", ["s3", "vcs", "ftp", ""])
 def test_release_destination_rejects_invalid_values(
     main_file: Path, value: str
 ) -> None:

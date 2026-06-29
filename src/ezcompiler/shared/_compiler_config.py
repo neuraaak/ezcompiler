@@ -267,7 +267,7 @@ class CompilerConfig:
                 f"Must be one of {valid_repo}"
             )
 
-        valid_release = ["disk", "server"]
+        valid_release = ["disk", "server", "r2"]
         if self.release_destination not in valid_release:
             raise ConfigurationError(
                 f"Invalid release_destination: {self.release_destination}. "
@@ -283,7 +283,7 @@ class CompilerConfig:
         if self.release_destination != "disk" and not self.release_endpoint:
             raise ConfigurationError(
                 f"release_endpoint is required when release_destination='{self.release_destination}'. "
-                "Provide the upload URL."
+                "For 'server': provide a URL. For 'r2': provide 'bucket/prefix'."
             )
 
     # ////////////////////////////////////////////////

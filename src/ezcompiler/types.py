@@ -66,10 +66,10 @@ Valid values: "disk", "server", "r2"
 Used by: CompilerConfig.repo_destination, EzCompiler.upload().
 """
 
-type ReleaseDestination = Literal["disk", "server"]
+type ReleaseDestination = Literal["disk", "server", "r2"]
 """Type alias for the release zip upload backend.
 
-Valid values: "disk", "server"
+Valid values: "disk", "server", "r2"
 
 Used by: CompilerConfig.release_destination, EzCompiler.upload().
 """
