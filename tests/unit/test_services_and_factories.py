@@ -241,7 +241,6 @@ class TestPipelineService:
         self, temp_dir: Path
     ) -> None:
         config = _build_config(temp_dir)
-        config.zip_needed = True
 
         mock_compiler_service = MagicMock(spec=CompilerService)
         mock_compilation_result = MagicMock()

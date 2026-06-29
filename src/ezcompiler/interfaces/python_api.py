@@ -29,6 +29,8 @@ if TYPE_CHECKING:
     from ezplog.handlers.wizard.dynamic import StageConfig
     from ezplog.lib_mode import _LazyPrinter
 
+    from ..types import ReleaseDestination, RepoDestination
+
 # Third-party imports
 from ezplog.lib_mode import get_logger, get_printer
 
@@ -36,6 +38,7 @@ from ezplog.lib_mode import get_logger, get_printer
 from ..services import (
     CompilerService,
     PipelineService,
+    ReleaseService,
     TemplateService,
     UploaderService,
 )
@@ -43,11 +46,22 @@ from ..shared import CompilationResult, CompilerConfig
 from ..shared.exceptions import (
     CompilationError,
     ConfigurationError,
+    ReleaseError,
+    SigningKeyError,
     TemplateError,
     UploadError,
     VersionError,
     ZipError,
 )
+
+# ///////////////////////////////////////////////////////////////
+# CONSTANTS
+# ///////////////////////////////////////////////////////////////
+
+_MSG_NOT_INITIALIZED = "Project not initialized. Call init_project() first."
+_MSG_VERSION_OK = "Version file generated successfully"
+_MSG_COMPILED_OK = "Project compiled successfully"
+_MSG_ZIP_OK = "ZIP archive created successfully"
 
 # ///////////////////////////////////////////////////////////////
 # CLASSES
@@ -72,7 +86,7 @@ class EzCompiler:
         >>> compiler = EzCompiler(config)
         >>> compiler.compile_project()
         >>> compiler.zip_compiled_project()
-        >>> compiler.upload_to_repo("disk", "releases")
+        >>> compiler.upload()
     """
 
     # ////////////////////////////////////////////////
@@ -242,17 +256,15 @@ class EzCompiler:
         """
         try:
             if not self._config:
-                raise ConfigurationError(
-                    "Project not initialized. Call init_project() first."
-                )
+                raise ConfigurationError(_MSG_NOT_INITIALIZED)
 
             # Generate using TemplateService
             config_dict = self._config.to_dict()
             version_file_path = Path(name)
             self._template_service.generate_version_file(config_dict, version_file_path)
 
-            self._printer.success("Version file generated successfully")
-            self._logger.info("Version file generated successfully")
+            self._printer.success(_MSG_VERSION_OK)
+            self._logger.info(_MSG_VERSION_OK)
 
         except (ConfigurationError, VersionError, TemplateError):
             raise
@@ -279,9 +291,7 @@ class EzCompiler:
         """
         try:
             if not self._config:
-                raise ConfigurationError(
-                    "Project not initialized. Call init_project() first."
-                )
+                raise ConfigurationError(_MSG_NOT_INITIALIZED)
 
             # Generate using TemplateService
             config_dict = self._config.to_dict()
@@ -330,9 +340,7 @@ class EzCompiler:
         """
         try:
             if not self._config:
-                raise ConfigurationError(
-                    "Project not initialized. Call init_project() first."
-                )
+                raise ConfigurationError(_MSG_NOT_INITIALIZED)
 
             # Create compiler service and compile
             self._compiler_service = self._compiler_service_factory(self._config)
@@ -344,8 +352,8 @@ class EzCompiler:
                 ),
             )
 
-            self._printer.success("Project compiled successfully")
-            self._logger.info("Project compiled successfully")
+            self._printer.success(_MSG_COMPILED_OK)
+            self._logger.info(_MSG_COMPILED_OK)
 
         except (ConfigurationError, CompilationError):
             raise
@@ -369,15 +377,13 @@ class EzCompiler:
         """
         try:
             if not self._config:
-                raise ConfigurationError(
-                    "Project not initialized. Call init_project() first."
-                )
+                raise ConfigurationError(_MSG_NOT_INITIALIZED)
 
             # Check if ZIP is needed from compilation result
             zip_needed = (
                 self._compilation_result.zip_needed
                 if self._compilation_result
-                else self._config.zip_needed
+                else True
             )
 
             if not zip_needed:
@@ -395,8 +401,8 @@ class EzCompiler:
                 progress_callback=self._zip_progress_callback,
             )
 
-            self._printer.success("ZIP archive created successfully")
-            self._logger.info("ZIP archive created successfully")
+            self._printer.success(_MSG_ZIP_OK)
+            self._logger.info(_MSG_ZIP_OK)
 
         except (ConfigurationError, ZipError):
             raise
@@ -409,108 +415,201 @@ class EzCompiler:
     # UPLOAD METHODS
     # ////////////////////////////////////////////////
 
-    def upload_to_repo(
+    def upload(
         self,
-        structure: Literal["server", "disk"],
-        repo_path: Path | str,
+        destination: str | None = None,
+        repo_destination: RepoDestination | None = None,
+        release_destination: ReleaseDestination | None = None,
         upload_config: dict[str, Any] | None = None,
     ) -> None:
-        """
-        Upload compiled project to repository.
+        """Upload le repo TUF et/ou le zip installeur selon la config.
 
-        Uploads the compiled artifact (ZIP or directory) to the specified
-        repository using the appropriate uploader (disk or server).
+        Quand ``release_needed`` est True, effectue deux uploads séquentiels :
+        1. arbre TUF → ``<dest>/update/``
+        2. zip installeur → ``<dest>/release/`` (ignoré si repo_destination="r2")
+
+        Sinon, uploade l'artefact compilé (comportement inchangé).
 
         Args:
-            structure: Upload type - "server" for HTTP/HTTPS, "disk" for local
-            repo_path: Repository path or server URL
-            upload_config: Additional uploader configuration options
+            destination: Override commun pour les deux destinations.
+            repo_destination: Override de ``config.repo_destination``.
+            release_destination: Override de ``config.release_destination``.
+            upload_config: Options supplémentaires passées aux uploaders.
 
         Raises:
-            ConfigurationError: If project not initialized
-            EzCompilerError: If upload structure is invalid
-
-        Example:
-            >>> compiler.upload_to_repo("disk", "releases/")
-            >>> compiler.upload_to_repo("server", "https://example.com/upload")
+            ConfigurationError: Si le projet n'est pas initialisé.
+            UploadError: Si un upload échoue.
         """
+        if not self._config:
+            raise ConfigurationError(_MSG_NOT_INITIALIZED)
+
+        repo_dest = repo_destination or self._config.repo_destination
+
         try:
-            if not self._config:
-                raise ConfigurationError(
-                    "Project not initialized. Call init_project() first."
+            if self._config.tuf_enabled:
+                repo_dir = self._config.tuf_repo_dir or (
+                    self._config.output_folder / "repo"
+                )
+                rel_dest = release_destination or self._config.release_destination
+                release_root = (
+                    None
+                    if repo_dest == "r2" and rel_dest == "disk"
+                    else self._pipeline_service.assemble_release_dir(self._config)
+                )
+                UploaderService.upload_release(
+                    config=self._config,
+                    repo_dir=repo_dir,
+                    release_root=release_root,
+                    destination=destination,
+                    repo_destination=repo_destination,
+                    release_destination=release_destination,
+                    upload_config=upload_config,
                 )
 
-            # Perform upload using UploaderService
-            self._pipeline_service.upload_artifact(
-                config=self._config,
-                structure=structure,
-                destination=str(repo_path),
-                compilation_result=self._compilation_result,
-                upload_config=upload_config,
-            )
+            else:
+                dest = destination or self._config.resolved_repo_destination or ""
+                self._pipeline_service.upload_artifact(
+                    config=self._config,
+                    structure=repo_dest,
+                    destination=str(dest),
+                    compilation_result=self._compilation_result,
+                    upload_config=upload_config,
+                )
 
-            self._printer.success(f"Project uploaded successfully to {structure}")
-            self._logger.info(f"Project uploaded successfully to {structure}")
+            self._printer.success(f"Upload completed ({repo_dest})")
+            self._logger.info(f"Upload completed ({repo_dest})")
 
-        except (ConfigurationError, UploadError):
+        except (ConfigurationError, UploadError, ReleaseError):
             raise
         except Exception as e:
             self._printer.error(f"Upload failed: {e}")
             self._logger.error(f"Upload failed: {e}")
             raise UploadError(f"Upload failed: {e}") from e
 
+    def release(
+        self,
+        bundle_dir: Path,
+        *,
+        publish: bool = False,
+    ) -> Path:
+        """Package a compiled bundle into a signed TUF repository.
+
+        Reads app name, version and tufup directories from the config.
+        When ``publish`` is True, the repository tree is transferred via the
+        configured uploader (``update_repo_url`` + repo_destination).
+
+        Args:
+            bundle_dir: Directory containing the compiled application artifacts.
+            publish: When True, upload the repository/ tree to ``update_repo_url``.
+
+        Returns:
+            Path: The local ``repository/`` tree produced by tufup.
+
+        Raises:
+            ConfigurationError: If project not initialized.
+            ReleaseError: If release packaging or remote publishing fails.
+        """
+        if not self._config:
+            raise ConfigurationError(_MSG_NOT_INITIALIZED)
+        if publish:
+            import warnings  # noqa: PLC0415
+
+            warnings.warn(
+                "release(publish=True) est déprécié : le transfert distant est "
+                "désormais assuré par le stage upload de run_pipeline.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        repo_dir = self._config.tuf_repo_dir or (self._config.output_folder / "repo")
+        keys_dir = self._config.tuf_keys_dir or (repo_dir / "keystore")
+        return ReleaseService.release_and_publish(
+            bundle_dir=bundle_dir,
+            app_name=self._config.project_name,
+            version=self._config.version,
+            repo_dir=repo_dir,
+            publish=publish,
+            upload_type=self._config.repo_destination if publish else None,
+            destination=self._config.repo_endpoint if publish else None,
+            releaser_config={"keys_dir": keys_dir},
+        )
+
+    def init_release(self) -> bool:
+        """Initialise les clés/repo TUF depuis la config courante.
+
+        Action explicite — jamais appelée par run_pipeline().
+
+        Returns:
+            bool: True si init effectuée, False si clés déjà présentes (skip).
+
+        Raises:
+            ConfigurationError: If project not initialized.
+            ReleaseError: If TUF initialization fails.
+        """
+        if not self._config:
+            raise ConfigurationError(_MSG_NOT_INITIALIZED)
+        repo_dir = self._config.tuf_repo_dir or (self._config.output_folder / "repo")
+        keys_dir = self._config.tuf_keys_dir or (repo_dir / "keystore")
+        return ReleaseService.init_release(
+            app_name=self._config.project_name,
+            repo_dir=repo_dir,
+            keys_dir=keys_dir,
+        )
+
     def run_pipeline(
         self,
         console: bool = True,
         compiler: str | None = None,
         skip_zip: bool = False,
-        skip_upload: bool = False,
-        upload_structure: Literal["server", "disk"] | None = None,
-        upload_destination: str | None = None,
-        upload_config: dict[str, Any] | None = None,
+        skip_release: bool = False,
     ) -> None:
         """
-        Run the full build pipeline with visual progress tracking.
+        Run the build pipeline with visual progress tracking.
 
-        Executes version generation, compilation, optional ZIP creation,
-        and optional upload in sequence with a DynamicLayeredProgress display.
+        Executes version generation, compilation, optional ZIP creation and
+        optional TUF release in sequence with a DynamicLayeredProgress display.
+        Upload is no longer part of the pipeline — call ``upload()`` explicitly
+        afterwards.
 
         Args:
             console: Whether to show console window (default: True)
             compiler: Compiler to use or None for auto-selection
             skip_zip: Skip ZIP archive creation
-            skip_upload: Skip upload step
-            upload_structure: Upload type ("server" or "disk")
-            upload_destination: Upload destination path or URL
-            upload_config: Additional uploader configuration
+            skip_release: Skip the TUF release stage
 
         Raises:
             ConfigurationError: If project not initialized
             CompilationError: If compilation fails
             VersionError: If version file generation fails
             ZipError: If ZIP creation fails
-            UploadError: If upload fails
+            ReleaseError: If the release stage fails
 
         Example:
             >>> compiler = EzCompiler(config)
-            >>> compiler.run_pipeline(console=False, skip_upload=True)
+            >>> compiler.run_pipeline(console=False)
+            >>> compiler.upload()
         """
         if not self._config:
-            raise ConfigurationError(
-                "Project not initialized. Call init_project() first."
-            )
+            raise ConfigurationError(_MSG_NOT_INITIALIZED)
 
         # Determine which optional stages to include
-        should_zip = not skip_zip and self._config.zip_needed
-        should_upload = not skip_upload and (
-            upload_structure is not None or self._config.repo_needed
-        )
+        should_zip = not skip_zip
+        should_release = not skip_release and self._config.tuf_enabled
+
+        # Pre-flight: fail early if release needed but keys absent
+        if should_release:
+            repo_dir = self._config.tuf_repo_dir or (
+                self._config.output_folder / "repo"
+            )
+            keys_dir = self._config.tuf_keys_dir or (repo_dir / "keystore")
+            self._preflight_release(keys_dir)
 
         # Build stages
         stages: list[StageConfig] = cast(
             list["StageConfig"],
             PipelineService.build_stages(
-                self._config, should_zip=should_zip, should_upload=should_upload
+                self._config,
+                should_zip=should_zip,
+                should_release=should_release,
             ),
         )
 
@@ -527,7 +626,7 @@ class EzCompiler:
                 self._template_service.generate_version_file(
                     config_dict, version_file_path
                 )
-                self._logger.info("Version file generated successfully")
+                self._logger.info(_MSG_VERSION_OK)
                 dlp.complete_layer("version")
 
                 # Compilation
@@ -540,14 +639,14 @@ class EzCompiler:
                         compiler=compiler,
                     )
                 )
-                self._logger.info("Project compiled successfully")
+                self._logger.info(_MSG_COMPILED_OK)
                 dlp.complete_layer("compile")
 
                 # ZIP
                 zip_needed = (
                     self._compilation_result.zip_needed
                     if self._compilation_result
-                    else self._config.zip_needed
+                    else True
                 )
                 if should_zip:
                     if zip_needed:
@@ -568,32 +667,23 @@ class EzCompiler:
                             compilation_result=self._compilation_result,
                             progress_callback=_zip_cb,
                         )
-                        self._logger.info("ZIP archive created successfully")
+                        self._logger.info(_MSG_ZIP_OK)
                         dlp.complete_layer("zip")
                     else:
                         # Stage was added but not needed at runtime
                         dlp.update_layer("zip", 0, "Skipped (not needed)")
                         dlp.complete_layer("zip")
 
-                # Upload
-                if should_upload:
-                    current_phase = "upload"
-                    structure = upload_structure or self._config.upload_structure
-                    destination = upload_destination or (
-                        self._config.server_url
-                        if structure == "server"
-                        else self._config.repo_path
-                    )
-                    dlp.update_layer("upload", 0, f"Uploading to {destination}...")
-                    self._pipeline_service.upload_artifact(
+                # Release (build the local TUF tree; upload is a separate step)
+                if should_release:
+                    current_phase = "release"
+                    dlp.update_layer("release", 0, "Signing bundle...")
+                    repository_path = self._pipeline_service.release_artifact(
                         config=self._config,
-                        structure=structure,
-                        destination=str(destination),
                         compilation_result=self._compilation_result,
-                        upload_config=upload_config,
                     )
-                    self._logger.info(f"Upload completed ({structure})")
-                    dlp.complete_layer("upload")
+                    self._logger.info(f"TUF release built: {repository_path}")
+                    dlp.complete_layer("release")
 
             except (
                 ConfigurationError,
@@ -602,6 +692,8 @@ class EzCompiler:
                 VersionError,
                 UploadError,
                 ZipError,
+                ReleaseError,
+                SigningKeyError,
             ) as e:
                 dlp.handle_error(current_phase, str(e))
                 dlp.emergency_stop(str(e))
@@ -622,6 +714,14 @@ class EzCompiler:
     # ////////////////////////////////////////////////
     # PRIVATE HELPER METHODS
     # ////////////////////////////////////////////////
+
+    def _preflight_release(self, keys_dir: Path) -> None:
+        """Raise SigningKeyError before compilation if signing keys are absent."""
+        if not keys_dir.is_dir() or not any(keys_dir.iterdir()):
+            raise SigningKeyError(
+                f"Signing keys not found in {keys_dir}. "
+                "Run `ezcompiler release init` first."
+            )
 
     def _zip_progress_callback(self, filename: str, progress: int) -> None:
         """

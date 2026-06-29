@@ -6,8 +6,19 @@
 """
 Setup example - Sample compilation setup script for EzCompiler.
 
-This script demonstrates how to use EzCompiler programmatically
-via init_project() to compile, zip, and upload a Python project.
+Drives the build from a JSON/YAML/TOML config file (required via --config).
+
+One-time key setup (run before the first build with tuf_enabled = true):
+    python setup.py --config ezcompiler.config.json --init
+    # or via the CLI: ezcompiler release init
+
+The TUF release step runs automatically when tuf_enabled = true in config.
+Pass --skip-release to bypass it for a given build.
+
+Usage:
+    python setup.py --config ezcompiler.config.json
+    python setup.py --config ezcompiler.config.json --init          # first-time TUF key setup
+    python setup.py --config ezcompiler.config.json --skip-release   # build without release stage
 """
 
 from __future__ import annotations
@@ -16,6 +27,7 @@ from __future__ import annotations
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
 # Standard library imports
+import argparse
 import locale
 import sys
 from datetime import datetime
@@ -23,53 +35,14 @@ from pathlib import Path
 
 # Third-party imports
 from ezcompiler import EzCompiler
+from ezcompiler.services import ConfigService
+from ezplog import Ezpl
 
 # ///////////////////////////////////////////////////////////////
 # CONSTANTS
 # ///////////////////////////////////////////////////////////////
 
-__VERSION__ = "1.0.0"
-__ZIP_NEEDED__ = True
-__REPO_NEEDED__ = True
-
-APP_PATH = (
-    Path(sys._MEIPASS)
-    if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS")
-    else Path(sys.argv[0]).parent
-)
-REPO_PATH = "releases/CxFreeze"
-
-# ///////////////////////////////////////////////////////////////
-# VARIABLES
-# ///////////////////////////////////////////////////////////////
-
-# ------------------------------------------------
-# PROJECT METADATA
-# ------------------------------------------------
-
-version = __VERSION__
-project_name = "ExampleApp-CxFreeze"
-project_description = "Sample console application compiled with Cx_Freeze"
 company_name = "EzCompiler Inc."
-author = "Dev Team"
-icon = ""
-
-# ------------------------------------------------
-# PATHS AND FILES
-# ------------------------------------------------
-
-main_file = "main.py"
-version_file = "version_info.txt"
-output_folder = APP_PATH / "dist/cxfreeze_build"
-
-# ------------------------------------------------
-# COMPILATION SETTINGS
-# ------------------------------------------------
-
-include_files = {"files": ["main.py"], "folders": []}
-packages = ["json", "os", "platform"]
-includes = ["datetime"]
-excludes = ["tkinter", "unittest", "email", "xml"]
 
 # ------------------------------------------------
 # DATE AND COPYRIGHT
@@ -94,46 +67,74 @@ ASCII_SCRIPT_FIN = """
 """
 
 # ///////////////////////////////////////////////////////////////
+# ARGS
+# ///////////////////////////////////////////////////////////////
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="EzCompiler setup script")
+    parser.add_argument(
+        "--config",
+        type=Path,
+        required=True,
+        metavar="PATH",
+        help="Path to a JSON, YAML or TOML config file",
+    )
+    parser.add_argument(
+        "--init",
+        action="store_true",
+        default=False,
+        help="Initialise TUF signing keys (one-time setup, then exit)",
+    )
+    parser.add_argument(
+        "--skip-release",
+        dest="skip_release",
+        action="store_true",
+        default=False,
+        help="Skip the release stage even when tuf_enabled is true in config",
+    )
+    return parser.parse_args()
+
+
+# ///////////////////////////////////////////////////////////////
 # SCRIPT
 # ///////////////////////////////////////////////////////////////
 
 print(COPYRIGHT)
 print(ASCII_SCRIPT_DEBUT, end="\n")
 
-compiler = EzCompiler()
-compiler._ezpl.add_separator()
+args = parse_args()
+Ezpl().set_level("DEBUG")
 
+compiler = None
 try:
-    ## => INIT PROJECT
-    compiler.init_project(
-        version=version,
-        project_name=project_name,
-        project_description=project_description,
-        company_name=company_name,
-        author=author,
-        icon=icon,
-        main_file=main_file,
-        version_filename=version_file,
-        output_folder=output_folder,
-        include_files=include_files,
-        packages=packages,
-        includes=includes,
-        excludes=excludes,
+    # ------------------------------------------------
+    # Load config (JSON / YAML / TOML) and build the compiler
+    # ------------------------------------------------
+    config = ConfigService.build_compiler_config(config_path=args.config)
+    compiler = EzCompiler(config=config)
+
+    if args.init:
+        # One-time key setup — exits after completion
+        compiler.init_release()
+        raise SystemExit(0)
+
+    compiler.run_pipeline(
+        console=config.console,
+        compiler=config.compiler if config.compiler != "auto" else None,
+        skip_release=args.skip_release,
     )
 
-    ## => RUN BUILD PIPELINE (version, compile, zip, upload with DLP)
-    compiler.run_pipeline(
-        console=True,
-        compiler=None,
-        skip_zip=not __ZIP_NEEDED__,
-        skip_upload=not __REPO_NEEDED__,
-        upload_structure="disk" if __REPO_NEEDED__ else None,
-        upload_destination=REPO_PATH if __REPO_NEEDED__ else None,
-    )
+    # Upload is now an explicit step, separate from the build pipeline.
+    if config.tuf_enabled or config.repo_endpoint:
+        compiler.upload()
 
 except Exception as e:
-    compiler.printer.error(e)
-    compiler.logger.error(e)
+    if compiler is not None:
+        compiler.printer.error(e)
+        compiler.logger.error(e)
+    else:
+        print(f"ERROR :: {e}", file=sys.stderr)
     raise SystemExit(1) from e
 
 # ///////////////////////////////////////////////////////////////

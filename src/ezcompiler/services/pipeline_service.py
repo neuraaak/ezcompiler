@@ -16,6 +16,7 @@ from __future__ import annotations
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
 # Standard library imports
+import shutil
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any, Literal, cast
@@ -23,6 +24,7 @@ from typing import Any, Literal, cast
 # Local imports
 from ..shared import CompilationResult, CompilerConfig
 from .compiler_service import CompilerService
+from .release_service import ReleaseService
 from .uploader_service import UploaderService
 
 # ///////////////////////////////////////////////////////////////
@@ -75,9 +77,7 @@ class PipelineService:
         progress_callback: Callable[[str, int], None] | None = None,
     ) -> bool:
         """Create ZIP artifact when required and return True when created."""
-        zip_needed = (
-            compilation_result.zip_needed if compilation_result else config.zip_needed
-        )
+        zip_needed = compilation_result.zip_needed if compilation_result else True
         if not zip_needed:
             return False
 
@@ -92,6 +92,7 @@ class PipelineService:
         config: CompilerConfig,
         should_zip: bool = False,
         should_upload: bool = False,
+        should_release: bool = False,
     ) -> list[dict[str, Any]]:
         """
         Build the stage list for dynamic_layered_progress.
@@ -130,6 +131,14 @@ class PipelineService:
                     "total": 100,
                 }
             )
+        if should_release:
+            stages.append(
+                {
+                    "name": "release",
+                    "type": "spinner",
+                    "description": "Building TUF release",
+                }
+            )
         if should_upload:
             stages.append(
                 {
@@ -149,9 +158,7 @@ class PipelineService:
         upload_config: dict[str, Any] | None = None,
     ) -> None:
         """Upload project artifact to a destination."""
-        zip_needed = (
-            compilation_result.zip_needed if compilation_result else config.zip_needed
-        )
+        zip_needed = compilation_result.zip_needed if compilation_result else True
         source_file = (
             str(config.zip_file_path) if zip_needed else str(config.output_folder)
         )
@@ -161,4 +168,50 @@ class PipelineService:
             upload_type=cast(Literal["disk", "server"], structure),
             destination=destination,
             upload_config=upload_config,
+        )
+
+    @staticmethod
+    def assemble_release_dir(config: CompilerConfig) -> Path:
+        """Assemble le dossier release contenant uniquement le zip installeur.
+
+        Layout (nettoyé à chaque run)::
+
+            release/
+            └── <App>.zip    (si le fichier existe)
+
+        L'arbre TUF (metadata/ + targets/) reste dans tufup_repo_dir et est
+        poussé directement vers le backend d'update par upload().
+
+        Args:
+            config: Configuration (fournit output_folder et zip_file_path).
+
+        Returns:
+            Path: Le dossier ``release/`` assemblé.
+        """
+        release_dir = config.output_folder.parent / "release"
+        if release_dir.exists():
+            shutil.rmtree(release_dir)
+        release_dir.mkdir(parents=True)
+
+        zip_path = Path(config.zip_file_path)
+        if zip_path.is_file():
+            shutil.copy2(zip_path, release_dir / zip_path.name)
+
+        return release_dir
+
+    @staticmethod
+    def release_artifact(
+        config: CompilerConfig,
+        compilation_result: CompilationResult | None,  # noqa: ARG004
+    ) -> Path:
+        """Build le repo TUF local depuis output_folder. Ne publie jamais."""
+        repo_dir = config.tuf_repo_dir or (config.output_folder / "repo")
+        keys_dir = config.tuf_keys_dir or (repo_dir / "keystore")
+        return ReleaseService.release_and_publish(
+            bundle_dir=config.output_folder,
+            app_name=config.project_name,
+            version=config.version,
+            repo_dir=repo_dir,
+            publish=False,
+            releaser_config={"keys_dir": keys_dir},
         )

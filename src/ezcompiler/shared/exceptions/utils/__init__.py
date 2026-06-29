@@ -71,6 +71,17 @@ from ._file_exceptions import (
 )
 
 # ///////////////////////////////////////////////////////////////
+# IMPORTS - Release exceptions
+# ///////////////////////////////////////////////////////////////
+from ._release_exceptions import (
+    BundleBuildError,
+    ReleaseConfigError,
+    ReleaseError,
+    ReleaserTypeError,
+    SigningKeyError,
+)
+
+# ///////////////////////////////////////////////////////////////
 # IMPORTS - ZIP exceptions
 # ///////////////////////////////////////////////////////////////
 from ._template_exceptions import (
@@ -143,6 +154,12 @@ __all__ = [
     "IncludeFilesFormatError",
     "CompilerNotAvailableError",
     "CompilationExecutionError",
+    # Release exceptions
+    "ReleaseError",
+    "ReleaserTypeError",
+    "BundleBuildError",
+    "SigningKeyError",
+    "ReleaseConfigError",
     # Uploader exceptions
     "SourcePathError",
     "UploaderTypeError",

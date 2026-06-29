@@ -108,10 +108,7 @@ class TestCompilerConfig:
             optimize=True,
             strip=False,
             debug=False,
-            zip_needed=True,
-            repo_needed=False,
-            upload_structure="disk",
-            repo_path="releases",
+            repo_destination="disk",
         )
         assert config.version == "2.0.0"
         assert config.project_name == "FullTestProject"
@@ -173,9 +170,9 @@ class TestCompilerConfig:
         assert config.optimize is True
         assert config.strip is False
         assert config.debug is False
-        assert config.zip_needed is True
-        assert config.repo_needed is False
-        assert config.upload_structure == "disk"
+        assert config.tuf_enabled is False
+        assert config.repo_destination == "disk"
+        assert config.release_destination == "disk"
 
     def test_should_raise_configuration_error_when_include_files_contains_empty_string(
         self, temp_dir
@@ -257,26 +254,30 @@ class TestCompilerConfig:
         assert "upload" in d
         assert "advanced" in d
         assert "console" in d["compilation"]
-        assert "structure" in d["upload"]
+        assert "repo_destination" in d["upload"]
+        assert "release_destination" in d["upload"]
 
-    def test_should_remap_structure_to_upload_structure_in_from_dict(
+    def test_should_raise_when_legacy_structure_key_in_from_dict(
         self, temp_dir
     ) -> None:
         main_file = temp_dir / "main.py"
         main_file.write_text("# test")
 
-        config = CompilerConfig.from_dict(
-            {
-                "version": "1.0.0",
-                "project_name": "P",
-                "main_file": str(main_file),
-                "include_files": {"files": [], "folders": []},
-                "output_folder": str(temp_dir / "dist"),
-                "upload": {"structure": "server", "repo_path": "rel", "server_url": ""},
-            }
-        )
-
-        assert config.upload_structure == "server"
+        with pytest.raises(ConfigurationError, match="upload_structure"):
+            CompilerConfig.from_dict(
+                {
+                    "version": "1.0.0",
+                    "project_name": "P",
+                    "main_file": str(main_file),
+                    "include_files": {"files": [], "folders": []},
+                    "output_folder": str(temp_dir / "dist"),
+                    "upload": {
+                        "structure": "server",
+                        "repo_path": "rel",
+                        "server_url": "",
+                    },
+                }
+            )
 
     def test_should_handle_version_file_backward_compatibility_in_from_dict(
         self, temp_dir

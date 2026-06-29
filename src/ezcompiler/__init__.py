@@ -37,7 +37,7 @@ for professional and industrial Python applications.
     >>> compiler = EzCompiler(config)
     >>> compiler.compile_project()
     >>> compiler.zip_compiled_project()
-    >>> compiler.upload_to_repo("disk", "releases/")
+    >>> compiler.upload()
 """
 
 from __future__ import annotations
@@ -54,6 +54,7 @@ from .shared import (
     ConfigurationError,
     EzCompilerError,
     FileOperationError,
+    ReleaseError,
     TemplateError,
     UploadError,
     VersionError,
@@ -64,8 +65,11 @@ from .types import (
     FilePath,
     IncludeFiles,
     JsonMap,
+    ReleaseDestination,
+    ReleaserPort,
+    ReleaseTarget,
+    RepoDestination,
     UploaderPort,
-    UploadTarget,
 )
 
 # ///////////////////////////////////////////////////////////////
@@ -99,16 +103,21 @@ __all__ = [
     # Type aliases
     "FilePath",
     "CompilerName",
-    "UploadTarget",
+    "RepoDestination",
+    "ReleaseDestination",
     "IncludeFiles",
     "JsonMap",
+    # Type aliases
+    "ReleaseTarget",
     # Ports (structural contracts)
     "CompilerPort",
     "UploaderPort",
+    "ReleaserPort",
     # Exceptions
     "EzCompilerError",
     "CompilationError",
     "ConfigurationError",
+    "ReleaseError",
     "TemplateError",
     "UploadError",
     "VersionError",

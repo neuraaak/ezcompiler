@@ -3,6 +3,7 @@
 # =============================================================================
 # Ce fichier contient les exclusions GLOBALES et COMMUNES
 # Les sous-dossiers ont leurs propres .gitignore pour les exclusions spécifiques
+.superpowers/
 
 # =============================================================================
 # PYTHON - FICHIERS DE BASE (COMMUNS)
@@ -81,6 +82,7 @@ node_modules/
 bandit-report.json
 bandit-report.xml
 bandit-report.html
+bandit_report.html
 
 # Rapports de couverture de code (pytest-cov, coverage)
 .coverage
@@ -262,3 +264,4 @@ temp_projects/
 # Configuration locale utilisateur
 local_config/
 user_settings/
+.senior-review/

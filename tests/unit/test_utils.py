@@ -756,7 +756,8 @@ class TestTemplateProcessor:
             "#MAIN_FILE#",
             "#CONSOLE#",
             "#COMPILER#",
-            "#ZIP_NEEDED#",
+            "#REPO_DESTINATION#",
+            "#REPO_ENDPOINT#",
         ]
         template = " ".join(placeholders)
         result = TemplateProcessor.process_config_template(
@@ -768,7 +769,10 @@ class TestTemplateProcessor:
                 "compilation": {
                     "console": True,
                     "compiler": "auto",
-                    "zip_needed": True,
+                },
+                "upload": {
+                    "repo_destination": "disk",
+                    "repo_endpoint": "releases",
                 },
             },
         )
@@ -777,19 +781,15 @@ class TestTemplateProcessor:
 
     def test_should_serialize_booleans_as_lowercase_in_config_template(self) -> None:
         result = TemplateProcessor.process_config_template(
-            "#CONSOLE# #ZIP_NEEDED# #REPO_NEEDED#",
+            "#CONSOLE#",
             {
                 "compilation": {
                     "console": True,
-                    "zip_needed": False,
-                    "repo_needed": False,
                 }
             },
         )
         assert "true" in result
-        assert "false" in result
         assert "True" not in result
-        assert "False" not in result
 
     def test_should_serialize_lists_as_json_in_config_template(self) -> None:
         result = TemplateProcessor.process_config_template(

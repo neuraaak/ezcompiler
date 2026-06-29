@@ -34,18 +34,22 @@
   ],
   "compilation": {
     "compiler": "Nuitka",
-    "console": true,
-    "zip_needed": true,
-    "repo_needed": true
+    "console": true
   },
   "upload": {
-    "structure": "disk",
-    "repo_path": "releases/Nuitka",
-    "server_url": ""
+    "repo_destination": "disk",
+    "repo_endpoint": "releases/Nuitka",
+    "release_destination": "disk",
+    "release_endpoint": ""
   },
   "advanced": {
     "optimize": true,
     "strip": true,
     "debug": false
+  },
+  "release": {
+    "tuf_enabled": true,
+    "tuf_repo_dir": "tuf/repository",
+    "tuf_keys_dir": "tuf/keystore"
   }
 }

@@ -24,15 +24,20 @@ excludes = ["tkinter", "unittest", "test"]
 [tool.ezcompiler.compilation]
 compiler = "PyInstaller"
 console = true
-zip_needed = true
-repo_needed = true
 
 [tool.ezcompiler.upload]
-structure = "disk"
-repo_path = "releases/PyInstaller"
-server_url = ""
+repo_destination = "disk"
+repo_endpoint = "releases/PyInstaller"
+release_destination = "disk"
+release_endpoint = ""
 
 [tool.ezcompiler.advanced]
 optimize = true
 strip = true
 debug = false
+
+[tool.ezcompiler.release]
+tuf_enabled = true
+tuf_repo_dir = "tuf/repository"
+tuf_keys_dir = "tuf/keystore"
+# repo_endpoint (section upload) indique où uploader l'arbre TUF.

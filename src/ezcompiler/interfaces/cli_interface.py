@@ -22,13 +22,15 @@ import json
 import sys
 import tomllib
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, cast
+from typing import TYPE_CHECKING, Any, cast
 
 if TYPE_CHECKING:
     import logging
 
     from ezplog.handlers.wizard.dynamic import StageConfig
     from ezplog.lib_mode import _LazyPrinter
+
+    from ..types import ReleaseDestination, RepoDestination
 
 # Third-party imports
 import click
@@ -38,11 +40,18 @@ from ezplog.lib_mode import get_logger, get_printer
 
 # Local imports
 from .._version import __version__
-from ..services import ConfigService, PipelineService, TemplateService, UploaderService
+from ..services import (
+    ConfigService,
+    PipelineService,
+    ReleaseService,
+    TemplateService,
+)
 from ..shared.exceptions import (
     CompilationError,
     ConfigError,
     ConfigurationError,
+    ReleaseError,
+    SigningKeyError,
     TemplateError,
     UploadError,
     VersionError,
@@ -200,33 +209,38 @@ def generate() -> None:
     help="Compiler to use",
 )
 @click.option(
-    "--zip-needed",
-    "-z",
-    is_flag=True,
-    default=True,
-    help="Create ZIP archive (default: True)",
-)
-@click.option(
-    "--repo-needed",
-    "-r",
+    "--tuf-enabled",
+    "-te",
     is_flag=True,
     default=False,
-    help="Require repository upload (default: False)",
+    help="Enable TUF secure release (default: False)",
 )
 @click.option(
-    "--upload-structure",
-    "-us",
+    "--repo-destination",
+    "-rd",
+    type=click.Choice(["disk", "server", "r2"]),
+    default=None,
+    help="TUF repo upload backend",
+)
+@click.option(
+    "--release-destination",
+    "-rld",
     type=click.Choice(["disk", "server"]),
     default=None,
-    help="Upload structure",
+    help="Zip installer upload backend",
 )
 @click.option(
-    "--repo-path",
-    "-rp",
+    "--repo-endpoint",
+    "-re",
     default=None,
-    help="Repository path",
+    help="Upload endpoint for TUF repo (path, URL, or bucket/prefix)",
 )
-@click.option("--server-url", "-su", default=None, help="Server URL for upload")
+@click.option(
+    "--release-endpoint",
+    "-rle",
+    default=None,
+    help="Upload endpoint for release zip (path or URL)",
+)
 @click.option(
     "--optimize",
     "-opt",
@@ -275,11 +289,11 @@ def config(
     excludes: tuple[str, ...],
     console: bool,
     compiler: str | None,
-    zip_needed: bool,
-    repo_needed: bool,
-    upload_structure: str | None,
-    repo_path: str | None,
-    server_url: str | None,
+    tuf_enabled: bool,
+    repo_destination: RepoDestination | None,
+    release_destination: ReleaseDestination | None,
+    repo_endpoint: str | None,
+    release_endpoint: str | None,
     optimize: bool,
     strip: bool,
     debug: bool,
@@ -344,17 +358,25 @@ def config(
             cli_overrides["excludes"] = list(excludes)
         if compiler is not None:
             cli_overrides.setdefault("compilation", {})["compiler"] = compiler
-        if upload_structure is not None:
-            cli_overrides.setdefault("upload", {})["structure"] = upload_structure
-        if repo_path is not None:
-            cli_overrides.setdefault("upload", {})["repo_path"] = repo_path
-        if server_url is not None:
-            cli_overrides.setdefault("upload", {})["server_url"] = server_url
+        if repo_destination is not None:
+            cli_overrides.setdefault("upload", {})["repo_destination"] = (
+                repo_destination
+            )
+        if release_destination is not None:
+            cli_overrides.setdefault("upload", {})["release_destination"] = (
+                release_destination
+            )
+        if repo_endpoint is not None:
+            cli_overrides.setdefault("upload", {})["repo_endpoint"] = repo_endpoint
+        if release_endpoint is not None:
+            cli_overrides.setdefault("upload", {})["release_endpoint"] = (
+                release_endpoint
+            )
 
         # Flags always have a value — include them
-        cli_overrides.setdefault("compilation", {}).update(
-            {"console": console, "zip_needed": zip_needed, "repo_needed": repo_needed}
-        )
+        cli_overrides.setdefault("compilation", {}).update({"console": console})
+        if tuf_enabled:
+            cli_overrides.setdefault("release", {})["tuf_enabled"] = True
         cli_overrides.setdefault("advanced", {}).update(
             {"optimize": optimize, "strip": strip, "debug": debug}
         )
@@ -397,12 +419,16 @@ def config(
             {
                 "console": True,
                 "compiler": "auto",
-                "zip_needed": True,
-                "repo_needed": False,
             },
         )
         config_dict.setdefault(
-            "upload", {"structure": "disk", "repo_path": "releases", "server_url": ""}
+            "upload",
+            {
+                "repo_destination": "disk",
+                "release_destination": "disk",
+                "repo_endpoint": "",
+                "release_endpoint": "",
+            },
         )
         config_dict.setdefault(
             "advanced", {"optimize": True, "strip": False, "debug": False}
@@ -810,25 +836,6 @@ def template_raw(
     default=False,
     help="Skip ZIP archive creation",
 )
-@click.option(
-    "--no-upload",
-    is_flag=True,
-    default=False,
-    help="Skip upload step",
-)
-@click.option(
-    "--upload-structure",
-    "-us",
-    type=click.Choice(["disk", "server"]),
-    default=None,
-    help="Upload structure (overrides config)",
-)
-@click.option(
-    "--upload-destination",
-    "-ud",
-    default=None,
-    help="Upload destination path or URL (overrides config)",
-)
 def compile_project(
     config: str | None,
     pyproject: str | None,
@@ -837,9 +844,6 @@ def compile_project(
     output_folder: str | None,
     debug: bool,
     no_zip: bool,
-    no_upload: bool,
-    upload_structure: str | None,
-    upload_destination: str | None,
 ) -> None:
     """
     Compile the project.
@@ -856,8 +860,6 @@ def compile_project(
         ezcompiler compile --pyproject ../myproject/pyproject.toml
 
         ezcompiler compile --compiler PyInstaller --no-console
-
-        ezcompiler compile --upload-structure disk --upload-destination releases/
     """
     printer = _get_printer()
     logger = _get_logger()
@@ -874,10 +876,6 @@ def compile_project(
             cli_overrides["output_folder"] = output_folder
         if debug:
             cli_overrides["debug"] = True
-        if upload_structure is not None:
-            cli_overrides["upload_structure"] = upload_structure
-        if upload_destination is not None:
-            cli_overrides["repo_path"] = upload_destination
 
         # Load config with cascade
         config_obj = ConfigService.build_compiler_config(
@@ -890,17 +888,12 @@ def compile_project(
         logger.error(str(e))
         sys.exit(1)
 
-    should_zip = not no_zip and config_obj.zip_needed
-    should_upload = not no_upload and (
-        upload_structure is not None or config_obj.repo_needed
-    )
+    should_zip = not no_zip
 
     # Build dynamic stages based on config
     stages: list[StageConfig] = cast(
         list["StageConfig"],
-        PipelineService.build_stages(
-            config_obj, should_zip=should_zip, should_upload=should_upload
-        ),
+        PipelineService.build_stages(config_obj, should_zip=should_zip),
     )
 
     # Phase 2-5: Execute pipeline with progress
@@ -932,7 +925,7 @@ def compile_project(
             dlp.complete_layer("compile")
 
             # ZIP archive (runtime check for zip_needed from compilation result)
-            zip_needed = result.zip_needed and config_obj.zip_needed
+            zip_needed = result.zip_needed
             if should_zip:
                 if zip_needed:
                     current_phase = "zip"
@@ -958,29 +951,6 @@ def compile_project(
                     dlp.update_layer("zip", 0, "Skipped (not needed)")
                     dlp.complete_layer("zip")
 
-            # Upload
-            if should_upload:
-                current_phase = "upload"
-                source_file = (
-                    str(config_obj.zip_file_path)
-                    if zip_needed
-                    else str(config_obj.output_folder)
-                )
-                structure = upload_structure or config_obj.upload_structure
-                destination = upload_destination or (
-                    config_obj.server_url
-                    if structure == "server"
-                    else config_obj.repo_path
-                )
-                dlp.update_layer("upload", 0, f"Connecting to {destination}...")
-                UploaderService.upload(
-                    source_path=Path(source_file),
-                    upload_type=cast(Literal["disk", "server"], structure),
-                    destination=destination,
-                )
-                logger.info(f"Upload completed ({structure})")
-                dlp.complete_layer("upload")
-
         except (
             ConfigurationError,
             CompilationError,
@@ -1003,6 +973,81 @@ def compile_project(
         sys.exit(1)
 
     printer.success("Build pipeline finished")
+
+
+@main.command(name="upload")
+@click.option(
+    "--config",
+    "-c",
+    type=click.Path(exists=True),
+    help="Config file path (YAML, JSON)",
+)
+@click.option(
+    "--pyproject",
+    "-p",
+    type=click.Path(exists=True),
+    help="Explicit pyproject.toml path",
+)
+@click.option(
+    "--repo-destination",
+    "-rd",
+    "repo_destination",
+    type=click.Choice(["disk", "server", "r2"]),
+    default=None,
+    help="Backend pour l'arbre TUF (overrides config)",
+)
+@click.option(
+    "--release-destination",
+    "-rld",
+    "release_destination",
+    type=click.Choice(["disk", "server"]),
+    default=None,
+    help="Backend pour le zip installeur (overrides config)",
+)
+@click.option(
+    "--destination",
+    "-d",
+    "destination",
+    default=None,
+    help="Destination commune (override pour repo et release)",
+)
+def upload_command(
+    config: str | None,
+    pyproject: str | None,
+    repo_destination: RepoDestination | None,
+    release_destination: ReleaseDestination | None,
+    destination: str | None,
+) -> None:
+    """Upload l'arbre TUF et le zip installeur vers leur destination.
+
+    Auto-détecte selon release_needed : arbre TUF → <dest>/update/,
+    zip → <dest>/release/. Destination et backends tombent en fallback
+    sur la config si non fournis.
+
+    Exemples :
+
+        ezcompiler upload --config ezcompiler.yaml
+
+        ezcompiler upload --repo-destination r2 --destination uploads/
+    """
+    printer = _get_printer()
+    logger = _get_logger()
+    try:
+        config_obj = ConfigService.build_compiler_config(
+            config_path=Path(config) if config else None,
+            pyproject_path=Path(pyproject) if pyproject else None,
+        )
+        from .python_api import EzCompiler  # noqa: PLC0415
+
+        EzCompiler(config=config_obj).upload(
+            destination=destination,
+            repo_destination=repo_destination,
+            release_destination=release_destination,
+        )
+    except (ConfigurationError, UploadError, ReleaseError) as e:
+        printer.error(str(e))
+        logger.error(str(e))
+        sys.exit(1)
 
 
 @main.command()
@@ -1069,13 +1114,12 @@ def init(
             "compilation": {
                 "console": True,
                 "compiler": "auto",
-                "zip_needed": True,
-                "repo_needed": False,
             },
             "upload": {
-                "structure": "disk",
-                "repo_path": "releases",
-                "server_url": "",
+                "repo_destination": "disk",
+                "release_destination": "disk",
+                "repo_endpoint": "",
+                "release_endpoint": "",
             },
             "advanced": {"optimize": True, "strip": False, "debug": False},
         }
@@ -1148,6 +1192,55 @@ def init(
         printer.tip("Run 'ezcompiler compile' to build your project.")
 
     except (TemplateError, ConfigError) as e:
+        printer.error(str(e))
+        logger.error(str(e))
+        sys.exit(1)
+
+
+@main.group()
+def release() -> None:
+    """Secure-release operations (TUF)."""
+
+
+@release.command("init")
+@click.option(
+    "--config",
+    "config_path",
+    default=None,
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    help="Path to ezcompiler config file (auto-detected if omitted).",
+)
+def release_init(config_path: Path | None) -> None:
+    """Initialise TUF signing keys and repository skeleton.
+
+    Run once per project, before the first `ezcompiler compile` with
+    tuf_enabled = true. Keys are written to tuf_keys_dir (config).
+    Safe to re-run: skips silently when keys already exist.
+    """
+    printer = _get_printer()
+    logger = _get_logger()
+    try:
+        config_service = ConfigService()
+        cfg = config_service.load_config(config_path)
+        from ..shared import CompilerConfig  # noqa: PLC0415
+
+        compiler_config = CompilerConfig.from_dict(cfg)
+        repo_dir = compiler_config.tuf_repo_dir or (
+            compiler_config.output_folder / "repo"
+        )
+        keys_dir = compiler_config.tuf_keys_dir or (repo_dir / "keystore")
+        initialized = ReleaseService.init_release(
+            app_name=compiler_config.project_name,
+            repo_dir=repo_dir,
+            keys_dir=keys_dir,
+        )
+        if initialized:
+            printer.success(f"TUF keys initialized in {keys_dir}")
+            logger.info("TUF keys initialized: %s", keys_dir)
+        else:
+            printer.info(f"Keys already present in {keys_dir} — skipped.")
+            logger.info("TUF keys already present, skipped.")
+    except (ReleaseError, SigningKeyError, ConfigError) as e:
         printer.error(str(e))
         logger.error(str(e))
         sys.exit(1)

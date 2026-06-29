@@ -31,6 +31,7 @@ from .services import (
     CompilationError,
     CompilerServiceError,
     ConfigurationError,
+    ReleaseError,
     TemplateError,
     TemplateServiceError,
     UploadError,
@@ -57,6 +58,12 @@ from .utils import (
 # ///////////////////////////////////////////////////////////////
 from .utils._base import EzCompilerError
 from .utils._config_exceptions import ConfigError
+from .utils._release_exceptions import (
+    BundleBuildError,
+    ReleaseConfigError,
+    ReleaserTypeError,
+    SigningKeyError,
+)
 from .utils._zip_exceptions import ZipError
 
 # ///////////////////////////////////////////////////////////////
@@ -85,6 +92,12 @@ __all__ = [
     "VersionError",
     "UploaderServiceError",
     "UploadError",
+    # Release exceptions
+    "ReleaseError",
+    "ReleaserTypeError",
+    "BundleBuildError",
+    "SigningKeyError",
+    "ReleaseConfigError",
     # Util exceptions promoted for interface layer use
     "ConfigError",
     "ZipError",

@@ -19,10 +19,13 @@ from __future__ import annotations
 # Standard library imports
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 # Local imports
 from .exceptions import ConfigurationError
+
+if TYPE_CHECKING:
+    from ..types import ReleaseDestination, RepoDestination
 
 # ///////////////////////////////////////////////////////////////
 # CLASSES
@@ -55,15 +58,17 @@ class CompilerConfig:
         excludes: List of modules to exclude
         console: Show console window in compiled app (default: True)
         compiler: Compiler to use - "auto", "Cx_Freeze", "PyInstaller", "Nuitka"
-        zip_needed: Create zip archive (default: True)
-        repo_needed: Use repository (default: False)
-        upload_structure: Upload target - "disk" or "server"
-        repo_path: Repository path (default: "releases")
-        server_url: Server upload URL
+        repo_destination: TUF repo upload backend - "disk" | "server" | "r2"
+        release_destination: Zip installer upload backend - "disk" | "server"
+        repo_endpoint: Endpoint for TUF repo upload (path, URL, or "bucket/prefix")
+        release_endpoint: Endpoint for zip installer upload (path or URL)
         optimize: Optimize code (default: True)
         strip: Strip debug info (default: False)
         debug: Enable debug mode (default: False)
         compiler_options: Compiler-specific options dict (default: {})
+        tuf_enabled: Enable TUF secure release pipeline (default: False)
+        tuf_repo_dir: Path to TUF repository directory
+        tuf_keys_dir: Path to TUF keys directory
 
     Example:
         >>> config = CompilerConfig(
@@ -105,16 +110,15 @@ class CompilerConfig:
 
     console: bool = True
     compiler: str = "auto"  # "auto", "Cx_Freeze", "PyInstaller", "Nuitka"
-    zip_needed: bool = True
-    repo_needed: bool = False
 
     # ////////////////////////////////////////////////
     # UPLOAD OPTIONS
     # ////////////////////////////////////////////////
 
-    upload_structure: str = "disk"  # "disk" or "server"
-    repo_path: str = "releases"
-    server_url: str = ""
+    repo_destination: RepoDestination = "disk"
+    release_destination: ReleaseDestination = "disk"
+    repo_endpoint: str = ""
+    release_endpoint: str = ""
 
     # ////////////////////////////////////////////////
     # ADVANCED OPTIONS
@@ -123,6 +127,14 @@ class CompilerConfig:
     optimize: bool = True
     strip: bool = False
     debug: bool = False
+
+    # ////////////////////////////////////////////////
+    # SECURE RELEASE OPTIONS (tufup)
+    # ////////////////////////////////////////////////
+
+    tuf_enabled: bool = False
+    tuf_repo_dir: Path | None = None
+    tuf_keys_dir: Path | None = None
 
     # ////////////////////////////////////////////////
     # COMPILER-SPECIFIC OPTIONS
@@ -148,6 +160,7 @@ class CompilerConfig:
         self._validate_include_files()
         self._validate_paths()
         self._validate_compiler_option()
+        self._validate_destinations()
 
     def _validate_required_fields(self) -> None:
         """
@@ -204,7 +217,7 @@ class CompilerConfig:
         Validate file and folder paths.
 
         Ensures main file exists and output folder is accessible.
-        Converts output_folder to Path if it's a string.
+        Converts output_folder and tuf dirs to Path if they are strings.
 
         Raises:
             ConfigurationError: If main file doesn't exist
@@ -214,6 +227,12 @@ class CompilerConfig:
 
         if isinstance(self.output_folder, str):
             self.output_folder = Path(self.output_folder)
+
+        if isinstance(self.tuf_repo_dir, str):
+            self.tuf_repo_dir = Path(self.tuf_repo_dir)
+
+        if isinstance(self.tuf_keys_dir, str):
+            self.tuf_keys_dir = Path(self.tuf_keys_dir)
 
     def _validate_compiler_option(self) -> None:
         """
@@ -228,6 +247,43 @@ class CompilerConfig:
         if self.compiler not in valid_compilers:
             raise ConfigurationError(
                 f"Invalid compiler: {self.compiler}. Must be one of {valid_compilers}"
+            )
+
+    def _validate_destinations(self) -> None:
+        """
+        Validate upload destination backends and require endpoints for non-disk targets.
+
+        The TUF repository may be uploaded to disk, server or r2; the release
+        zip only to disk or server. Any other value is rejected.
+        Non-disk destinations require the matching endpoint to be non-empty.
+
+        Raises:
+            ConfigurationError: If a destination is not supported or endpoint is missing
+        """
+        valid_repo = ["disk", "server", "r2"]
+        if self.repo_destination not in valid_repo:
+            raise ConfigurationError(
+                f"Invalid repo_destination: {self.repo_destination}. "
+                f"Must be one of {valid_repo}"
+            )
+
+        valid_release = ["disk", "server", "r2"]
+        if self.release_destination not in valid_release:
+            raise ConfigurationError(
+                f"Invalid release_destination: {self.release_destination}. "
+                f"Must be one of {valid_release}"
+            )
+
+        if self.repo_destination != "disk" and not self.repo_endpoint:
+            raise ConfigurationError(
+                f"repo_endpoint is required when repo_destination='{self.repo_destination}'. "
+                "For 'server': provide a URL. For 'r2': provide 'bucket/prefix'."
+            )
+
+        if self.release_destination != "disk" and not self.release_endpoint:
+            raise ConfigurationError(
+                f"release_endpoint is required when release_destination='{self.release_destination}'. "
+                "For 'server': provide a URL. For 'r2': provide 'bucket/prefix'."
             )
 
     # ////////////////////////////////////////////////
@@ -256,6 +312,20 @@ class CompilerConfig:
             Path: Path to the zip archive file
         """
         return self.output_folder.parent / f"{self.project_name}.zip"
+
+    # ////////////////////////////////////////////////
+    # RELEASE HELPER PROPERTIES
+    # ////////////////////////////////////////////////
+
+    @property
+    def resolved_repo_destination(self) -> str | None:
+        """Destination résolue pour l'arbre TUF."""
+        return self.repo_endpoint or None
+
+    @property
+    def resolved_release_destination(self) -> str | None:
+        """Destination résolue pour le zip installeur."""
+        return self.release_endpoint or None
 
     # ////////////////////////////////////////////////
     # SERIALIZATION METHODS
@@ -295,18 +365,22 @@ class CompilerConfig:
             "compilation": {
                 "console": self.console,
                 "compiler": self.compiler,
-                "zip_needed": self.zip_needed,
-                "repo_needed": self.repo_needed,
             },
             "upload": {
-                "structure": self.upload_structure,
-                "repo_path": self.repo_path,
-                "server_url": self.server_url,
+                "repo_destination": self.repo_destination,
+                "release_destination": self.release_destination,
+                "repo_endpoint": self.repo_endpoint,
+                "release_endpoint": self.release_endpoint,
             },
             "advanced": {
                 "optimize": self.optimize,
                 "strip": self.strip,
                 "debug": self.debug,
+            },
+            "release": {
+                "tuf_enabled": self.tuf_enabled,
+                "tuf_repo_dir": str(self.tuf_repo_dir) if self.tuf_repo_dir else None,
+                "tuf_keys_dir": str(self.tuf_keys_dir) if self.tuf_keys_dir else None,
             },
             "compiler_options": self.compiler_options,
         }
@@ -345,26 +419,68 @@ class CompilerConfig:
         compilation = config_copy.get("compilation", {})
         upload = config_copy.get("upload", {})
         advanced = config_copy.get("advanced", {})
+        release = config_copy.get("release", {})
 
         config_copy.update(compilation)
         config_copy.update(upload)
         config_copy.update(advanced)
+        config_copy.update(release)
 
         # Remove nested keys
         config_copy.pop("compilation", None)
         config_copy.pop("upload", None)
         config_copy.pop("advanced", None)
+        config_copy.pop("release", None)
 
-        # Remap nested key names to dataclass field names
-        # "upload.structure" becomes "upload_structure" after flattening
-        if "structure" in config_copy:
-            if "upload_structure" not in config_copy:
-                config_copy["upload_structure"] = config_copy.pop("structure")
-            else:
-                config_copy.pop("structure")
+        # "upload.structure" / "upload_structure" supprimés (breaking).
+        if "structure" in config_copy or "upload_structure" in config_copy:
+            raise ConfigurationError(
+                "'upload.structure' / 'upload_structure' a été supprimé. "
+                "Utiliser 'upload.repo_destination' et 'upload.release_destination'."
+            )
+
+        if "zip_needed" in config_copy:
+            raise ConfigurationError(
+                "'zip_needed' a été supprimé. Le zip est toujours produit quand "
+                "tuf_enabled=True. Pour le flux sans release, le zip dépend du "
+                "résultat de compilation."
+            )
+
+        # Migration errors for removed upload fields.
+        _removed_upload = {
+            "repo_path": "'repo_path' supprimé. Utiliser 'upload.repo_endpoint'.",
+            "server_url": "'server_url' supprimé. Utiliser 'upload.repo_endpoint' ou 'upload.release_endpoint'.",
+            "update_repo_url": "'update_repo_url' supprimé. Utiliser 'upload.repo_endpoint'.",
+            "r2_bucket": "'r2_bucket' supprimé. Utiliser 'upload.repo_endpoint' au format \"bucket/prefix\".",
+            "r2_remote_prefix": "'r2_remote_prefix' supprimé. Voir 'upload.repo_endpoint' (format \"bucket/prefix\").",
+        }
+        for key, msg in _removed_upload.items():
+            if key in config_copy:
+                raise ConfigurationError(msg)
+
+        # Migration errors for removed release fields.
+        _removed_release = {
+            "release_needed": "'release_needed' renommé en 'tuf_enabled'.",
+            "release_type": "'release_type' supprimé. tufup est l'unique backend de release.",
+            "repo_needed": "'repo_needed' supprimé. Utiliser 'release.tuf_enabled'.",
+        }
+        for key, msg in _removed_release.items():
+            if key in config_copy:
+                raise ConfigurationError(msg)
 
         # Handle backward compatibility
         if "version_file" in config_copy and "version_filename" not in config_copy:
             config_copy["version_filename"] = config_copy.pop("version_file")
+
+        # Reject unknown keys with a clear error
+        import dataclasses as _dc
+
+        valid_fields = {f.name for f in _dc.fields(cls)}
+        unknown = set(config_copy) - valid_fields
+        if unknown:
+            raise ConfigurationError(
+                f"Unknown configuration key(s): {sorted(unknown)}. "
+                "Check your config file for typos or removed keys."
+            )
 
         return cls(**config_copy)

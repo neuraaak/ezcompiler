@@ -105,6 +105,26 @@ class BaseUploader(ABC):
         """
 
     # ////////////////////////////////////////////////
+    # PUBLIC METHODS
+    # ////////////////////////////////////////////////
+
+    def download(self, remote_source: str, local_dir: Path) -> None:  # noqa: ARG002
+        """
+        Download a remote tree into ``local_dir``.
+
+        Default implementation: backends that host an update channel override
+        this. Others reject it.
+
+        Args:
+            remote_source: Remote source (path, URL or prefix) to fetch.
+            local_dir: Local directory to populate with the downloaded tree.
+
+        Raises:
+            UploadError: Always, unless overridden by a subclass.
+        """
+        raise UploadError(f"{self.get_uploader_name()} does not support download")
+
+    # ////////////////////////////////////////////////
     # VALIDATION METHODS
     # ////////////////////////////////////////////////
 

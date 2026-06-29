@@ -10,7 +10,7 @@ executables, then versions, packages (ZIP) and distributes them. It exposes a
 unified interface over three compilers (Cx_Freeze, PyInstaller, Nuitka).
 
 - **Package:** `ezcompiler` (PyPI), entry point `EzCompiler` facade + `ezcompiler` CLI
-- **Python:** >= 3.11 (do **not** target 3.10)
+- **Python:** >= 3.13 (do **not** target 3.12 or below; uses PEP 695 `type` aliases)
 - **Build backend:** hatchling — sources under `src/ezcompiler`
 - **Package manager:** uv (`uv.lock` is committed; keep it in sync)
 - **Repo:** <https://github.com/neuraaak/ezcompiler>
@@ -31,13 +31,37 @@ unified interface over three compilers (Cx_Freeze, PyInstaller, Nuitka).
 ```text
 interfaces/   ← entry points: CLI (click) + Python API (EzCompiler facade)
 services/     ← business orchestration (CompilerService, PipelineService,
-                ConfigService, TemplateService, UploaderService)
-adapters/     ← concrete compilers & uploaders behind ABC ports, + factories
+                ConfigService, TemplateService, UploaderService, ReleaseService)
+adapters/     ← concrete compilers, uploaders & releaser behind ports, + factories
 shared/       ← domain models (CompilerConfig, CompilationResult) + exceptions/
 utils/        ← technical helpers + validators/
 assets/       ← templates and static resources (no upward deps)
-types.py      ← type aliases only (import-only, no upward deps)
+types.py      ← type aliases + the three @runtime_checkable Protocol ports
 ```
+
+### Ports (`types.py`)
+
+Three structural contracts that decouple services from concrete adapters:
+
+| Port           | Key methods                                                                                 |
+| -------------- | ------------------------------------------------------------------------------------------- |
+| `CompilerPort` | `compile()`, `get_compiler_name()`, `zip_needed`, `config`                                  |
+| `UploaderPort` | `upload(source_path, destination)`, `get_uploader_name()`                                   |
+| `ReleaserPort` | `release(bundle_dir, app_name, version, repo_dir)`, `init_keys(...)`, `get_releaser_name()` |
+
+Concrete implementations live in `adapters/` with a `_` prefix (`_cx_freeze_compiler.py`, `_disk_uploader.py`, `_tufup_releaser.py`). Always go through the factories — never instantiate adapters directly.
+
+### Pipeline flow
+
+`run_pipeline()` (the primary production path) executes stages in order:
+
+```text
+compile → zip → release → upload
+```
+
+When both release and upload are active, `PipelineService.assemble_release_dir()` builds a **flat** `dist/release/` directory (signed TUF `metadata/*` + `targets/*` plus the unsigned zip asset, no sub-folders — GitHub-release style), then uploads it as a single `upload()` call. The working TUF repo (`tuf_repository/`) stays structured for incremental patches; only the published folder is flattened. `EzCompiler.release(publish=True)` is **deprecated** — the pipeline handles the full sequence.
+
+Config loading: `ConfigService` flattens nested blocks (`compilation`, `upload`, `release`, `advanced`) before passing kwargs to `CompilerConfig.__init__()`. A new config block **must** be added to the flatten step in `from_dict()` or it will raise an unexpected-keyword error.
 
 **Import contracts are enforced in CI by import-linter** (`[tool.importlinter]`
 in `pyproject.toml`). The layer flow is strictly:
@@ -77,7 +101,9 @@ before proceeding.
   `_*_utils.py`, `_*_service.py`.
 - **Docstrings:** Google style.
 - **Logging:** uses `ezplog` in **lib_mode** — the library stays passive until
-  the host application initializes logging. Never use `print()` for logging.
+  the host application initializes logging. Never use `print()` in library
+  code. Level rules by layer: `interfaces/` — all levels; `services/` — INFO,
+  WARNING, ERROR; `utils/` — DEBUG, ERROR only.
 - **Prefer** `pathlib` over `os.path`, f-strings, full type hints. No hard-coded
   credentials or absolute paths; no committed commented-out code.
 
@@ -100,6 +126,13 @@ before proceeding.
   `[tool.coverage.run] omit`).
 - **Test markers** available: `slow`, `integration`, `unit`, `cli`, `compiler`,
   `uploader`, `robustness`.
+- **Test runner wrapper** (`tests/run_tests.py`) provides options: `--type
+  unit|integration|robustness|all`, `--coverage`, `--fast`, `--parallel`,
+  `--marker <name>`, `--verbose`. Use `pytest` directly for a single file or
+  `-k` keyword filter.
+- **Coverage exclusions** (subprocess/TTY — not unit-testable):
+  `_nuitka_compiler.py`, `_pyinstaller_compiler.py`, `_tufup_releaser.py`,
+  `cli_interface.py`.
 
 ## Testing approach
 

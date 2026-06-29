@@ -4,7 +4,6 @@
 # Scenario: Application console compilée avec Cx_Freeze
 # - Console visible (CLI tool)
 # - Upload sur disque local
-# - Debug activé, pas de zip
 
 version: "1.0.0"
 project_name: "ExampleApp-CxFreeze"
@@ -34,15 +33,20 @@ excludes:
 compilation:
   compiler: "Cx_Freeze"
   console: true
-  zip_needed: true
-  repo_needed: true
 
 upload:
-  structure: "disk"
-  repo_path: "releases/CxFreeze"
-  server_url: ""
+  repo_destination: "disk"
+  repo_endpoint: "releases/CxFreeze"
+  release_destination: "disk"
+  release_endpoint: ""
 
 advanced:
   optimize: false
   strip: false
   debug: true
+
+release:
+  tuf_enabled: true
+  tuf_repo_dir: "tuf/repository"
+  tuf_keys_dir: "tuf/keystore"
+  # repo_endpoint (upload section) indique où uploader l'arbre TUF.

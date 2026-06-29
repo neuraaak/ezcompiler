@@ -27,6 +27,7 @@ from typing import Any
 import requests
 
 # Local imports
+from .._version import __version__
 from ..shared.exceptions import UploadError
 from ..utils import UploaderUtils
 from .base_uploader import BaseUploader
@@ -52,6 +53,11 @@ class ServerUploader(BaseUploader):
         verify_ssl (bool): Verify SSL certificates (default: True)
         chunk_size (int): Chunk size for uploads (default: 8192)
         retry_attempts (int): Number of retry attempts (default: 3)
+        proxies (dict): Proxy URLs keyed by scheme, e.g.
+            ``{"http": "http://proxy:3128", "https": "http://proxy:3128"}`` (default: {})
+        extra_headers (dict): Additional HTTP headers merged into every request (default: {})
+        cert (str | tuple | None): Client certificate for mTLS — path to a .pem file,
+            or a ``(certfile, keyfile)`` tuple (default: None)
 
     Example:
         >>> config = {"server_url": "https://example.com", "api_key": "abc123"}
@@ -92,47 +98,145 @@ class ServerUploader(BaseUploader):
 
     def upload(self, source_path: Path, destination: str) -> None:
         """
-        Upload a file to a remote server.
+        Upload a file or a directory tree to a remote server.
+
+        For directories, walks recursively and POSTs each file using its
+        POSIX path relative to ``source_path`` as the server destination.
 
         Args:
-            source_path: Path to the source file
-            destination: Destination path on the server
+            source_path: Path to the source file or directory
+            destination: Destination path on the server (single-file uploads)
 
         Raises:
-            UploadError: If upload fails after all retry attempts
+            UploadError: If any file fails after all retry attempts.
 
         Note:
-            Only supports single files, not directories.
             Automatically retries on failure based on retry_attempts config.
         """
         try:
             self._validate_source_path(source_path)
 
-            if not source_path.is_file():
-                raise UploadError(
-                    "Server uploader only supports single files, not directories"
-                )
+            if source_path.is_dir():
+                for file_path in sorted(source_path.rglob("*")):
+                    if file_path.is_file():
+                        rel = file_path.relative_to(source_path).as_posix()
+                        self._upload_single_file_with_retry(file_path, rel)
+                return
 
-            # Retry logic
-            last_error = None
-            for attempt in range(self._config["retry_attempts"]):
-                try:
-                    self._perform_upload(source_path, destination)
-                    return  # Success
-                except Exception as e:
-                    last_error = e
-                    if attempt == self._config["retry_attempts"] - 1:
-                        break
-
-            # All retries failed
-            raise UploadError(
-                f"Server upload failed after {self._config['retry_attempts']} attempts: {last_error}"
-            ) from last_error
+            self._upload_single_file_with_retry(source_path, destination)
 
         except UploadError:
             raise
         except Exception as e:
             raise UploadError(f"Server upload failed: {e}") from e
+
+    def download(self, remote_source: str, local_dir: Path) -> None:
+        """
+        Fetch the current TUF tree from ``remote_source`` (metadata-driven).
+
+        Reads the role metadata by known names, then the targets listed in
+        ``targets.json``. A 404 on ``timestamp.json`` means the channel is
+        empty (first run) -> no-op.
+
+        Args:
+            remote_source: Base read URL of the update channel.
+            local_dir: Local directory to populate with the TUF tree.
+
+        Raises:
+            UploadError: On any non-404 transport failure.
+        """
+        import json  # noqa: PLC0415
+
+        base = remote_source.rstrip("/")
+        try:
+            ts = self._get(f"{base}/metadata/timestamp.json")
+            if ts is None:
+                return  # premier run : canal vide
+            self._save(local_dir / "metadata" / "timestamp.json", ts)
+
+            for role in ("snapshot.json", "root.json", "targets.json"):
+                body = self._get(f"{base}/metadata/{role}")
+                if body is not None:
+                    self._save(local_dir / "metadata" / role, body)
+
+            targets_path = local_dir / "metadata" / "targets.json"
+            if targets_path.exists():
+                doc = json.loads(targets_path.read_text())
+                targets_root = local_dir / "targets"
+                for name in doc.get("signed", {}).get("targets", {}):
+                    dest = self._safe_join(targets_root, name)
+                    body = self._get(f"{base}/targets/{name}")
+                    if body is not None:
+                        self._save(dest, body)
+        except UploadError:
+            raise
+        except Exception as e:
+            raise UploadError(f"Server download failed: {e}") from e
+
+    def _get(self, url: str) -> bytes | None:
+        """GET ``url``; return bytes, or None on 404.
+
+        Raises:
+            UploadError: On any non-404 error response.
+        """
+        response = requests.get(  # nosec B113 - timeout fourni et validé > 0 dans _validate_config
+            url,
+            headers=self._prepare_headers(),
+            auth=self._prepare_auth(),
+            timeout=self._config["timeout"],
+            verify=self._config["verify_ssl"],
+            proxies=self._config["proxies"] or None,
+            cert=self._config["cert"],
+        )
+        if response.status_code == 404:
+            return None
+        if not response.ok:
+            raise UploadError(f"Server returned error {response.status_code} for {url}")
+        return response.content
+
+    @staticmethod
+    def _safe_join(root: Path, name: str) -> Path:
+        """Join ``name`` under ``root``, rejecting path traversal.
+
+        Target names come from a remote, not-yet-verified ``targets.json``;
+        a crafted ``name`` (``../`` or absolute) must never escape ``root``.
+
+        Raises:
+            UploadError: If ``name`` resolves outside ``root``.
+        """
+        root_resolved = root.resolve()
+        candidate = (root / name).resolve()
+        if root_resolved != candidate and root_resolved not in candidate.parents:
+            raise UploadError(f"Unsafe target name rejected: {name}")
+        return candidate
+
+    @staticmethod
+    def _save(path: Path, content: bytes) -> None:
+        """Write ``content`` to ``path``, creating parent directories."""
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(content)
+
+    def _upload_single_file_with_retry(
+        self, source_path: Path, destination: str
+    ) -> None:
+        """POST a single file, retrying per ``retry_attempts``.
+
+        Raises:
+            UploadError: If the file fails after all retry attempts.
+        """
+        last_error = None
+        for attempt in range(self._config["retry_attempts"]):
+            try:
+                self._perform_upload(source_path, destination)
+                return
+            except Exception as e:
+                last_error = e
+                if attempt == self._config["retry_attempts"] - 1:
+                    break
+        raise UploadError(
+            f"Server upload failed after {self._config['retry_attempts']} "
+            f"attempts: {last_error}"
+        ) from last_error
 
     def _test_connection(self) -> bool:
         """
@@ -155,6 +259,8 @@ class ServerUploader(BaseUploader):
                 auth=auth,
                 timeout=self._config["timeout"],
                 verify=self._config["verify_ssl"],
+                proxies=self._config["proxies"] or None,
+                cert=self._config["cert"],
             )
 
             return response.ok
@@ -192,6 +298,8 @@ class ServerUploader(BaseUploader):
                 auth=auth,
                 timeout=self._config["timeout"],
                 verify=self._config["verify_ssl"],
+                proxies=self._config["proxies"] or None,
+                cert=self._config["cert"],
             )
 
         if not response.ok:
@@ -223,13 +331,14 @@ class ServerUploader(BaseUploader):
             Includes User-Agent and optional Bearer token authorization.
         """
         headers = {
-            "User-Agent": "EzCompiler/2.0.0",
+            "User-Agent": f"EzCompiler/{__version__}",
             "Accept": "application/json",
         }
 
         if self._config["api_key"]:
             headers["Authorization"] = f"Bearer {self._config['api_key']}"
 
+        headers.update(self._config.get("extra_headers", {}))
         return headers
 
     def _prepare_auth(self) -> tuple[str, str] | None:
@@ -270,6 +379,9 @@ class ServerUploader(BaseUploader):
             "verify_ssl",
             "chunk_size",
             "retry_attempts",
+            "proxies",
+            "extra_headers",
+            "cert",
         ]
 
         for key in required_keys:
@@ -299,3 +411,15 @@ class ServerUploader(BaseUploader):
 
         if not isinstance(self._config["verify_ssl"], bool):
             raise UploadError("verify_ssl must be a boolean")
+
+        if not isinstance(self._config["proxies"], dict):
+            raise UploadError("proxies must be a dict")
+
+        if not isinstance(self._config["extra_headers"], dict):
+            raise UploadError("extra_headers must be a dict")
+
+        cert = self._config["cert"]
+        if cert is not None and not isinstance(cert, (str, tuple)):
+            raise UploadError(
+                "cert must be a path string or a (certfile, keyfile) tuple"
+            )

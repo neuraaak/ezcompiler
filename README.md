@@ -182,7 +182,7 @@ compiler.run_pipeline(
 # compiler.generate_version_file()
 # compiler.compile_project(compiler="Nuitka")
 # compiler.zip_compiled_project()
-# compiler.upload_to_repo(structure="disk", repo_path="./releases")
+# compiler.upload(destination="./releases", structure="disk")
 ```
 
 ## 🛡️ Robustness

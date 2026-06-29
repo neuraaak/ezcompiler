@@ -43,7 +43,7 @@ config = CompilerConfig(
 ezcompiler = EzCompiler(config)
 ezcompiler.compile_project(compiler="PyInstaller")  # (1)!
 ezcompiler.zip_compiled_project()
-ezcompiler.upload_to_repo(structure="disk", repo_path="./releases")
+ezcompiler.upload(destination="./releases", structure="disk")
 ```
 
 1. Supported backends: `"PyInstaller"`, `"Cx_Freeze"`, `"Nuitka"`.

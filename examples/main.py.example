@@ -32,7 +32,7 @@ APP_AUTHOR = "EzCompiler"
 
 # Resolve application path (works for both frozen and unfrozen)
 APP_PATH = (
-    Path(sys._MEIPASS)
+    Path(sys._MEIPASS) # type: ignore
     if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS")
     else Path(__file__).parent
 )

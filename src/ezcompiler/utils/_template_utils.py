@@ -89,13 +89,12 @@ class TemplateProcessor:
             "compilation": {
                 "console": True,
                 "compiler": "auto",
-                "zip_needed": True,
-                "repo_needed": False,
             },
             "upload": {
-                "structure": "disk",
-                "repo_path": "releases",
-                "server_url": "https://example.com/upload",
+                "repo_destination": "disk",
+                "repo_endpoint": "releases",
+                "release_destination": "disk",
+                "release_endpoint": "",
             },
             "advanced": {"optimize": True, "strip": False, "debug": False},
         }
@@ -240,14 +239,12 @@ class TemplateProcessor:
             compilation = config.get("compilation", {})
             console = compilation.get("console", True)
             compiler = compilation.get("compiler", "auto")
-            zip_needed = compilation.get("zip_needed", True)
-            repo_needed = compilation.get("repo_needed", False)
-
             # Upload options
             upload = config.get("upload", {})
-            upload_structure = upload.get("structure", "disk")
-            repo_path = upload.get("repo_path", "releases")
-            server_url = upload.get("server_url", "")
+            repo_destination = upload.get("repo_destination", "disk")
+            repo_endpoint = upload.get("repo_endpoint", "")
+            release_destination = upload.get("release_destination", "disk")
+            release_endpoint = upload.get("release_endpoint", "")
 
             # Advanced options
             advanced = config.get("advanced", {})
@@ -273,11 +270,10 @@ class TemplateProcessor:
                 "#EXCLUDES#": json.dumps(excludes),
                 "#CONSOLE#": str(console).lower(),
                 "#COMPILER#": compiler,
-                "#ZIP_NEEDED#": str(zip_needed).lower(),
-                "#REPO_NEEDED#": str(repo_needed).lower(),
-                "#UPLOAD_STRUCTURE#": upload_structure,
-                "#REPO_PATH#": repo_path,
-                "#SERVER_URL#": server_url,
+                "#REPO_DESTINATION#": repo_destination,
+                "#REPO_ENDPOINT#": repo_endpoint,
+                "#RELEASE_DESTINATION#": release_destination,
+                "#RELEASE_ENDPOINT#": release_endpoint,
                 "#OPTIMIZE#": str(optimize).lower(),
                 "#STRIP#": str(strip).lower(),
                 "#DEBUG#": str(debug).lower(),
@@ -345,8 +341,6 @@ class TemplateProcessor:
             # Replace placeholders
             replacements = {
                 "#VERSION#": version,
-                "#ZIP_NEEDED#": "True",
-                "#REPO_NEEDED#": "False",
                 "#PROJECT_NAME#": project_name,
                 "#PROJECT_DESCRIPTION#": project_description,
                 "#COMPANY_NAME#": company_name,

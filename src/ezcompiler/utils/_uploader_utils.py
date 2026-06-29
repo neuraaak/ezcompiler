@@ -93,7 +93,7 @@ class UploaderUtils:
             >>> UploaderUtils.validate_upload_type("invalid")
             UploaderTypeError: Unsupported upload type: invalid
         """
-        valid_types = ["disk", "server"]
+        valid_types = ["disk", "server", "r2"]
         if upload_type.lower() not in valid_types:
             raise UploaderTypeError(f"Unsupported upload type: {upload_type}")
 
@@ -194,4 +194,7 @@ class UploaderUtils:
             "verify_ssl": True,
             "chunk_size": 8192,
             "retry_attempts": 3,
+            "proxies": {},
+            "extra_headers": {},
+            "cert": None,
         }
