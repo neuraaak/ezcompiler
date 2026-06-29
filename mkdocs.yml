@@ -71,6 +71,7 @@ nav:
       - guides/index.md
       - Configuration: guides/configuration.md
       - Development: guides/development.md
+      - Secure Updates with tufup: guides/secure-updates-tufup.md
   - API Reference:
       - api/index.md
       - Interfaces: api/interfaces.md
@@ -84,7 +85,10 @@ nav:
       - cli/index.md
   - Examples:
       - examples/index.md
-  - Architecture: architecture.md
+  - Concepts:
+      - concepts/index.md
+      - Architecture: concepts/architecture.md
+      - Release pipeline: concepts/about-release-pipeline.md
   - Coverage: coverage.md
   - Changelog: changelog.md
 

@@ -1,10 +1,10 @@
 # EzCompiler
 
-[![PyPI version](https://img.shields.io/pypi/v/ezcompiler?style=flat&logo=pypi&logoColor=white)](https://pypi.org/project/ezcompiler/)
-[![Python versions](https://img.shields.io/pypi/pyversions/ezcompiler?style=flat&logo=python&logoColor=white)](https://pypi.org/project/ezcompiler/)
-[![PyPI status](https://img.shields.io/pypi/status/ezcompiler?style=flat&logo=pypi&logoColor=white)](https://pypi.org/project/ezcompiler/)
+![version](https://img.shields.io/badge/version-3.0.0-blue?style=flat)
+![license](https://img.shields.io/badge/license-MIT-green?style=flat)
+![status](https://img.shields.io/badge/status-internal-lightgrey?style=flat)
 [![License](https://img.shields.io/badge/license-MIT-green?style=flat&logo=github&logoColor=white)](https://github.com/neuraaak/ezcompiler/blob/main/LICENSE)
-[![CI](https://img.shields.io/github/actions/workflow/status/neuraaak/ezcompiler/publish-pypi.yml?style=flat&label=publish&logo=githubactions&logoColor=white)](https://github.com/neuraaak/ezcompiler/actions/workflows/publish-pypi.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/neuraaak/ezcompiler/ci.yml?style=flat&label=ci&logo=githubactions&logoColor=white)](https://github.com/neuraaak/ezcompiler/actions/workflows/ci.yml)
 [![Docs](https://img.shields.io/badge/docs-Github%20Pages-blue?style=flat&logo=materialformkdocs&logoColor=white)](https://neuraaak.github.io/ezcompiler/)
 [![uv](https://img.shields.io/badge/package%20manager-uv-DE5FE9?style=flat&logo=uv&logoColor=white)](https://github.com/astral-sh/uv)
 [![linter](https://img.shields.io/badge/linter-ruff-D7FF64?style=flat&logo=ruff&logoColor=white)](https://github.com/astral-sh/ruff)
@@ -19,10 +19,10 @@
 
 ```bash
 # With uv (recommended)
-uv add ezcompiler
+uv pip install git+https://github.com/neuraaak/ezcompiler.git
 
 # With pip
-pip install ezcompiler
+pip install git+https://github.com/neuraaak/ezcompiler.git
 ```
 
 Or from source:
@@ -83,7 +83,7 @@ Complete documentation is available at **[neuraaak.github.io/ezcompiler](https:/
 
 ## 🧪 Testing
 
-Comprehensive test suite with 233 test cases covering unit, integration, and robustness scenarios (~63% coverage).
+Comprehensive test suite with 504 test cases covering unit, integration, and robustness scenarios (~63% coverage).
 
 ```bash
 # Install dev dependencies
@@ -310,13 +310,11 @@ through template loaders and remains isolated from business orchestration logic.
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to:
-
-1. 🍴 Fork the project
-2. 🌿 Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. 💾 Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. 📤 Push to the branch (`git push origin feature/AmazingFeature`)
-5. 🔀 Open a Pull Request
+1. Clone the repository (`git clone https://github.com/neuraaak/ezcompiler.git`)
+2. Create a feature branch (`git checkout -b feat/ma-feature`)
+3. Commit your changes
+4. Submit a Pull Request for internal review
+5. Review is handled via CODEOWNERS
 
 ## ⭐ Support
 
@@ -328,10 +326,16 @@ Contributions are welcome! Please feel free to:
 
 MIT License – See [LICENSE](LICENSE) file for details.
 
+## 👥 Ownership
+
+Maintained by **Neuraaak**.
+
+- **Code owners**: see [CODEOWNERS](.github/CODEOWNERS)
+- **Contact**: floriansalort@gmail.com
+
 ## 🔗 Links
 
 - **Repository**: [https://github.com/neuraaak/ezcompiler](https://github.com/neuraaak/ezcompiler)
-- **PyPI Package**: [https://pypi.org/project/ezcompiler/](https://pypi.org/project/ezcompiler/)
 - **Issues**: [GitHub Issues](https://github.com/neuraaak/ezcompiler/issues)
 - **Documentation**: [https://neuraaak.github.io/ezcompiler/](https://neuraaak.github.io/ezcompiler/)
 

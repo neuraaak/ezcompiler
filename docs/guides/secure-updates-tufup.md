@@ -2,7 +2,7 @@
 
 This guide explains how to integrate **tufup** (Trust Updates for Python) into your ezcompiler build pipeline to produce signed, TUF-compliant update repositories for your compiled applications.
 
-> **Scope.** This guide covers the *publish side* only: packaging a compiled bundle into a signed `repository/` tree and optionally transferring it to a server. The *client side* — update checking and applying inside the end-user app — is outside the scope of ezcompiler.
+> **Scope.** This guide covers the *publish side* only: packaging a compiled bundle into a signed `repository/` tree and optionally transferring it to a server. For background on the pipeline design and publish layout, see [Release pipeline](../concepts/about-release-pipeline.md). The *client side* — update checking and applying inside the end-user app — is outside the scope of this guide.
 
 ---
 
@@ -41,10 +41,12 @@ python setup.py --init
 ```
 
 This creates:
+
 - `./keystore/` — signing keys (root, targets, snapshot, timestamp).
 - `./repo/repository/` — the initial signed metadata.
 
 **Security rules for keys:**
+
 - Add `keystore/` to `.gitignore` — never commit private keys.
 - Store offline keys (root, targets) on encrypted media; keep online keys (snapshot, timestamp) accessible only from the build machine.
 
@@ -68,8 +70,12 @@ config = CompilerConfig(
     tufup_repo_dir=Path("repo"),      # local TUF repository root
     tufup_keys_dir=Path("keystore"),  # signing keys directory
     update_repo_url="https://updates.example.com/MyApp",  # remote (optional)
+    # Client updater — required when tuf_enabled=True and repo_destination != "disk"
+    repo_public_url="https://updates.example.com/MyApp",
 )
 ```
+
+> **`repo_public_url`** is the public URL the compiled client application will poll for updates. It is required when `tuf_enabled=True` and `repo_destination` is not `"disk"`. This value is written into the generated `settings.py` so the end-user app knows where to fetch update metadata.
 
 ---
 
@@ -138,14 +144,62 @@ ReleaseService.release_and_publish(
 
 ---
 
+## Step 5: Generate client updater files
+
+Once the TUF repository is initialized and the config contains a valid `repo_public_url`, generate the client-side bootstrap files:
+
+```python
+from pathlib import Path
+from ezcompiler import EzCompiler, CompilerConfig
+
+config = CompilerConfig(
+    version="2.0.0",
+    project_name="MyApp",
+    main_file="src/main.py",
+    include_files={"files": [], "folders": []},
+    output_folder=Path("dist"),
+    tuf_enabled=True,
+    tufup_repo_dir=Path("repo"),
+    tufup_keys_dir=Path("keystore"),
+    repo_public_url="https://updates.example.com/MyApp",
+)
+
+compiler = EzCompiler(config)
+generated = compiler.generate_updater(output_dir=Path("src/updater"))
+# Returns a list of generated paths: [update.py, settings.py, root.json]
+for path in generated:
+    print(f"Generated: {path}")
+```
+
+This produces three files in `output_dir` (defaults to the project root):
+
+| File          | Description                                                    |
+| :------------ | :------------------------------------------------------------- |
+| `update.py`   | Client update logic — checks for and applies updates via tufup |
+| `settings.py` | Update settings, including `repo_public_url`                   |
+| `root.json`   | Copy of the TUF root metadata, bundled with the app            |
+
+By default (`patch_config=True`), `generate_updater()` also writes `repo_public_url` back to the project config file if it was not already present.
+
+Via CLI:
+
+```bash
+ezcompiler updater generate --output-dir src/updater
+```
+
+---
+
 ## Error handling
 
-| Exception | Raised when |
-|---|---|
-| `ReleaseError` | General release failure (wraps tufup errors) |
-| `SigningKeyError` | `keys_dir` is missing or inaccessible |
-| `BundleBuildError` | `bundle_dir` is missing or empty |
-| `ReleaserTypeError` | Unknown `release_type` value |
+| Exception                | Raised when                                  |
+| ------------------------ | -------------------------------------------- |
+| `ReleaseError`           | General release failure (wraps tufup errors) |
+| `SigningKeyError`        | `keys_dir` is missing or inaccessible        |
+| `BundleBuildError`       | `bundle_dir` is missing or empty             |
+| `ReleaserTypeError`      | Unknown `release_type` value                 |
+| `UpdaterError`           | General updater generation failure           |
+| `UpdaterConfigError`     | `repo_public_url` missing or config invalid  |
+| `UpdaterGenerationError` | File generation or copy failure              |
 
 ```python
 from ezcompiler import ReleaseError
@@ -163,4 +217,4 @@ except ReleaseError as e:
 
 ## Out of scope
 
-The tufup *client* (checking for updates, downloading, and applying patches inside the end-user app) must be wired into the compiled application itself. Refer to the [tufup documentation](https://dennisvang.github.io/tufup/) for the client-side integration.
+The tufup *client* (checking for updates, downloading, and applying patches inside the end-user app) must be wired into the compiled application itself. Use [`generate_updater()`](#step-5-generate-client-updater-files) to scaffold the bootstrap files, then refer to the [tufup documentation](https://dennisvang.github.io/tufup/) for the full client-side integration.

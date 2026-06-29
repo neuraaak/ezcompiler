@@ -43,3 +43,11 @@ Service for orchestrating the full compile → zip → upload pipeline with inje
 Service for orchestrating upload operations to various backends.
 
 ::: ezcompiler.services.uploader_service.UploaderService
+
+---
+
+## UpdaterService
+
+Service for generating client updater files (`update.py`, `settings.py`, `root.json`) for tufup-based auto-update workflows.
+
+::: ezcompiler.services.updater_service.UpdaterService

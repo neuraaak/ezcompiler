@@ -200,6 +200,31 @@ except UploadError as e:
     raise SystemExit(4) from e
 ```
 
+## 💡 Generate client updater files
+
+```python
+from pathlib import Path
+from ezcompiler import EzCompiler, CompilerConfig
+
+config = CompilerConfig(
+    version="2.0.0",
+    project_name="MyApp",
+    main_file="src/main.py",
+    include_files={"files": [], "folders": []},
+    output_folder=Path("dist"),
+    tuf_enabled=True,
+    tufup_repo_dir=Path("repo"),
+    tufup_keys_dir=Path("keystore"),
+    repo_public_url="https://updates.example.com/MyApp",
+)
+
+compiler = EzCompiler(config)
+generated_files = compiler.generate_updater(output_dir=Path("src/updater"))
+for path in generated_files:
+    print(f"Generated: {path}")
+# update.py, settings.py, root.json
+```
+
 ## 💡 Template generation
 
 ```python

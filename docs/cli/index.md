@@ -19,13 +19,14 @@ ezcompiler [OPTIONS] COMMAND [ARGS]...
 
 ## 📋 Commands
 
-| Command             | Description                                        |
-| :------------------ | :------------------------------------------------- |
-| `init`              | Initialize a new project interactively             |
-| `generate config`   | Generate a configuration file                      |
-| `generate setup`    | Generate a `setup.py` from a configuration file    |
-| `generate version`  | Generate a Windows version information file        |
-| `generate template` | Generate a template file with optional mockup data |
+| Command             | Description                                                             |
+| :------------------ | :---------------------------------------------------------------------- |
+| `init`              | Initialize a new project interactively                                  |
+| `generate config`   | Generate a configuration file                                           |
+| `generate setup`    | Generate a `setup.py` from a configuration file                         |
+| `generate version`  | Generate a Windows version information file                             |
+| `generate template` | Generate a template file with optional mockup data                      |
+| `updater generate`  | Generate client updater files (`update.py`, `settings.py`, `root.json`) |
 
 ---
 
@@ -102,6 +103,22 @@ ezcompiler generate template --type config --mockup
 | `--type`   | Yes      | Template type: `config`, `setup`, or `version` |
 | `--mockup` | No       | Include sample data                            |
 | `--output` | No       | Output file path                               |
+
+### `updater generate`
+
+Generate the client updater files (`update.py`, `settings.py`) and copy `root.json` from the local TUF repository into the output directory.
+
+```bash
+ezcompiler updater generate
+```
+
+| Option         | Required | Default | Description                                     |
+| :------------- | :------- | :------ | :---------------------------------------------- |
+| `--config`     | No       | —       | Path to configuration file                      |
+| `--output-dir` | No       | —       | Output directory for generated files            |
+| `--no-patch`   | No       | —       | Skip patching the config with `repo_public_url` |
+
+---
 
 ## 🧪 Examples
 

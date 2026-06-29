@@ -1,12 +1,55 @@
-# API auto-reference
+# API Reference
 
-Full symbol listings for each module, generated from source docstrings via mkdocstrings.
+Full symbol listings generated from source docstrings via mkdocstrings.
 
-| Module                         | Symbols documented                                                                                               |
-| :----------------------------- | :--------------------------------------------------------------------------------------------------------------- |
-| [Interfaces](../interfaces.md) | `EzCompiler`, `CLIInterface`                                                                                     |
-| [Services](../services.md)     | `CompilerService`, `ConfigService`, `PipelineService`, `TemplateService`, `UploaderService`                      |
-| [Adapters](../adapters.md)     | `CompilerFactory`, `UploaderFactory`, compiler and uploader adapters                                             |
-| [Shared](../shared.md)         | `CompilerConfig`, `CompilationResult`, exception hierarchy                                                       |
-| [Types](../types.md)           | `FilePath`, `CompilerName`, `UploadTarget`, `IncludeFiles`, `JsonMap`                                            |
-| [Utils](../utils.md)           | `FileUtils`, `ConfigUtils`, `TemplateProcessor`, `CompilerUtils`, `UploaderUtils`, `ZipUtils`, validator modules |
+## EzCompiler
+
+::: ezcompiler.EzCompiler
+
+## CompilerConfig
+
+::: ezcompiler.CompilerConfig
+
+## Ports
+
+::: ezcompiler.CompilerPort
+
+::: ezcompiler.UploaderPort
+
+::: ezcompiler.ReleaserPort
+
+## Type aliases
+
+::: ezcompiler.FilePath
+
+::: ezcompiler.CompilerName
+
+::: ezcompiler.RepoDestination
+
+::: ezcompiler.ReleaseDestination
+
+::: ezcompiler.ReleaseTarget
+
+::: ezcompiler.IncludeFiles
+
+::: ezcompiler.JsonMap
+
+## Exceptions
+
+::: ezcompiler.EzCompilerError
+
+::: ezcompiler.CompilationError
+
+::: ezcompiler.ConfigurationError
+
+::: ezcompiler.ReleaseError
+
+::: ezcompiler.TemplateError
+
+::: ezcompiler.UpdaterError
+
+::: ezcompiler.UploadError
+
+::: ezcompiler.VersionError
+
+::: ezcompiler.FileOperationError
