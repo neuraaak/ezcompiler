@@ -28,6 +28,7 @@ from .config_service import ConfigService
 from .pipeline_service import PipelineService
 from .release_service import ReleaseService
 from .template_service import TemplateService
+from .updater_service import UpdaterService
 from .uploader_service import UploaderService
 
 # ///////////////////////////////////////////////////////////////
@@ -42,6 +43,7 @@ __all__ = [
     "PipelineService",
     "ReleaseService",
     "TemplateService",
+    "UpdaterService",
     "UploaderService",
     # Result types
     "CompilationResult",
