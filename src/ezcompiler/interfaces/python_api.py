@@ -55,6 +55,15 @@ from ..shared.exceptions import (
 )
 
 # ///////////////////////////////////////////////////////////////
+# CONSTANTS
+# ///////////////////////////////////////////////////////////////
+
+_MSG_NOT_INITIALIZED = "Project not initialized. Call init_project() first."
+_MSG_VERSION_OK = "Version file generated successfully"
+_MSG_COMPILED_OK = "Project compiled successfully"
+_MSG_ZIP_OK = "ZIP archive created successfully"
+
+# ///////////////////////////////////////////////////////////////
 # CLASSES
 # ///////////////////////////////////////////////////////////////
 
@@ -247,17 +256,15 @@ class EzCompiler:
         """
         try:
             if not self._config:
-                raise ConfigurationError(
-                    "Project not initialized. Call init_project() first."
-                )
+                raise ConfigurationError(_MSG_NOT_INITIALIZED)
 
             # Generate using TemplateService
             config_dict = self._config.to_dict()
             version_file_path = Path(name)
             self._template_service.generate_version_file(config_dict, version_file_path)
 
-            self._printer.success("Version file generated successfully")
-            self._logger.info("Version file generated successfully")
+            self._printer.success(_MSG_VERSION_OK)
+            self._logger.info(_MSG_VERSION_OK)
 
         except (ConfigurationError, VersionError, TemplateError):
             raise
@@ -284,9 +291,7 @@ class EzCompiler:
         """
         try:
             if not self._config:
-                raise ConfigurationError(
-                    "Project not initialized. Call init_project() first."
-                )
+                raise ConfigurationError(_MSG_NOT_INITIALIZED)
 
             # Generate using TemplateService
             config_dict = self._config.to_dict()
@@ -335,9 +340,7 @@ class EzCompiler:
         """
         try:
             if not self._config:
-                raise ConfigurationError(
-                    "Project not initialized. Call init_project() first."
-                )
+                raise ConfigurationError(_MSG_NOT_INITIALIZED)
 
             # Create compiler service and compile
             self._compiler_service = self._compiler_service_factory(self._config)
@@ -349,8 +352,8 @@ class EzCompiler:
                 ),
             )
 
-            self._printer.success("Project compiled successfully")
-            self._logger.info("Project compiled successfully")
+            self._printer.success(_MSG_COMPILED_OK)
+            self._logger.info(_MSG_COMPILED_OK)
 
         except (ConfigurationError, CompilationError):
             raise
@@ -374,9 +377,7 @@ class EzCompiler:
         """
         try:
             if not self._config:
-                raise ConfigurationError(
-                    "Project not initialized. Call init_project() first."
-                )
+                raise ConfigurationError(_MSG_NOT_INITIALIZED)
 
             # Check if ZIP is needed from compilation result
             zip_needed = (
@@ -400,8 +401,8 @@ class EzCompiler:
                 progress_callback=self._zip_progress_callback,
             )
 
-            self._printer.success("ZIP archive created successfully")
-            self._logger.info("ZIP archive created successfully")
+            self._printer.success(_MSG_ZIP_OK)
+            self._logger.info(_MSG_ZIP_OK)
 
         except (ConfigurationError, ZipError):
             raise
@@ -440,9 +441,7 @@ class EzCompiler:
             UploadError: Si un upload échoue.
         """
         if not self._config:
-            raise ConfigurationError(
-                "Project not initialized. Call init_project() first."
-            )
+            raise ConfigurationError(_MSG_NOT_INITIALIZED)
 
         repo_dest = repo_destination or self._config.repo_destination
 
@@ -511,9 +510,7 @@ class EzCompiler:
             ReleaseError: If release packaging or remote publishing fails.
         """
         if not self._config:
-            raise ConfigurationError(
-                "Project not initialized. Call init_project() first."
-            )
+            raise ConfigurationError(_MSG_NOT_INITIALIZED)
         if publish:
             import warnings  # noqa: PLC0415
 
@@ -549,9 +546,7 @@ class EzCompiler:
             ReleaseError: If TUF initialization fails.
         """
         if not self._config:
-            raise ConfigurationError(
-                "Project not initialized. Call init_project() first."
-            )
+            raise ConfigurationError(_MSG_NOT_INITIALIZED)
         repo_dir = self._config.tuf_repo_dir or (self._config.output_folder / "repo")
         keys_dir = self._config.tuf_keys_dir or (repo_dir / "keystore")
         return ReleaseService.init_release(
@@ -594,9 +589,7 @@ class EzCompiler:
             >>> compiler.upload()
         """
         if not self._config:
-            raise ConfigurationError(
-                "Project not initialized. Call init_project() first."
-            )
+            raise ConfigurationError(_MSG_NOT_INITIALIZED)
 
         # Determine which optional stages to include
         should_zip = not skip_zip
@@ -633,7 +626,7 @@ class EzCompiler:
                 self._template_service.generate_version_file(
                     config_dict, version_file_path
                 )
-                self._logger.info("Version file generated successfully")
+                self._logger.info(_MSG_VERSION_OK)
                 dlp.complete_layer("version")
 
                 # Compilation
@@ -646,7 +639,7 @@ class EzCompiler:
                         compiler=compiler,
                     )
                 )
-                self._logger.info("Project compiled successfully")
+                self._logger.info(_MSG_COMPILED_OK)
                 dlp.complete_layer("compile")
 
                 # ZIP
@@ -674,7 +667,7 @@ class EzCompiler:
                             compilation_result=self._compilation_result,
                             progress_callback=_zip_cb,
                         )
-                        self._logger.info("ZIP archive created successfully")
+                        self._logger.info(_MSG_ZIP_OK)
                         dlp.complete_layer("zip")
                     else:
                         # Stage was added but not needed at runtime
