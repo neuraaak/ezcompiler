@@ -45,6 +45,7 @@ from ..services import (
     PipelineService,
     ReleaseService,
     TemplateService,
+    UpdaterService,
 )
 from ..shared.exceptions import (
     CompilationError,
@@ -1241,6 +1242,68 @@ def release_init(config_path: Path | None) -> None:
             printer.info(f"Keys already present in {keys_dir} — skipped.")
             logger.info("TUF keys already present, skipped.")
     except (ReleaseError, SigningKeyError, ConfigError) as e:
+        printer.error(str(e))
+        logger.error(str(e))
+        sys.exit(1)
+
+
+@main.group()
+def updater() -> None:
+    """Updater client generation (tufup)."""
+
+
+@updater.command("generate")
+@click.option(
+    "--config",
+    "config_path",
+    default=None,
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    help="Path to ezcompiler config file (auto-detected if omitted).",
+)
+@click.option(
+    "--output-dir",
+    "output_dir",
+    default=None,
+    type=click.Path(file_okay=False, path_type=Path),
+    help="Directory where updater files are written (default: main_file directory).",
+)
+@click.option(
+    "--no-patch",
+    "no_patch",
+    is_flag=True,
+    default=False,
+    help="Do not add generated files to include_files.",
+)
+def updater_generate(
+    config_path: Path | None,
+    output_dir: Path | None,
+    no_patch: bool,
+) -> None:
+    """Generate update.py, settings.py, and copy root.json for the compiled app.
+
+    Run before compiling. The generated files must be included in the
+    bundle (done automatically unless --no-patch is specified).
+    """
+    printer = _get_printer()
+    logger = _get_logger()
+    try:
+        config_service = ConfigService()
+        cfg_dict = config_service.load_config(config_path)
+        from ..shared import CompilerConfig  # noqa: PLC0415
+
+        compiler_config = CompilerConfig.from_dict(cfg_dict)
+        resolved_dir = output_dir or Path(compiler_config.main_file).parent
+        files = UpdaterService.generate(compiler_config, resolved_dir)
+
+        if not no_patch:
+            compiler_config.include_files["files"].extend(str(f) for f in files)
+
+        printer.success(f"Updater files generated in {resolved_dir}")
+        for f in files:
+            printer.info(f"  {f.name}")
+        logger.info("Updater generated: %s", [str(f) for f in files])
+
+    except Exception as e:
         printer.error(str(e))
         logger.error(str(e))
         sys.exit(1)

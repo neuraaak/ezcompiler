@@ -40,6 +40,7 @@ from ..services import (
     PipelineService,
     ReleaseService,
     TemplateService,
+    UpdaterService,
     UploaderService,
 )
 from ..shared import CompilationResult, CompilerConfig
@@ -554,6 +555,54 @@ class EzCompiler:
             repo_dir=repo_dir,
             keys_dir=keys_dir,
         )
+
+    def generate_updater(
+        self,
+        output_dir: Path | str | None = None,
+        *,
+        patch_config: bool = True,
+    ) -> list[Path]:
+        """Generate auto-update client files for embedding in the compiled bundle.
+
+        Generates ``update.py``, ``settings.py``, and copies ``root.json``
+        from the local TUF repository into ``output_dir``.
+
+        When ``patch_config=True`` (default), the three generated files are
+        added to ``config.include_files["files"]`` so they are automatically
+        bundled by the next ``run_pipeline()`` call. Call this method BEFORE
+        ``run_pipeline()``.
+
+        Args:
+            output_dir: Directory where files are written. Defaults to the
+                directory containing ``main_file``.
+            patch_config: If True, add generated file paths to include_files.
+
+        Returns:
+            List of generated file paths [settings.py, update.py, root.json].
+
+        Raises:
+            ConfigurationError: If project not initialized.
+            UpdaterConfigError: If tuf_enabled=False or root.json absent.
+            UpdaterGenerationError: If writing files fails.
+        """
+        if not self._config:
+            raise ConfigurationError(_MSG_NOT_INITIALIZED)
+
+        resolved_dir = (
+            Path(output_dir)
+            if output_dir is not None
+            else Path(self._config.main_file).parent
+        )
+
+        files = UpdaterService.generate(self._config, resolved_dir)
+
+        if patch_config:
+            self._config.include_files["files"].extend(str(f) for f in files)
+
+        self._printer.success(f"Updater files generated in {resolved_dir}")
+        self._logger.info("Updater files generated: %s", [str(f) for f in files])
+
+        return files
 
     def run_pipeline(
         self,
