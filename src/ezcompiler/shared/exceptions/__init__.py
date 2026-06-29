@@ -47,7 +47,6 @@ from .utils import (
     _compiler_exceptions,
     _config_exceptions,
     _file_exceptions,
-    _release_exceptions,  # noqa: F401
     _template_exceptions,
     _uploader_exceptions,
     _validation_exceptions,
