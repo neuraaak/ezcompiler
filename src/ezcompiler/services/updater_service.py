@@ -85,12 +85,18 @@ class UpdaterService:
 
     @staticmethod
     def _resolve_update_url(config: CompilerConfig) -> str:
+        # The client URL must mirror where UploaderService._upload_tuf_repo
+        # writes the TUF tree: disk/server place it under a "/update" subdir,
+        # while r2 uploads straight to the bucket prefix. Keep both in sync.
         if config.repo_destination == "disk":
             endpoint = config.repo_endpoint.rstrip("/").replace("\\", "/")
             if not endpoint.startswith("/"):
                 endpoint = f"/{endpoint}"
-            return f"file://{endpoint}"
-        return config.repo_public_url
+            return f"file://{endpoint}/update"
+        if config.repo_destination == "r2":
+            return config.repo_public_url.rstrip("/")
+        # server
+        return config.repo_public_url.rstrip("/") + "/update"
 
     @staticmethod
     def _render_template(

@@ -149,6 +149,62 @@ def test_missing_root_json_raises_config_error(tmp_path: Path) -> None:
         UpdaterService.generate(cfg, tmp_path / "out")
 
 
+def test_disk_url_includes_update_subdir(cfg: CompilerConfig, tmp_path: Path) -> None:
+    """Client URL must point at the /update subtree where the TUF repo is
+    uploaded (UploaderService._upload_tuf_repo)."""
+    out = tmp_path / "updater"
+    out.mkdir()
+    UpdaterService.generate(cfg, out)
+    settings = (out / "settings.py").read_text(encoding="utf-8")
+    assert "/update" in settings
+    assert 'UPDATE_URL = "file://' in settings
+    assert settings.count("/update") >= 1
+
+
+def test_server_url_includes_update_subdir(tmp_path: Path, tmp_repo: Path) -> None:
+    main = tmp_path / "main.py"
+    main.write_text("# main", encoding="utf-8")
+    cfg = CompilerConfig(
+        version="1.0.0",
+        project_name="App",
+        main_file=str(main),
+        include_files={"files": [], "folders": []},
+        output_folder=tmp_path / "dist",
+        tuf_enabled=True,
+        tuf_repo_dir=tmp_repo,
+        repo_destination="server",
+        repo_endpoint="https://internal/upload",
+        repo_public_url="https://updates.myapp.com",
+    )
+    out = tmp_path / "updater"
+    out.mkdir()
+    UpdaterService.generate(cfg, out)
+    settings = (out / "settings.py").read_text(encoding="utf-8")
+    assert "https://updates.myapp.com/update" in settings
+
+
+def test_r2_url_has_no_update_subdir(tmp_path: Path, tmp_repo: Path) -> None:
+    main = tmp_path / "main.py"
+    main.write_text("# main", encoding="utf-8")
+    cfg = CompilerConfig(
+        version="1.0.0",
+        project_name="App",
+        main_file=str(main),
+        include_files={"files": [], "folders": []},
+        output_folder=tmp_path / "dist",
+        tuf_enabled=True,
+        tuf_repo_dir=tmp_repo,
+        repo_destination="r2",
+        repo_endpoint="bucket/prefix",
+        repo_public_url="https://pub.r2.myapp.com",
+    )
+    out = tmp_path / "updater"
+    out.mkdir()
+    UpdaterService.generate(cfg, out)
+    settings = (out / "settings.py").read_text(encoding="utf-8")
+    assert 'UPDATE_URL = "https://pub.r2.myapp.com"' in settings
+
+
 def test_generate_returns_three_paths(cfg: CompilerConfig, tmp_path: Path) -> None:
     out = tmp_path / "updater"
     out.mkdir()
