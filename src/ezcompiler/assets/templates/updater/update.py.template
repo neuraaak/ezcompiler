@@ -104,6 +104,20 @@ def _make_client() -> Client:
     return client
 
 
+def _refresh_and_check(client: Client, pre: str | None):
+    """Refresh TUF metadata, then check for a newer target.
+
+    tufup's check_for_updates() swallows refresh failures (repo unreachable
+    or incomplete) and returns None — indistinguishable from "no update", so
+    a broken repo would be reported as "up to date". Refreshing explicitly
+    first makes a failed refresh raise instead, so callers can tell a real
+    "up to date" from a failed check. The subsequent check_for_updates()
+    refreshes again (cheap: metadata is already cached).
+    """
+    client.refresh()
+    return client.check_for_updates(pre=pre)
+
+
 def get_latest_version(*, pre: str | None = None) -> str | None:
     """Return the highest available version newer than the current one.
 
@@ -112,8 +126,12 @@ def get_latest_version(*, pre: str | None = None) -> str | None:
 
     Returns:
         The new version string if an update is available, else None.
+
+    Raises:
+        Exception: If the TUF refresh fails (network/signature error). This
+            is deliberate — a failed check must not look like "up to date".
     """
-    new_target = _make_client().check_for_updates(pre=pre)
+    new_target = _refresh_and_check(_make_client(), pre)
     return None if new_target is None else str(new_target.version)
 
 
@@ -145,7 +163,7 @@ def check_and_apply(
         True if an update was downloaded and applied; False otherwise.
     """
     client = _make_client()
-    new_target = client.check_for_updates(pre=pre)
+    new_target = _refresh_and_check(client, pre)
     if new_target is None:
         print(f"[update] up to date (current version: {VERSION})")
         return False
