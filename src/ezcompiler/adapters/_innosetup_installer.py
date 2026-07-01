@@ -84,7 +84,14 @@ class InnoSetupInstaller(BaseInstaller):
                 f"ISCC.exe failed (exit {result.returncode}): {stderr or stdout}"
             )
 
-        return output_dir / f"{app_name}-{version}-setup.exe"
+        setup_exe = output_dir / f"{app_name}-{version}-setup.exe"
+        if not setup_exe.is_file():
+            raise InstallerBuildError(
+                f"ISCC.exe succeeded but expected installer not found at {setup_exe}. "
+                "If using a custom installer_iss_path, ensure its OutputBaseFilename "
+                f"matches '{app_name}-{version}-setup'."
+            )
+        return setup_exe
 
     # ////////////////////////////////////////////////
     # ISCC DETECTION

@@ -86,5 +86,25 @@ def test_build_raises_installer_build_error_on_nonzero_exit(
         installer.build(bundle, "MyApp", "1.0.0", tmp_path / "out")
 
 
+def test_build_raises_installer_build_error_when_output_missing(
+    monkeypatch, tmp_path: Path
+) -> None:
+    bundle = _make_bundle(tmp_path)
+    output_dir = tmp_path / "out"
+    fake_iscc = tmp_path / "ISCC.exe"
+    fake_iscc.write_bytes(b"fake")
+
+    def _fake_run(cmd, **_kwargs):
+        # ISCC "succeeds" but does not produce the expected setup.exe
+        # (e.g. a custom iss_path with a different OutputBaseFilename).
+        return subprocess.CompletedProcess(cmd, returncode=0, stdout=b"", stderr=b"")
+
+    monkeypatch.setattr(subprocess, "run", _fake_run)
+
+    installer = InnoSetupInstaller({"iscc_path": fake_iscc})
+    with pytest.raises(InstallerBuildError, match="not found"):
+        installer.build(bundle, "MyApp", "1.0.0", output_dir)
+
+
 def test_get_installer_name() -> None:
     assert InnoSetupInstaller().get_installer_name() == "InnoSetup"
