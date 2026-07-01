@@ -213,8 +213,8 @@ config = CompilerConfig(
     include_files={"files": [], "folders": []},
     output_folder=Path("dist"),
     tuf_enabled=True,
-    tufup_repo_dir=Path("repo"),
-    tufup_keys_dir=Path("keystore"),
+    tuf_repo_dir=Path("repo"),
+    tuf_keys_dir=Path("keystore"),
     repo_public_url="https://updates.example.com/MyApp",
 )
 

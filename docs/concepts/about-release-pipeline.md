@@ -6,31 +6,29 @@ This page explains the design rationale and layout of EzCompiler's release pipel
 
 ## Pipeline order
 
-The pipeline stages execute in a fixed order:
+The build pipeline stages execute in a fixed order:
 
 ```text
-compile → zip → release → upload
+compile → zip → release
 ```
 
-`release` always runs before `upload`. The signed TUF repository must exist locally before any transfer to a remote destination can occur. This ordering prevents a partial or unsigned tree from being published.
+`release` always runs after the compiled bundle is zipped: the signed TUF tree is built locally from the output. `run_pipeline()` stops here — it never transfers anything. Uploading is a **separate, explicit step** (`compiler.upload()` / `ezcompiler upload`), which keeps a partial or unsigned tree from ever being published.
 
 ---
 
-## Publish layout
+## Upload layout
 
-When `release_needed=True`, the pipeline assembles a flat publish structure under `dist/release/` before uploading:
+When `tuf_enabled=True`, `upload()` transfers two artifacts to independent destinations:
 
 ```text
-dist/release/
-├── <App>-<version>.zip     # distributable archive
-├── metadata/               # TUF signed metadata files
-└── targets/                # TUF target files (bundles)
+<repo_endpoint>/update/    # TUF tree: signed metadata/ + targets/
+<release_endpoint>/release/  # distributable ZIP archive
 ```
 
-Both the distributable ZIP and the TUF tree land under the same root, so a single upload operation to `update_repo_url` transfers the complete release.
+The TUF tree (`repo_destination`/`repo_endpoint`) and the installer ZIP (`release_destination`/`release_endpoint`) are decoupled so each can target a different backend (`disk`, `server`, or `r2` for the TUF tree). For `r2`, the TUF tree is written straight to the bucket prefix and the ZIP is skipped.
 
 ---
 
-## Out of scope
+## Client side
 
-The tufup *client* — checking for updates, downloading patches, and applying them inside the end-user application — is not part of ezcompiler's responsibility. Refer to the [tufup documentation](https://dennisvang.github.io/tufup/) for client-side integration, or use `generate_updater()` to scaffold the client bootstrap files.
+The tufup *client* — checking for updates, downloading, and applying them inside the end-user application — **is** covered by ezcompiler: use `generate_updater()` to scaffold the bootstrap files, then call `update.main()` at startup. See the [Secure Updates with tufup](../guides/secure-updates-tufup.md) guide. For advanced client behavior, refer to the [tufup documentation](https://dennisvang.github.io/tufup/).

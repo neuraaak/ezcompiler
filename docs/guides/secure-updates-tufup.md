@@ -2,7 +2,7 @@
 
 This guide explains how to integrate **tufup** (Trust Updates for Python) into your ezcompiler build pipeline to produce signed, TUF-compliant update repositories for your compiled applications.
 
-> **Scope.** This guide covers the *publish side* only: packaging a compiled bundle into a signed `repository/` tree and optionally transferring it to a server. For background on the pipeline design and publish layout, see [Release pipeline](../concepts/about-release-pipeline.md). The *client side* — update checking and applying inside the end-user app — is outside the scope of this guide.
+> **Scope.** This guide covers the full loop: packaging a compiled bundle into a signed TUF tree, uploading it, **and** wiring the self-updating client into your app. For background on the pipeline design and publish layout, see [Release pipeline](../concepts/about-release-pipeline.md).
 
 ---
 
@@ -28,7 +28,7 @@ Use the `ezcompiler` CLI to initialize the key set and the repository skeleton:
 ezcompiler release init
 ```
 
-The paths (`tufup_repo_dir`, `tufup_keys_dir`) are read from the project config file (auto-detected in the current directory). You can also point to a specific config:
+The paths (`tuf_repo_dir`, `tuf_keys_dir`) are read from the project config file (auto-detected in the current directory). You can also point to a specific config:
 
 ```bash
 ezcompiler release init --config path/to/ezcompiler.config.yaml
@@ -65,17 +65,25 @@ config = CompilerConfig(
     include_files={"files": [], "folders": []},
     output_folder=Path("dist"),
     # Release options
-    release_needed=True,
-    release_type="tufup",             # only supported backend
-    tufup_repo_dir=Path("repo"),      # local TUF repository root
-    tufup_keys_dir=Path("keystore"),  # signing keys directory
-    update_repo_url="https://updates.example.com/MyApp",  # remote (optional)
-    # Client updater — required when tuf_enabled=True and repo_destination != "disk"
+    tuf_enabled=True,                 # turn on the TUF release + updater
+    tuf_repo_dir=Path("repo"),        # local TUF repository root
+    tuf_keys_dir=Path("keystore"),    # signing keys directory
+    # Upload destinations (split: TUF tree vs. installer zip)
+    repo_destination="server",        # disk | server | r2 — where the TUF tree lands
+    repo_endpoint="https://uploads.example.com/MyApp",   # upload target for the TUF tree
+    release_destination="server",     # disk | server — where the installer zip lands
+    release_endpoint="https://uploads.example.com/MyApp",
+    # Client updater — the URL the compiled app polls for updates
     repo_public_url="https://updates.example.com/MyApp",
 )
 ```
 
-> **`repo_public_url`** is the public URL the compiled client application will poll for updates. It is required when `tuf_enabled=True` and `repo_destination` is not `"disk"`. This value is written into the generated `settings.py` so the end-user app knows where to fetch update metadata.
+> **Destinations.** The TUF tree and the installer ZIP are uploaded **separately**:
+> `repo_destination`/`repo_endpoint` control the signed TUF tree, `release_destination`/`release_endpoint`
+> control the distributable ZIP. An `*_endpoint` is required whenever its `*_destination` is not `"disk"`
+> (for `disk` it is a local path). For `r2`, the endpoint is `"bucket/prefix"`.
+>
+> **`repo_public_url`** is the public URL the compiled client application polls for updates. It is required when `tuf_enabled=True` and `repo_destination` is not `"disk"`. This value is written into the generated `settings.py` so the end-user app knows where to fetch update metadata.
 
 ---
 
@@ -98,48 +106,38 @@ print(f"Signed repository written to: {repository_path}")
 
 ---
 
-## Step 4 — Publish via the pipeline (recommended)
+## Step 4 — Build via the pipeline, then upload
 
-The build pipeline runs the stages in order `compile → zip → release → upload`.
-When `release_needed` is set, `run_pipeline()` builds the signed TUF tree, then the
-**upload stage** transfers a single publish root to `update_repo_url`:
-
-```text
-publish/
-├── downloads/<App>.zip   # le zip distribuable
-└── repository/           # l'arbre TUF (metadata + targets)
-```
+The build pipeline runs the stages `compile → zip → release`. When `tuf_enabled`
+is set, `run_pipeline()` builds the signed TUF tree locally — it does **not**
+transfer anything. Upload is a separate, explicit step:
 
 ```python
-compiler.run_pipeline(console=False)
+compiler.run_pipeline(console=False)   # compile → zip → release (local only)
+compiler.upload()                      # transfer TUF tree + installer zip
 ```
 
-`update_repo_url` is the **unified upload destination** under which both
-`downloads/` (zip) and `repository/` (TUF tree) land. When empty, the destination
-falls back to `upload.repo_path` (disk) or `upload.server_url` (server). The
-transfer backend is `config.upload_structure` (`"disk"` or `"server"`); the server
-uploader walks the tree recursively and POSTs each file at its relative path.
+`upload()` performs **two sequential transfers**, mirrored by the client's update URL:
 
-!!! warning "Déprécié"
-    `compiler.release(bundle_dir, publish=True)` est déprécié : le transfert distant
-    est désormais assuré par le stage upload de `run_pipeline`. L'appel émet un
-    `DeprecationWarning` mais continue de fonctionner.
+| Artifact      | Destination                                | Landing path                  |
+| :------------ | :----------------------------------------- | :---------------------------- |
+| TUF tree      | `repo_destination` / `repo_endpoint`       | `<repo_endpoint>/update/`     |
+| Installer ZIP | `release_destination` / `release_endpoint` | `<release_endpoint>/release/` |
 
-You can also call `ReleaseService` directly for more control:
+For `r2`, the TUF tree is uploaded straight to the bucket prefix (no `/update/`
+subdir) and the installer ZIP is skipped. The `/update/` suffix is what the
+generated client polls — keep `repo_public_url` pointing at the same root
+(the client appends `/update` itself for `disk` and `server`).
 
-```python
-from ezcompiler.services.release_service import ReleaseService
+!!! warning "Deprecated"
+    `compiler.release(bundle_dir, publish=True)` is deprecated: remote transfer is
+    now handled by `upload()`. The call still works but emits a `DeprecationWarning`.
 
-ReleaseService.release_and_publish(
-    bundle_dir=Path("dist/MyApp"),
-    app_name="MyApp",
-    version="2.0.0",
-    repo_dir=Path("repo"),
-    publish=True,
-    upload_type="server",
-    destination="https://updates.example.com/MyApp",
-    releaser_config={"keys_dir": Path("keystore")},
-)
+You can drive the CLI instead of the Python API:
+
+```bash
+ezcompiler upload --repo-destination server --release-destination server \
+    --destination https://uploads.example.com/MyApp
 ```
 
 ---
@@ -159,8 +157,8 @@ config = CompilerConfig(
     include_files={"files": [], "folders": []},
     output_folder=Path("dist"),
     tuf_enabled=True,
-    tufup_repo_dir=Path("repo"),
-    tufup_keys_dir=Path("keystore"),
+    tuf_repo_dir=Path("repo"),
+    tuf_keys_dir=Path("keystore"),
     repo_public_url="https://updates.example.com/MyApp",
 )
 
@@ -179,13 +177,53 @@ This produces three files in `output_dir` (defaults to the project root):
 | `settings.py` | Update settings, including `repo_public_url`                   |
 | `root.json`   | Copy of the TUF root metadata, bundled with the app            |
 
-By default (`patch_config=True`), `generate_updater()` also writes `repo_public_url` back to the project config file if it was not already present.
+By default (`patch_config=True`), `generate_updater()` adds the three generated files to `include_files` so they are bundled into the compiled app. Because it mutates the config, **call it before `run_pipeline()`**:
+
+```python
+if config.tuf_enabled:
+    compiler.generate_updater()   # must precede run_pipeline()
+compiler.run_pipeline()
+```
 
 Via CLI:
 
 ```bash
 ezcompiler updater generate --output-dir src/updater
 ```
+
+---
+
+## Step 6 — Wire the updater into your app
+
+Call `update.main()` at the very top of your app's entry point. It checks the
+repository once, and if a newer version is available it downloads and applies it,
+then exits so tufup can swap the files and relaunch. It never blocks startup: a
+failed check is reported and ignored.
+
+```python
+# main.py
+try:
+    import update  # generated by generate_updater(), bundled at compile time
+
+    update.main()
+except ImportError:
+    pass  # updater files absent in dev — app still runs
+```
+
+The generated client is bundler-agnostic (PyInstaller, cx_Freeze, Nuitka) and
+resolves its own install directory from the running executable, so update caches
+live next to the installed app wherever the user placed it.
+
+!!! tip "Disk-served repositories work client-side"
+    When `repo_destination="disk"`, the client reads updates over a `file://` URL
+    via a built-in file fetcher — useful for offline, LAN, or test installs, with
+    no HTTP server required. HTTP(S) via `repo_public_url` remains the norm for
+    production.
+
+!!! warning "Rebuild after changing the destination"
+    `UPDATE_URL` is baked into the compiled `settings.py`. Changing
+    `repo_destination`/`repo_public_url` requires regenerating the client and
+    recompiling — an already-shipped executable keeps its original URL.
 
 ---
 
@@ -196,7 +234,7 @@ ezcompiler updater generate --output-dir src/updater
 | `ReleaseError`           | General release failure (wraps tufup errors) |
 | `SigningKeyError`        | `keys_dir` is missing or inaccessible        |
 | `BundleBuildError`       | `bundle_dir` is missing or empty             |
-| `ReleaserTypeError`      | Unknown `release_type` value                 |
+| `ReleaserTypeError`      | Unknown releaser backend requested           |
 | `UpdaterError`           | General updater generation failure           |
 | `UpdaterConfigError`     | `repo_public_url` missing or config invalid  |
 | `UpdaterGenerationError` | File generation or copy failure              |
@@ -215,6 +253,9 @@ except ReleaseError as e:
 
 ---
 
-## Out of scope
+## Going further
 
-The tufup *client* (checking for updates, downloading, and applying patches inside the end-user app) must be wired into the compiled application itself. Use [`generate_updater()`](#step-5-generate-client-updater-files) to scaffold the bootstrap files, then refer to the [tufup documentation](https://dennisvang.github.io/tufup/) for the full client-side integration.
+The generated client covers the common check-download-apply loop. For advanced
+scenarios — custom pre-release channels, patch (delta) updates, or bespoke
+confirmation UI — see the [tufup documentation](https://dennisvang.github.io/tufup/)
+and adapt the generated `update.py` to your needs.
