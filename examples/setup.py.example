@@ -119,6 +119,12 @@ try:
         compiler.init_release()
         raise SystemExit(0)
 
+    # Generate the auto-update client (update.py + settings.py + root.json)
+    # and bundle it. Must run BEFORE run_pipeline so the files land in
+    # include_files.
+    if config.tuf_enabled:
+        compiler.generate_updater()
+
     compiler.run_pipeline(
         console=config.console,
         compiler=config.compiler if config.compiler != "auto" else None,
