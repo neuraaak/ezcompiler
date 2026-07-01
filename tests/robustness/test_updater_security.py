@@ -54,10 +54,14 @@ def test_root_json_copy_matches_source(
 
 
 def test_update_url_not_injected_in_update_py(
-    cfg: CompilerConfig, tmp_path: Path
+    cfg: CompilerConfig, tmp_path: Path, tuf_repo: Path
 ) -> None:
     out = tmp_path / "out"
     UpdaterService.generate(cfg, out)
     update_text = (out / "update.py").read_text(encoding="utf-8")
-    assert "file://" not in update_text
+    # The resolved, per-build URL value (the concrete repo location) must
+    # live only in settings.py — update.py references the UPDATE_URL symbol.
+    # The bare "file://" scheme literal is allowed (fetcher scheme check).
+    assert str(tuf_repo) not in update_text
+    assert tuf_repo.as_uri() not in update_text
     assert "UPDATE_URL" in update_text

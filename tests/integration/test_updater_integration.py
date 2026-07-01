@@ -78,3 +78,51 @@ def test_output_dir_created_if_absent(cfg: CompilerConfig, tmp_path: Path) -> No
     assert not out.exists()
     UpdaterService.generate(cfg, out)
     assert out.exists()
+
+
+def test_update_py_uses_tufup_010_client_api(
+    cfg: CompilerConfig, tmp_path: Path
+) -> None:
+    """Guard against regressing to the pre-0.10 tufup Client signature."""
+    out = tmp_path / "updater_out"
+    UpdaterService.generate(cfg, out)
+    text = (out / "update.py").read_text(encoding="utf-8")
+    # tufup 0.10 requires local metadata/target caches.
+    assert "metadata_dir" in text
+    assert "target_dir" in text
+    # Removed in tufup 0.10 — their presence means the old API leaked back.
+    assert "trusted_root_path" not in text
+    assert "highest_version" not in text
+
+
+def test_update_py_handles_file_url_scheme(cfg: CompilerConfig, tmp_path: Path) -> None:
+    """disk-served repos need a custom fetcher (tufup's default can't read
+    file://). Guard that the file:// fetcher stays in the generated client."""
+    out = tmp_path / "updater_out"
+    UpdaterService.generate(cfg, out)
+    text = (out / "update.py").read_text(encoding="utf-8")
+    assert "_FileFetcher" in text
+    assert "DownloadHTTPError" in text
+    assert 'UPDATE_URL.startswith("file://")' in text
+
+
+def test_update_py_resets_cache_on_root_mismatch(
+    cfg: CompilerConfig, tmp_path: Path
+) -> None:
+    """A stale cached trust root (regenerated keystore) must not deadlock the
+    client with 'signed by 0/1 keys' — the bundled root wins."""
+    out = tmp_path / "updater_out"
+    UpdaterService.generate(cfg, out)
+    text = (out / "update.py").read_text(encoding="utf-8")
+    assert "_bootstrap_trust_root" in text
+    assert "read_bytes()" in text
+    assert "rmtree" in text
+
+
+def test_update_py_applies_update_in_main(cfg: CompilerConfig, tmp_path: Path) -> None:
+    """main() must apply a detected update (not just report it)."""
+    out = tmp_path / "updater_out"
+    UpdaterService.generate(cfg, out)
+    text = (out / "update.py").read_text(encoding="utf-8")
+    assert "download_and_apply_update" in text
+    assert "sys.exit(0)" in text
