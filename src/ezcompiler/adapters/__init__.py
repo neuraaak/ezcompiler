@@ -19,6 +19,7 @@ from __future__ import annotations
 # Local imports
 from .base_compiler import BaseCompiler
 from .base_file_writer import BaseFileWriter
+from .base_installer import BaseInstaller
 from .base_releaser import BaseReleaser
 from .base_uploader import BaseUploader
 from .compiler_factory import CompilerFactory
@@ -34,6 +35,7 @@ __all__ = [
     "BaseCompiler",
     "BaseUploader",
     "BaseFileWriter",
+    "BaseInstaller",
     "BaseReleaser",
     "CompilerFactory",
     "UploaderFactory",
