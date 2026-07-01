@@ -8,7 +8,7 @@ Generate architecture dependency graph for EzCompiler documentation.
 
 Uses grimp to analyze the actual import graph of the ezcompiler package
 and produces a Mermaid flowchart + dependency table written to
-docs/architecture.md (replacing the skeleton).
+docs/concepts/architecture.md (replacing the skeleton).
 
 Usage:
     PYTHONPATH=src python .scripts/dev/generate_architecture_graph.py
@@ -29,7 +29,9 @@ from pathlib import Path
 # ///////////////////////////////////////////////////////////////
 
 PACKAGE = "ezcompiler"
-OUTPUT_FILE = Path(__file__).resolve().parents[2] / "docs" / "architecture.md"
+OUTPUT_FILE = (
+    Path(__file__).resolve().parents[2] / "docs" / "concepts" / "architecture.md"
+)
 
 # Ordered layers — defines graph node order and which layers to include
 LAYERS = ["interfaces", "services", "adapters", "shared", "utils", "assets"]
