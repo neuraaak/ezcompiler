@@ -6,10 +6,19 @@
 
 from __future__ import annotations
 
-import os
+import sys
 from pathlib import Path
 
 APP_NAME = "#APP_NAME#"
 VERSION = "#VERSION#"
 UPDATE_URL = "#UPDATE_URL#"
-INSTALL_DIR = Path(os.environ.get("LOCALAPPDATA", "")) / "Programs" / APP_NAME
+
+# Directory the app is actually installed in — wherever the user put it.
+# For a frozen bundle (PyInstaller, cx_Freeze, Nuitka), sys.executable is
+# the real .exe path, so its parent is the install folder. This is what
+# tufup replaces on update, so it must track the executable, not a fixed
+# %LOCALAPPDATA% location. In dev (not frozen), fall back to this file's dir.
+if getattr(sys, "frozen", False):
+    INSTALL_DIR = Path(sys.executable).parent
+else:
+    INSTALL_DIR = Path(__file__).parent
