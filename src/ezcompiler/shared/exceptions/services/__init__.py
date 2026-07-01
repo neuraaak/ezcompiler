@@ -24,6 +24,7 @@ from ._service_exceptions import (
     ReleaseError,
     TemplateError,
     TemplateServiceError,
+    UpdaterError,
     UploadError,
     UploaderServiceError,
     VersionError,
@@ -49,4 +50,6 @@ __all__ = [
     "UploadError",
     # Release exceptions (canonical, re-exported from utils)
     "ReleaseError",
+    # Updater exceptions (canonical, re-exported from utils)
+    "UpdaterError",
 ]

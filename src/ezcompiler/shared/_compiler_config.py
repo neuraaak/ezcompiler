@@ -119,6 +119,7 @@ class CompilerConfig:
     release_destination: ReleaseDestination = "disk"
     repo_endpoint: str = ""
     release_endpoint: str = ""
+    repo_public_url: str = ""
 
     # ////////////////////////////////////////////////
     # ADVANCED OPTIONS
@@ -286,6 +287,18 @@ class CompilerConfig:
                 "For 'server': provide a URL. For 'r2': provide 'bucket/prefix'."
             )
 
+        if (
+            self.tuf_enabled
+            and self.repo_destination != "disk"
+            and not self.repo_public_url
+        ):
+            raise ConfigurationError(
+                f"repo_public_url is required when tuf_enabled=True and "
+                f"repo_destination='{self.repo_destination}'. "
+                "Provide the public URL where the TUF repository is served "
+                "(e.g. 'https://updates.myapp.com')."
+            )
+
     # ////////////////////////////////////////////////
     # PATH HELPER PROPERTIES
     # ////////////////////////////////////////////////
@@ -371,6 +384,7 @@ class CompilerConfig:
                 "release_destination": self.release_destination,
                 "repo_endpoint": self.repo_endpoint,
                 "release_endpoint": self.release_endpoint,
+                "repo_public_url": self.repo_public_url,
             },
             "advanced": {
                 "optimize": self.optimize,

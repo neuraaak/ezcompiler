@@ -121,7 +121,7 @@ before proceeding.
 
 - **ruff** rules: `E W F I B C4 UP S T20 ARG PIE SIM`, line length 88,
   double quotes. See `[tool.ruff]` for per-file ignores.
-- **Coverage:** branch coverage, `--cov-fail-under=60` (audit target is 80%).
+- **Coverage:** branch coverage, `--cov-fail-under=70` (audit target is 80%).
   Some subprocess/TTY modules are omitted from coverage (see
   `[tool.coverage.run] omit`).
 - **Test markers** available: `slow`, `integration`, `unit`, `cli`, `compiler`,
@@ -140,7 +140,7 @@ before proceeding.
 - Descriptive names: `test_should_<behavior>_when_<condition>`.
 - Run the relevant suite before considering a change done.
 - Do not let overall branch coverage drop below its current measured value;
-  the CI gate is 60% and the audit target is 80% — prefer adding tests that
+  the CI gate is 70% and the audit target is 80% — prefer adding tests that
   move toward 80%.
 
 ## Commits
