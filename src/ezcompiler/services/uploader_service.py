@@ -23,6 +23,7 @@ from typing import TYPE_CHECKING, Any, Literal
 
 # Local imports
 from ..adapters import UploaderFactory
+from ..shared._constants import RELEASE_SUBDIR, UPDATE_SUBDIR
 from ..shared.exceptions import UploadError
 from ..utils.validators import validate_upload_structure
 
@@ -207,7 +208,7 @@ class UploaderService:
                 UploaderService.upload(
                     source_path=repo_dir,
                     upload_type="server",
-                    destination=base.rstrip("/") + "/update",
+                    destination=base.rstrip("/") + f"/{UPDATE_SUBDIR}",
                     upload_config=upload_config,
                 )
             else:  # disk (default)
@@ -215,7 +216,7 @@ class UploaderService:
                 UploaderService.upload(
                     source_path=repo_dir,
                     upload_type="disk",
-                    destination=str(Path(base) / "update"),
+                    destination=str(Path(base) / UPDATE_SUBDIR),
                     upload_config=upload_config,
                 )
         except UploadError as e:
@@ -245,7 +246,7 @@ class UploaderService:
                 UploaderService.upload(
                     source_path=release_root,
                     upload_type="server",
-                    destination=base.rstrip("/") + "/release",
+                    destination=base.rstrip("/") + f"/{RELEASE_SUBDIR}",
                     upload_config=upload_config,
                 )
             else:  # disk (default)
@@ -253,7 +254,7 @@ class UploaderService:
                 UploaderService.upload(
                     source_path=release_root,
                     upload_type="disk",
-                    destination=str(Path(base) / "release"),
+                    destination=str(Path(base) / RELEASE_SUBDIR),
                     upload_config=upload_config,
                 )
         except UploadError as e:

@@ -17,6 +17,7 @@ import shutil
 from pathlib import Path
 
 from ..shared import CompilerConfig
+from ..shared._constants import UPDATE_SUBDIR
 from ..shared.exceptions import UpdaterConfigError, UpdaterGenerationError
 
 _TEMPLATES_DIR = Path(__file__).parent.parent / "assets" / "templates" / "updater"
@@ -85,18 +86,19 @@ class UpdaterService:
 
     @staticmethod
     def _resolve_update_url(config: CompilerConfig) -> str:
-        # The client URL must mirror where UploaderService._upload_tuf_repo
-        # writes the TUF tree: disk/server place it under a "/update" subdir,
-        # while r2 uploads straight to the bucket prefix. Keep both in sync.
+        # The client URL must mirror where UploaderService writes the TUF
+        # tree: disk/server place it under the UPDATE_SUBDIR subdir, while r2
+        # uploads straight to the bucket prefix. Sharing the constant keeps
+        # both sides in sync.
         if config.repo_destination == "disk":
             endpoint = config.repo_endpoint.rstrip("/").replace("\\", "/")
             if not endpoint.startswith("/"):
                 endpoint = f"/{endpoint}"
-            return f"file://{endpoint}/update"
+            return f"file://{endpoint}/{UPDATE_SUBDIR}"
         if config.repo_destination == "r2":
             return config.repo_public_url.rstrip("/")
         # server
-        return config.repo_public_url.rstrip("/") + "/update"
+        return config.repo_public_url.rstrip("/") + f"/{UPDATE_SUBDIR}"
 
     @staticmethod
     def _render_template(
