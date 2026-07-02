@@ -38,7 +38,7 @@ from ..utils.validators import validate_compiler_name
 # TYPE ALIASES
 # ///////////////////////////////////////////////////////////////
 
-_CompilerName = Literal["Cx_Freeze", "PyInstaller", "Nuitka", "auto"]
+_CompilerName = Literal["Cx_Freeze", "PyInstaller", "Nuitka"]
 
 # ///////////////////////////////////////////////////////////////
 # CLASSES
@@ -104,7 +104,7 @@ class CompilerService:
                 - "Cx_Freeze": Creates directory with dependencies
                 - "PyInstaller": Creates single executable
                 - "Nuitka": Creates standalone folder or single executable
-                - "auto" or None: Prompt user for choice or use config default
+                - None: Use config compiler, or prompt user if none set
 
         Returns:
             CompilationResult: Result with zip_needed flag and compiler instance
@@ -164,11 +164,11 @@ class CompilerService:
             Priority: explicit choice > config.compiler > interactive prompt
         """
         # Use explicit choice if provided
-        if compiler and compiler != "auto":
+        if compiler:
             return compiler
 
-        # Use config default if set and not auto
-        if self._config.compiler and self._config.compiler != "auto":
+        # Use config compiler if set
+        if self._config.compiler:
             return self._config.compiler
 
         # Interactive prompt for user choice

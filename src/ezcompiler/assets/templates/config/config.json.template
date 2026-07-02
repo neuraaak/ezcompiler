@@ -19,6 +19,10 @@
     "console": #CONSOLE#,
     "compiler": "#COMPILER#"
   },
+  "#COMPILER_KEY#": {
+    "optimize": #OPTIMIZE#,
+    "strip": #STRIP#
+  },
   "upload": {
     "repo_destination": "#REPO_DESTINATION#",
     "repo_endpoint": "#REPO_ENDPOINT#",
@@ -26,8 +30,6 @@
     "release_endpoint": "#RELEASE_ENDPOINT#"
   },
   "advanced": {
-    "optimize": #OPTIMIZE#,
-    "strip": #STRIP#,
     "debug": #DEBUG#
   }
 }

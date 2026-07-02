@@ -173,11 +173,11 @@ class TestValidatorFunctions:
         assert validators.validate_compiler_name("Cx_Freeze") is True
         assert validators.validate_compiler_name("PyInstaller") is True
         assert validators.validate_compiler_name("Nuitka") is True
-        assert validators.validate_compiler_name("auto") is True
 
     def test_should_return_false_when_compiler_name_is_invalid(self) -> None:
         """Test validators.validate_compiler_name with invalid names."""
         assert validators.validate_compiler_name("InvalidCompiler") is False
+        assert validators.validate_compiler_name("auto") is False
         assert validators.validate_compiler_name("") is False
 
     def test_should_return_true_when_upload_structure_is_valid(self) -> None:
@@ -768,7 +768,7 @@ class TestTemplateProcessor:
                 "main_file": "main.py",
                 "compilation": {
                     "console": True,
-                    "compiler": "auto",
+                    "compiler": "PyInstaller",
                 },
                 "upload": {
                     "repo_destination": "disk",

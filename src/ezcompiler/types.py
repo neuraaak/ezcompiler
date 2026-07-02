@@ -53,7 +53,7 @@ Used by: CompilerConfig, template loaders, file utilities.
 type CompilerName = str
 """Type alias for compiler name selection.
 
-Valid values: "auto", "Cx_Freeze", "PyInstaller", "Nuitka"
+Valid values: "" (unset -> prompt), "Cx_Freeze", "PyInstaller", "Nuitka"
 
 Used by: CompilerConfig.compiler, EzCompiler.compile_project().
 """

@@ -193,7 +193,7 @@ class TestConfigUtilsCompilerOption:
         with pytest.raises(CompilerOptionError):
             ConfigUtils.validate_compiler_option("Bogus")
 
-    @pytest.mark.parametrize("compiler", ["auto", "Cx_Freeze", "PyInstaller", "Nuitka"])
+    @pytest.mark.parametrize("compiler", ["Cx_Freeze", "PyInstaller", "Nuitka"])
     def test_should_pass_for_valid_compilers(self, compiler: str) -> None:
         ConfigUtils.validate_compiler_option(compiler)
 
@@ -337,7 +337,7 @@ class TestConfigUtilsDiscovery:
 
 class TestConfigUtilsMerge:
     def test_should_merge_nested_compilation_section(self) -> None:
-        base = {"compilation": {"compiler": "auto", "console": True}}
+        base = {"compilation": {"compiler": "Cx_Freeze", "console": True}}
         override = {"compilation": {"compiler": "PyInstaller"}}
         result = ConfigUtils.merge_config_dicts(base, override)
         assert result["compilation"] == {"compiler": "PyInstaller", "console": True}

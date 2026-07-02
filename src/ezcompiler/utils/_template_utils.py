@@ -24,6 +24,7 @@ from pathlib import Path
 from typing import Any
 
 # Local imports
+from ..shared import COMPILER_SECTION_KEYS
 from ..shared.exceptions.utils import (
     TemplateFileWriteError,
     TemplateSubstitutionError,
@@ -88,7 +89,7 @@ class TemplateProcessor:
             "excludes": ["test", "debug", "temp"],
             "compilation": {
                 "console": True,
-                "compiler": "auto",
+                "compiler": "PyInstaller",
             },
             "upload": {
                 "repo_destination": "disk",
@@ -96,7 +97,8 @@ class TemplateProcessor:
                 "release_destination": "disk",
                 "release_endpoint": "",
             },
-            "advanced": {"optimize": True, "strip": False, "debug": False},
+            "pyinstaller": {"optimize": True, "strip": False},
+            "advanced": {"debug": False},
         }
 
     @staticmethod
@@ -238,7 +240,8 @@ class TemplateProcessor:
             # Compilation options
             compilation = config.get("compilation", {})
             console = compilation.get("console", True)
-            compiler = compilation.get("compiler", "auto")
+            compiler = compilation.get("compiler") or "PyInstaller"
+            compiler_key = COMPILER_SECTION_KEYS.get(compiler, "pyinstaller")
             # Upload options
             upload = config.get("upload", {})
             repo_destination = upload.get("repo_destination", "disk")
@@ -246,11 +249,15 @@ class TemplateProcessor:
             release_destination = upload.get("release_destination", "disk")
             release_endpoint = upload.get("release_endpoint", "")
 
-            # Advanced options
+            # Advanced options (generic)
             advanced = config.get("advanced", {})
-            optimize = advanced.get("optimize", True)
-            strip = advanced.get("strip", False)
             debug = advanced.get("debug", False)
+
+            # Compiler-specific options: read from the compiler section, then
+            # top-level, then defaults.
+            section = config.get(compiler_key, {})
+            optimize = section.get("optimize", config.get("optimize", True))
+            strip = section.get("strip", config.get("strip", False))
 
             # Replace placeholders with JSON-valid values
             replacements = {
@@ -270,6 +277,7 @@ class TemplateProcessor:
                 "#EXCLUDES#": json.dumps(excludes),
                 "#CONSOLE#": str(console).lower(),
                 "#COMPILER#": compiler,
+                "#COMPILER_KEY#": compiler_key,
                 "#REPO_DESTINATION#": repo_destination,
                 "#REPO_ENDPOINT#": repo_endpoint,
                 "#RELEASE_DESTINATION#": release_destination,

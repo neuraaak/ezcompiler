@@ -34,7 +34,16 @@ excludes:
 # Compilation Options
 compilation:
   console: #CONSOLE#
-  compiler: "#COMPILER#"  # "auto", "Cx_Freeze", "PyInstaller", or "Nuitka"
+  compiler: "#COMPILER#"  # "Cx_Freeze", "PyInstaller", or "Nuitka"
+
+# Compiler-specific options
+# Only the section matching 'compiler' above is used; other sections
+# (pyinstaller/cx_freeze/nuitka) may coexist as ready-to-use alternatives.
+#COMPILER_KEY#:
+  optimize: #OPTIMIZE#
+  strip: #STRIP#
+  # Extra compiler flags go here, e.g. for PyInstaller:
+  # collect-all: "webview"
 
 # Upload Configuration
 upload:
@@ -45,6 +54,4 @@ upload:
 
 # Advanced Options
 advanced:
-  optimize: #OPTIMIZE#
-  strip: #STRIP#
   debug: #DEBUG#

@@ -57,7 +57,7 @@ ezcompiler compile --compiler PyInstaller --no-console
 | :--------------------------- | :------- | :------ | :------------------------------------------------------------------------------- |
 | `--config`                   | No       | —       | Config file path (YAML, JSON)                                                    |
 | `--pyproject`                | No       | —       | Explicit `pyproject.toml` path                                                   |
-| `--compiler`                 | No       | —       | Compiler to use: `auto`, `Cx_Freeze`, `PyInstaller`, `Nuitka` (overrides config) |
+| `--compiler`                 | No       | —       | Compiler to use: `Cx_Freeze`, `PyInstaller`, `Nuitka` (overrides config)         |
 | `--console` / `--no-console` | No       | —       | Show console window (overrides config)                                           |
 | `--output-folder`            | No       | —       | Output folder (overrides config)                                                 |
 | `--debug`                    | No       | `False` | Enable debug mode                                                                |

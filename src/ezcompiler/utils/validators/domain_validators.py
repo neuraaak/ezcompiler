@@ -34,17 +34,17 @@ def validate_compiler_name(compiler: str) -> bool:
         bool: True if compiler name is valid, False otherwise
 
     Note:
-        Valid compilers: "auto", "Cx_Freeze", "PyInstaller", "Nuitka"
+        Valid compilers: "Cx_Freeze", "PyInstaller", "Nuitka"
 
     Example:
         >>> validate_compiler_name("PyInstaller")
         True
         >>> validate_compiler_name("auto")
-        True
+        False
         >>> validate_compiler_name("InvalidCompiler")
         False
     """
-    valid_compilers = ["auto", "Cx_Freeze", "PyInstaller", "Nuitka"]
+    valid_compilers = ["Cx_Freeze", "PyInstaller", "Nuitka"]
     return validate_choice(compiler, valid_compilers)
 
 

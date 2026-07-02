@@ -161,31 +161,6 @@ class TestCompilerFactoryExtended:
             compiler = CompilerFactory.create_compiler(config, "Nuitka")
         assert isinstance(compiler, NuitkaCompiler)
 
-    def test_should_return_cx_freeze_when_create_from_config_with_auto(
-        self, temp_dir
-    ) -> None:
-        config = _build_config(temp_dir)  # compiler defaults to "auto"
-        with patch.object(CompilerFactory, "_check_compiler_available"):
-            compiler = CompilerFactory.create_from_config(config)
-        assert isinstance(compiler, CxFreezeCompiler)
-
-    def test_should_return_pyinstaller_when_create_from_config_with_explicit_compiler(
-        self, temp_dir
-    ) -> None:
-        main_file = temp_dir / "main.py"
-        main_file.write_text("print('ok')", encoding="utf-8")
-        config = CompilerConfig(
-            version="1.0.0",
-            project_name="ExplicitCompiler",
-            main_file=str(main_file),
-            include_files={"files": [], "folders": []},
-            output_folder=temp_dir / "dist",
-            compiler="PyInstaller",
-        )
-        with patch.object(CompilerFactory, "_check_compiler_available"):
-            compiler = CompilerFactory.create_from_config(config)
-        assert isinstance(compiler, PyInstallerCompiler)
-
     def test_should_return_supported_compiler_names_when_get_supported_compilers_is_called(
         self,
     ) -> None:

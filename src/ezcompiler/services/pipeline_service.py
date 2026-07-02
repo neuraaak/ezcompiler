@@ -64,7 +64,7 @@ class PipelineService:
         compilation_result = compiler_service.compile(
             console=console,
             compiler=cast(
-                Literal["Cx_Freeze", "PyInstaller", "Nuitka", "auto"] | None,
+                Literal["Cx_Freeze", "PyInstaller", "Nuitka"] | None,
                 compiler,
             ),
         )

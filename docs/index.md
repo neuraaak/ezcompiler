@@ -4,7 +4,7 @@
 [![Python versions](https://img.shields.io/pypi/pyversions/ezcompiler?style=flat&logo=python&logoColor=white)](https://pypi.org/project/ezcompiler/)
 [![PyPI status](https://img.shields.io/pypi/status/ezcompiler?style=flat&logo=pypi&logoColor=white)](https://pypi.org/project/ezcompiler/)
 [![License](https://img.shields.io/badge/license-MIT-green?style=flat&logo=github&logoColor=white)](https://github.com/neuraaak/ezcompiler/blob/main/LICENSE)
-[![CI](https://img.shields.io/github/actions/workflow/status/neuraaak/ezcompiler/ci.yml?style=flat&label=ci&logo=githubactions&logoColor=white)](https://github.com/neuraaak/ezcompiler/actions/workflows/ci.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/neuraaak/ezcompiler/01-ci.yml?style=flat&label=ci&logo=githubactions&logoColor=white)](https://github.com/neuraaak/ezcompiler/actions/workflows/01-ci.yml)
 [![Docs](https://img.shields.io/badge/docs-Github%20Pages-blue?style=flat&logo=materialformkdocs&logoColor=white)](https://neuraaak.github.io/ezcompiler/)
 [![uv](https://img.shields.io/badge/package%20manager-uv-DE5FE9?style=flat&logo=uv&logoColor=white)](https://github.com/astral-sh/uv)
 [![linter](https://img.shields.io/badge/linter-ruff-D7FF64?style=flat&logo=ruff&logoColor=white)](https://github.com/astral-sh/ruff)

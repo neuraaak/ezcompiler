@@ -205,7 +205,7 @@ def generate() -> None:
 @click.option(
     "--compiler",
     "-comp",
-    type=click.Choice(["auto", "Cx_Freeze", "PyInstaller", "Nuitka"]),
+    type=click.Choice(["Cx_Freeze", "PyInstaller", "Nuitka"]),
     default=None,
     help="Compiler to use",
 )
@@ -388,9 +388,11 @@ def config(
             cli_overrides.setdefault("release", {})["tuf_enabled"] = True
         if installer_enabled:
             cli_overrides.setdefault("installer", {})["installer_enabled"] = True
-        cli_overrides.setdefault("advanced", {}).update(
-            {"optimize": optimize, "strip": strip, "debug": debug}
-        )
+        # optimize/strip are compiler-specific: the template emits them under
+        # the compiler section. debug stays generic (advanced).
+        cli_overrides["optimize"] = optimize
+        cli_overrides["strip"] = strip
+        cli_overrides.setdefault("advanced", {})["debug"] = debug
 
         if cli_overrides:
             config_dict = ConfigService.merge_configs(config_dict, cli_overrides)
@@ -429,7 +431,7 @@ def config(
             "compilation",
             {
                 "console": True,
-                "compiler": "auto",
+                "compiler": "PyInstaller",
             },
         )
         config_dict.setdefault(
@@ -441,9 +443,9 @@ def config(
                 "release_endpoint": "",
             },
         )
-        config_dict.setdefault(
-            "advanced", {"optimize": True, "strip": False, "debug": False}
-        )
+        config_dict.setdefault("optimize", True)
+        config_dict.setdefault("strip", False)
+        config_dict.setdefault("advanced", {"debug": False})
 
         # Validate: project_name is required
         if not config_dict.get("project_name"):
@@ -818,7 +820,7 @@ def template_raw(
 )
 @click.option(
     "--compiler",
-    type=click.Choice(["auto", "Cx_Freeze", "PyInstaller", "Nuitka"]),
+    type=click.Choice(["Cx_Freeze", "PyInstaller", "Nuitka"]),
     default=None,
     help="Compiler to use (overrides config)",
 )
@@ -1124,7 +1126,7 @@ def init(
             "excludes": ["debugpy", "test", "unittest"],
             "compilation": {
                 "console": True,
-                "compiler": "auto",
+                "compiler": "PyInstaller",
             },
             "upload": {
                 "repo_destination": "disk",
@@ -1132,7 +1134,9 @@ def init(
                 "repo_endpoint": "",
                 "release_endpoint": "",
             },
-            "advanced": {"optimize": True, "strip": False, "debug": False},
+            "optimize": True,
+            "strip": False,
+            "advanced": {"debug": False},
         }
 
         # File generation with progress tracking

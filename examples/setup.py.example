@@ -127,7 +127,7 @@ try:
 
     compiler.run_pipeline(
         console=config.console,
-        compiler=config.compiler if config.compiler != "auto" else None,
+        compiler=config.compiler or None,
         skip_release=args.skip_release,
     )
 

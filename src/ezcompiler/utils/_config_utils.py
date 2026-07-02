@@ -139,7 +139,7 @@ class ConfigUtils:
             >>> ConfigUtils.validate_compiler_option("invalid")
             ConfigurationError: Invalid compiler: invalid
         """
-        valid_compilers = ["auto", "Cx_Freeze", "PyInstaller", "Nuitka"]
+        valid_compilers = ["Cx_Freeze", "PyInstaller", "Nuitka"]
         if compiler not in valid_compilers:
             raise CompilerOptionError(
                 f"Invalid compiler: {compiler}. Must be one of {valid_compilers}"

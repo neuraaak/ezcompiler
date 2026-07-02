@@ -97,25 +97,6 @@ class CompilerFactory:
         raise CompilationError(f"Unsupported compiler: {normalized_name}")
 
     @staticmethod
-    def create_from_config(config: CompilerConfig) -> CompilerPort:
-        """
-        Create a compiler instance using the config default compiler.
-
-        Args:
-            config: Compiler configuration
-
-        Returns:
-            CompilerPort: Concrete compiler instance (satisfies the Port)
-
-        Raises:
-            CompilationError: If config compiler is unsupported
-        """
-        compiler_name = config.compiler if config.compiler != "auto" else "Cx_Freeze"
-        return CompilerFactory.create_compiler(
-            config=config, compiler_name=compiler_name
-        )
-
-    @staticmethod
     def get_supported_compilers() -> list[str]:
         """Return the list of supported compiler names."""
         return ["Cx_Freeze", "PyInstaller", "Nuitka"]

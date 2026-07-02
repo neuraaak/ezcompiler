@@ -56,7 +56,7 @@ CompilerName: TypeAlias = str
 
 Narrows the `compiler` parameter to the set of recognized backend names.
 
-Valid values: `"auto"`, `"Cx_Freeze"`, `"PyInstaller"`, `"Nuitka"`
+Valid values: `""` (unset — prompt at compile time), `"Cx_Freeze"`, `"PyInstaller"`, `"Nuitka"`
 
 ```python
 from ezcompiler import CompilerName, EzCompiler, CompilerConfig

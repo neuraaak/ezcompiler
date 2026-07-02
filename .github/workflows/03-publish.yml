@@ -1,4 +1,9 @@
-name: Publish to PyPI
+name: 03 · Publish to PyPI
+
+# Build + package on every mode; upload to PyPI only on `create` (a real
+# release) or a manual dispatch. Gating is keyed on the `tag_action` INPUT, not
+# on github.event_name: in a reusable workflow the event is inherited from the
+# caller (`push`), so an `event_name == 'workflow_call'` check never matches.
 
 on:
   workflow_dispatch:
@@ -10,6 +15,10 @@ on:
       tag:
         required: true
         type: string
+      tag_action:
+        required: false
+        type: string
+        default: create # create | preview
 
 permissions: {}
 
@@ -41,7 +50,7 @@ jobs:
           if [ -z "$VERSION" ]; then
             VERSION=$(grep -E '^version\s*=\s*"' pyproject.toml | head -1 | sed 's/.*version\s*=\s*"\([^"]*\)".*/\1/')
           fi
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "Version: $VERSION"
 
       - uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
@@ -89,7 +98,7 @@ jobs:
   publish:
     name: Publish to PyPI (OIDC)
     needs: validate
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call'
+    if: inputs.tag_action == 'create' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -108,14 +117,14 @@ jobs:
         with:
           verbose: true
           # Attestations disabled: when called as a reusable workflow from
-          # auto-tag.yml, the OIDC token's Build Config URI reflects the
-          # caller (auto-tag.yml) rather than this workflow, causing PyPI
-          # Trusted Publisher verification to fail.
+          # 02-tag-sync.yml, the OIDC token's Build Config URI reflects the
+          # caller rather than this workflow, causing PyPI Trusted Publisher
+          # verification to fail.
           attestations: false
 
       - name: Summary
         run: |
-          echo "## 📦 Published to PyPI" >> $GITHUB_STEP_SUMMARY
-          echo "- **Package**: ${{ env.PACKAGE_NAME }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Version**: ${{ needs.validate.outputs.version }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **URL**: https://pypi.org/project/${{ env.PACKAGE_NAME }}/${{ needs.validate.outputs.version }}/" >> $GITHUB_STEP_SUMMARY
+          echo "## 📦 Published to PyPI" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Package**: ${{ env.PACKAGE_NAME }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Version**: ${{ needs.validate.outputs.version }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **URL**: https://pypi.org/project/${{ env.PACKAGE_NAME }}/${{ needs.validate.outputs.version }}/" >> "$GITHUB_STEP_SUMMARY"

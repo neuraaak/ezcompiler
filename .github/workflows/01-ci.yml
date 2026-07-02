@@ -1,17 +1,10 @@
-name: CI
+name: 01 · CI
 
-# Runs on every push to main and on pull requests.
-# Quality gates (lint, type-check) run first and block the test matrix.
+# Quality gate: lint/format and type-check/import-contracts run first and block
+# the test matrix. Runs on PRs, and as the release gate via workflow_call from
+# 02-tag-sync (no bare `push` trigger → one CI run per change, no double runs).
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "src/**"
-      - "tests/**"
-      - "pyproject.toml"
-      - "uv.lock"
-      - ".github/workflows/ci.yml"
   pull_request:
     branches: [main]
     paths:
@@ -19,18 +12,25 @@ on:
       - "tests/**"
       - "pyproject.toml"
       - "uv.lock"
-      - ".github/workflows/ci.yml"
+      - ".github/workflows/00-install-deps.yml"
+      - ".github/workflows/01-ci.yml"
+  workflow_call:
   workflow_dispatch:
 
-permissions: {}
+permissions:
+  contents: read
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  install-deps:
+    uses: ./.github/workflows/00-install-deps.yml
+
   lint:
     name: Lint & Format Check
+    needs: [install-deps]
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     permissions:
@@ -46,6 +46,7 @@ jobs:
 
   type-check:
     name: Type Check & Import Contracts
+    needs: [install-deps]
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     permissions:

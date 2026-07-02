@@ -30,9 +30,17 @@ excludes:
   - email
   - xml
 
+advanced:
+  debug: true
+
 compilation:
   compiler: "Cx_Freeze"
   console: true
+
+# Compiler-specific options: only the section matching 'compiler' is used.
+cx_freeze:
+  optimize: false
+  strip: false
 
 upload:
   repo_destination: "disk"
@@ -40,13 +48,14 @@ upload:
   release_destination: "disk"
   release_endpoint: ""
 
-advanced:
-  optimize: false
-  strip: false
-  debug: true
-
 release:
   tuf_enabled: true
   tuf_repo_dir: "tuf/repository"
   tuf_keys_dir: "tuf/keystore"
   # repo_endpoint (upload section) indique où uploader l'arbre TUF.
+
+installer:
+  installer_enabled: true
+  installer_output_dir: "dist/installer"
+  # installer_iss_path non défini : le template .iss embarqué d'ezcompiler
+  # est utilisé. Nécessite ISCC.exe (Inno Setup 6) détectable dans le PATH.
