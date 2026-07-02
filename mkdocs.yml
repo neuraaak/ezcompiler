@@ -72,6 +72,7 @@ nav:
       - Configuration: guides/configuration.md
       - Development: guides/development.md
       - Secure Updates with tufup: guides/secure-updates-tufup.md
+      - Windows Installer: guides/windows-installer.md
   - API Reference:
       - api/index.md
       - Interfaces: api/interfaces.md

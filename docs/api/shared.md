@@ -177,3 +177,111 @@ Exception raised when uploader operations fail.
 Exception raised when compiler operations fail.
 
 ::: ezcompiler.shared.exceptions.utils.CompilerError
+
+---
+
+### Installer exceptions
+
+Exceptions raised by installer packaging (Inno Setup).
+
+```python
+from ezcompiler.shared.exceptions import (
+    InstallerError,
+    InstallerTypeError,
+    InstallerBuildError,
+    InstallerConfigError,
+    IsccNotFoundError,
+)
+```
+
+#### InstallerError
+
+Base exception for installer packaging errors.
+
+::: ezcompiler.shared.exceptions.InstallerError
+
+---
+
+#### InstallerTypeError
+
+Exception raised when the requested installer type is not supported.
+
+::: ezcompiler.shared.exceptions.InstallerTypeError
+
+---
+
+#### IsccNotFoundError
+
+Exception raised when the Inno Setup compiler (`ISCC.exe`) cannot be located.
+
+::: ezcompiler.shared.exceptions.IsccNotFoundError
+
+---
+
+#### InstallerBuildError
+
+Exception raised when running `ISCC.exe` against the `.iss` script fails.
+
+::: ezcompiler.shared.exceptions.InstallerBuildError
+
+---
+
+#### InstallerConfigError
+
+Exception raised when installer configuration is invalid or incomplete.
+
+::: ezcompiler.shared.exceptions.InstallerConfigError
+
+---
+
+### Release exceptions
+
+Exceptions raised by secure-release (TUF/tufup) operations.
+
+```python
+from ezcompiler.shared.exceptions import (
+    ReleaseError,
+    ReleaserTypeError,
+    BundleBuildError,
+    SigningKeyError,
+    ReleaseConfigError,
+)
+```
+
+#### ReleaseError
+
+Base exception for secure-release operation errors.
+
+::: ezcompiler.shared.exceptions.ReleaseError
+
+---
+
+#### ReleaserTypeError
+
+Exception raised when the requested releaser type is not supported.
+
+::: ezcompiler.shared.exceptions.ReleaserTypeError
+
+---
+
+#### BundleBuildError
+
+Exception raised when building the release bundle archive fails.
+
+::: ezcompiler.shared.exceptions.BundleBuildError
+
+---
+
+#### SigningKeyError
+
+Exception raised when signing keys are missing, invalid, or inaccessible.
+
+::: ezcompiler.shared.exceptions.SigningKeyError
+
+---
+
+#### ReleaseConfigError
+
+Exception raised when release configuration is invalid or incomplete.
+
+::: ezcompiler.shared.exceptions.ReleaseConfigError
