@@ -32,9 +32,16 @@
     "xml",
     "http"
   ],
+  "advanced": {
+    "debug": false
+  },
   "compilation": {
     "compiler": "Nuitka",
     "console": true
+  },
+  "nuitka": {
+    "optimize": true,
+    "strip": true
   },
   "upload": {
     "repo_destination": "disk",
@@ -42,14 +49,13 @@
     "release_destination": "disk",
     "release_endpoint": ""
   },
-  "advanced": {
-    "optimize": true,
-    "strip": true,
-    "debug": false
-  },
   "release": {
     "tuf_enabled": true,
     "tuf_repo_dir": "tuf/repository",
     "tuf_keys_dir": "tuf/keystore"
+  },
+  "installer": {
+    "installer_enabled": true,
+    "installer_output_dir": "dist/installer"
   }
 }

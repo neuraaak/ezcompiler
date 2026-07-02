@@ -28,6 +28,19 @@ if TYPE_CHECKING:
     from ..types import ReleaseDestination, RepoDestination
 
 # ///////////////////////////////////////////////////////////////
+# CONSTANTS
+# ///////////////////////////////////////////////////////////////
+
+# Mapping compiler name -> per-compiler config section key.
+# Only the section matching config.compiler is applied; the others may
+# coexist in the file as ready-to-use alternative configurations.
+COMPILER_SECTION_KEYS: dict[str, str] = {
+    "PyInstaller": "pyinstaller",
+    "Cx_Freeze": "cx_freeze",
+    "Nuitka": "nuitka",
+}
+
+# ///////////////////////////////////////////////////////////////
 # CLASSES
 # ///////////////////////////////////////////////////////////////
 
@@ -57,7 +70,7 @@ class CompilerConfig:
         includes: List of modules to include
         excludes: List of modules to exclude
         console: Show console window in compiled app (default: True)
-        compiler: Compiler to use - "auto", "Cx_Freeze", "PyInstaller", "Nuitka"
+        compiler: Compiler to use - "" (unset -> prompt), "Cx_Freeze", "PyInstaller", "Nuitka"
         repo_destination: TUF repo upload backend - "disk" | "server" | "r2"
         release_destination: Zip installer upload backend - "disk" | "server"
         repo_endpoint: Endpoint for TUF repo upload (path, URL, or "bucket/prefix")
@@ -65,7 +78,11 @@ class CompilerConfig:
         optimize: Optimize code (default: True)
         strip: Strip debug info (default: False)
         debug: Enable debug mode (default: False)
-        compiler_options: Compiler-specific options dict (default: {})
+        optimize: Optimize code (compiler-specific, set via the compiler section)
+        strip: Strip debug info (compiler-specific, set via the compiler section)
+        compiler_options: Compiler-specific options dict, populated from the
+            per-compiler section ([tool.ezcompiler.<pyinstaller|cx_freeze|nuitka>])
+            that matches the selected compiler (default: {})
         tuf_enabled: Enable TUF secure release pipeline (default: False)
         tuf_repo_dir: Path to TUF repository directory
         tuf_keys_dir: Path to TUF keys directory
@@ -109,7 +126,7 @@ class CompilerConfig:
     # ////////////////////////////////////////////////
 
     console: bool = True
-    compiler: str = "auto"  # "auto", "Cx_Freeze", "PyInstaller", "Nuitka"
+    compiler: str = ""  # "" (unset -> prompt), "Cx_Freeze", "PyInstaller", "Nuitka"
 
     # ////////////////////////////////////////////////
     # UPLOAD OPTIONS
@@ -254,13 +271,14 @@ class CompilerConfig:
         """
         Validate compiler option.
 
-        Ensures compiler is one of the supported options.
+        Ensures compiler is one of the supported options. An empty string
+        means "unset" (resolved interactively at compile time) and is allowed.
 
         Raises:
             ConfigurationError: If compiler is not valid
         """
-        valid_compilers = ["auto", "Cx_Freeze", "PyInstaller", "Nuitka"]
-        if self.compiler not in valid_compilers:
+        valid_compilers = ["Cx_Freeze", "PyInstaller", "Nuitka"]
+        if self.compiler and self.compiler not in valid_compilers:
             raise ConfigurationError(
                 f"Invalid compiler: {self.compiler}. Must be one of {valid_compilers}"
             )
@@ -382,7 +400,9 @@ class CompilerConfig:
 
         Creates a comprehensive dictionary representation of the
         configuration with nested structures for compilation, upload,
-        and advanced settings.
+        and advanced settings. Compiler-specific options (optimize, strip
+        and free-form compiler_options) are emitted under the per-compiler
+        section key matching the selected compiler.
 
         Returns:
             dict[str, Any]: Configuration as nested dictionary
@@ -393,7 +413,7 @@ class CompilerConfig:
             >>> print(config_dict["version"])
             '1.0.0'
         """
-        return {
+        result: dict[str, Any] = {
             "version": self.version,
             "project_name": self.project_name,
             "project_description": self.project_description,
@@ -419,8 +439,6 @@ class CompilerConfig:
                 "repo_public_url": self.repo_public_url,
             },
             "advanced": {
-                "optimize": self.optimize,
-                "strip": self.strip,
                 "debug": self.debug,
             },
             "release": {
@@ -439,8 +457,18 @@ class CompilerConfig:
                     str(self.installer_iss_path) if self.installer_iss_path else None
                 ),
             },
-            "compiler_options": self.compiler_options,
         }
+
+        # Emit compiler-specific options under the per-compiler section key.
+        section_key = COMPILER_SECTION_KEYS.get(self.compiler)
+        if section_key:
+            result[section_key] = {
+                "optimize": self.optimize,
+                "strip": self.strip,
+                **self.compiler_options,
+            }
+
+        return result
 
     @classmethod
     def from_dict(cls, config_dict: dict[str, Any]) -> CompilerConfig:
@@ -472,10 +500,35 @@ class CompilerConfig:
         """
         config_copy = config_dict.copy()
 
+        # Pop per-compiler sections before flattening; only the one matching
+        # the selected compiler is applied (the others may coexist as
+        # ready-to-use alternatives and are ignored).
+        per_compiler_sections = {
+            key: config_copy.pop(key)
+            for key in COMPILER_SECTION_KEYS.values()
+            if key in config_copy
+        }
+
+        # 'compiler_options' (flat dict shared across compilers) has been
+        # replaced by per-compiler sections.
+        if "compiler_options" in config_copy:
+            raise ConfigurationError(
+                "'compiler_options' a été supprimé. Utiliser une section par "
+                "compilateur : [tool.ezcompiler.pyinstaller], "
+                "[tool.ezcompiler.cx_freeze] ou [tool.ezcompiler.nuitka]."
+            )
+
+        # 'optimize'/'strip' ont quitté 'advanced' pour les sections par compilateur.
+        advanced = config_copy.get("advanced", {})
+        if "optimize" in advanced or "strip" in advanced:
+            raise ConfigurationError(
+                "'advanced.optimize' / 'advanced.strip' déplacés vers la section "
+                "du compilateur ([tool.ezcompiler.<pyinstaller|cx_freeze|nuitka>])."
+            )
+
         # Flatten nested structures
         compilation = config_copy.get("compilation", {})
         upload = config_copy.get("upload", {})
-        advanced = config_copy.get("advanced", {})
         release = config_copy.get("release", {})
         installer = config_copy.get("installer", {})
 
@@ -491,6 +544,27 @@ class CompilerConfig:
         config_copy.pop("advanced", None)
         config_copy.pop("release", None)
         config_copy.pop("installer", None)
+
+        # Select the per-compiler section matching the resolved compiler.
+        # optimize/strip are promoted to top-level fields; the remaining keys
+        # become the free-form compiler_options passed to the adapter.
+        section_key = COMPILER_SECTION_KEYS.get(config_copy.get("compiler", ""))
+        selected_section = (
+            dict(per_compiler_sections.get(section_key, {})) if section_key else {}
+        )
+        if "optimize" in selected_section:
+            config_copy["optimize"] = selected_section.pop("optimize")
+        if "strip" in selected_section:
+            config_copy["strip"] = selected_section.pop("strip")
+        config_copy["compiler_options"] = selected_section
+
+        # 'auto' supprimé : plus de compilateur par défaut implicite.
+        if config_copy.get("compiler") == "auto":
+            raise ConfigurationError(
+                "compiler='auto' a été supprimé. Indiquer explicitement "
+                "'Cx_Freeze', 'PyInstaller' ou 'Nuitka', ou laisser le champ "
+                "vide pour choisir interactivement au moment de la compilation."
+            )
 
         # "upload.structure" / "upload_structure" supprimés (breaking).
         if "structure" in config_copy or "upload_structure" in config_copy:

@@ -21,9 +21,18 @@ packages = ["json", "pathlib"]
 includes = []
 excludes = ["tkinter", "unittest", "test"]
 
+[tool.ezcompiler.advanced]
+debug = false
+
 [tool.ezcompiler.compilation]
 compiler = "PyInstaller"
 console = true
+
+# Options spécifiques au compilateur : seule la section correspondant à
+# 'compiler' est utilisée. Les sections cx_freeze/nuitka peuvent coexister.
+[tool.ezcompiler.pyinstaller]
+optimize = true
+strip = true
 
 [tool.ezcompiler.upload]
 repo_destination = "disk"
@@ -31,13 +40,14 @@ repo_endpoint = "releases/PyInstaller"
 release_destination = "disk"
 release_endpoint = ""
 
-[tool.ezcompiler.advanced]
-optimize = true
-strip = true
-debug = false
-
 [tool.ezcompiler.release]
 tuf_enabled = true
 tuf_repo_dir = "tuf/repository"
 tuf_keys_dir = "tuf/keystore"
 # repo_endpoint (section upload) indique où uploader l'arbre TUF.
+
+[tool.ezcompiler.installer]
+installer_enabled = true
+installer_output_dir = "dist/installer"
+# installer_iss_path non défini : le template .iss embarqué d'ezcompiler est
+# utilisé. Nécessite ISCC.exe (Inno Setup 6) détectable dans le PATH.

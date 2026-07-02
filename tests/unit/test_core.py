@@ -166,7 +166,7 @@ class TestCompilerConfig:
             output_folder=str(temp_dir / "dist"),
         )
         assert config.console is True
-        assert config.compiler == "auto"
+        assert config.compiler == ""
         assert config.optimize is True
         assert config.strip is False
         assert config.debug is False
@@ -276,6 +276,85 @@ class TestCompilerConfig:
                         "repo_path": "rel",
                         "server_url": "",
                     },
+                }
+            )
+
+    def _base_dict(self, temp_dir) -> dict:
+        main_file = temp_dir / "main.py"
+        main_file.write_text("# test")
+        return {
+            "version": "1.0.0",
+            "project_name": "P",
+            "main_file": str(main_file),
+            "include_files": {"files": [], "folders": []},
+            "output_folder": str(temp_dir / "dist"),
+        }
+
+    def test_should_apply_matching_compiler_section_in_from_dict(
+        self, temp_dir
+    ) -> None:
+        config = CompilerConfig.from_dict(
+            {
+                **self._base_dict(temp_dir),
+                "compilation": {"compiler": "PyInstaller"},
+                "pyinstaller": {
+                    "optimize": False,
+                    "strip": True,
+                    "collect-all": "webview",
+                },
+            }
+        )
+        assert config.optimize is False
+        assert config.strip is True
+        assert config.compiler_options == {"collect-all": "webview"}
+
+    def test_should_ignore_non_matching_compiler_sections_in_from_dict(
+        self, temp_dir
+    ) -> None:
+        config = CompilerConfig.from_dict(
+            {
+                **self._base_dict(temp_dir),
+                "compilation": {"compiler": "PyInstaller"},
+                "pyinstaller": {"collect-all": "webview"},
+                "nuitka": {"onefile": True},
+            }
+        )
+        assert config.compiler_options == {"collect-all": "webview"}
+
+    def test_should_leave_compiler_options_empty_when_compiler_unset(
+        self, temp_dir
+    ) -> None:
+        config = CompilerConfig.from_dict(
+            {
+                **self._base_dict(temp_dir),
+                "nuitka": {"onefile": True},
+            }
+        )
+        assert config.compiler == ""
+        assert config.compiler_options == {}
+
+    def test_should_raise_when_compiler_options_key_in_from_dict(
+        self, temp_dir
+    ) -> None:
+        with pytest.raises(ConfigurationError, match="compiler_options"):
+            CompilerConfig.from_dict(
+                {**self._base_dict(temp_dir), "compiler_options": {"strip": True}}
+            )
+
+    def test_should_raise_when_optimize_in_advanced_in_from_dict(
+        self, temp_dir
+    ) -> None:
+        with pytest.raises(ConfigurationError, match="optimize"):
+            CompilerConfig.from_dict(
+                {**self._base_dict(temp_dir), "advanced": {"optimize": True}}
+            )
+
+    def test_should_raise_when_compiler_is_auto_in_from_dict(self, temp_dir) -> None:
+        with pytest.raises(ConfigurationError, match="auto"):
+            CompilerConfig.from_dict(
+                {
+                    **self._base_dict(temp_dir),
+                    "compilation": {"compiler": "auto"},
                 }
             )
 

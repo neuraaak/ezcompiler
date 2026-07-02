@@ -18,7 +18,7 @@ from __future__ import annotations
 # ///////////////////////////////////////////////////////////////
 # Local imports
 from ._compilation_result import CompilationResult
-from ._compiler_config import CompilerConfig
+from ._compiler_config import COMPILER_SECTION_KEYS, CompilerConfig
 from .exceptions import (
     CompilationError,
     ConfigurationError,
@@ -50,6 +50,7 @@ __all__ = [
     "CompilationResult",
     # Configuration
     "CompilerConfig",
+    "COMPILER_SECTION_KEYS",
     # Base exception
     "EzCompilerError",
     # Service exceptions
