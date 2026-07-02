@@ -32,6 +32,9 @@
     "xml",
     "http"
   ],
+  "advanced": {
+    "debug": false
+  },
   "compilation": {
     "compiler": "Nuitka",
     "console": true
@@ -45,9 +48,6 @@
     "repo_endpoint": "releases/Nuitka",
     "release_destination": "disk",
     "release_endpoint": ""
-  },
-  "advanced": {
-    "debug": false
   },
   "release": {
     "tuf_enabled": true,

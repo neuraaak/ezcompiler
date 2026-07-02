@@ -30,6 +30,9 @@ excludes:
   - email
   - xml
 
+advanced:
+  debug: true
+
 compilation:
   compiler: "Cx_Freeze"
   console: true
@@ -44,9 +47,6 @@ upload:
   repo_endpoint: "releases/CxFreeze"
   release_destination: "disk"
   release_endpoint: ""
-
-advanced:
-  debug: true
 
 release:
   tuf_enabled: true
