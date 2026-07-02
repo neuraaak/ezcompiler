@@ -25,6 +25,7 @@ from __future__ import annotations
 from ..shared import CompilationResult, CompilerConfig
 from .compiler_service import CompilerService
 from .config_service import ConfigService
+from .installer_service import InstallerService
 from .pipeline_service import PipelineService
 from .release_service import ReleaseService
 from .template_service import TemplateService
@@ -40,6 +41,7 @@ __all__ = [
     "CompilerService",
     "CompilerConfig",
     "ConfigService",
+    "InstallerService",
     "PipelineService",
     "ReleaseService",
     "TemplateService",

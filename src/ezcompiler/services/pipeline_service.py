@@ -24,6 +24,7 @@ from typing import Any, Literal, cast
 # Local imports
 from ..shared import CompilationResult, CompilerConfig
 from .compiler_service import CompilerService
+from .installer_service import InstallerService
 from .release_service import ReleaseService
 from .uploader_service import UploaderService
 
@@ -93,6 +94,7 @@ class PipelineService:
         should_zip: bool = False,
         should_upload: bool = False,
         should_release: bool = False,
+        should_installer: bool = False,
     ) -> list[dict[str, Any]]:
         """
         Build the stage list for dynamic_layered_progress.
@@ -129,6 +131,14 @@ class PipelineService:
                     "type": "progress",
                     "description": "Creating ZIP archive",
                     "total": 100,
+                }
+            )
+        if should_installer:
+            stages.append(
+                {
+                    "name": "installer",
+                    "type": "spinner",
+                    "description": "Building installer",
                 }
             )
         if should_release:
@@ -172,12 +182,13 @@ class PipelineService:
 
     @staticmethod
     def assemble_release_dir(config: CompilerConfig) -> Path:
-        """Assemble le dossier release contenant uniquement le zip installeur.
+        """Assemble le dossier release contenant le zip et l'installeur.
 
         Layout (nettoyé à chaque run)::
 
             release/
-            └── <App>.zip    (si le fichier existe)
+            ├── <App>.zip                     (si le fichier existe)
+            └── <App>-<version>-setup.exe      (si installer_enabled=True)
 
         L'arbre TUF (metadata/ + targets/) reste dans tufup_repo_dir et est
         poussé directement vers le backend d'update par upload().
@@ -197,6 +208,16 @@ class PipelineService:
         if zip_path.is_file():
             shutil.copy2(zip_path, release_dir / zip_path.name)
 
+        if config.installer_enabled:
+            installer_dir = config.installer_output_dir or (
+                config.output_folder.parent / "installer"
+            )
+            installer_exe = (
+                installer_dir / f"{config.project_name}-{config.version}-setup.exe"
+            )
+            if installer_exe.is_file():
+                shutil.copy2(installer_exe, release_dir / installer_exe.name)
+
         return release_dir
 
     @staticmethod
@@ -214,4 +235,31 @@ class PipelineService:
             repo_dir=repo_dir,
             publish=False,
             releaser_config={"keys_dir": keys_dir},
+        )
+
+    @staticmethod
+    def build_installer(
+        config: CompilerConfig,
+        compilation_result: CompilationResult | None,  # noqa: ARG004
+    ) -> Path | None:
+        """Build the Inno Setup installer when installer_enabled=True."""
+        if not config.installer_enabled:
+            return None
+
+        output_dir = config.installer_output_dir or (
+            config.output_folder.parent / "installer"
+        )
+        installer_config: dict[str, Any] = {
+            "icon": config.icon,
+            "company_name": config.company_name,
+        }
+        if config.installer_iss_path is not None:
+            installer_config["iss_path"] = config.installer_iss_path
+
+        return InstallerService.build_installer(
+            bundle_dir=config.output_folder,
+            app_name=config.project_name,
+            version=config.version,
+            output_dir=output_dir,
+            installer_config=installer_config,
         )

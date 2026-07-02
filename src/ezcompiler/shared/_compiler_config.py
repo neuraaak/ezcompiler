@@ -138,6 +138,14 @@ class CompilerConfig:
     tuf_keys_dir: Path | None = None
 
     # ////////////////////////////////////////////////
+    # INSTALLER OPTIONS (Inno Setup)
+    # ////////////////////////////////////////////////
+
+    installer_enabled: bool = False
+    installer_output_dir: Path | None = None
+    installer_iss_path: Path | None = None
+
+    # ////////////////////////////////////////////////
     # COMPILER-SPECIFIC OPTIONS
     # ////////////////////////////////////////////////
 
@@ -162,6 +170,7 @@ class CompilerConfig:
         self._validate_paths()
         self._validate_compiler_option()
         self._validate_destinations()
+        self._validate_installer_option()
 
     def _validate_required_fields(self) -> None:
         """
@@ -235,6 +244,12 @@ class CompilerConfig:
         if isinstance(self.tuf_keys_dir, str):
             self.tuf_keys_dir = Path(self.tuf_keys_dir)
 
+        if isinstance(self.installer_output_dir, str):
+            self.installer_output_dir = Path(self.installer_output_dir)
+
+        if isinstance(self.installer_iss_path, str):
+            self.installer_iss_path = Path(self.installer_iss_path)
+
     def _validate_compiler_option(self) -> None:
         """
         Validate compiler option.
@@ -297,6 +312,23 @@ class CompilerConfig:
                 f"repo_destination='{self.repo_destination}'. "
                 "Provide the public URL where the TUF repository is served "
                 "(e.g. 'https://updates.myapp.com')."
+            )
+
+    def _validate_installer_option(self) -> None:
+        """
+        Validate installer configuration.
+
+        Ensures installer_iss_path, when provided, points to an existing file.
+
+        Raises:
+            ConfigurationError: If installer_iss_path is set but not found
+        """
+        if (
+            self.installer_iss_path is not None
+            and not Path(self.installer_iss_path).is_file()
+        ):
+            raise ConfigurationError(
+                f"installer_iss_path not found: {self.installer_iss_path}"
             )
 
     # ////////////////////////////////////////////////
@@ -396,6 +428,17 @@ class CompilerConfig:
                 "tuf_repo_dir": str(self.tuf_repo_dir) if self.tuf_repo_dir else None,
                 "tuf_keys_dir": str(self.tuf_keys_dir) if self.tuf_keys_dir else None,
             },
+            "installer": {
+                "installer_enabled": self.installer_enabled,
+                "installer_output_dir": (
+                    str(self.installer_output_dir)
+                    if self.installer_output_dir
+                    else None
+                ),
+                "installer_iss_path": (
+                    str(self.installer_iss_path) if self.installer_iss_path else None
+                ),
+            },
             "compiler_options": self.compiler_options,
         }
 
@@ -434,17 +477,20 @@ class CompilerConfig:
         upload = config_copy.get("upload", {})
         advanced = config_copy.get("advanced", {})
         release = config_copy.get("release", {})
+        installer = config_copy.get("installer", {})
 
         config_copy.update(compilation)
         config_copy.update(upload)
         config_copy.update(advanced)
         config_copy.update(release)
+        config_copy.update(installer)
 
         # Remove nested keys
         config_copy.pop("compilation", None)
         config_copy.pop("upload", None)
         config_copy.pop("advanced", None)
         config_copy.pop("release", None)
+        config_copy.pop("installer", None)
 
         # "upload.structure" / "upload_structure" supprimés (breaking).
         if "structure" in config_copy or "upload_structure" in config_copy:

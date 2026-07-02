@@ -55,6 +55,58 @@ Factory class for creating compiler instances based on name or configuration.
 
 ---
 
+## Installer adapters
+
+### BaseInstaller
+
+Abstract base class defining the first-deployment installer interface.
+
+::: ezcompiler.adapters.base_installer.BaseInstaller
+
+---
+
+### InnoSetupInstaller
+
+Inno Setup installer implementation, building a `setup.exe` via the external `ISCC.exe` binary.
+
+::: ezcompiler.adapters._innosetup_installer.InnoSetupInstaller
+
+---
+
+### InstallerFactory
+
+Factory class for creating installer instances based on backend name.
+
+::: ezcompiler.adapters.installer_factory.InstallerFactory
+
+---
+
+## Releaser adapters
+
+### BaseReleaser
+
+Abstract base class defining the secure-release packager interface.
+
+::: ezcompiler.adapters.base_releaser.BaseReleaser
+
+---
+
+### TufupReleaser
+
+tufup (TUF) releaser implementation, packaging a compiled bundle into a signed TUF repository.
+
+::: ezcompiler.adapters._tufup_releaser.TufupReleaser
+
+---
+
+### ReleaserFactory
+
+Factory class for creating releaser instances based on backend name.
+
+::: ezcompiler.adapters.releaser_factory.ReleaserFactory
+
+---
+
 ## File writer adapters
 
 ### BaseFileWriter

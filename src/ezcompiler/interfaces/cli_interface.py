@@ -217,6 +217,13 @@ def generate() -> None:
     help="Enable TUF secure release (default: False)",
 )
 @click.option(
+    "--installer-enabled",
+    "-ie",
+    is_flag=True,
+    default=False,
+    help="Enable Inno Setup installer build stage (default: False)",
+)
+@click.option(
     "--repo-destination",
     "-rd",
     type=click.Choice(["disk", "server", "r2"]),
@@ -291,6 +298,7 @@ def config(
     console: bool,
     compiler: str | None,
     tuf_enabled: bool,
+    installer_enabled: bool,
     repo_destination: RepoDestination | None,
     release_destination: ReleaseDestination | None,
     repo_endpoint: str | None,
@@ -378,6 +386,8 @@ def config(
         cli_overrides.setdefault("compilation", {}).update({"console": console})
         if tuf_enabled:
             cli_overrides.setdefault("release", {})["tuf_enabled"] = True
+        if installer_enabled:
+            cli_overrides.setdefault("installer", {})["installer_enabled"] = True
         cli_overrides.setdefault("advanced", {}).update(
             {"optimize": optimize, "strip": strip, "debug": debug}
         )
