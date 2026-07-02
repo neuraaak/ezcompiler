@@ -51,3 +51,19 @@ Service for orchestrating upload operations to various backends.
 Service for generating client updater files (`update.py`, `settings.py`, `root.json`) for tufup-based auto-update workflows.
 
 ::: ezcompiler.services.updater_service.UpdaterService
+
+---
+
+## InstallerService
+
+Service orchestrating first-deployment installer packaging via an installer adapter.
+
+::: ezcompiler.services.installer_service.InstallerService
+
+---
+
+## ReleaseService
+
+Service orchestrating secure-release packaging (TUF) and, optionally, publication.
+
+::: ezcompiler.services.release_service.ReleaseService

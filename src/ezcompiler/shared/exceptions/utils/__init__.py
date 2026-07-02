@@ -71,6 +71,17 @@ from ._file_exceptions import (
 )
 
 # ///////////////////////////////////////////////////////////////
+# IMPORTS - Installer exceptions
+# ///////////////////////////////////////////////////////////////
+from ._installer_exceptions import (
+    InstallerBuildError,
+    InstallerConfigError,
+    InstallerError,
+    InstallerTypeError,
+    IsccNotFoundError,
+)
+
+# ///////////////////////////////////////////////////////////////
 # IMPORTS - Release exceptions
 # ///////////////////////////////////////////////////////////////
 from ._release_exceptions import (
@@ -169,6 +180,12 @@ __all__ = [
     "BundleBuildError",
     "SigningKeyError",
     "ReleaseConfigError",
+    # Installer exceptions
+    "InstallerError",
+    "InstallerTypeError",
+    "IsccNotFoundError",
+    "InstallerBuildError",
+    "InstallerConfigError",
     # Updater exceptions
     "UpdaterError",
     "UpdaterConfigError",

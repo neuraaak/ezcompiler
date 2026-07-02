@@ -201,6 +201,28 @@ class ReleaserPort(Protocol):
         ...
 
 
+@runtime_checkable
+class InstallerPort(Protocol):
+    """Structural contract for a first-deployment installer builder (Port).
+
+    Any object exposing this surface is a valid installer builder — no
+    inheritance required. ``adapters.BaseInstaller`` and its subclasses
+    conform to it.
+
+    Used by: InstallerFactory return type, InstallerService boundaries.
+    """
+
+    def build(
+        self, bundle_dir: Path, app_name: str, version: str, output_dir: Path
+    ) -> Path:
+        """Build the installer executable. Raises InstallerError on failure."""
+        ...
+
+    def get_installer_name(self) -> str:
+        """Human-readable installer backend name."""
+        ...
+
+
 # ///////////////////////////////////////////////////////////////
 # PUBLIC API
 # ///////////////////////////////////////////////////////////////
@@ -216,4 +238,5 @@ __all__ = [
     "CompilerPort",
     "UploaderPort",
     "ReleaserPort",
+    "InstallerPort",
 ]

@@ -47,6 +47,7 @@ from ..shared import CompilationResult, CompilerConfig
 from ..shared.exceptions import (
     CompilationError,
     ConfigurationError,
+    InstallerError,
     ReleaseError,
     SigningKeyError,
     TemplateError,
@@ -131,7 +132,9 @@ class EzCompiler:
         self._compiler_service: CompilerService | None = None
         self._template_service = template_service or TemplateService()
         self._uploader_service = uploader_service or UploaderService()
-        self._pipeline_service = pipeline_service or PipelineService()
+        self._pipeline_service = pipeline_service or PipelineService(
+            compiler_service_factory=self._compiler_service_factory
+        )
 
         # Compilation state
         self._compilation_result: CompilationResult | None = None
@@ -610,20 +613,22 @@ class EzCompiler:
         compiler: str | None = None,
         skip_zip: bool = False,
         skip_release: bool = False,
+        skip_installer: bool = False,
     ) -> None:
         """
         Run the build pipeline with visual progress tracking.
 
-        Executes version generation, compilation, optional ZIP creation and
-        optional TUF release in sequence with a DynamicLayeredProgress display.
-        Upload is no longer part of the pipeline — call ``upload()`` explicitly
-        afterwards.
+        Executes version generation, compilation, optional ZIP creation,
+        optional installer build and optional TUF release in sequence with a
+        DynamicLayeredProgress display. Upload is no longer part of the
+        pipeline — call ``upload()`` explicitly afterwards.
 
         Args:
             console: Whether to show console window (default: True)
             compiler: Compiler to use or None for auto-selection
             skip_zip: Skip ZIP archive creation
             skip_release: Skip the TUF release stage
+            skip_installer: Skip the installer build stage
 
         Raises:
             ConfigurationError: If project not initialized
@@ -631,6 +636,7 @@ class EzCompiler:
             VersionError: If version file generation fails
             ZipError: If ZIP creation fails
             ReleaseError: If the release stage fails
+            InstallerError: If the installer build fails
 
         Example:
             >>> compiler = EzCompiler(config)
@@ -643,6 +649,7 @@ class EzCompiler:
         # Determine which optional stages to include
         should_zip = not skip_zip
         should_release = not skip_release and self._config.tuf_enabled
+        should_installer = not skip_installer and self._config.installer_enabled
 
         # Pre-flight: fail early if release needed but keys absent
         if should_release:
@@ -659,6 +666,7 @@ class EzCompiler:
                 self._config,
                 should_zip=should_zip,
                 should_release=should_release,
+                should_installer=should_installer,
             ),
         )
 
@@ -723,6 +731,17 @@ class EzCompiler:
                         dlp.update_layer("zip", 0, "Skipped (not needed)")
                         dlp.complete_layer("zip")
 
+                # Installer (Inno Setup setup.exe for first deployment)
+                if should_installer:
+                    current_phase = "installer"
+                    dlp.update_layer("installer", 0, "Building installer...")
+                    installer_path = self._pipeline_service.build_installer(
+                        config=self._config,
+                        compilation_result=self._compilation_result,
+                    )
+                    self._logger.info(f"Installer built: {installer_path}")
+                    dlp.complete_layer("installer")
+
                 # Release (build the local TUF tree; upload is a separate step)
                 if should_release:
                     current_phase = "release"
@@ -743,6 +762,7 @@ class EzCompiler:
                 ZipError,
                 ReleaseError,
                 SigningKeyError,
+                InstallerError,
             ) as e:
                 dlp.handle_error(current_phase, str(e))
                 dlp.emergency_stop(str(e))

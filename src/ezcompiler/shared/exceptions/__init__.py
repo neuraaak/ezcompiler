@@ -59,6 +59,13 @@ from .utils import (
 # ///////////////////////////////////////////////////////////////
 from .utils._base import EzCompilerError
 from .utils._config_exceptions import ConfigError
+from .utils._installer_exceptions import (
+    InstallerBuildError,
+    InstallerConfigError,
+    InstallerError,
+    InstallerTypeError,
+    IsccNotFoundError,
+)
 from .utils._release_exceptions import (
     BundleBuildError,
     ReleaseConfigError,
@@ -103,6 +110,12 @@ __all__ = [
     "BundleBuildError",
     "SigningKeyError",
     "ReleaseConfigError",
+    # Installer exceptions
+    "InstallerError",
+    "InstallerTypeError",
+    "IsccNotFoundError",
+    "InstallerBuildError",
+    "InstallerConfigError",
     # Updater exceptions
     "UpdaterError",
     "UpdaterConfigError",

@@ -22,10 +22,13 @@ ezcompiler [OPTIONS] COMMAND [ARGS]...
 | Command             | Description                                                             |
 | :------------------ | :---------------------------------------------------------------------- |
 | `init`              | Initialize a new project interactively                                  |
+| `compile`           | Compile the project (version → compile → zip)                           |
 | `generate config`   | Generate a configuration file                                           |
 | `generate setup`    | Generate a `setup.py` from a configuration file                         |
 | `generate version`  | Generate a Windows version information file                             |
 | `generate template` | Generate a template file with optional mockup data                      |
+| `upload`            | Upload the TUF tree and/or the release directory to their destination   |
+| `release init`      | Initialize TUF signing keys and repository skeleton                     |
 | `updater generate`  | Generate client updater files (`update.py`, `settings.py`, `root.json`) |
 
 ---
@@ -42,6 +45,29 @@ Guides through: project name, main script, output directory, compiler selection,
 
 ---
 
+### `compile`
+
+Compile the project. Auto-discovers configuration from `pyproject.toml`, `ezcompiler.yaml`, or `ezcompiler.json`; CLI options override config file values.
+
+```bash
+ezcompiler compile --compiler PyInstaller --no-console
+```
+
+| Option                       | Required | Default | Description                                                                      |
+| :--------------------------- | :------- | :------ | :------------------------------------------------------------------------------- |
+| `--config`                   | No       | —       | Config file path (YAML, JSON)                                                    |
+| `--pyproject`                | No       | —       | Explicit `pyproject.toml` path                                                   |
+| `--compiler`                 | No       | —       | Compiler to use: `auto`, `Cx_Freeze`, `PyInstaller`, `Nuitka` (overrides config) |
+| `--console` / `--no-console` | No       | —       | Show console window (overrides config)                                           |
+| `--output-folder`            | No       | —       | Output folder (overrides config)                                                 |
+| `--debug`                    | No       | `False` | Enable debug mode                                                                |
+| `--no-zip`                   | No       | `False` | Skip ZIP archive creation                                                        |
+
+!!! note "Version and zip only"
+    `compile` runs the `version → compile → zip` stages only. The installer and TUF release stages are not part of this command — use the Python API's `run_pipeline()` for the full pipeline, then `ezcompiler upload` to publish.
+
+---
+
 ### `generate config`
 
 Create a configuration file.
@@ -50,13 +76,14 @@ Create a configuration file.
 ezcompiler generate config --project-name "MyApp" --main-file "main.py"
 ```
 
-| Option           | Required | Default             | Description                      |
-| :--------------- | :------- | :------------------ | :------------------------------- |
-| `--project-name` | Yes      | —                   | Project name                     |
-| `--main-file`    | Yes      | —                   | Main Python file                 |
-| `--version`      | No       | `"1.0.0"`           | Project version                  |
-| `--output`       | No       | `"ezcompiler.yaml"` | Output file path                 |
-| `--format`       | No       | `yaml`              | Output format (`yaml` or `json`) |
+| Option                | Required | Default             | Description                                 |
+| :-------------------- | :------- | :------------------ | :------------------------------------------ |
+| `--project-name`      | Yes      | —                   | Project name                                |
+| `--main-file`         | Yes      | —                   | Main Python file                            |
+| `--version`           | No       | `"1.0.0"`           | Project version                             |
+| `--output`            | No       | `"ezcompiler.yaml"` | Output file path                            |
+| `--format`            | No       | `yaml`              | Output format (`yaml` or `json`)            |
+| `--installer-enabled` | No       | `False`             | Enable the Inno Setup installer build stage |
 
 ---
 
@@ -104,6 +131,38 @@ ezcompiler generate template --type config --mockup
 | `--mockup` | No       | Include sample data                            |
 | `--output` | No       | Output file path                               |
 
+### `upload`
+
+Upload the TUF tree and/or the release directory (ZIP + installer `setup.exe`) to their destination. Auto-detects the flow from `tuf_enabled`: TUF tree → `<dest>/update/`, release directory → `<dest>/release/`. Destination and backends fall back to the config when not provided.
+
+```bash
+ezcompiler upload --config ezcompiler.yaml
+```
+
+| Option                  | Required | Default | Description                                                            |
+| :---------------------- | :------- | :------ | :--------------------------------------------------------------------- |
+| `--config`              | No       | —       | Config file path (YAML, JSON)                                          |
+| `--pyproject`           | No       | —       | Explicit `pyproject.toml` path                                         |
+| `--repo-destination`    | No       | —       | Backend for the TUF tree: `disk`, `server`, `r2` (overrides config)    |
+| `--release-destination` | No       | —       | Backend for the release directory: `disk`, `server` (overrides config) |
+| `--destination`         | No       | —       | Common override applied to both `repo` and `release` destinations      |
+
+---
+
+### `release init`
+
+Initialize TUF signing keys and the repository skeleton. Run once per project, before the first `ezcompiler compile` with `tuf_enabled = true`. Safe to re-run: skips silently when keys already exist.
+
+```bash
+ezcompiler release init
+```
+
+| Option     | Required | Default | Description                                    |
+| :--------- | :------- | :------ | :--------------------------------------------- |
+| `--config` | No       | —       | Path to config file (auto-detected if omitted) |
+
+---
+
 ### `updater generate`
 
 Generate the client updater files (`update.py`, `settings.py`) and copy `root.json` from the local TUF repository into the output directory.
@@ -140,4 +199,14 @@ ezcompiler generate version --config ezcompiler.yaml --output version_info.txt
 
 # Generate config template with sample data
 ezcompiler generate template --type config --mockup
+
+# Compile the project
+ezcompiler compile --compiler PyInstaller
+
+# Initialize TUF signing keys (one-time)
+ezcompiler release init
+
+# Upload the TUF tree and release directory
+ezcompiler upload --repo-destination server --release-destination server \
+    --destination https://uploads.example.com/MyApp
 ```
