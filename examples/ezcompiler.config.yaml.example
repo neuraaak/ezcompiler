@@ -53,3 +53,9 @@ release:
   tuf_repo_dir: "tuf/repository"
   tuf_keys_dir: "tuf/keystore"
   # repo_endpoint (upload section) indique où uploader l'arbre TUF.
+
+installer:
+  installer_enabled: true
+  installer_output_dir: "dist/installer"
+  # installer_iss_path non défini : le template .iss embarqué d'ezcompiler
+  # est utilisé. Nécessite ISCC.exe (Inno Setup 6) détectable dans le PATH.
