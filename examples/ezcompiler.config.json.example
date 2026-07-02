@@ -36,6 +36,10 @@
     "compiler": "Nuitka",
     "console": true
   },
+  "nuitka": {
+    "optimize": true,
+    "strip": true
+  },
   "upload": {
     "repo_destination": "disk",
     "repo_endpoint": "releases/Nuitka",
@@ -43,8 +47,6 @@
     "release_endpoint": ""
   },
   "advanced": {
-    "optimize": true,
-    "strip": true,
     "debug": false
   },
   "release": {

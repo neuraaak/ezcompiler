@@ -21,20 +21,24 @@ packages = ["json", "pathlib"]
 includes = []
 excludes = ["tkinter", "unittest", "test"]
 
+[tool.ezcompiler.advanced]
+debug = false
+
 [tool.ezcompiler.compilation]
 compiler = "PyInstaller"
 console = true
+
+# Options spécifiques au compilateur : seule la section correspondant à
+# 'compiler' est utilisée. Les sections cx_freeze/nuitka peuvent coexister.
+[tool.ezcompiler.pyinstaller]
+optimize = true
+strip = true
 
 [tool.ezcompiler.upload]
 repo_destination = "disk"
 repo_endpoint = "releases/PyInstaller"
 release_destination = "disk"
 release_endpoint = ""
-
-[tool.ezcompiler.advanced]
-optimize = true
-strip = true
-debug = false
 
 [tool.ezcompiler.release]
 tuf_enabled = true
