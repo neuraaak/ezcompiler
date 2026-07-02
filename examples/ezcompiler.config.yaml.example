@@ -34,6 +34,11 @@ compilation:
   compiler: "Cx_Freeze"
   console: true
 
+# Compiler-specific options: only the section matching 'compiler' is used.
+cx_freeze:
+  optimize: false
+  strip: false
+
 upload:
   repo_destination: "disk"
   repo_endpoint: "releases/CxFreeze"
@@ -41,8 +46,6 @@ upload:
   release_endpoint: ""
 
 advanced:
-  optimize: false
-  strip: false
   debug: true
 
 release:

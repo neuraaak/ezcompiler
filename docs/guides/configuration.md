@@ -71,7 +71,8 @@ Select and configure a compilation backend for an EzCompiler project.
         include_files:
           files: ["config.yaml"]
           folders: ["assets"]
-        compiler_options:
+        # Compiler-specific options: only the section matching 'compiler' is used.
+        pyinstaller:
           onefile: true
         ```
 
