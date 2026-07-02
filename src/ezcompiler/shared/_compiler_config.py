@@ -549,7 +549,9 @@ class CompilerConfig:
         # optimize/strip are promoted to top-level fields; the remaining keys
         # become the free-form compiler_options passed to the adapter.
         section_key = COMPILER_SECTION_KEYS.get(config_copy.get("compiler", ""))
-        selected_section = dict(per_compiler_sections.get(section_key, {}))
+        selected_section = (
+            dict(per_compiler_sections.get(section_key, {})) if section_key else {}
+        )
         if "optimize" in selected_section:
             config_copy["optimize"] = selected_section.pop("optimize")
         if "strip" in selected_section:
