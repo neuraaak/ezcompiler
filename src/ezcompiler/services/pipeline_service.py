@@ -182,12 +182,13 @@ class PipelineService:
 
     @staticmethod
     def assemble_release_dir(config: CompilerConfig) -> Path:
-        """Assemble le dossier release contenant uniquement le zip installeur.
+        """Assemble le dossier release contenant le zip et l'installeur.
 
         Layout (nettoyé à chaque run)::
 
             release/
-            └── <App>.zip    (si le fichier existe)
+            ├── <App>.zip                     (si le fichier existe)
+            └── <App>-<version>-setup.exe      (si installer_enabled=True)
 
         L'arbre TUF (metadata/ + targets/) reste dans tufup_repo_dir et est
         poussé directement vers le backend d'update par upload().
@@ -206,6 +207,16 @@ class PipelineService:
         zip_path = Path(config.zip_file_path)
         if zip_path.is_file():
             shutil.copy2(zip_path, release_dir / zip_path.name)
+
+        if config.installer_enabled:
+            installer_dir = config.installer_output_dir or (
+                config.output_folder.parent / "installer"
+            )
+            installer_exe = (
+                installer_dir / f"{config.project_name}-{config.version}-setup.exe"
+            )
+            if installer_exe.is_file():
+                shutil.copy2(installer_exe, release_dir / installer_exe.name)
 
         return release_dir
 

@@ -141,8 +141,10 @@ class InnoSetupInstaller(BaseInstaller):
             "#APP_NAME#": app_name,
             "#VERSION#": version,
             "#COMPANY_NAME#": company_name,
-            "#BUNDLE_DIR#": str(bundle_dir),
-            "#OUTPUT_DIR#": str(output_dir),
+            # ISCC resolves relative paths against the .iss file's own
+            # directory (output_dir), not the process cwd — must be absolute.
+            "#BUNDLE_DIR#": str(bundle_dir.resolve()),
+            "#OUTPUT_DIR#": str(output_dir.resolve()),
             "#ICON_LINE#": icon_line,
             "#MAIN_EXE#": main_exe,
         }
