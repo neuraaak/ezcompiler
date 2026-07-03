@@ -153,6 +153,11 @@ class CompilerConfig:
     tuf_enabled: bool = False
     tuf_repo_dir: Path | None = None
     tuf_keys_dir: Path | None = None
+    # Per-role metadata lifetimes (days). Maps TUF role names
+    # (root/targets/snapshot/timestamp) to expiration days. None → tufup
+    # defaults (root=365, targets=7, snapshot=7, timestamp=1). Raise these for
+    # projects updated irregularly so metadata does not expire between releases.
+    tuf_expiration_days: dict[str, int] | None = None
 
     # ////////////////////////////////////////////////
     # INSTALLER OPTIONS (Inno Setup)
@@ -445,6 +450,7 @@ class CompilerConfig:
                 "tuf_enabled": self.tuf_enabled,
                 "tuf_repo_dir": str(self.tuf_repo_dir) if self.tuf_repo_dir else None,
                 "tuf_keys_dir": str(self.tuf_keys_dir) if self.tuf_keys_dir else None,
+                "tuf_expiration_days": self.tuf_expiration_days,
             },
             "installer": {
                 "installer_enabled": self.installer_enabled,

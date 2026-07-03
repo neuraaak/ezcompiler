@@ -66,6 +66,22 @@ class BaseReleaser(ABC):
         """
 
     @abstractmethod
+    def refresh_expiration(
+        self,
+        app_name: str,
+        repo_dir: Path,
+        keys_dir: Path,
+        *,
+        roles: tuple[str, ...] = ("targets", "snapshot", "timestamp"),
+        days: int | None = None,
+    ) -> Path:
+        """Re-sign metadata to push out expiration without a new release.
+
+        Returns the local repository directory.
+        Raises ReleaseError / SigningKeyError on failure.
+        """
+
+    @abstractmethod
     def get_releaser_name(self) -> str:
         """Human-readable releaser name."""
 

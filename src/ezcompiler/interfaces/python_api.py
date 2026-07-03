@@ -534,7 +534,10 @@ class EzCompiler:
             publish=publish,
             upload_type=self._config.repo_destination if publish else None,
             destination=self._config.repo_endpoint if publish else None,
-            releaser_config={"keys_dir": keys_dir},
+            releaser_config={
+                "keys_dir": keys_dir,
+                "expiration_days": self._config.tuf_expiration_days,
+            },
         )
 
     def init_release(self) -> bool:
@@ -557,7 +560,55 @@ class EzCompiler:
             app_name=self._config.project_name,
             repo_dir=repo_dir,
             keys_dir=keys_dir,
+            releaser_config={
+                "keys_dir": keys_dir,
+                "expiration_days": self._config.tuf_expiration_days,
+            },
         )
+
+    def refresh_release_expiration(
+        self,
+        *,
+        roles: tuple[str, ...] = ("targets", "snapshot", "timestamp"),
+        days: int | None = None,
+    ) -> Path:
+        """Re-sign TUF metadata to extend expiration without a new release.
+
+        Native tufup keep-alive for projects updated irregularly: bumps the
+        expiration date of the short-lived roles and re-publishes, so clients
+        keep trusting the repository between releases.
+
+        Args:
+            roles: Role names to refresh (default: targets/snapshot/timestamp).
+            days: Days from now. None → the config's ``tuf_expiration_days``
+                (or tufup defaults) for each role.
+
+        Returns:
+            Path: The local TUF repository directory.
+
+        Raises:
+            ConfigurationError: If project not initialized.
+            ReleaseError: If the refresh fails.
+            SigningKeyError: If signing keys are missing.
+        """
+        if not self._config:
+            raise ConfigurationError(_MSG_NOT_INITIALIZED)
+        repo_dir = self._config.tuf_repo_dir or (self._config.output_folder / "repo")
+        keys_dir = self._config.tuf_keys_dir or (repo_dir / "keystore")
+        repo = ReleaseService.refresh_expiration(
+            app_name=self._config.project_name,
+            repo_dir=repo_dir,
+            keys_dir=keys_dir,
+            roles=roles,
+            days=days,
+            releaser_config={
+                "keys_dir": keys_dir,
+                "expiration_days": self._config.tuf_expiration_days,
+            },
+        )
+        self._printer.success("TUF metadata expiration refreshed")
+        self._logger.info("TUF metadata expiration refreshed: %s", repo)
+        return repo
 
     def generate_updater(
         self,

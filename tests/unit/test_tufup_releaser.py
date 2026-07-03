@@ -154,6 +154,99 @@ def test_release_fails_fast_when_repo_not_initialized(
         TufupReleaser({"keys_dir": keys}).release(bundle, "MyApp", "1.0.0", repo_dir)
 
 
+def test_release_forwards_expiration_days(monkeypatch, tmp_path: Path) -> None:
+    calls: dict[str, object] = {}
+
+    class _FakeRepo:
+        def __init__(self, **kwargs):
+            calls["init"] = kwargs
+            self.targets_dir = Path(kwargs["repo_dir"]) / "targets"
+
+        def _load_keys_and_roles(self, create_keys=True):
+            pass
+
+        def add_bundle(self, new_bundle_dir, new_version=None, **_):
+            pass
+
+        def publish_changes(self, private_key_dirs=None, **_):
+            pass
+
+    class _FakeTargetMeta:
+        @staticmethod
+        def compose_filename(name, version, **_):
+            return f"{name}-{version}.tar.gz"
+
+    fake_repo_mod = _types.ModuleType("tufup.repo")
+    fake_repo_mod.Repository = _FakeRepo  # type: ignore[attr-defined]
+    fake_repo_mod.TargetMeta = _FakeTargetMeta  # type: ignore[attr-defined]
+    monkeypatch.setitem(sys.modules, "tufup.repo", fake_repo_mod)
+
+    bundle = _make_bundle(tmp_path)
+    keys = tmp_path / "keystore"
+    keys.mkdir()
+    repo_dir = tmp_path / "repo"
+    _make_initialized_repo(repo_dir)
+
+    TufupReleaser({"keys_dir": keys, "expiration_days": {"timestamp": 30}}).release(
+        bundle, "MyApp", "1.0.0", repo_dir
+    )
+
+    assert calls["init"]["expiration_days"] == {"timestamp": 30}
+
+
+def test_refresh_expiration_refreshes_roles_and_publishes(
+    monkeypatch, tmp_path: Path
+) -> None:
+    calls: dict[str, object] = {"refreshed": []}
+
+    class _FakeRepo:
+        def __init__(self, **kwargs):
+            calls["init"] = kwargs
+
+        def _load_keys_and_roles(self, create_keys=True):
+            calls["load"] = create_keys
+
+        def refresh_expiration_date(self, role_name, days=None):
+            calls["refreshed"].append((role_name, days))  # type: ignore[union-attr]
+
+        def publish_changes(self, private_key_dirs=None, **_):
+            calls["publish"] = private_key_dirs
+
+    fake_repo_mod = _types.ModuleType("tufup.repo")
+    fake_repo_mod.Repository = _FakeRepo  # type: ignore[attr-defined]
+    monkeypatch.setitem(sys.modules, "tufup.repo", fake_repo_mod)
+
+    keys = tmp_path / "keystore"
+    keys.mkdir()
+    repo_dir = tmp_path / "repo"
+    _make_initialized_repo(repo_dir)
+
+    result = TufupReleaser({"keys_dir": keys}).refresh_expiration(
+        "MyApp", repo_dir, keys, roles=("timestamp", "snapshot"), days=45
+    )
+
+    assert result == repo_dir
+    assert calls["refreshed"] == [("timestamp", 45), ("snapshot", 45)]
+    assert calls["publish"] == [keys]
+    assert calls["load"] is False
+
+
+def test_refresh_expiration_raises_when_keys_dir_missing(tmp_path: Path) -> None:
+    with pytest.raises(SigningKeyError):
+        TufupReleaser().refresh_expiration(
+            "MyApp", tmp_path / "repo", tmp_path / "absent"
+        )
+
+
+def test_refresh_expiration_raises_when_repo_not_initialized(tmp_path: Path) -> None:
+    keys = tmp_path / "keystore"
+    keys.mkdir()
+    with pytest.raises(ReleaseError, match="not initialized"):
+        TufupReleaser({"keys_dir": keys}).refresh_expiration(
+            "MyApp", tmp_path / "repo", keys
+        )
+
+
 def test_get_releaser_name() -> None:
     assert TufupReleaser().get_releaser_name() == "Tufup"
 
