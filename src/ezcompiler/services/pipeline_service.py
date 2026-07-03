@@ -234,7 +234,10 @@ class PipelineService:
             version=config.version,
             repo_dir=repo_dir,
             publish=False,
-            releaser_config={"keys_dir": keys_dir},
+            releaser_config={
+                "keys_dir": keys_dir,
+                "expiration_days": config.tuf_expiration_days,
+            },
         )
 
     @staticmethod

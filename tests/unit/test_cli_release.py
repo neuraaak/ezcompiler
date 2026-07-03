@@ -59,6 +59,53 @@ def test_release_init_already_present_exits_0(monkeypatch, tmp_path: Path) -> No
     assert result.exit_code == 0, result.output
 
 
+def test_release_refresh_calls_refresh_expiration_and_exits_0(
+    monkeypatch, tmp_path: Path
+) -> None:
+    calls: list[dict] = []
+
+    monkeypatch.setattr(
+        "ezcompiler.interfaces.cli_interface.ConfigService.load_config",
+        lambda *_a, **_kw: _fake_cfg(tmp_path),
+    )
+    monkeypatch.setattr(
+        "ezcompiler.services.release_service.ReleaseService.refresh_expiration",
+        staticmethod(lambda **kw: calls.append(kw) or (tmp_path / "repo")),
+    )
+    (tmp_path / "main.py").write_text("# m", encoding="utf-8")
+
+    runner = CliRunner()
+    result = runner.invoke(
+        main, ["release", "refresh", "--role", "timestamp", "--days", "60"]
+    )
+
+    assert result.exit_code == 0, result.output
+    assert len(calls) == 1
+    assert calls[0]["roles"] == ("timestamp",)
+    assert calls[0]["days"] == 60
+
+
+def test_release_refresh_error_exits_1(monkeypatch, tmp_path: Path) -> None:
+    from ezcompiler.shared.exceptions import SigningKeyError
+
+    monkeypatch.setattr(
+        "ezcompiler.interfaces.cli_interface.ConfigService.load_config",
+        lambda *_a, **_kw: _fake_cfg(tmp_path),
+    )
+    monkeypatch.setattr(
+        "ezcompiler.services.release_service.ReleaseService.refresh_expiration",
+        staticmethod(
+            lambda **_kw: (_ for _ in ()).throw(SigningKeyError("keys missing"))
+        ),
+    )
+    (tmp_path / "main.py").write_text("# m", encoding="utf-8")
+
+    runner = CliRunner()
+    result = runner.invoke(main, ["release", "refresh"])
+
+    assert result.exit_code == 1
+
+
 def test_release_init_error_exits_1(monkeypatch, tmp_path: Path) -> None:
     from ezcompiler.shared.exceptions import ReleaseError
 
