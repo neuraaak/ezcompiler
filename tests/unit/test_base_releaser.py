@@ -17,6 +17,11 @@ class _Dummy(BaseReleaser):
     def init_keys(self, app_name: str, repo_dir: Path, keys_dir: Path) -> bool:
         return True
 
+    def refresh_expiration(
+        self, app_name, repo_dir, keys_dir, *, roles=(...), days=None
+    ):
+        return repo_dir
+
     def get_releaser_name(self) -> str:
         return "dummy"
 

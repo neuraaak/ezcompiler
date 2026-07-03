@@ -142,6 +142,45 @@ ezcompiler upload --repo-destination server --release-destination server \
 
 ---
 
+## Metadata expiration (irregularly-updated projects)
+
+TUF metadata carries an expiration date **per role**. tufup's defaults are short
+for the online roles — `root=365`, `targets=7`, `snapshot=7`, `timestamp=1` (days).
+Once `timestamp`/`snapshot` expire, clients refuse to trust the repository **even
+if no new version was published**. For a project you release irregularly, that
+silently breaks updates between releases.
+
+Two native tufup mechanisms address this:
+
+**1. Longer lifetimes via config.** Set `tuf_expiration_days` to raise the per-role
+lifetime (unset roles fall back to tufup defaults). It is applied on `release init`
+and every release:
+
+```python
+config = CompilerConfig(
+    ...,
+    tuf_enabled=True,
+    tuf_expiration_days={"timestamp": 30, "snapshot": 30, "targets": 90},
+)
+```
+
+**2. Keep-alive re-sign.** Re-sign the metadata to push the expiration forward
+without cutting a new release — run this periodically (e.g. a scheduled job):
+
+```bash
+ezcompiler release refresh                       # targets/snapshot/timestamp
+ezcompiler release refresh --role timestamp --days 60
+```
+
+```python
+compiler.refresh_release_expiration(days=60)
+```
+
+Both require the signing keys (`release init`). After a refresh, re-run
+`ezcompiler upload` so the freshly-signed metadata reaches the clients.
+
+---
+
 ## Step 5: Generate client updater files
 
 Once the TUF repository is initialized and the config contains a valid `repo_public_url`, generate the client-side bootstrap files:

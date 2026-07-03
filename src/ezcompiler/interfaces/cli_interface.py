@@ -22,7 +22,7 @@ import json
 import sys
 import tomllib
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     import logging
@@ -42,7 +42,6 @@ from ezplog.lib_mode import get_logger, get_printer
 from .._version import __version__
 from ..services import (
     ConfigService,
-    PipelineService,
     ReleaseService,
     TemplateService,
     UpdaterService,
@@ -51,6 +50,7 @@ from ..shared.exceptions import (
     CompilationError,
     ConfigError,
     ConfigurationError,
+    InstallerError,
     ReleaseError,
     SigningKeyError,
     TemplateError,
@@ -80,7 +80,6 @@ def _get_logger() -> logging.Logger:
 
 
 _template_service: TemplateService | None = None
-_pipeline_service: PipelineService | None = None
 
 
 def _get_template_service() -> TemplateService:
@@ -89,14 +88,6 @@ def _get_template_service() -> TemplateService:
     if _template_service is None:
         _template_service = TemplateService()
     return _template_service
-
-
-def _get_pipeline_service() -> PipelineService:
-    """Get the shared PipelineService instance (injectable in tests via module attribute)."""
-    global _pipeline_service  # noqa: PLW0603
-    if _pipeline_service is None:
-        _pipeline_service = PipelineService()
-    return _pipeline_service
 
 
 # ///////////////////////////////////////////////////////////////
@@ -849,6 +840,18 @@ def template_raw(
     default=False,
     help="Skip ZIP archive creation",
 )
+@click.option(
+    "--skip-installer",
+    is_flag=True,
+    default=False,
+    help="Skip the Inno Setup installer stage even if installer_enabled=True",
+)
+@click.option(
+    "--skip-release",
+    is_flag=True,
+    default=False,
+    help="Skip the TUF release stage even if tuf_enabled=True",
+)
 def compile_project(
     config: str | None,
     pyproject: str | None,
@@ -857,12 +860,18 @@ def compile_project(
     output_folder: str | None,
     debug: bool,
     no_zip: bool,
+    skip_installer: bool,
+    skip_release: bool,
 ) -> None:
     """
-    Compile the project.
+    Compile the project (full build pipeline).
 
     Auto-discovers configuration from pyproject.toml, ezcompiler.yaml,
     or ezcompiler.json. CLI options override config file values.
+
+    Runs version -> compile -> zip, plus the installer and TUF release
+    stages when enabled in the config (installer_enabled / tuf_enabled).
+    Upload is a separate step: run `ezcompiler upload` afterwards.
 
     Examples:
 
@@ -873,11 +882,13 @@ def compile_project(
         ezcompiler compile --pyproject ../myproject/pyproject.toml
 
         ezcompiler compile --compiler PyInstaller --no-console
+
+        ezcompiler compile --skip-installer --skip-release
     """
     printer = _get_printer()
     logger = _get_logger()
 
-    # Phase 1: Config loading (outside progress - needed to build stages)
+    # Config loading
     try:
         # Build CLI overrides (only explicitly provided values)
         cli_overrides: dict[str, Any] = {}
@@ -901,91 +912,32 @@ def compile_project(
         logger.error(str(e))
         sys.exit(1)
 
-    should_zip = not no_zip
+    # Delegate to the shared pipeline so installer and TUF release stages run
+    # when enabled in the config — identical behaviour to EzCompiler.run_pipeline.
+    from .python_api import EzCompiler  # noqa: PLC0415
 
-    # Build dynamic stages based on config
-    stages: list[StageConfig] = cast(
-        list["StageConfig"],
-        PipelineService.build_stages(config_obj, should_zip=should_zip),
-    )
-
-    # Phase 2-5: Execute pipeline with progress
-    current_phase = "version"
-    pipeline_error: Exception | None = None
-
-    with printer.wizard.dynamic_layered_progress(stages) as dlp:
-        try:
-            # Version file generation
-            current_phase = "version"
-            dlp.update_layer("version", 0, "Processing template...")
-            template_service = _get_template_service()
-            version_file_path = Path(config_obj.version_filename)
-            template_service.generate_version_file(
-                config_obj.to_dict(), version_file_path
-            )
-            logger.info(f"Version file generated: {version_file_path}")
-            dlp.complete_layer("version")
-
-            # Compilation
-            current_phase = "compile"
-            dlp.update_layer("compile", 0, "Initializing compiler...")
-            compiler_service, result = _get_pipeline_service().compile_project(
-                config_obj,
-                console=config_obj.console,
-                compiler=config_obj.compiler,
-            )
-            logger.info("Compilation completed successfully")
-            dlp.complete_layer("compile")
-
-            # ZIP archive (runtime check for zip_needed from compilation result)
-            zip_needed = result.zip_needed
-            if should_zip:
-                if zip_needed:
-                    current_phase = "zip"
-                    zip_path = str(config_obj.zip_file_path)
-
-                    def _zip_progress(filename: str, progress: int) -> None:
-                        """Update progress display during ZIP file creation.
-
-                        Args:
-                            filename: The name of the file being compressed.
-                            progress: The current progress percentage (0-100).
-                        """
-                        dlp.update_layer("zip", progress, Path(filename).name)
-
-                    compiler_service._zip_artifact(
-                        output_path=zip_path,
-                        progress_callback=_zip_progress,
-                    )
-                    logger.info(f"ZIP archive created: {zip_path}")
-                    dlp.complete_layer("zip")
-                else:
-                    # Stage was added but not needed at runtime
-                    dlp.update_layer("zip", 0, "Skipped (not needed)")
-                    dlp.complete_layer("zip")
-
-        except (
-            ConfigurationError,
-            CompilationError,
-            TemplateError,
-            VersionError,
-            UploadError,
-            ZipError,
-        ) as e:
-            dlp.handle_error(current_phase, str(e))
-            dlp.emergency_stop(str(e))
-            pipeline_error = e
-        except Exception as e:
-            dlp.handle_error(current_phase, str(e))
-            dlp.emergency_stop(str(e))
-            pipeline_error = e
-
-    if pipeline_error:
-        printer.error(str(pipeline_error))
-        logger.error(str(pipeline_error))
+    try:
+        EzCompiler(config=config_obj).run_pipeline(
+            console=config_obj.console,
+            compiler=config_obj.compiler,
+            skip_zip=no_zip,
+            skip_installer=skip_installer,
+            skip_release=skip_release,
+        )
+    except (
+        ConfigurationError,
+        CompilationError,
+        TemplateError,
+        VersionError,
+        UploadError,
+        ZipError,
+        ReleaseError,
+        SigningKeyError,
+        InstallerError,
+    ) as e:
+        printer.error(str(e))
+        logger.error(str(e))
         sys.exit(1)
-
-    printer.success("Build pipeline finished")
 
 
 @main.command(name="upload")
@@ -1248,6 +1200,10 @@ def release_init(config_path: Path | None) -> None:
             app_name=compiler_config.project_name,
             repo_dir=repo_dir,
             keys_dir=keys_dir,
+            releaser_config={
+                "keys_dir": keys_dir,
+                "expiration_days": compiler_config.tuf_expiration_days,
+            },
         )
         if initialized:
             printer.success(f"TUF keys initialized in {keys_dir}")
@@ -1256,6 +1212,61 @@ def release_init(config_path: Path | None) -> None:
             printer.info(f"Keys already present in {keys_dir} — skipped.")
             logger.info("TUF keys already present, skipped.")
     except (ReleaseError, SigningKeyError, ConfigError) as e:
+        printer.error(str(e))
+        logger.error(str(e))
+        sys.exit(1)
+
+
+@release.command("refresh")
+@click.option(
+    "--config",
+    "config_path",
+    default=None,
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    help="Path to ezcompiler config file (auto-detected if omitted).",
+)
+@click.option(
+    "--role",
+    "roles",
+    multiple=True,
+    default=("targets", "snapshot", "timestamp"),
+    help="TUF role(s) to refresh (repeatable). Default: targets/snapshot/timestamp.",
+)
+@click.option(
+    "--days",
+    "days",
+    type=int,
+    default=None,
+    help="Expiration in days from now (default: config tuf_expiration_days).",
+)
+def release_refresh(
+    config_path: Path | None,
+    roles: tuple[str, ...],
+    days: int | None,
+) -> None:
+    """Re-sign TUF metadata to extend expiration without a new release.
+
+    Native tufup keep-alive for projects updated irregularly: repushes the
+    expiration date of the short-lived roles so clients keep trusting the
+    repository between releases. Requires signing keys (`release init`).
+    """
+    printer = _get_printer()
+    logger = _get_logger()
+    try:
+        config_service = ConfigService()
+        cfg = config_service.load_config(config_path)
+        from ..shared import CompilerConfig  # noqa: PLC0415
+
+        compiler_config = CompilerConfig.from_dict(cfg)
+        from .python_api import EzCompiler  # noqa: PLC0415
+
+        repo = EzCompiler(config=compiler_config).refresh_release_expiration(
+            roles=roles,
+            days=days,
+        )
+        printer.success(f"TUF metadata expiration refreshed in {repo}")
+        logger.info("TUF metadata expiration refreshed: %s", repo)
+    except (ReleaseError, SigningKeyError, ConfigError, ConfigurationError) as e:
         printer.error(str(e))
         logger.error(str(e))
         sys.exit(1)

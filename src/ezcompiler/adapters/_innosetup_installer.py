@@ -132,8 +132,12 @@ class InnoSetupInstaller(BaseInstaller):
         else:
             template = _TEMPLATE_PATH.read_text(encoding="utf-8")
 
+        # ISCC resolves relative paths against the .iss file's own directory
+        # (output_dir), not the process cwd — so a relative icon path would be
+        # looked up in the wrong place and fail with exit 2. Absolutize against
+        # cwd, matching how compilers consume config.icon.
         icon = self._config.get("icon", "")
-        icon_line = f"SetupIconFile={icon}" if icon else ""
+        icon_line = f"SetupIconFile={Path(icon).resolve()}" if icon else ""
         company_name = self._config.get("company_name", app_name)
         main_exe = self._config.get("main_exe", f"{app_name}.exe")
 

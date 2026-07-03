@@ -133,3 +133,31 @@ class ReleaseService:
         return releaser.init_keys(
             app_name=app_name, repo_dir=repo_dir, keys_dir=keys_dir
         )
+
+    @staticmethod
+    def refresh_expiration(
+        app_name: str,
+        repo_dir: Path,
+        keys_dir: Path,
+        *,
+        roles: tuple[str, ...] = ("targets", "snapshot", "timestamp"),
+        days: int | None = None,
+        release_type: str = "tufup",
+        releaser_config: dict[str, Any] | None = None,
+    ) -> Path:
+        """Re-signe les metadata pour repousser l'expiration sans nouvelle release.
+
+        Keep-alive natif tufup pour les projets mis à jour irrégulièrement.
+
+        Returns le dossier du repo TUF local.
+        """
+        releaser: ReleaserPort = ReleaserFactory.create_releaser(
+            release_type, releaser_config
+        )
+        return releaser.refresh_expiration(
+            app_name=app_name,
+            repo_dir=repo_dir,
+            keys_dir=keys_dir,
+            roles=roles,
+            days=days,
+        )

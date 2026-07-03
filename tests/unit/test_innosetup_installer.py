@@ -106,5 +106,23 @@ def test_build_raises_installer_build_error_when_output_missing(
         installer.build(bundle, "MyApp", "1.0.0", output_dir)
 
 
+def test_render_absolutizes_relative_icon(tmp_path: Path) -> None:
+    bundle = _make_bundle(tmp_path)
+    installer = InnoSetupInstaller({"icon": "assets/app.ico"})
+    iss = installer._render_iss(bundle, "MyApp", "1.0.0", tmp_path / "out")
+
+    expected = str((Path.cwd() / "assets" / "app.ico").resolve())
+    assert f"SetupIconFile={expected}" in iss
+    # A relative path must never be injected verbatim (ISCC would fail exit 2).
+    assert "SetupIconFile=assets/app.ico" not in iss
+
+
+def test_render_omits_icon_line_when_absent(tmp_path: Path) -> None:
+    bundle = _make_bundle(tmp_path)
+    installer = InnoSetupInstaller()
+    iss = installer._render_iss(bundle, "MyApp", "1.0.0", tmp_path / "out")
+    assert "SetupIconFile=" not in iss
+
+
 def test_get_installer_name() -> None:
     assert InnoSetupInstaller().get_installer_name() == "InnoSetup"
