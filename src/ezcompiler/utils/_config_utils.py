@@ -338,8 +338,9 @@ class ConfigUtils:
         Merge two configuration dictionaries.
 
         Override replaces base values. For known nested sections
-        (compilation, upload, advanced), keys are merged within the section.
-        All other values (including include_files, lists) are replaced entirely.
+        (compilation, upload, advanced, release, installer), keys are merged
+        within the section. All other values (including include_files, lists)
+        are replaced entirely.
 
         Args:
             base: Base configuration dictionary
@@ -349,7 +350,7 @@ class ConfigUtils:
             dict[str, Any]: Merged configuration dictionary
         """
         result = base.copy()
-        nested_sections = {"compilation", "upload", "advanced"}
+        nested_sections = {"compilation", "upload", "advanced", "release", "installer"}
 
         for key, value in override.items():
             if (
