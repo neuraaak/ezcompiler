@@ -14,7 +14,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ezcompiler"
-version = "3.3.0"
+version = "3.4.0"
 description = "Project compilation and distribution framework for Python projects"
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.13"
@@ -321,7 +321,7 @@ layers = [
 [[tool.importlinter.contracts]]
 name = "types is import-only (no upward deps)"
 type = "forbidden"
-source_modules = ["ezcompiler.types"]
+source_modules = ["ezcompiler._types"]
 forbidden_modules = [
     "ezcompiler.interfaces",
     "ezcompiler.services",

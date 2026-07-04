@@ -26,11 +26,12 @@ from typing import Literal, cast
 # Third-party imports
 from InquirerPy.resolver import prompt
 
+from .._types import CompilerPort
+
 # Local imports
 from ..adapters import CompilerFactory
 from ..shared import CompilationResult, CompilerConfig
 from ..shared.exceptions import CompilationError, ConfigurationError
-from ..types import CompilerPort
 from ..utils import ZipUtils
 from ..utils.validators import validate_compiler_name
 

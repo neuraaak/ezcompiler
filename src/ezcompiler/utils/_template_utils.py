@@ -248,6 +248,7 @@ class TemplateProcessor:
             repo_endpoint = upload.get("repo_endpoint", "")
             release_destination = upload.get("release_destination", "disk")
             release_endpoint = upload.get("release_endpoint", "")
+            repo_public_url = upload.get("repo_public_url", "")
 
             # Advanced options (generic)
             advanced = config.get("advanced", {})
@@ -282,6 +283,7 @@ class TemplateProcessor:
                 "#REPO_ENDPOINT#": repo_endpoint,
                 "#RELEASE_DESTINATION#": release_destination,
                 "#RELEASE_ENDPOINT#": release_endpoint,
+                "#REPO_PUBLIC_URL#": repo_public_url,
                 "#OPTIMIZE#": str(optimize).lower(),
                 "#STRIP#": str(strip).lower(),
                 "#DEBUG#": str(debug).lower(),

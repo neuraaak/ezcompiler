@@ -25,7 +25,7 @@ from typing import TYPE_CHECKING, Any
 from .exceptions import ConfigurationError
 
 if TYPE_CHECKING:
-    from ..types import ReleaseDestination, RepoDestination
+    from .._types import ReleaseDestination, RepoDestination
 
 # ///////////////////////////////////////////////////////////////
 # CONSTANTS
@@ -166,6 +166,10 @@ class CompilerConfig:
     installer_enabled: bool = False
     installer_output_dir: Path | None = None
     installer_iss_path: Path | None = None
+    # Per-user install: installs to %LOCALAPPDATA%\Programs (no admin rights
+    # required) instead of Program Files. Required for tufup in-place
+    # auto-update, which cannot self-elevate to overwrite Program Files.
+    installer_per_user: bool = False
 
     # ////////////////////////////////////////////////
     # COMPILER-SPECIFIC OPTIONS
@@ -462,6 +466,7 @@ class CompilerConfig:
                 "installer_iss_path": (
                     str(self.installer_iss_path) if self.installer_iss_path else None
                 ),
+                "installer_per_user": self.installer_per_user,
             },
         }
 

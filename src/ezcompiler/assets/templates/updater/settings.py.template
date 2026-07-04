@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -22,3 +23,15 @@ if getattr(sys, "frozen", False):
     INSTALL_DIR = Path(sys.executable).parent
 else:
     INSTALL_DIR = Path(__file__).parent
+
+# TUF metadata/target cache — deliberately separate from INSTALL_DIR. When
+# the app is installed in a location requiring elevation (e.g. Program
+# Files), INSTALL_DIR is not writable by the running (non-elevated) process,
+# so the TUF client cache (metadata/targets, rewritten on every check) must
+# live in a always-user-writable directory instead.
+_CACHE_ROOT = Path(
+    os.environ.get("LOCALAPPDATA")
+    or os.environ.get("XDG_CACHE_HOME")
+    or Path.home() / ".cache"
+)
+CACHE_DIR = _CACHE_ROOT / APP_NAME / "tuf"

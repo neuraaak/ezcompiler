@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import pytest
 
+from ezcompiler._types import ReleaserPort
 from ezcompiler.adapters.releaser_factory import ReleaserFactory
 from ezcompiler.shared.exceptions import ReleaserTypeError
-from ezcompiler.types import ReleaserPort
 
 
 def test_create_tufup_releaser() -> None:

@@ -27,7 +27,8 @@
     "repo_destination": "#REPO_DESTINATION#",
     "repo_endpoint": "#REPO_ENDPOINT#",
     "release_destination": "#RELEASE_DESTINATION#",
-    "release_endpoint": "#RELEASE_ENDPOINT#"
+    "release_endpoint": "#RELEASE_ENDPOINT#",
+    "repo_public_url": "#REPO_PUBLIC_URL#"
   },
   "advanced": {
     "debug": #DEBUG#

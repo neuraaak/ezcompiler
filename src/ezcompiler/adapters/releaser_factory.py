@@ -12,8 +12,8 @@ from __future__ import annotations
 # ///////////////////////////////////////////////////////////////
 from typing import Any
 
+from .._types import ReleaserPort
 from ..shared.exceptions import ReleaserTypeError
-from ..types import ReleaserPort
 from ._tufup_releaser import TufupReleaser
 
 # ///////////////////////////////////////////////////////////////

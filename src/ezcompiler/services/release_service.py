@@ -25,7 +25,7 @@ from ..shared.exceptions import ReleaseError
 from .uploader_service import UploaderService
 
 if TYPE_CHECKING:
-    from ..types import ReleaserPort
+    from .._types import ReleaserPort
 
 # ///////////////////////////////////////////////////////////////
 # CLASSES

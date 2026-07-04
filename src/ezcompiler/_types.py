@@ -10,7 +10,7 @@ This module centralizes common type aliases used throughout the library
 to improve code readability, maintainability, and type safety.
 
 Example:
-    >>> from ezcompiler.types import IncludeFiles, CompilerName
+    >>> from ezcompiler._types import IncludeFiles, CompilerName
     >>>
     >>> def build(compiler: CompilerName, files: IncludeFiles) -> None:
     ...     pass

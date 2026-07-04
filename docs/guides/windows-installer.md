@@ -48,7 +48,7 @@ Package a compiled bundle into a first-deployment `setup.exe` with Inno Setup, s
     )
     ```
 
-    Your script can reuse the same `#PLACEHOLDER#` tokens as the built-in template (`#APP_NAME#`, `#VERSION#`, `#COMPANY_NAME#`, `#BUNDLE_DIR#`, `#OUTPUT_DIR#`, `#ICON_LINE#`, `#MAIN_EXE#`).
+    Your script can reuse the same `#PLACEHOLDER#` tokens as the built-in template (`#APP_NAME#`, `#VERSION#`, `#COMPANY_NAME#`, `#BUNDLE_DIR#`, `#OUTPUT_DIR#`, `#ICON_LINE#`, `#MAIN_EXE#`, `#DEFAULT_DIR#`, `#PRIVILEGES_REQUIRED#`).
 
 4. Skip the installer for a single run without touching the config.
 
@@ -56,13 +56,26 @@ Package a compiled bundle into a first-deployment `setup.exe` with Inno Setup, s
     compiler.run_pipeline(skip_installer=True)
     ```
 
+5. Install per-user instead of system-wide if the app also uses [TUF secure updates](secure-updates-tufup.md).
+
+    ```python
+    config = CompilerConfig(
+        ...,
+        installer_enabled=True,
+        installer_per_user=True,
+    )
+    ```
+
+    By default the installer targets `{autopf}\<App>` (Program Files) and requires admin rights (`PrivilegesRequired=admin`). A tufup auto-update runs as the logged-in user and cannot elevate to overwrite files there. Set `installer_per_user=True` to install into `%LOCALAPPDATA%\Programs\<App>` instead, with `PrivilegesRequired=lowest` — no elevation needed to install, and none needed later for auto-update to replace files in place.
+
 ## ⚙️ Config reference
 
-| Field                  | Default                              | Description                                                           |
-| :--------------------- | :----------------------------------- | :-------------------------------------------------------------------- |
-| `installer_enabled`    | `False`                              | Turn on the installer build stage                                     |
-| `installer_output_dir` | `output_folder.parent / "installer"` | Directory receiving the generated `.iss` and the compiled `setup.exe` |
-| `installer_iss_path`   | `None` (built-in template)           | Path to a custom `.iss` script, overriding the bundled one            |
+| Field                  | Default                              | Description                                                                                                                                                |
+| :--------------------- | :----------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `installer_enabled`    | `False`                              | Turn on the installer build stage                                                                                                                          |
+| `installer_output_dir` | `output_folder.parent / "installer"` | Directory receiving the generated `.iss` and the compiled `setup.exe`                                                                                      |
+| `installer_iss_path`   | `None` (built-in template)           | Path to a custom `.iss` script, overriding the bundled one                                                                                                 |
+| `installer_per_user`   | `False`                              | Install to `%LOCALAPPDATA%\Programs` with `PrivilegesRequired=lowest` instead of Program Files with admin rights — required for tufup in-place auto-update |
 
 ## 💻 CLI
 

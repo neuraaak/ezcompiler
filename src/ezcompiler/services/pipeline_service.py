@@ -255,6 +255,7 @@ class PipelineService:
         installer_config: dict[str, Any] = {
             "icon": config.icon,
             "company_name": config.company_name,
+            "per_user": config.installer_per_user,
         }
         if config.installer_iss_path is not None:
             installer_config["iss_path"] = config.installer_iss_path

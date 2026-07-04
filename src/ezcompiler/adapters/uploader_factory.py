@@ -19,9 +19,10 @@ from __future__ import annotations
 # Standard library imports
 from typing import Any
 
+from .._types import UploaderPort
+
 # Local imports
 from ..shared.exceptions import UploadError
-from ..types import UploaderPort
 from ..utils import UploaderUtils
 from ._disk_uploader import DiskUploader
 from ._r2_uploader import R2Uploader

@@ -42,6 +42,19 @@ for professional and industrial Python applications.
 
 from __future__ import annotations
 
+from ._types import (
+    CompilerName,
+    CompilerPort,
+    FilePath,
+    IncludeFiles,
+    JsonMap,
+    ReleaseDestination,
+    ReleaserPort,
+    ReleaseTarget,
+    RepoDestination,
+    UploaderPort,
+)
+
 # ///////////////////////////////////////////////////////////////
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
@@ -59,18 +72,6 @@ from .shared import (
     UpdaterError,
     UploadError,
     VersionError,
-)
-from .types import (
-    CompilerName,
-    CompilerPort,
-    FilePath,
-    IncludeFiles,
-    JsonMap,
-    ReleaseDestination,
-    ReleaserPort,
-    ReleaseTarget,
-    RepoDestination,
-    UploaderPort,
 )
 
 # ///////////////////////////////////////////////////////////////

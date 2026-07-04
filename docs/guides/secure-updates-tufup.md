@@ -250,8 +250,23 @@ except ImportError:
 ```
 
 The generated client is bundler-agnostic (PyInstaller, cx_Freeze, Nuitka) and
-resolves its own install directory from the running executable, so update caches
-live next to the installed app wherever the user placed it.
+resolves its own install directory from the running executable. The TUF
+metadata/target cache, however, is kept separate from that install directory —
+under `%LOCALAPPDATA%\<app>\tuf` on Windows (`XDG_CACHE_HOME` or `~/.cache`
+otherwise) — since the install directory may not be writable without
+elevation (see [per-user installs](windows-installer.md) if you also ship a
+Windows installer).
+
+On Windows, applying an update relaunches the app automatically once the
+files are swapped, matching the existing macOS behavior.
+
+!!! tip "Calling the updater from a GUI thread"
+    `update.main()` and `check_and_apply()` assume the main thread: tufup's
+    installer ends the process with `sys.exit(0)` once the swap script is
+    launched, which only terminates the calling thread if called from
+    elsewhere (e.g. a pywebview worker thread). Call `update.apply_and_quit()`
+    instead from a non-main thread — it wraps `check_and_apply()` and forces
+    the whole process to exit via `os._exit(0)`.
 
 !!! tip "Disk-served repositories work client-side"
     When `repo_destination="disk"`, the client reads updates over a `file://` URL

@@ -4,9 +4,9 @@ from pathlib import Path
 
 import pytest
 
+from ezcompiler._types import ReleaserPort
 from ezcompiler.adapters.base_releaser import BaseReleaser
 from ezcompiler.shared.exceptions import BundleBuildError
-from ezcompiler.types import ReleaserPort
 
 
 class _Dummy(BaseReleaser):
