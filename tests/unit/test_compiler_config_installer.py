@@ -56,6 +56,7 @@ def test_to_dict_from_dict_roundtrip_installer_group(tmp_path: Path) -> None:
         "installer_enabled": True,
         "installer_output_dir": str(tmp_path / "installer"),
         "installer_iss_path": None,
+        "installer_per_user": False,
     }
 
     restored = CompilerConfig.from_dict(config_dict)

@@ -141,6 +141,17 @@ class InnoSetupInstaller(BaseInstaller):
         company_name = self._config.get("company_name", app_name)
         main_exe = self._config.get("main_exe", f"{app_name}.exe")
 
+        # Per-user install (no admin rights, %LOCALAPPDATA%\Programs) is
+        # required for tufup in-place auto-update, which cannot self-elevate
+        # to overwrite a Program Files install.
+        per_user = self._config.get("per_user", False)
+        default_dir = (
+            r"{localappdata}\Programs\{#MyAppName}"
+            if per_user
+            else r"{autopf}\{#MyAppName}"
+        )
+        privileges_required = "lowest" if per_user else "admin"
+
         replacements = {
             "#APP_NAME#": app_name,
             "#VERSION#": version,
@@ -151,6 +162,8 @@ class InnoSetupInstaller(BaseInstaller):
             "#OUTPUT_DIR#": str(output_dir.resolve()),
             "#ICON_LINE#": icon_line,
             "#MAIN_EXE#": main_exe,
+            "#DEFAULT_DIR#": default_dir,
+            "#PRIVILEGES_REQUIRED#": privileges_required,
         }
 
         result = template

@@ -9,7 +9,7 @@ so they are part of the stable public API.
 
 ## Overview
 
-The `types` module centralizes common type aliases used throughout the library.
+The `_types` module centralizes common type aliases used throughout the library.
 Import them when you want to annotate your own code that calls EzCompiler APIs,
 or when building extensions on top of the framework.
 
@@ -20,7 +20,7 @@ from ezcompiler import FilePath, CompilerName, UploadTarget, IncludeFiles, JsonM
 They can also be imported from the submodule directly:
 
 ```python
-from ezcompiler.types import FilePath, IncludeFiles
+from ezcompiler._types import FilePath, IncludeFiles
 ```
 
 ---
@@ -145,7 +145,7 @@ raw: JsonMap = {"version": "1.0.0", "project_name": "MyApp"}
 
 ## API reference
 
-::: ezcompiler.types
+::: ezcompiler._types
     options:
       show_source: false
       members:

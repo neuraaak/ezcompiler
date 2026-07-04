@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import pytest
 
+from ezcompiler._types import InstallerPort
 from ezcompiler.adapters.installer_factory import InstallerFactory
 from ezcompiler.shared.exceptions import InstallerTypeError
-from ezcompiler.types import InstallerPort
 
 
 def test_create_innosetup_installer() -> None:

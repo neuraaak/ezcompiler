@@ -29,7 +29,7 @@ if TYPE_CHECKING:
     from ezplog.handlers.wizard.dynamic import StageConfig
     from ezplog.lib_mode import _LazyPrinter
 
-    from ..types import ReleaseDestination, RepoDestination
+    from .._types import ReleaseDestination, RepoDestination
 
 # Third-party imports
 from ezplog.lib_mode import get_logger, get_printer

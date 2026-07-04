@@ -51,6 +51,7 @@ upload:
   repo_endpoint: "#REPO_ENDPOINT#"
   release_destination: "#RELEASE_DESTINATION#"
   release_endpoint: "#RELEASE_ENDPOINT#"
+  repo_public_url: "#REPO_PUBLIC_URL#"
 
 # Advanced Options
 advanced:

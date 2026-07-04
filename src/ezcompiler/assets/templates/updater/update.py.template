@@ -8,6 +8,7 @@
 
 from __future__ import annotations
 
+import os
 import shutil
 import sys
 from collections.abc import Iterator
@@ -18,10 +19,19 @@ from urllib.request import url2pathname
 from tuf.api.exceptions import DownloadHTTPError
 from tuf.ngclient import FetcherInterface
 from tufup.client import Client
+from tufup.utils.platform_specific import ON_WINDOWS, WIN_BATCH_TEMPLATE
 
-from settings import APP_NAME, INSTALL_DIR, UPDATE_URL, VERSION
+from settings import APP_NAME, CACHE_DIR, INSTALL_DIR, UPDATE_URL, VERSION
 
 _CHUNK_SIZE = 64 * 1024
+
+# tufup's default Windows install script moves files via robocopy but never
+# relaunches the app afterwards (unlike its macOS counterpart, which does
+# Popen(sys.executable)). Inserting a "start" line before the self-delete
+# restores that behaviour on Windows.
+_WIN_RESTART_BATCH_TEMPLATE = WIN_BATCH_TEMPLATE.replace(
+    "{delete_self}", 'start "" "{dst_dir}\\{exe_name}"\n{delete_self}'
+)
 
 
 class _FileFetcher(FetcherInterface):
@@ -55,9 +65,11 @@ else:
 
 # Writable local caches required by tufup 0.10. tuf.ngclient loads the
 # trusted root from METADATA_DIR automatically, so the bundled root.json
-# is copied there on first run.
-METADATA_DIR = INSTALL_DIR / "metadata"
-TARGET_DIR = INSTALL_DIR / "targets"
+# is copied there on first run. Kept under CACHE_DIR (not INSTALL_DIR):
+# INSTALL_DIR may require elevation to write to (e.g. Program Files), while
+# this cache is rewritten on every check.
+METADATA_DIR = CACHE_DIR / "metadata"
+TARGET_DIR = CACHE_DIR / "targets"
 
 
 def _bootstrap_trust_root() -> None:
@@ -105,16 +117,18 @@ def _make_client() -> Client:
 
 
 def _refresh_and_check(client: Client, pre: str | None):
-    """Refresh TUF metadata, then check for a newer target.
+    """Refresh TUF metadata (via check_for_updates) and return a newer target.
 
-    tufup's check_for_updates() swallows refresh failures (repo unreachable
-    or incomplete) and returns None — indistinguishable from "no update", so
-    a broken repo would be reported as "up to date". Refreshing explicitly
-    first makes a failed refresh raise instead, so callers can tell a real
-    "up to date" from a failed check. The subsequent check_for_updates()
-    refreshes again (cheap: metadata is already cached).
+    tufup's check_for_updates() already refreshes the client internally and
+    only swallows DownloadError/UnsignedMetadataError (repo unreachable or
+    incomplete), returning None for those — indistinguishable from "no
+    update". Any other failure (e.g. signature/format errors) still
+    propagates, so callers can tell a real "up to date" from a broken
+    refresh. An extra explicit refresh call beforehand would refresh
+    the same TrustedMetadataSet twice and raise
+    ``RuntimeError: Cannot update timestamp after snapshot`` — tuf does not
+    allow replaying the update sequence on an already-refreshed client.
     """
-    client.refresh()
     return client.check_for_updates(pre=pre)
 
 
@@ -168,8 +182,42 @@ def check_and_apply(
         print(f"[update] up to date (current version: {VERSION})")
         return False
     print(f"[update] new version available: {new_target.version} (current: {VERSION})")
-    client.download_and_apply_update(skip_confirmation=skip_confirmation)
+    install_kwargs = {}
+    if ON_WINDOWS:
+        exe_name = Path(sys.executable).name if getattr(sys, "frozen", False) else f"{APP_NAME}.exe"
+        install_kwargs = {
+            "batch_template": _WIN_RESTART_BATCH_TEMPLATE,
+            "batch_template_extra_kwargs": {"exe_name": exe_name},
+        }
+    client.download_and_apply_update(
+        skip_confirmation=skip_confirmation, **install_kwargs
+    )
     return True
+
+
+def apply_and_quit(*, pre: str | None = None, skip_confirmation: bool = True) -> bool:
+    """GUI-safe variant of check_and_apply() for use off the main thread.
+
+    tufup's Windows/macOS installer launches the (non-blocking) install
+    script, then raises SystemExit to end the current process. SystemExit
+    does not inherit from Exception, and when raised from a non-main thread
+    (e.g. a GUI worker thread, as in pywebview apps) it only terminates that
+    thread — the process stays alive holding the .exe/.pyd files locked, so
+    the install script's robocopy loops on "ERROR 32 - file in use". Call
+    this from a worker thread instead of check_and_apply() to force the
+    whole process to exit once the install script has been launched.
+
+    Returns:
+        True if an update was downloaded and applied (never actually
+        returns in that case — the process exits first); False otherwise.
+    """
+    try:
+        applied = check_and_apply(pre=pre, skip_confirmation=skip_confirmation)
+    except SystemExit:
+        os._exit(0)
+    if applied:
+        os._exit(0)
+    return applied
 
 
 def main(*, skip_confirmation: bool = False) -> None:

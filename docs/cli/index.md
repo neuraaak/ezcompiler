@@ -53,15 +53,15 @@ Compile the project. Auto-discovers configuration from `pyproject.toml`, `ezcomp
 ezcompiler compile --compiler PyInstaller --no-console
 ```
 
-| Option                       | Required | Default | Description                                                                      |
-| :--------------------------- | :------- | :------ | :------------------------------------------------------------------------------- |
-| `--config`                   | No       | —       | Config file path (YAML, JSON)                                                    |
-| `--pyproject`                | No       | —       | Explicit `pyproject.toml` path                                                   |
-| `--compiler`                 | No       | —       | Compiler to use: `Cx_Freeze`, `PyInstaller`, `Nuitka` (overrides config)         |
-| `--console` / `--no-console` | No       | —       | Show console window (overrides config)                                           |
-| `--output-folder`            | No       | —       | Output folder (overrides config)                                                 |
-| `--debug`                    | No       | `False` | Enable debug mode                                                                |
-| `--no-zip`                   | No       | `False` | Skip ZIP archive creation                                                        |
+| Option                       | Required | Default | Description                                                              |
+| :--------------------------- | :------- | :------ | :----------------------------------------------------------------------- |
+| `--config`                   | No       | —       | Config file path (YAML, JSON)                                            |
+| `--pyproject`                | No       | —       | Explicit `pyproject.toml` path                                           |
+| `--compiler`                 | No       | —       | Compiler to use: `Cx_Freeze`, `PyInstaller`, `Nuitka` (overrides config) |
+| `--console` / `--no-console` | No       | —       | Show console window (overrides config)                                   |
+| `--output-folder`            | No       | —       | Output folder (overrides config)                                         |
+| `--debug`                    | No       | `False` | Enable debug mode                                                        |
+| `--no-zip`                   | No       | `False` | Skip ZIP archive creation                                                |
 
 !!! note "Version and zip only"
     `compile` runs the `version → compile → zip` stages only. The installer and TUF release stages are not part of this command — use the Python API's `run_pipeline()` for the full pipeline, then `ezcompiler upload` to publish.
@@ -76,14 +76,15 @@ Create a configuration file.
 ezcompiler generate config --project-name "MyApp" --main-file "main.py"
 ```
 
-| Option                | Required | Default             | Description                                 |
-| :-------------------- | :------- | :------------------ | :------------------------------------------ |
-| `--project-name`      | Yes      | —                   | Project name                                |
-| `--main-file`         | Yes      | —                   | Main Python file                            |
-| `--version`           | No       | `"1.0.0"`           | Project version                             |
-| `--output`            | No       | `"ezcompiler.yaml"` | Output file path                            |
-| `--format`            | No       | `yaml`              | Output format (`yaml` or `json`)            |
-| `--installer-enabled` | No       | `False`             | Enable the Inno Setup installer build stage |
+| Option                | Required | Default             | Description                                              |
+| :-------------------- | :------- | :------------------ | :------------------------------------------------------- |
+| `--project-name`      | Yes      | —                   | Project name                                             |
+| `--main-file`         | Yes      | —                   | Main Python file                                         |
+| `--version`           | No       | `"1.0.0"`           | Project version                                          |
+| `--output`            | No       | `"ezcompiler.yaml"` | Output file path                                         |
+| `--format`            | No       | `yaml`              | Output format (`yaml` or `json`)                         |
+| `--installer-enabled` | No       | `False`             | Enable the Inno Setup installer build stage              |
+| `--repo-public-url`   | No       | —                   | Public base URL for the TUF repo (required for `r2`/TUF) |
 
 ---
 
@@ -139,13 +140,13 @@ Upload the TUF tree and/or the release directory (ZIP + installer `setup.exe`) t
 ezcompiler upload --config ezcompiler.yaml
 ```
 
-| Option                  | Required | Default | Description                                                            |
-| :---------------------- | :------- | :------ | :--------------------------------------------------------------------- |
-| `--config`              | No       | —       | Config file path (YAML, JSON)                                          |
-| `--pyproject`           | No       | —       | Explicit `pyproject.toml` path                                         |
-| `--repo-destination`    | No       | —       | Backend for the TUF tree: `disk`, `server`, `r2` (overrides config)    |
-| `--release-destination` | No       | —       | Backend for the release directory: `disk`, `server` (overrides config) |
-| `--destination`         | No       | —       | Common override applied to both `repo` and `release` destinations      |
+| Option                  | Required | Default | Description                                                                  |
+| :---------------------- | :------- | :------ | :--------------------------------------------------------------------------- |
+| `--config`              | No       | —       | Config file path (YAML, JSON)                                                |
+| `--pyproject`           | No       | —       | Explicit `pyproject.toml` path                                               |
+| `--repo-destination`    | No       | —       | Backend for the TUF tree: `disk`, `server`, `r2` (overrides config)          |
+| `--release-destination` | No       | —       | Backend for the release directory: `disk`, `server`, `r2` (overrides config) |
+| `--destination`         | No       | —       | Common override applied to both `repo` and `release` destinations            |
 
 ---
 

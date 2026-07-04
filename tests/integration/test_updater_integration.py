@@ -128,14 +128,16 @@ def test_update_py_applies_update_in_main(cfg: CompilerConfig, tmp_path: Path) -
     assert "sys.exit(0)" in text
 
 
-def test_update_py_refreshes_explicitly(cfg: CompilerConfig, tmp_path: Path) -> None:
-    """A failed TUF refresh must surface, not masquerade as 'up to date'.
+def test_update_py_does_not_double_refresh(cfg: CompilerConfig, tmp_path: Path) -> None:
+    """check_for_updates() already refreshes internally.
 
-    tufup's check_for_updates() swallows refresh errors and returns None, so
-    the client must call refresh() explicitly first to distinguish a real
-    'up to date' from a failed check."""
+    Calling client.refresh() explicitly beforehand would refresh the same
+    TrustedMetadataSet twice and raise 'RuntimeError: Cannot update
+    timestamp after snapshot' — tuf does not allow replaying the update
+    sequence on an already-refreshed client."""
     out = tmp_path / "updater_out"
     UpdaterService.generate(cfg, out)
     text = (out / "update.py").read_text(encoding="utf-8")
-    assert "client.refresh()" in text
+    assert "client.refresh()" not in text
     assert "_refresh_and_check" in text
+    assert "client.check_for_updates(pre=pre)" in text

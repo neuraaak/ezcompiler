@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     from ezplog.handlers.wizard.dynamic import StageConfig
     from ezplog.lib_mode import _LazyPrinter
 
-    from ..types import ReleaseDestination, RepoDestination
+    from .._types import ReleaseDestination, RepoDestination
 
 # Third-party imports
 import click
@@ -224,7 +224,7 @@ def generate() -> None:
 @click.option(
     "--release-destination",
     "-rld",
-    type=click.Choice(["disk", "server"]),
+    type=click.Choice(["disk", "server", "r2"]),
     default=None,
     help="Zip installer upload backend",
 )
@@ -239,6 +239,12 @@ def generate() -> None:
     "-rle",
     default=None,
     help="Upload endpoint for release zip (path or URL)",
+)
+@click.option(
+    "--repo-public-url",
+    "-rpu",
+    default=None,
+    help="Public base URL for the TUF repo (required for r2/tuf)",
 )
 @click.option(
     "--optimize",
@@ -294,6 +300,7 @@ def config(
     release_destination: ReleaseDestination | None,
     repo_endpoint: str | None,
     release_endpoint: str | None,
+    repo_public_url: str | None,
     optimize: bool,
     strip: bool,
     debug: bool,
@@ -372,6 +379,8 @@ def config(
             cli_overrides.setdefault("upload", {})["release_endpoint"] = (
                 release_endpoint
             )
+        if repo_public_url is not None:
+            cli_overrides.setdefault("upload", {})["repo_public_url"] = repo_public_url
 
         # Flags always have a value — include them
         cli_overrides.setdefault("compilation", {}).update({"console": console})
@@ -432,6 +441,7 @@ def config(
                 "release_destination": "disk",
                 "repo_endpoint": "",
                 "release_endpoint": "",
+                "repo_public_url": "",
             },
         )
         config_dict.setdefault("optimize", True)
@@ -965,7 +975,7 @@ def compile_project(
     "--release-destination",
     "-rld",
     "release_destination",
-    type=click.Choice(["disk", "server"]),
+    type=click.Choice(["disk", "server", "r2"]),
     default=None,
     help="Backend pour le zip installeur (overrides config)",
 )

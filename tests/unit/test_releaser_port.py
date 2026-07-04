@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from ezcompiler.types import ReleaserPort
+from ezcompiler._types import ReleaserPort
 
 
 class _Conforming:
