@@ -28,8 +28,8 @@ from ..shared.exceptions import UploadError
 from ..utils.validators import validate_upload_structure
 
 if TYPE_CHECKING:
+    from .._types import UploaderPort
     from ..shared._compiler_config import CompilerConfig
-    from ..types import UploaderPort
 
 # ///////////////////////////////////////////////////////////////
 # TYPE ALIASES

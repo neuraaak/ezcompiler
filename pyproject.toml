@@ -321,7 +321,7 @@ layers = [
 [[tool.importlinter.contracts]]
 name = "types is import-only (no upward deps)"
 type = "forbidden"
-source_modules = ["ezcompiler.types"]
+source_modules = ["ezcompiler._types"]
 forbidden_modules = [
     "ezcompiler.interfaces",
     "ezcompiler.services",

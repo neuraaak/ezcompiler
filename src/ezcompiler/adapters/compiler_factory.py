@@ -18,10 +18,11 @@ from __future__ import annotations
 # Standard library imports
 import importlib.util
 
+from .._types import CompilerPort
+
 # Local imports
 from ..shared import CompilerConfig
 from ..shared.exceptions import CompilationError
-from ..types import CompilerPort
 
 # ///////////////////////////////////////////////////////////////
 # CONSTANTS

@@ -12,8 +12,8 @@ from __future__ import annotations
 # ///////////////////////////////////////////////////////////////
 from typing import Any
 
+from .._types import InstallerPort
 from ..shared.exceptions import InstallerTypeError
-from ..types import InstallerPort
 from ._innosetup_installer import InnoSetupInstaller
 
 # ///////////////////////////////////////////////////////////////
