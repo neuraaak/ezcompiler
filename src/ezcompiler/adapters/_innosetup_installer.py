@@ -106,9 +106,22 @@ class InnoSetupInstaller(BaseInstaller):
     # ////////////////////////////////////////////////
 
     def build(
-        self, bundle_dir: Path, app_name: str, version: str, output_dir: Path
+        self,
+        bundle_dir: Path,
+        app_name: str,
+        version: str,
+        output_dir: Path,
+        *,
+        company_name: str = "",
+        icon: str = "",
     ) -> Path:
-        """Detect the main executable, resolve the .iss, and compile it."""
+        """Detect the main executable, resolve the .iss, and compile it.
+
+        ``company_name`` and ``icon`` are keyword-only: they feed
+        ``render_iss`` (the former drives the deterministic AppId GUID via
+        ``resolve_app_id``, so it must match whatever ``generate iss`` uses
+        for the same product — see ``InstallerService.build_installer``).
+        """
         self._validate_bundle_dir(bundle_dir)
         main_exe = detect_main_exe(bundle_dir, app_name, app_name)
 
@@ -120,7 +133,7 @@ class InnoSetupInstaller(BaseInstaller):
             )
 
         output_dir.mkdir(parents=True, exist_ok=True)
-        iss_path, tmp_dir = self._resolve_iss_path(app_name)
+        iss_path, tmp_dir = self._resolve_iss_path(app_name, company_name, icon)
 
         argv = self._build_argv(
             iscc_path, iss_path, version, bundle_dir, output_dir, main_exe
@@ -164,7 +177,9 @@ class InnoSetupInstaller(BaseInstaller):
     # ISS RESOLUTION
     # ////////////////////////////////////////////////
 
-    def _resolve_iss_path(self, app_name: str) -> tuple[Path, str | None]:
+    def _resolve_iss_path(
+        self, app_name: str, company_name: str, icon: str
+    ) -> tuple[Path, str | None]:
         """Return the .iss path to compile, and its temp dir if ephemeral.
 
         In file mode (``config.iss_path`` set), the user's script is the
@@ -178,8 +193,8 @@ class InnoSetupInstaller(BaseInstaller):
         iss_text = render_iss(
             self._config,
             project_name=app_name,
-            company_name=app_name,
-            icon="",
+            company_name=company_name,
+            icon=icon,
             standalone=False,
         )
         tmp_dir = tempfile.mkdtemp()

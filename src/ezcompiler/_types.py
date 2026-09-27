@@ -234,7 +234,14 @@ class InstallerPort(Protocol):
     """
 
     def build(
-        self, bundle_dir: Path, app_name: str, version: str, output_dir: Path
+        self,
+        bundle_dir: Path,
+        app_name: str,
+        version: str,
+        output_dir: Path,
+        *,
+        company_name: str = "",
+        icon: str = "",
     ) -> Path:
         """Build the installer executable. Raises InstallerError on failure."""
         ...

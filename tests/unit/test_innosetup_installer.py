@@ -72,6 +72,8 @@ def _build(
     version: str = "1.2.3",
     exe_names: tuple[str, ...] = ("MyApp.exe",),
     returncode: int = 0,
+    company_name: str = "",
+    icon: str = "",
 ) -> tuple[Path, _IsccCall]:
     """Run one full build against a faked ISCC and return (setup_exe, call)."""
     bundle = _bundle(tmp_path, *exe_names)
@@ -79,7 +81,9 @@ def _build(
     calls: list[_IsccCall] = []
     _patch_subprocess(monkeypatch, calls, output_dir, app_name, version, returncode)
     installer = InnoSetupInstaller(config or InstallerConfig(enabled=True))
-    setup_exe = installer.build(bundle, app_name, version, output_dir)
+    setup_exe = installer.build(
+        bundle, app_name, version, output_dir, company_name=company_name, icon=icon
+    )
     return setup_exe, calls[0]
 
 
@@ -196,6 +200,38 @@ def test_ephemeral_iss_is_removed_on_success(tmp_path, monkeypatch):
     setup_exe, call = _build(monkeypatch, tmp_path)
     iss_path = Path(call.argv[-1])
     assert not iss_path.exists()
+
+
+def test_company_name_changes_the_app_id(tmp_path, monkeypatch):
+    """Defect 1 guard: the AppId GUID is derived from company_name.
+
+    A build with a different company_name must render a different AppId,
+    or two builds of the same product mint two AppIds — every install is
+    then treated as a new, unrelated product.
+    """
+    empty_dir = tmp_path / "empty"
+    acme_dir = tmp_path / "acme"
+    empty_dir.mkdir()
+    acme_dir.mkdir()
+    with pytest.raises(InstallerBuildError) as excinfo_empty:
+        _build(monkeypatch, empty_dir, returncode=2)
+    with pytest.raises(InstallerBuildError) as excinfo_acme:
+        _build(monkeypatch, acme_dir, returncode=2, company_name="ACME")
+    iss_empty = Path(_extract_iss_path(str(excinfo_empty.value)))
+    iss_acme = Path(_extract_iss_path(str(excinfo_acme.value)))
+    app_id_empty = iss_empty.read_text(encoding="utf-8-sig")
+    app_id_acme = iss_acme.read_text(encoding="utf-8-sig")
+    assert app_id_empty != app_id_acme
+
+
+def test_icon_reaches_the_script(tmp_path, monkeypatch):
+    """A configured icon must not be silently dropped from the .iss."""
+    with pytest.raises(InstallerBuildError) as excinfo:
+        _build(monkeypatch, tmp_path, returncode=2, icon="myicon.ico")
+    iss_text = Path(_extract_iss_path(str(excinfo.value))).read_text(
+        encoding="utf-8-sig"
+    )
+    assert "SetupIconFile=myicon.ico" in iss_text
 
 
 def test_ephemeral_iss_is_kept_on_failure(tmp_path, monkeypatch):

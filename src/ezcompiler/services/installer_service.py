@@ -41,6 +41,8 @@ class InstallerService:
         *,
         installer_type: str = "innosetup",
         installer_config: InstallerConfig | None = None,
+        company_name: str = "",
+        icon: str = "",
     ) -> Path:
         """Build the installer executable for a compiled bundle.
 
@@ -51,6 +53,11 @@ class InstallerService:
             output_dir: Directory where the setup.exe is produced.
             installer_type: Installer backend to use (default: "innosetup").
             installer_config: Config forwarded to the installer adapter.
+            company_name: Publisher name; feeds the AppId GUID derivation
+                (see ``_iss_renderer.resolve_app_id``) — must match whatever
+                ``generate iss`` uses for the same product, or the two
+                builds mint different AppIds for one product.
+            icon: Path to the setup wizard icon.
 
         Returns:
             Path: The produced setup.exe path.
@@ -64,4 +71,6 @@ class InstallerService:
             app_name=app_name,
             version=version,
             output_dir=output_dir,
+            company_name=company_name,
+            icon=icon,
         )
