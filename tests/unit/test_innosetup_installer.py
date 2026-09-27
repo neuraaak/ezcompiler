@@ -224,14 +224,21 @@ def test_company_name_changes_the_app_id(tmp_path, monkeypatch):
     assert app_id_empty != app_id_acme
 
 
-def test_icon_reaches_the_script(tmp_path, monkeypatch):
-    """A configured icon must not be silently dropped from the .iss."""
+def test_icon_reaches_the_script_as_an_absolute_path(tmp_path, monkeypatch):
+    """A configured icon must not be silently dropped from the .iss.
+
+    ISCC resolves a relative icon path against the ephemeral .iss's own
+    directory (a throwaway tempfile.mkdtemp()), never the process cwd — a
+    relative value must be absolutized against cwd first, or ISCC exits 2.
+    """
     with pytest.raises(InstallerBuildError) as excinfo:
         _build(monkeypatch, tmp_path, returncode=2, icon="myicon.ico")
     iss_text = Path(_extract_iss_path(str(excinfo.value))).read_text(
         encoding="utf-8-sig"
     )
-    assert "SetupIconFile=myicon.ico" in iss_text
+    expected = str((Path.cwd() / "myicon.ico").resolve())
+    assert f"SetupIconFile={expected}" in iss_text
+    assert "SetupIconFile=myicon.ico" not in iss_text
 
 
 def test_ephemeral_iss_is_kept_on_failure(tmp_path, monkeypatch):
@@ -263,6 +270,22 @@ def test_file_mode_still_passes_volatile_defines(tmp_path, monkeypatch):
     config = InstallerConfig(enabled=True, iss_path=script)
     _, call = _build(monkeypatch, tmp_path, config)
     assert "/DMyAppVersion=1.2.3" in " ".join(call.argv)
+
+
+def test_build_raises_when_override_iss_path_missing(tmp_path, monkeypatch):
+    """A user-supplied iss_path that vanished after config construction must
+    raise a clear config error instead of falling through to a bare ISCC
+    exit-code failure.
+    """
+    bundle = _bundle(tmp_path)
+    monkeypatch.setattr(shutil, "which", lambda _name: r"C:\Inno\ISCC.exe")
+    config = InstallerConfig(enabled=True)
+    # Bypass __post_init__'s existence check (which only runs at
+    # construction time) to simulate the file disappearing afterwards.
+    config.iss_path = tmp_path / "custom.iss"
+    installer = InnoSetupInstaller(config)
+    with pytest.raises(InstallerConfigError, match="custom.iss"):
+        installer.build(bundle, "MyApp", "1.2.3", tmp_path / "out")
 
 
 # ////////////////////////////////////////////////

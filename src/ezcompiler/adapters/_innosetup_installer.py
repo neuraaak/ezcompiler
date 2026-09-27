@@ -133,7 +133,14 @@ class InnoSetupInstaller(BaseInstaller):
             )
 
         output_dir.mkdir(parents=True, exist_ok=True)
-        iss_path, tmp_dir = self._resolve_iss_path(app_name, company_name, icon)
+        # ISCC resolves a relative icon path against the .iss file's own
+        # directory (the ephemeral tempfile.mkdtemp(), not the process cwd
+        # or output_dir) — absolutize against cwd so a user-supplied icon
+        # still resolves once render_iss threads it through.
+        resolved_icon = str(Path(icon).resolve()) if icon else ""
+        iss_path, tmp_dir = self._resolve_iss_path(
+            app_name, company_name, resolved_icon
+        )
 
         argv = self._build_argv(
             iscc_path, iss_path, version, bundle_dir, output_dir, main_exe
@@ -188,6 +195,10 @@ class InnoSetupInstaller(BaseInstaller):
         ephemeral ``utf-8-sig`` file — ISCC only reads UTF-8 with a BOM.
         """
         if self._config.iss_path is not None:
+            if not self._config.iss_path.is_file():
+                raise InstallerConfigError(
+                    f"iss_path not found: {self._config.iss_path}"
+                )
             return self._config.iss_path, None
 
         iss_text = render_iss(
