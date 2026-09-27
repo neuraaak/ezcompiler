@@ -225,6 +225,11 @@ class InstallerPort(Protocol):
     inheritance required. ``adapters.BaseInstaller`` and its subclasses
     conform to it.
 
+    An implementation is constructed with an ``InstallerConfig`` (see
+    ``adapters.BaseInstaller.__init__``); the config is not part of this
+    structural contract since only ``build``/``get_installer_name`` are
+    called through the Port.
+
     Used by: InstallerFactory return type, InstallerService boundaries.
     """
 

@@ -16,9 +16,9 @@ from __future__ import annotations
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
 from pathlib import Path
-from typing import Any
 
 from ..adapters import InstallerFactory
+from ..shared import InstallerConfig
 
 # ///////////////////////////////////////////////////////////////
 # CLASSES
@@ -40,7 +40,7 @@ class InstallerService:
         output_dir: Path,
         *,
         installer_type: str = "innosetup",
-        installer_config: dict[str, Any] | None = None,
+        installer_config: InstallerConfig | None = None,
     ) -> Path:
         """Build the installer executable for a compiled bundle.
 
@@ -50,8 +50,7 @@ class InstallerService:
             version: Application version string.
             output_dir: Directory where the setup.exe is produced.
             installer_type: Installer backend to use (default: "innosetup").
-            installer_config: Extra config forwarded to the installer adapter
-                (e.g. "icon", "company_name", "iss_path", "iscc_path").
+            installer_config: Config forwarded to the installer adapter.
 
         Returns:
             Path: The produced setup.exe path.

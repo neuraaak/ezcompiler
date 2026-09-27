@@ -18,8 +18,8 @@ from __future__ import annotations
 # ///////////////////////////////////////////////////////////////
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any
 
+from ..shared import InstallerConfig
 from ..shared.exceptions import InstallerConfigError
 
 # ///////////////////////////////////////////////////////////////
@@ -34,8 +34,8 @@ class BaseInstaller(ABC):
     # INITIALIZATION
     # ////////////////////////////////////////////////
 
-    def __init__(self, config: dict[str, Any] | None = None) -> None:
-        self._config = config or {}
+    def __init__(self, config: InstallerConfig) -> None:
+        self._config = config
 
     # ////////////////////////////////////////////////
     # ABSTRACT METHODS

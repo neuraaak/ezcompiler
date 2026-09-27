@@ -252,18 +252,11 @@ class PipelineService:
         output_dir = config.installer.output_dir or (
             config.output_folder.parent / "installer"
         )
-        installer_config: dict[str, Any] = {
-            "icon": config.icon,
-            "company_name": config.company_name,
-            "per_user": config.installer.per_user,
-        }
-        if config.installer.iss_path is not None:
-            installer_config["iss_path"] = config.installer.iss_path
 
         return InstallerService.build_installer(
             bundle_dir=config.output_folder,
             app_name=config.project_name,
             version=config.version,
             output_dir=output_dir,
-            installer_config=installer_config,
+            installer_config=config.installer,
         )
