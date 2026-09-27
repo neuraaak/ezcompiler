@@ -62,9 +62,16 @@ def test_resolve_app_id_is_deterministic() -> None:
 
 
 def test_resolve_app_id_is_version_independent() -> None:
-    """Regression guard for defect 1: the AppId must not vary per build."""
-    assert resolve_app_id(None, "ACME", "MyApp") == resolve_app_id(
-        None, "ACME", "MyApp"
+    """Regression guard for defect 1: the AppId must not vary per build.
+
+    ``resolve_app_id`` takes no version parameter, so the derivation for a
+    given (company, project) pair is pinned to a hard-coded expected value:
+    any future change that folds a version (or anything else) into the
+    derivation changes this UUID5 and fails this test loudly.
+    """
+    assert (
+        resolve_app_id(None, "ACME", "MyApp")
+        == "{E7A0F07C-6E64-5CEC-92F0-53BF1DB423A4}"
     )
 
 
