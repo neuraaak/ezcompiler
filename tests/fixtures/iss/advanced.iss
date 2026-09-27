@@ -5,19 +5,15 @@
 #define MyAppPublisher "ACME Corp"
 
 [Setup]
-AppId={{A1B2C3D4-1111-2222-3333-444455556666}
+AppId={{CAE3F4E7-B3D9-5E4B-AF0B-FA86334D34E1}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 VersionInfoVersion={#VersionInfo}
 AppPublisher={#MyAppPublisher}
-AppPublisherURL=https://acme.example
-AppSupportURL=https://acme.example/support
-AppUpdatesURL=https://acme.example/updates
-ArchitecturesAllowed=x64
-ArchitecturesInstallIn64BitMode=x64
 DefaultDirName={autopf}\{#MyAppName}
 PrivilegesRequired=admin
-DefaultGroupName=ACME Tools
+DefaultGroupName=MyApp
+LicenseFile=tests\fixtures\iss\LICENSE.txt
 OutputDir={#OutputDir}
 OutputBaseFilename={#MyAppName}-{#MyAppVersion}-setup
 Compression=lzma2/max
@@ -25,11 +21,10 @@ SolidCompression=yes
 WizardStyle=modern
 CloseApplications=yes
 RestartApplications=yes
-SignTool=mytool
+SetupIconFile=assets/icon.ico
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
-Name: "french"; MessagesFile: "compiler:Languages\French.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
@@ -43,9 +38,3 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MainExe}"; Tasks: desktop
 
 [Run]
 Filename: "{app}\{#MainExe}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
-
-[Registry]
-Root: HKCU; Subkey: "Environment"; ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}"; Flags: preservestringtype
-
-[UninstallDelete]
-Type: filesandordirs; Name: "{app}\cache"

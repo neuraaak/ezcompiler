@@ -166,6 +166,34 @@ def test_app_id_is_version_independent() -> None:
     assert "MyAppVersion" not in app_id_line
 
 
+def test_app_id_has_the_doubled_leading_brace_inno_requires() -> None:
+    """A literal GUID AppId needs a doubled opening brace and a single
+    closing one ('{{GUID}'): a bare '{GUID}' is read by ISCC as a
+    reference to a constant named GUID, not as a literal value."""
+    rendered = _render(InstallerConfig(enabled=True))
+    app_id_line = next(
+        line for line in rendered.splitlines() if line.startswith("AppId=")
+    )
+    assert app_id_line.startswith("AppId={{")
+    assert not app_id_line.startswith("AppId={{{")
+    assert app_id_line.endswith("}")
+    assert not app_id_line.endswith("}}")
+
+
+def test_explicit_app_id_also_gets_the_doubled_leading_brace() -> None:
+    rendered = render_iss(
+        InstallerConfig(enabled=True, app_id="{A1B2C3D4-1111-2222-3333-444455556666}"),
+        project_name="MyApp",
+        company_name="ACME Corp",
+        icon="",
+        standalone=False,
+    )
+    app_id_line = next(
+        line for line in rendered.splitlines() if line.startswith("AppId=")
+    )
+    assert app_id_line == "AppId={{A1B2C3D4-1111-2222-3333-444455556666}"
+
+
 def test_user_values_are_escaped() -> None:
     """Regression guard for defect 3: a brace in a name must be doubled."""
     rendered = render_iss(
@@ -246,6 +274,18 @@ def test_undefined_template_variable_raises_render_error(monkeypatch) -> None:
         _render(InstallerConfig(enabled=True))
 
 
+def test_escaping_failure_names_the_offending_field() -> None:
+    """InstallerRenderError must say which field carried the bad value."""
+    with pytest.raises(InstallerRenderError, match="sign_tool_name"):
+        _render(
+            InstallerConfig(
+                enabled=True,
+                sign_tool_name='bad"tool',
+                sign_tool_command="tool.exe $f",
+            )
+        )
+
+
 # ////////////////////////////////////////////////
 # GOLDEN FILES
 # ////////////////////////////////////////////////
@@ -300,3 +340,22 @@ def test_golden_standalone() -> None:
     assert _render(InstallerConfig(enabled=True), standalone=True) == _golden(
         "standalone"
     )
+
+
+def test_golden_advanced() -> None:
+    """Covers the three branches no other golden config exercises:
+    icon set, license_file set, architecture="auto" (which omits both
+    ArchitecturesAllowed and ArchitecturesInstallIn64BitMode)."""
+    config = InstallerConfig(
+        enabled=True,
+        architecture="auto",
+        license_file=Path("tests/fixtures/iss/LICENSE.txt"),
+    )
+    rendered = render_iss(
+        config,
+        project_name="MyApp",
+        company_name="ACME Corp",
+        icon="assets/icon.ico",
+        standalone=False,
+    )
+    assert rendered == _golden("advanced")

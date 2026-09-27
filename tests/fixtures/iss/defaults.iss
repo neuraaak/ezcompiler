@@ -5,7 +5,7 @@
 #define MyAppPublisher "ACME Corp"
 
 [Setup]
-AppId={CAE3F4E7-B3D9-5E4B-AF0B-FA86334D34E1}
+AppId={{CAE3F4E7-B3D9-5E4B-AF0B-FA86334D34E1}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 VersionInfoVersion={#VersionInfo}

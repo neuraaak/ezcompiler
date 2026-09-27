@@ -130,6 +130,7 @@ def render_iss(
     bakes in a stale build.
     """
     env = build_environment()
+    _validate_escaped_fields(config, project_name, company_name, icon)
     try:
         template = env.get_template(_TEMPLATE_NAME)
         app_id = resolve_app_id(config.app_id, company_name, project_name)
@@ -143,7 +144,43 @@ def render_iss(
         )
     except jinja2.TemplateError as exc:
         raise InstallerRenderError(f"failed to render .iss template: {exc}") from exc
-    except ValueError as exc:
-        raise InstallerRenderError(
-            f"invalid value while escaping .iss field: {exc}"
-        ) from exc
+
+
+def _validate_escaped_fields(
+    config: InstallerConfig, project_name: str, company_name: str, icon: str
+) -> None:
+    """Run every value the template passes through the ``iss`` filter
+    through ``escape_iss`` up front, so a rejected character can be
+    reported against the field that carries it instead of a generic
+    template-rendering failure.
+
+    Raises:
+        InstallerRenderError: If a field contains a character ``escape_iss``
+            rejects (quote, newline, tab, or carriage return).
+    """
+    fields: dict[str, str] = {
+        "project_name": project_name,
+        "company_name": company_name,
+        "start_menu_group": config.start_menu_group or project_name,
+        "compression": config.compression,
+    }
+    if config.publisher_url:
+        fields["publisher_url"] = config.publisher_url
+    if config.support_url:
+        fields["support_url"] = config.support_url
+    if config.updates_url:
+        fields["updates_url"] = config.updates_url
+    if config.license_file:
+        fields["license_file"] = str(config.license_file)
+    if icon:
+        fields["icon"] = icon
+    if config.sign_tool_name:
+        fields["sign_tool_name"] = config.sign_tool_name
+
+    for field_name, value in fields.items():
+        try:
+            escape_iss(value)
+        except ValueError as exc:
+            raise InstallerRenderError(
+                f"invalid value for field {field_name!r}: {exc}"
+            ) from exc
