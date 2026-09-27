@@ -7,13 +7,20 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from ezcompiler.adapters._iss_renderer import (
     escape_iss,
+    render_iss,
     resolve_app_id,
     sanitize_version_info,
 )
+from ezcompiler.shared import InstallerConfig
+from ezcompiler.shared.exceptions import InstallerRenderError
+
+FIXTURES = Path(__file__).parent.parent / "fixtures" / "iss"
 
 # ////////////////////////////////////////////////
 # ESCAPING
@@ -124,3 +131,172 @@ def test_sanitize_version_info(version: str, expected: str) -> None:
 def test_sanitize_version_info_rejects_unusable_input() -> None:
     with pytest.raises(ValueError, match="version"):
         sanitize_version_info("nightly")
+
+
+# ////////////////////////////////////////////////
+# RENDERING
+# ////////////////////////////////////////////////
+
+
+def _render(config: InstallerConfig, *, standalone: bool = False) -> str:
+    return render_iss(
+        config,
+        project_name="MyApp",
+        company_name="ACME Corp",
+        icon="",
+        standalone=standalone,
+    )
+
+
+def test_volatile_values_are_never_hardcoded() -> None:
+    """Version and build paths must arrive via ISCC /D, never be written in."""
+    rendered = _render(InstallerConfig(enabled=True))
+    assert "AppVersion={#MyAppVersion}" in rendered
+    assert r'Source: "{#BundleDir}\*"' in rendered
+    assert "OutputDir={#OutputDir}" in rendered
+
+
+def test_app_id_is_version_independent() -> None:
+    """Regression guard for defect 1."""
+    rendered = _render(InstallerConfig(enabled=True))
+    app_id_line = next(
+        line for line in rendered.splitlines() if line.startswith("AppId=")
+    )
+    assert "{#MyAppVersion}" not in app_id_line
+    assert "MyAppVersion" not in app_id_line
+
+
+def test_user_values_are_escaped() -> None:
+    """Regression guard for defect 3: a brace in a name must be doubled."""
+    rendered = render_iss(
+        InstallerConfig(enabled=True),
+        project_name="My{App}X",
+        company_name="ACME",
+        icon="",
+        standalone=False,
+    )
+    # escape_iss doubles only the opening brace (see its docstring): '}' is
+    # left untouched, so "My{App}X" becomes "My{{App}X", not "My{{App}}X".
+    assert "My{{App}X" in rendered
+    assert "My{App}X" not in rendered
+
+
+def test_per_user_switches_directory_and_privileges() -> None:
+    rendered = _render(InstallerConfig(enabled=True, per_user=True))
+    assert r"DefaultDirName={localappdata}\Programs" in rendered
+    assert "PrivilegesRequired=lowest" in rendered
+
+
+def test_add_to_path_emits_a_registry_section() -> None:
+    rendered = _render(InstallerConfig(enabled=True, add_to_path=True))
+    assert "[Registry]" in rendered
+    assert "Path" in rendered
+
+
+def test_add_to_path_omits_the_registry_section_when_off() -> None:
+    rendered = _render(InstallerConfig(enabled=True, add_to_path=False))
+    assert "[Registry]" not in rendered
+
+
+def test_languages_are_emitted_in_order() -> None:
+    rendered = _render(InstallerConfig(enabled=True, languages=["french", "english"]))
+    lines = [line for line in rendered.splitlines() if line.startswith('Name: "')]
+    assert "french" in lines[0]
+    assert "english" in lines[1]
+
+
+def test_sign_tool_is_absent_from_the_script() -> None:
+    """Signing is passed to ISCC via /S, never written into the .iss."""
+    rendered = _render(
+        InstallerConfig(
+            enabled=True, sign_tool_name="mytool", sign_tool_command="tool.exe $f"
+        )
+    )
+    assert "tool.exe" not in rendered
+    assert "SignTool=mytool" in rendered
+
+
+def test_extra_sections_are_appended() -> None:
+    rendered = _render(
+        InstallerConfig(
+            enabled=True, extra_sections={"Code": ["procedure Foo; begin end;"]}
+        )
+    )
+    assert "[Code]" in rendered
+    assert "procedure Foo; begin end;" in rendered
+
+
+def test_standalone_mode_emits_ifndef_defaults() -> None:
+    rendered = _render(InstallerConfig(enabled=True), standalone=True)
+    assert "#ifndef MyAppVersion" in rendered
+    assert "#define MyAppVersion" in rendered
+
+
+def test_ephemeral_mode_omits_ifndef_defaults() -> None:
+    rendered = _render(InstallerConfig(enabled=True), standalone=False)
+    assert "#ifndef" not in rendered
+
+
+def test_undefined_template_variable_raises_render_error(monkeypatch) -> None:
+    """StrictUndefined must turn a template slip into an explicit failure."""
+    from ezcompiler.adapters import _iss_renderer
+
+    monkeypatch.setattr(_iss_renderer, "_TEMPLATE_NAME", "does-not-exist.jinja")
+    with pytest.raises(InstallerRenderError):
+        _render(InstallerConfig(enabled=True))
+
+
+# ////////////////////////////////////////////////
+# GOLDEN FILES
+# ////////////////////////////////////////////////
+
+
+def _golden(name: str) -> str:
+    return (FIXTURES / f"{name}.iss").read_text(encoding="utf-8")
+
+
+def test_golden_defaults() -> None:
+    assert _render(InstallerConfig(enabled=True)) == _golden("defaults")
+
+
+def test_golden_per_user() -> None:
+    config = InstallerConfig(enabled=True, per_user=True, add_to_path=True)
+    assert _render(config) == _golden("per_user")
+
+
+def test_golden_full() -> None:
+    config = InstallerConfig(
+        enabled=True,
+        app_id="{A1B2C3D4-1111-2222-3333-444455556666}",
+        publisher_url="https://acme.example",
+        support_url="https://acme.example/support",
+        updates_url="https://acme.example/updates",
+        architecture="x64",
+        desktop_icon=True,
+        start_menu_group="ACME Tools",
+        launch_after_install=True,
+        add_to_path=True,
+        close_running_app=True,
+        uninstall_delete=[r"{app}\cache"],
+        languages=["english", "french"],
+        wizard_style="modern",
+        compression="lzma2/max",
+        sign_tool_name="mytool",
+        sign_tool_command="tool.exe $f",
+    )
+    assert _render(config) == _golden("full")
+
+
+def test_golden_extras() -> None:
+    config = InstallerConfig(
+        enabled=True,
+        extra_setup_directives={"AppCopyright": "(c) 2026 ACME"},
+        extra_sections={"Code": ["procedure Foo;", "begin", "end;"]},
+    )
+    assert _render(config) == _golden("extras")
+
+
+def test_golden_standalone() -> None:
+    assert _render(InstallerConfig(enabled=True), standalone=True) == _golden(
+        "standalone"
+    )

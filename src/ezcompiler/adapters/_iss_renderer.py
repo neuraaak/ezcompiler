@@ -24,7 +24,11 @@ import re
 import uuid
 from pathlib import Path
 
+import jinja2
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
+
+from ..shared import InstallerConfig
+from ..shared.exceptions import InstallerRenderError
 
 # ///////////////////////////////////////////////////////////////
 # CONSTANTS
@@ -108,3 +112,38 @@ def build_environment() -> Environment:
     )
     env.filters["iss"] = escape_iss
     return env
+
+
+def render_iss(
+    config: InstallerConfig,
+    *,
+    project_name: str,
+    company_name: str,
+    icon: str,
+    standalone: bool,
+) -> str:
+    """Render the .iss script for ``config``.
+
+    Deliberately excludes ``version``, ``bundle_dir``, ``output_dir`` and
+    ``main_exe``: those volatile values reach ISCC as ``/D`` command-line
+    defines (Task 5), so the rendered script stays committable and never
+    bakes in a stale build.
+    """
+    env = build_environment()
+    try:
+        template = env.get_template(_TEMPLATE_NAME)
+        app_id = resolve_app_id(config.app_id, company_name, project_name)
+        return template.render(
+            config=config,
+            project_name=project_name,
+            company_name=company_name,
+            icon=icon,
+            standalone=standalone,
+            app_id=app_id,
+        )
+    except jinja2.TemplateError as exc:
+        raise InstallerRenderError(f"failed to render .iss template: {exc}") from exc
+    except ValueError as exc:
+        raise InstallerRenderError(
+            f"invalid value while escaping .iss field: {exc}"
+        ) from exc
