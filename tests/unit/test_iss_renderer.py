@@ -24,13 +24,17 @@ from ezcompiler.adapters._iss_renderer import (
     ("raw", "expected"),
     [
         ("MyApp", "MyApp"),
-        ("My{App}", "My{{App}}"),
-        ("{autopf}", "{{autopf}}"),
+        ("My{App}", "My{{App}"),
+        ("{autopf}", "{{autopf}"),
         ("a{b{c", "a{{b{{c"),
+        ("closes}here", "closes}here"),
     ],
 )
 def test_escape_iss_doubles_braces(raw: str, expected: str) -> None:
-    """Inno treats '{{' as a literal brace; a bare '{' opens a constant."""
+    """Inno treats '{{' as a literal brace; a bare '{' opens a constant.
+
+    '}' has no special meaning in Inno syntax and is left untouched.
+    """
     assert escape_iss(raw) == expected
 
 
@@ -43,7 +47,7 @@ def test_escape_iss_rejects_breaking_characters(raw: str) -> None:
 
 def test_escape_iss_handles_the_audit_regression_case() -> None:
     """Regression guard for defect 3 of the audit."""
-    assert escape_iss("My{App}X") == "My{{App}}X"
+    assert escape_iss("My{App}X") == "My{{App}X"
 
 
 # ////////////////////////////////////////////////

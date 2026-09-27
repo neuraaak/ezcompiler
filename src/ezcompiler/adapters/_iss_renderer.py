@@ -47,14 +47,16 @@ _VERSION_QUAD_RE = re.compile(r"\d+(?:\.\d+)*")
 def escape_iss(value: str) -> str:
     """Escape a value for safe interpolation into an Inno Setup script.
 
-    Doubles ``{`` and ``}`` so Inno treats them as literal braces instead of
-    opening/closing a constant (e.g. ``{app}``). Rejects characters that
-    would truncate or split the generated directive.
+    Only ``{`` is special in Inno syntax: it introduces a constant (e.g.
+    ``{app}``), and ``{{`` is the documented escape for a literal brace.
+    ``}`` has no special meaning and is emitted as-is; doubling it would
+    produce a spurious extra closing brace in the rendered script. Also
+    rejects characters that would truncate or split the generated directive.
     """
     for character in _FORBIDDEN_IN_ISS:
         if character in value:
             raise ValueError(f"invalid character {character!r} in {value!r}")
-    return value.replace("{", "{{").replace("}", "}}")
+    return value.replace("{", "{{")
 
 
 def resolve_app_id(app_id: str | None, company_name: str, project_name: str) -> str:
