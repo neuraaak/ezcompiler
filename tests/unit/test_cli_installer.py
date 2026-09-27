@@ -115,8 +115,10 @@ def test_should_preserve_other_pyproject_tables_when_generating_configuration(
     )
 
 
+@pytest.mark.parametrize("strip", [False, True])
 def test_should_preserve_windows_paths_when_generating_pyproject(
     tmp_path: Path,
+    strip: bool,
 ) -> None:
     main_file = tmp_path / "main.py"
     main_file.write_text("# main", encoding="utf-8")
@@ -134,6 +136,7 @@ def test_should_preserve_windows_paths_when_generating_pyproject(
             "pyproject",
             "--output",
             str(tmp_path),
+            *(["--strip"] if strip else []),
         ],
     )
 
@@ -141,7 +144,10 @@ def test_should_preserve_windows_paths_when_generating_pyproject(
     generated = tomllib.loads((tmp_path / "pyproject.toml").read_text(encoding="utf-8"))
     config = generated["tool"]["ezcompiler"]
     assert config["main_file"] == str(main_file)
-    assert config["pyinstaller"] == {"optimize": True, "strip": False}
-    assert ConfigService.build_compiler_config(
+    assert config["pyinstaller"] == {"optimize": True, "strip": strip}
+    loaded = ConfigService.build_compiler_config(
         pyproject_path=tmp_path / "pyproject.toml", search_dir=tmp_path
-    ).main_file == str(main_file)
+    )
+    assert loaded.main_file == str(main_file)
+    assert loaded.compiler == "PyInstaller"
+    assert loaded.strip is strip

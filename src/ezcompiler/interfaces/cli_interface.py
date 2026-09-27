@@ -468,6 +468,7 @@ def config(
             generated = dict(config_dict)
             generated.pop("installer")
             compiler_name = generated["compilation"].get("compiler") or "PyInstaller"
+            generated["compilation"]["compiler"] = compiler_name
             compiler_key = COMPILER_SECTION_KEYS[compiler_name]
             compiler_options = dict(generated.get(compiler_key, {}))
             for option in ("optimize", "strip"):
