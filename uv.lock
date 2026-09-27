@@ -448,12 +448,13 @@ wheels = [
 
 [[package]]
 name = "ezcompiler"
-version = "3.3.0"
+version = "3.4.0"
 source = { editable = "." }
 dependencies = [
     { name = "click" },
     { name = "ezplog" },
     { name = "inquirerpy" },
+    { name = "jinja2" },
     { name = "packaging" },
     { name = "pyyaml" },
     { name = "requests" },
@@ -530,6 +531,7 @@ requires-dist = [
     { name = "import-linter", marker = "extra == 'dev'", specifier = ">=2.0.0" },
     { name = "import-linter", marker = "extra == 'test'", specifier = ">=2.0.0" },
     { name = "inquirerpy", specifier = ">=0.3.0" },
+    { name = "jinja2", specifier = ">=3.1.0" },
     { name = "mike", marker = "extra == 'docs'", specifier = ">=2.0.0" },
     { name = "mkdocs", marker = "extra == 'docs'", specifier = ">=1.6.0" },
     { name = "mkdocs-coverage", marker = "extra == 'docs'", specifier = ">=1.1.0" },
