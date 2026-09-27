@@ -42,10 +42,12 @@ from ezplog.lib_mode import get_logger, get_printer
 from .._version import __version__
 from ..services import (
     ConfigService,
+    InstallerService,
     ReleaseService,
     TemplateService,
     UpdaterService,
 )
+from ..shared import COMPILER_SECTION_KEYS
 from ..shared.exceptions import (
     CompilationError,
     ConfigError,
@@ -132,7 +134,7 @@ def generate() -> None:
 @click.option(
     "--format",
     "-fmt",
-    type=click.Choice(["yaml", "json"]),
+    type=click.Choice(["yaml", "json", "pyproject"]),
     default="yaml",
     help="Output format (default: yaml)",
 )
@@ -387,7 +389,7 @@ def config(
         if tuf_enabled:
             cli_overrides.setdefault("release", {})["tuf_enabled"] = True
         if installer_enabled:
-            cli_overrides.setdefault("installer", {})["installer_enabled"] = True
+            cli_overrides.setdefault("installer", {})["enabled"] = True
         # optimize/strip are compiler-specific: the template emits them under
         # the compiler section. debug stays generic (advanced).
         cli_overrides["optimize"] = optimize
@@ -447,6 +449,7 @@ def config(
         config_dict.setdefault("optimize", True)
         config_dict.setdefault("strip", False)
         config_dict.setdefault("advanced", {"debug": False})
+        config_dict.setdefault("installer", {}).setdefault("enabled", False)
 
         # Validate: project_name is required
         if not config_dict.get("project_name"):
@@ -461,9 +464,42 @@ def config(
 
         # Generate configuration file in chosen format
         template_service = _get_template_service()
-        content = template_service.process_config_template(format, config_dict)
-        filename = "ezcompiler.yaml" if format == "yaml" else "ezcompiler.json"
-        target = output_path / filename
+        if format == "pyproject":
+            generated = dict(config_dict)
+            generated.pop("installer")
+            compiler_name = generated["compilation"].get("compiler") or "PyInstaller"
+            compiler_key = COMPILER_SECTION_KEYS[compiler_name]
+            compiler_options = dict(generated.get(compiler_key, {}))
+            for option in ("optimize", "strip"):
+                compiler_options.setdefault(option, generated.pop(option))
+            generated[compiler_key] = compiler_options
+            target = output_path / "pyproject.toml"
+            _create_or_update_pyproject(target, generated)
+            installer_block = tomli_w.dumps(
+                {"tool": {"ezcompiler": {"installer": config_dict["installer"]}}}
+            )
+            content = target.read_text(encoding="utf-8") + "\n" + installer_block
+            content += (
+                "# per_user = true                    # installs into %LOCALAPPDATA% "
+                "(required for tufup auto-update)\n"
+                '# iss_path = "installer/MyApp.iss"   # script produced by '
+                "`ezcompiler generate iss`\n"
+                "# Full option set: `ezcompiler generate iss --help` and "
+                "docs/guides/windows-installer.md\n"
+            )
+        else:
+            content = template_service.process_config_template(format, config_dict)
+            filename = "ezcompiler.yaml" if format == "yaml" else "ezcompiler.json"
+            target = output_path / filename
+            if format == "json":
+                # Extend the existing template without changing its other fields.
+                content = content.rstrip().removesuffix("}").rstrip()
+                content += ',\n  "installer": ' + json.dumps(config_dict["installer"])
+                content += "\n}\n"
+            else:
+                content += "\n" + yaml.safe_dump(
+                    {"installer": config_dict["installer"]}
+                )
         target.write_text(content, encoding="utf-8")
         printer.success(f"Configuration file generated: {target}")
         logger.info(f"Configuration file generated: {target}")
@@ -699,6 +735,50 @@ def setup(
         logger.info(f"setup.py file generated: {setup_file_path}")
 
     except (TemplateError, ConfigError) as e:
+        printer.error(str(e))
+        logger.error(str(e))
+        sys.exit(1)
+
+
+@generate.command(name="iss")
+@click.option(
+    "--output",
+    "-o",
+    type=click.Path(dir_okay=False, path_type=Path),
+    default=None,
+    help="Script path (default: installer/<project_name>.iss).",
+)
+@click.option(
+    "--force",
+    "-f",
+    is_flag=True,
+    default=False,
+    help="Overwrite an existing script.",
+)
+def generate_iss(output: Path | None, force: bool) -> None:
+    """Generate an editable Inno Setup script from the project configuration.
+
+    Auto-discovers pyproject.toml, ezcompiler.yaml, or ezcompiler.json.
+    Once installer.iss_path is set, script-generation options are ignored;
+    edit the script itself to customize the installer.
+    """
+    printer = _get_printer()
+    logger = _get_logger()
+    try:
+        config_obj = ConfigService.build_compiler_config()
+        output_path = output or Path("installer") / f"{config_obj.project_name}.iss"
+        target = InstallerService.generate_iss_script(
+            config_obj, output_path, force=force
+        )
+        printer.success(f"Inno Setup script generated: {target}")
+        printer.info("Add to [tool.ezcompiler.installer]:")
+        printer.info(tomli_w.dumps({"iss_path": target.as_posix()}).strip())
+        printer.warning(
+            "With iss_path set, installer script-generation options are ignored; "
+            "edit the .iss file to change them."
+        )
+        logger.info("Inno Setup script generated: %s", target)
+    except (InstallerError, ConfigError, ConfigurationError) as e:
         printer.error(str(e))
         logger.error(str(e))
         sys.exit(1)
