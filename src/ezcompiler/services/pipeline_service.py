@@ -16,6 +16,8 @@ from __future__ import annotations
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
 # Standard library imports
+import dataclasses as _dc
+import logging
 import shutil
 from collections.abc import Callable
 from pathlib import Path
@@ -23,10 +25,51 @@ from typing import Any, Literal, cast
 
 # Local imports
 from ..shared import CompilationResult, CompilerConfig
+from ..shared._installer_config import InstallerConfig
 from .compiler_service import CompilerService
 from .installer_service import InstallerService
 from .release_service import ReleaseService
 from .uploader_service import UploaderService
+
+# ///////////////////////////////////////////////////////////////
+# CONSTANTS
+# ///////////////////////////////////////////////////////////////
+
+_logger = logging.getLogger(__name__)
+
+# Frame fields: stay meaningful even in file mode (iss_path is provided).
+_FRAME_FIELDS = frozenset({"enabled", "iss_path", "output_dir", "iscc_path"})
+
+# ///////////////////////////////////////////////////////////////
+# FUNCTIONS
+# ///////////////////////////////////////////////////////////////
+
+
+def _warn_ignored_options(installer: InstallerConfig) -> None:
+    """Warn about typed fields left meaningless when ``iss_path`` is set.
+
+    In file mode, ISCC compiles the user's own ``.iss`` file directly: every
+    typed field besides the frame ones (``enabled``/``iss_path``/
+    ``output_dir``/``iscc_path``) is silently ignored. Only fields the user
+    actually set (differing from the dataclass default) are named, so an
+    untouched default is not flagged as a false positive.
+    """
+    defaults = InstallerConfig()
+    changed = [
+        f.name
+        for f in _dc.fields(installer)
+        if f.name not in _FRAME_FIELDS
+        and getattr(installer, f.name) != getattr(defaults, f.name)
+    ]
+    if changed:
+        _logger.warning(
+            "installer.iss_path is set: the following options are ignored "
+            "because ISCC compiles that file directly instead of one "
+            "generated from config: %s. Run `generate iss --force` to "
+            "regenerate the script from config and pick them up.",
+            ", ".join(sorted(changed)),
+        )
+
 
 # ///////////////////////////////////////////////////////////////
 # CLASSES
@@ -253,10 +296,15 @@ class PipelineService:
             config.output_folder.parent / "installer"
         )
 
+        if config.installer.iss_path is not None:
+            _warn_ignored_options(config.installer)
+
         return InstallerService.build_installer(
             bundle_dir=config.output_folder,
             app_name=config.project_name,
             version=config.version,
             output_dir=output_dir,
             installer_config=config.installer,
+            company_name=config.company_name,
+            icon=config.icon,
         )

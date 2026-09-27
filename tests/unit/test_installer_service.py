@@ -1,8 +1,25 @@
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
+import pytest
+
 from ezcompiler.services.installer_service import InstallerService
+from ezcompiler.shared._compiler_config import CompilerConfig
+from ezcompiler.shared.exceptions import InstallerConfigError
+
+
+def _config(tmp_path: Path) -> CompilerConfig:
+    main_file = tmp_path / "main.py"
+    main_file.write_text("print('hi')")
+    return CompilerConfig(
+        version="1.0.0",
+        project_name="MyApp",
+        main_file=str(main_file),
+        include_files={"files": [], "folders": []},
+        output_folder=tmp_path / "dist",
+    )
 
 
 def test_build_installer_delegates_to_factory(monkeypatch, tmp_path: Path) -> None:
@@ -43,3 +60,39 @@ def test_build_installer_delegates_to_factory(monkeypatch, tmp_path: Path) -> No
         "1.0.0",
         tmp_path / "installer",
     )
+
+
+def test_generate_iss_script_writes_the_file(tmp_path: Path) -> None:
+    target = tmp_path / "installer" / "MyApp.iss"
+    result = InstallerService.generate_iss_script(
+        _config(tmp_path), target, force=False
+    )
+    assert result == target
+    assert target.is_file()
+    assert "#ifndef MyAppVersion" in target.read_text(encoding="utf-8-sig")
+
+
+def test_generate_iss_script_refuses_to_overwrite(tmp_path: Path) -> None:
+    target = tmp_path / "MyApp.iss"
+    target.write_text("; hand-edited", encoding="utf-8")
+    with pytest.raises(InstallerConfigError, match="--force"):
+        InstallerService.generate_iss_script(_config(tmp_path), target, force=False)
+    assert target.read_text(encoding="utf-8") == "; hand-edited"
+
+
+def test_generate_iss_script_overwrites_with_force(tmp_path: Path) -> None:
+    target = tmp_path / "MyApp.iss"
+    target.write_text("; hand-edited", encoding="utf-8")
+    InstallerService.generate_iss_script(_config(tmp_path), target, force=True)
+    assert "; hand-edited" not in target.read_text(encoding="utf-8-sig")
+
+
+def test_generated_script_resolves_the_app_id_inline(tmp_path: Path) -> None:
+    """generate iss freezes the GUID: the file becomes the identity source."""
+    target = tmp_path / "MyApp.iss"
+    InstallerService.generate_iss_script(_config(tmp_path), target, force=False)
+    content = target.read_text(encoding="utf-8-sig")
+    app_id_line = next(
+        line for line in content.splitlines() if line.startswith("AppId=")
+    )
+    assert re.search(r"\{[0-9A-F-]{36}\}", app_id_line)

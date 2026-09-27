@@ -15,10 +15,23 @@ from __future__ import annotations
 # ///////////////////////////////////////////////////////////////
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
+import logging
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from ..adapters import InstallerFactory
+from ..adapters._iss_renderer import render_iss
 from ..shared import InstallerConfig
+from ..shared.exceptions import InstallerConfigError
+
+if TYPE_CHECKING:
+    from ..shared._compiler_config import CompilerConfig
+
+# ///////////////////////////////////////////////////////////////
+# CONSTANTS
+# ///////////////////////////////////////////////////////////////
+
+_logger = logging.getLogger(__name__)
 
 # ///////////////////////////////////////////////////////////////
 # CLASSES
@@ -74,3 +87,53 @@ class InstallerService:
             company_name=company_name,
             icon=icon,
         )
+
+    @staticmethod
+    def generate_iss_script(
+        config: CompilerConfig, output_path: Path, *, force: bool
+    ) -> Path:
+        """Render a standalone, committable ``.iss`` script for ``config``.
+
+        Unlike the ephemeral build path, the icon is emitted verbatim
+        (never absolutized): the standalone script is meant to be committed,
+        and an absolute machine-specific path would defeat that. A relative
+        icon triggers a warning, since ISCC resolves it against the ``.iss``
+        file's own directory rather than the process cwd.
+
+        Args:
+            config: Compiler configuration (provides installer, company_name,
+                icon and project_name).
+            output_path: Destination ``.iss`` file path.
+            force: When False, refuse to overwrite an existing file.
+
+        Returns:
+            Path: ``output_path``, once written.
+
+        Raises:
+            InstallerConfigError: If ``output_path`` already exists and
+                ``force`` is False.
+        """
+        if output_path.exists() and not force:
+            raise InstallerConfigError(
+                f"{output_path} already exists; pass --force to overwrite it"
+            )
+
+        if config.icon and not Path(config.icon).is_absolute():
+            _logger.warning(
+                "installer.icon %r is a relative path: ISCC resolves it "
+                "against the .iss file's own directory, not the current "
+                "working directory",
+                config.icon,
+            )
+
+        content = render_iss(
+            config.installer,
+            project_name=config.project_name,
+            company_name=config.company_name,
+            icon=config.icon,
+            standalone=True,
+        )
+
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(content, encoding="utf-8-sig")
+        return output_path

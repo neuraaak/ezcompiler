@@ -7,6 +7,7 @@ import pytest
 
 from ezcompiler.interfaces.python_api import EzCompiler
 from ezcompiler.shared._compiler_config import CompilerConfig
+from ezcompiler.shared._installer_config import InstallerConfig
 from ezcompiler.shared.exceptions import InstallerError
 
 
@@ -48,7 +49,7 @@ def test_run_pipeline_skips_installer_when_disabled(tmp_path: Path) -> None:
 
 def test_run_pipeline_builds_installer_when_enabled(tmp_path: Path) -> None:
     kwargs = _base_kwargs(tmp_path)
-    kwargs["installer_enabled"] = True
+    kwargs["installer"] = InstallerConfig(enabled=True)
     config = CompilerConfig(**kwargs)
     compiler = _make_compiler(config)
     compiler._pipeline_service.build_installer = MagicMock(
@@ -62,7 +63,7 @@ def test_run_pipeline_builds_installer_when_enabled(tmp_path: Path) -> None:
 
 def test_run_pipeline_propagates_installer_error(tmp_path: Path) -> None:
     kwargs = _base_kwargs(tmp_path)
-    kwargs["installer_enabled"] = True
+    kwargs["installer"] = InstallerConfig(enabled=True)
     config = CompilerConfig(**kwargs)
     compiler = _make_compiler(config)
     compiler._pipeline_service.build_installer = MagicMock(
