@@ -188,7 +188,7 @@ class PipelineService:
 
             release/
             ├── <App>.zip                     (si le fichier existe)
-            └── <App>-<version>-setup.exe      (si installer_enabled=True)
+            └── <App>-<version>-setup.exe      (si installer.enabled=True)
 
         L'arbre TUF (metadata/ + targets/) reste dans tufup_repo_dir et est
         poussé directement vers le backend d'update par upload().
@@ -208,8 +208,8 @@ class PipelineService:
         if zip_path.is_file():
             shutil.copy2(zip_path, release_dir / zip_path.name)
 
-        if config.installer_enabled:
-            installer_dir = config.installer_output_dir or (
+        if config.installer.enabled:
+            installer_dir = config.installer.output_dir or (
                 config.output_folder.parent / "installer"
             )
             installer_exe = (
@@ -245,20 +245,20 @@ class PipelineService:
         config: CompilerConfig,
         compilation_result: CompilationResult | None,  # noqa: ARG004
     ) -> Path | None:
-        """Build the Inno Setup installer when installer_enabled=True."""
-        if not config.installer_enabled:
+        """Build the Inno Setup installer when installer.enabled=True."""
+        if not config.installer.enabled:
             return None
 
-        output_dir = config.installer_output_dir or (
+        output_dir = config.installer.output_dir or (
             config.output_folder.parent / "installer"
         )
         installer_config: dict[str, Any] = {
             "icon": config.icon,
             "company_name": config.company_name,
-            "per_user": config.installer_per_user,
+            "per_user": config.installer.per_user,
         }
-        if config.installer_iss_path is not None:
-            installer_config["iss_path"] = config.installer_iss_path
+        if config.installer.iss_path is not None:
+            installer_config["iss_path"] = config.installer.iss_path
 
         return InstallerService.build_installer(
             bundle_dir=config.output_folder,

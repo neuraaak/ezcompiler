@@ -700,7 +700,7 @@ class EzCompiler:
         # Determine which optional stages to include
         should_zip = not skip_zip
         should_release = not skip_release and self._config.tuf_enabled
-        should_installer = not skip_installer and self._config.installer_enabled
+        should_installer = not skip_installer and self._config.installer.enabled
 
         # Pre-flight: fail early if release needed but keys absent
         if should_release:
