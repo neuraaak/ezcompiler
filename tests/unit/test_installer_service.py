@@ -10,7 +10,7 @@ from ezcompiler.shared._compiler_config import CompilerConfig
 from ezcompiler.shared.exceptions import InstallerConfigError
 
 
-def _config(tmp_path: Path) -> CompilerConfig:
+def _config(tmp_path: Path, icon: str = "") -> CompilerConfig:
     main_file = tmp_path / "main.py"
     main_file.write_text("print('hi')")
     return CompilerConfig(
@@ -19,6 +19,7 @@ def _config(tmp_path: Path) -> CompilerConfig:
         main_file=str(main_file),
         include_files={"files": [], "folders": []},
         output_folder=tmp_path / "dist",
+        icon=icon,
     )
 
 
@@ -85,6 +86,26 @@ def test_generate_iss_script_overwrites_with_force(tmp_path: Path) -> None:
     target.write_text("; hand-edited", encoding="utf-8")
     InstallerService.generate_iss_script(_config(tmp_path), target, force=True)
     assert "; hand-edited" not in target.read_text(encoding="utf-8-sig")
+
+
+def test_generate_iss_script_warns_on_relative_icon(tmp_path, caplog) -> None:
+    target = tmp_path / "MyApp.iss"
+    with caplog.at_level("WARNING"):
+        InstallerService.generate_iss_script(
+            _config(tmp_path, icon="app.ico"), target, force=False
+        )
+    assert "app.ico" in caplog.text
+    assert "relative" in caplog.text
+
+
+def test_generate_iss_script_does_not_warn_on_absolute_icon(tmp_path, caplog) -> None:
+    icon = tmp_path / "app.ico"
+    target = tmp_path / "MyApp.iss"
+    with caplog.at_level("WARNING"):
+        InstallerService.generate_iss_script(
+            _config(tmp_path, icon=str(icon)), target, force=False
+        )
+    assert "relative" not in caplog.text
 
 
 def test_generated_script_resolves_the_app_id_inline(tmp_path: Path) -> None:
