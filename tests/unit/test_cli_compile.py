@@ -15,7 +15,7 @@ def _cfg(tmp_path: Path) -> CompilerConfig:
         project_name="MyApp",
         main_file=str(tmp_path / "main.py"),
         include_files={"files": [], "folders": []},
-        output_folder=str(tmp_path / "dist"),
+        output_folder=tmp_path / "dist",
     )
 
 

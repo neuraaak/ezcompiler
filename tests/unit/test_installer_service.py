@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from ezcompiler.services.installer_service import InstallerService
+from ezcompiler.shared import InstallerConfig
 from ezcompiler.shared._compiler_config import CompilerConfig
 from ezcompiler.shared.exceptions import InstallerConfigError
 
@@ -45,16 +46,17 @@ def test_build_installer_delegates_to_factory(monkeypatch, tmp_path: Path) -> No
         _fake_create,
     )
 
+    installer_config = InstallerConfig(publisher_url="https://example.com")
     result = InstallerService.build_installer(
         bundle_dir=tmp_path / "bundle",
         app_name="MyApp",
         version="1.0.0",
         output_dir=tmp_path / "installer",
-        installer_config={"icon": "app.ico"},
+        installer_config=installer_config,
     )
 
     assert result == tmp_path / "installer" / "MyApp-1.0.0-setup.exe"
-    assert calls["create"] == ("innosetup", {"icon": "app.ico"})
+    assert calls["create"] == ("innosetup", installer_config)
     assert calls["build"] == (
         tmp_path / "bundle",
         "MyApp",

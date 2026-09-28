@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 from unittest.mock import MagicMock
 
 import pytest
@@ -10,7 +11,7 @@ from ezcompiler.interfaces.python_api import EzCompiler
 from ezcompiler.shared.exceptions import ConfigurationError
 
 
-def _cfg(tmp_path: Path, **kwargs: object) -> CompilerConfig:
+def _cfg(tmp_path: Path, **kwargs: Any) -> CompilerConfig:
     main = tmp_path / "main.py"
     if not main.exists():
         main.write_text("# main", encoding="utf-8")

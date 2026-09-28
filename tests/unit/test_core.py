@@ -78,7 +78,7 @@ class TestCompilerConfig:
             project_name="TestProject",
             main_file=str(main_file),
             include_files={"files": [], "folders": []},
-            output_folder=str(temp_dir / "dist"),
+            output_folder=temp_dir / "dist",
         )
         assert config is not None
         assert config.version == "1.0.0"
@@ -96,7 +96,7 @@ class TestCompilerConfig:
             project_name="FullTestProject",
             main_file=str(main_file),
             include_files={"files": [], "folders": []},
-            output_folder=str(temp_dir / "dist"),
+            output_folder=temp_dir / "dist",
             project_description="A test project",
             company_name="TestCorp",
             author="Test Author",
@@ -127,7 +127,7 @@ class TestCompilerConfig:
             project_name="DictTestProject",
             main_file=str(main_file),
             include_files={"files": [], "folders": []},
-            output_folder=str(temp_dir / "dist"),
+            output_folder=temp_dir / "dist",
         )
         config_dict = config.to_dict()
         assert isinstance(config_dict, dict)
@@ -163,7 +163,7 @@ class TestCompilerConfig:
             project_name="DefaultTest",
             main_file=str(main_file),
             include_files={"files": [], "folders": []},
-            output_folder=str(temp_dir / "dist"),
+            output_folder=temp_dir / "dist",
         )
         assert config.console is True
         assert config.compiler == ""
@@ -186,7 +186,7 @@ class TestCompilerConfig:
                 project_name="P",
                 main_file=str(main_file),
                 include_files={"files": [""], "folders": []},
-                output_folder=str(temp_dir / "dist"),
+                output_folder=temp_dir / "dist",
             )
 
     def test_should_raise_configuration_error_when_include_folders_contains_empty_string(
@@ -201,7 +201,7 @@ class TestCompilerConfig:
                 project_name="P",
                 main_file=str(main_file),
                 include_files={"files": [], "folders": [""]},
-                output_folder=str(temp_dir / "dist"),
+                output_folder=temp_dir / "dist",
             )
 
     def test_should_raise_configuration_error_when_compiler_is_unknown(
@@ -216,7 +216,7 @@ class TestCompilerConfig:
                 project_name="P",
                 main_file=str(main_file),
                 include_files={"files": [], "folders": []},
-                output_folder=str(temp_dir / "dist"),
+                output_folder=temp_dir / "dist",
                 compiler="NotACompiler",
             )
 
@@ -230,7 +230,7 @@ class TestCompilerConfig:
             project_name="P",
             main_file=str(main_file),
             include_files={"files": [], "folders": []},
-            output_folder=str(temp_dir / "dist"),
+            output_folder=temp_dir / "dist",
         )
 
         d = config.to_dict()
@@ -245,7 +245,7 @@ class TestCompilerConfig:
             project_name="P",
             main_file=str(main_file),
             include_files={"files": [], "folders": []},
-            output_folder=str(temp_dir / "dist"),
+            output_folder=temp_dir / "dist",
         )
 
         d = config.to_dict()
@@ -387,7 +387,7 @@ class TestCompilerConfig:
             project_name="P",
             main_file=str(main_file),
             include_files={"files": [], "folders": []},
-            output_folder=str(temp_dir / "dist"),
+            output_folder=temp_dir / "dist",
             version_filename="ver.txt",
         )
 
@@ -401,7 +401,7 @@ class TestCompilerConfig:
             project_name="MyApp",
             main_file=str(main_file),
             include_files={"files": [], "folders": []},
-            output_folder=str(temp_dir / "dist"),
+            output_folder=temp_dir / "dist",
         )
 
         assert config.zip_file_path == temp_dir / "MyApp.zip"

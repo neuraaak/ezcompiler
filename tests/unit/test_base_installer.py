@@ -11,7 +11,14 @@ from ezcompiler.shared.exceptions import InstallerConfigError
 
 class _ConcreteInstaller(BaseInstaller):
     def build(
-        self, bundle_dir: Path, app_name: str, version: str, output_dir: Path
+        self,
+        bundle_dir: Path,
+        app_name: str,
+        version: str,
+        output_dir: Path,
+        *,
+        company_name: str = "",
+        icon: str = "",
     ) -> Path:
         self._validate_bundle_dir(bundle_dir)
         return output_dir / f"{app_name}-{version}-setup.exe"

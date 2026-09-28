@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -15,7 +16,7 @@ def main_file(tmp_path: Path) -> Path:
     return f
 
 
-def _base(main_file: Path, **extra: object) -> CompilerConfig:
+def _base(main_file: Path, **extra: Any) -> CompilerConfig:
     return CompilerConfig(
         version="1.0.0",
         project_name="App",

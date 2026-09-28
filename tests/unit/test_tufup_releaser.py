@@ -3,6 +3,7 @@ from __future__ import annotations
 import sys
 import types as _types
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -46,7 +47,7 @@ def test_release_raises_when_keys_dir_missing(tmp_path: Path) -> None:
 def test_release_calls_tufup_and_returns_repository(
     monkeypatch, tmp_path: Path
 ) -> None:
-    calls: dict[str, object] = {}
+    calls: dict[str, Any] = {}
 
     class _FakeRepo:
         def __init__(self, **kwargs):
@@ -155,7 +156,7 @@ def test_release_fails_fast_when_repo_not_initialized(
 
 
 def test_release_forwards_expiration_days(monkeypatch, tmp_path: Path) -> None:
-    calls: dict[str, object] = {}
+    calls: dict[str, Any] = {}
 
     class _FakeRepo:
         def __init__(self, **kwargs):
@@ -268,7 +269,7 @@ def test_init_keys_initializes_when_keys_present_but_metadata_missing(
 ) -> None:
     """Keys exist but the repo metadata was never created (or was cleaned):
     init must (re)run initialize() instead of skipping."""
-    calls: dict[str, object] = {}
+    calls: dict[str, Any] = {}
 
     class _FakeRepo:
         def __init__(self, **kwargs: object) -> None:
@@ -302,7 +303,7 @@ def test_init_keys_raises_signing_key_error_when_keys_dir_not_creatable(
 
     original_mkdir = Path.mkdir
 
-    def _bad_mkdir(self: Path, **kwargs: object) -> None:
+    def _bad_mkdir(self: Path, **kwargs: Any) -> None:
         if self == keys:
             raise OSError("permission denied")
         original_mkdir(self, **kwargs)
@@ -315,7 +316,7 @@ def test_init_keys_raises_signing_key_error_when_keys_dir_not_creatable(
 def test_init_keys_calls_tufup_repository_and_returns_true(
     monkeypatch, tmp_path: Path
 ) -> None:
-    calls: dict[str, object] = {}
+    calls: dict[str, Any] = {}
 
     class _FakeRepo:
         def __init__(self, **kwargs: object) -> None:

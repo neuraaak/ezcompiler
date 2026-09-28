@@ -197,7 +197,7 @@ def test_iss_is_written_with_a_bom(tmp_path, monkeypatch):
 
 
 def test_ephemeral_iss_is_removed_on_success(tmp_path, monkeypatch):
-    setup_exe, call = _build(monkeypatch, tmp_path)
+    _, call = _build(monkeypatch, tmp_path)
     iss_path = Path(call.argv[-1])
     assert not iss_path.exists()
 

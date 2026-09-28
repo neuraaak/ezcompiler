@@ -136,7 +136,9 @@ class TestEzCompilerInitialization:
             author="Test Author",
         )
 
-        assert compiler.config.version == "2.0.0"
-        assert compiler.config.project_name == "FullProject"
-        assert compiler.config.company_name == "TestCorp"
-        assert compiler.config.author == "Test Author"
+        config = compiler.config
+        assert config is not None
+        assert config.version == "2.0.0"
+        assert config.project_name == "FullProject"
+        assert config.company_name == "TestCorp"
+        assert config.author == "Test Author"

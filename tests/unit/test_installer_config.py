@@ -57,7 +57,10 @@ def test_license_file_must_exist(tmp_path: Path) -> None:
 def test_str_paths_are_coerced(tmp_path: Path) -> None:
     script = tmp_path / "custom.iss"
     script.write_text("; empty", encoding="utf-8")
-    config = InstallerConfig(enabled=True, iss_path=str(script))
+    config = InstallerConfig(
+        enabled=True,
+        iss_path=str(script),  # pyright: ignore[reportArgumentType]
+    )
     assert isinstance(config.iss_path, Path)
 
 
@@ -68,12 +71,18 @@ def test_str_paths_are_coerced(tmp_path: Path) -> None:
 
 def test_architecture_is_bounded() -> None:
     with pytest.raises(ConfigurationError, match="architecture"):
-        InstallerConfig(enabled=True, architecture="itanium")
+        InstallerConfig(
+            enabled=True,
+            architecture="itanium",  # pyright: ignore[reportArgumentType]
+        )
 
 
 def test_wizard_style_is_bounded() -> None:
     with pytest.raises(ConfigurationError, match="wizard_style"):
-        InstallerConfig(enabled=True, wizard_style="retro")
+        InstallerConfig(
+            enabled=True,
+            wizard_style="retro",  # pyright: ignore[reportArgumentType]
+        )
 
 
 def test_unknown_language_is_rejected() -> None:

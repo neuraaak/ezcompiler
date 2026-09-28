@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 from unittest.mock import MagicMock
 
 import pytest
@@ -69,7 +70,7 @@ def test_release_uses_output_folder_as_default_repo(
     assert captured["repo_dir"] == tmp_path / "dist" / "repo"
 
 
-def _make_cfg(tmp_path: Path, **kwargs: object) -> CompilerConfig:
+def _make_cfg(tmp_path: Path, **kwargs: Any) -> CompilerConfig:
     main = tmp_path / "main.py"
     if not main.exists():
         main.write_text("# main", encoding="utf-8")

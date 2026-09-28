@@ -1,12 +1,15 @@
 from pathlib import Path
 from unittest.mock import patch
 
+from ezcompiler import ReleaseDestination
 from ezcompiler.interfaces.python_api import EzCompiler
 from ezcompiler.shared import CompilerConfig
 
 
 def _config(
-    tmp_path: Path, release_destination: str = "disk", release_endpoint: str = ""
+    tmp_path: Path,
+    release_destination: ReleaseDestination = "disk",
+    release_endpoint: str = "",
 ) -> CompilerConfig:
     main = tmp_path / "main.py"
     main.write_text("# main", encoding="utf-8")
