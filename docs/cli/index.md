@@ -137,10 +137,10 @@ ezcompiler generate build --config ezcompiler.yaml
 ezcompiler generate build --from-pyproject pyproject.toml --output scripts
 ```
 
-| Option     | Required | Default | Description                                    |
-| :--------- | :------- | :------ | :--------------------------------------------- |
-| `--config` | No       | —       | Path to configuration file (YAML or JSON)      |
-| `--output` | No       | `"."`   | Output **directory**; the file is `build.py`   |
+| Option     | Required | Default | Description                                  |
+| :--------- | :------- | :------ | :------------------------------------------- |
+| `--config` | No       | —       | Path to configuration file (YAML or JSON)    |
+| `--output` | No       | `"."`   | Output **directory**; the file is `build.py` |
 
 ---
 

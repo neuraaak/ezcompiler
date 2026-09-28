@@ -127,6 +127,35 @@ Choose the backend that matches your distribution requirements.
     )
     ```
 
+=== "Windows installer"
+
+    The installer is a nested section, not a set of flat keys — the pre-4.0.0
+    `installer_enabled` and friends are rejected with an error naming their
+    replacement.
+
+    ```yaml
+    # ezcompiler.yaml — added alongside the keys above
+    installer:
+      enabled: true
+      per_user: true
+      output_dir: "dist/installer"
+      # iss_path: "installer/MyApp.iss"   # adopt a script; generation options
+      #                                     then become inert
+    ```
+
+    ```python
+    from ezcompiler.shared import InstallerConfig
+
+    config = CompilerConfig(
+        ...,
+        installer=InstallerConfig(enabled=True, per_user=True),
+    )
+    ```
+
+    Twenty more options cover shortcuts, languages, signing, `PATH` and extra
+    script sections; see [Windows installer](windows-installer.md) for the full
+    table and the 4.0.0 migration.
+
 ## ✅ Result
 
 Your project compiles to the `output_folder` using the configured backend.

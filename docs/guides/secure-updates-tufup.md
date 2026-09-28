@@ -34,12 +34,6 @@ The paths (`tuf_repo_dir`, `tuf_keys_dir`) are read from the project config file
 ezcompiler release init --config path/to/ezcompiler.config.yaml
 ```
 
-Alternatively, call it from your setup script (one-time, before the first build):
-
-```bash
-python setup.py --init
-```
-
 This creates:
 
 - `./keystore/` — signing keys (root, targets, snapshot, timestamp).
