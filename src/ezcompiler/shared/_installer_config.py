@@ -453,7 +453,10 @@ class InstallerConfig:
         Raises:
             ConfigurationError: If data contains an unknown key.
         """
-        valid_fields = {f.name for f in _dc.fields(cls)}
+        # The concrete class, not ``cls``: a ``type[Self]`` does not satisfy
+        # the ``DataclassInstance`` protocol for type checkers, and nothing
+        # subclasses InstallerConfig.
+        valid_fields = {f.name for f in _dc.fields(InstallerConfig)}
         # v3.4.0's own to_dict() nested the flat keys inside the installer
         # table, so they reach here rather than the top-level scan in
         # CompilerConfig.from_dict — both shapes must name the replacement.

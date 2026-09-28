@@ -136,15 +136,20 @@ def _make_compiler(config: CompilerConfig) -> tuple[EzCompiler, MagicMock]:
 def test_should_skip_version_and_compile_when_skip_build(tmp_path: Path) -> None:
     config = _config(tmp_path, installer=InstallerConfig(enabled=True))
     compiler, fake_service = _make_compiler(config)
-    compiler._pipeline_service.build_installer = MagicMock(return_value=None)
+    # Bound through locals: reading the assertions back off the patched
+    # attributes would type-check against their real declared types.
+    template_service = MagicMock()
+    build_installer = MagicMock(return_value=None)
+    compiler._template_service = template_service
+    compiler._pipeline_service.build_installer = build_installer
 
     compiler.run_pipeline(skip_build=True)
 
     fake_service.compile.assert_not_called()
-    compiler._template_service.generate_version_file.assert_not_called()
+    template_service.generate_version_file.assert_not_called()
     fake_service.use_existing_build.assert_called_once()
     fake_service._zip_artifact.assert_called_once()
-    compiler._pipeline_service.build_installer.assert_called_once()
+    build_installer.assert_called_once()
 
 
 def test_should_propagate_error_when_no_existing_build(tmp_path: Path) -> None:
