@@ -32,7 +32,7 @@ from .._types import CompilerPort
 from ..adapters import CompilerFactory
 from ..shared import CompilationResult, CompilerConfig
 from ..shared.exceptions import CompilationError, ConfigurationError
-from ..utils import ZipUtils
+from ..utils import CompilerUtils, ZipUtils
 from ..utils.validators import validate_compiler_name
 
 # ///////////////////////////////////////////////////////////////
@@ -146,6 +146,56 @@ class CompilerService:
             raise
         except Exception as e:
             raise CompilationError(f"Compilation failed: {str(e)}") from e
+
+    def use_existing_build(
+        self,
+        compiler: _CompilerName | None = None,
+    ) -> CompilationResult:
+        """
+        Reuse a previous build from output_folder instead of compiling.
+
+        Resolves the compiler (without running it) so downstream stages
+        (zip, installer, release) can resume from an already compiled
+        output folder.
+
+        Args:
+            compiler: Compiler used for the previous build, or None to use
+                config.compiler (or prompt when unset)
+
+        Returns:
+            CompilationResult: Result describing the existing build
+
+        Raises:
+            CompilationError: If output_folder is missing or empty, or the
+                compiler name is invalid
+
+        Example:
+            >>> service = CompilerService(config)
+            >>> result = service.use_existing_build(compiler="Cx_Freeze")
+        """
+        output_folder = Path(self._config.output_folder)
+        if not output_folder.is_dir() or not any(output_folder.iterdir()):
+            raise CompilationError(
+                f"No existing build found in {output_folder}. "
+                "Run the pipeline without --skip-build first."
+            )
+
+        compiler_choice = self._determine_compiler(compiler)
+        if not validate_compiler_name(compiler_choice):
+            raise CompilationError(f"Invalid compiler: {compiler_choice}")
+
+        self._compiler_instance = self._create_compiler(compiler_choice)
+        # Mirror the compilers' runtime rule: Cx_Freeze always produces a
+        # folder; PyInstaller/Nuitka only skip zipping in --onefile mode.
+        zip_needed = (
+            compiler_choice == "Cx_Freeze" or not CompilerUtils.check_onefile_mode()
+        )
+
+        return CompilationResult(
+            zip_needed=zip_needed,
+            compiler_name=compiler_choice,
+            compiler_instance=self._compiler_instance,
+        )
 
     # ////////////////////////////////////////////////
     # PRIVATE HELPER METHODS

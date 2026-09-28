@@ -113,6 +113,21 @@ class PipelineService:
         )
         return compiler_service, compilation_result
 
+    def reuse_build(
+        self,
+        config: CompilerConfig,
+        compiler: str | None = None,
+    ) -> tuple[CompilerService, CompilationResult]:
+        """Reuse an existing build (skip compilation) and return service + result."""
+        compiler_service = self._compiler_service_factory(config)
+        compilation_result = compiler_service.use_existing_build(
+            compiler=cast(
+                Literal["Cx_Freeze", "PyInstaller", "Nuitka"] | None,
+                compiler,
+            ),
+        )
+        return compiler_service, compilation_result
+
     def zip_artifact(
         self,
         config: CompilerConfig,
@@ -138,6 +153,7 @@ class PipelineService:
         should_upload: bool = False,
         should_release: bool = False,
         should_installer: bool = False,
+        should_build: bool = True,
     ) -> list[dict[str, Any]]:
         """
         Build the stage list for dynamic_layered_progress.
@@ -146,6 +162,10 @@ class PipelineService:
             config: Compiler configuration (used for display labels)
             should_zip: Whether a ZIP stage should be included
             should_upload: Whether an upload stage should be included
+            should_release: Whether a TUF release stage should be included
+            should_installer: Whether an installer stage should be included
+            should_build: Whether version + compile stages run; when False a
+                single "reuse existing build" stage replaces them
 
         Returns:
             list[dict]: Stage configuration list ready for dynamic_layered_progress
@@ -156,17 +176,28 @@ class PipelineService:
                 "type": "main",
                 "description": f"Building {config.project_name} v{config.version}",
             },
-            {
-                "name": "version",
-                "type": "spinner",
-                "description": "Generating version file",
-            },
-            {
-                "name": "compile",
-                "type": "spinner",
-                "description": f"Compiling with {config.compiler}",
-            },
         ]
+        if should_build:
+            stages += [
+                {
+                    "name": "version",
+                    "type": "spinner",
+                    "description": "Generating version file",
+                },
+                {
+                    "name": "compile",
+                    "type": "spinner",
+                    "description": f"Compiling with {config.compiler}",
+                },
+            ]
+        else:
+            stages.append(
+                {
+                    "name": "compile",
+                    "type": "spinner",
+                    "description": f"Reusing existing build in {config.output_folder}",
+                }
+            )
         if should_zip:
             stages.append(
                 {

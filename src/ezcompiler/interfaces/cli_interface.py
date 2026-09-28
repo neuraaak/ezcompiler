@@ -943,6 +943,15 @@ def template_raw(
     default=False,
     help="Skip the TUF release stage even if tuf_enabled=True",
 )
+@click.option(
+    "--skip-build",
+    is_flag=True,
+    default=False,
+    help=(
+        "Skip version generation and compilation; resume from the existing "
+        "build in output_folder (zip, installer, release)"
+    ),
+)
 def compile_project(
     config: str | None,
     pyproject: str | None,
@@ -953,6 +962,7 @@ def compile_project(
     no_zip: bool,
     skip_installer: bool,
     skip_release: bool,
+    skip_build: bool,
 ) -> None:
     """
     Compile the project (full build pipeline).
@@ -963,6 +973,8 @@ def compile_project(
     Runs version -> compile -> zip, plus the installer and TUF release
     stages when enabled in the config (installer_enabled / tuf_enabled).
     Upload is a separate step: run `ezcompiler upload` afterwards.
+    Use --skip-build to resume after a previous compile (zip, installer and
+    release run against the existing output_folder).
 
     Examples:
 
@@ -975,6 +987,8 @@ def compile_project(
         ezcompiler compile --compiler PyInstaller --no-console
 
         ezcompiler compile --skip-installer --skip-release
+
+        ezcompiler compile --skip-build
     """
     printer = _get_printer()
     logger = _get_logger()
@@ -1014,6 +1028,7 @@ def compile_project(
             skip_zip=no_zip,
             skip_installer=skip_installer,
             skip_release=skip_release,
+            skip_build=skip_build,
         )
     except (
         ConfigurationError,

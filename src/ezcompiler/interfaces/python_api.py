@@ -665,6 +665,7 @@ class EzCompiler:
         skip_zip: bool = False,
         skip_release: bool = False,
         skip_installer: bool = False,
+        skip_build: bool = False,
     ) -> None:
         """
         Run the build pipeline with visual progress tracking.
@@ -680,10 +681,13 @@ class EzCompiler:
             skip_zip: Skip ZIP archive creation
             skip_release: Skip the TUF release stage
             skip_installer: Skip the installer build stage
+            skip_build: Skip version generation and compilation, and resume
+                from the existing build in ``output_folder``
 
         Raises:
             ConfigurationError: If project not initialized
-            CompilationError: If compilation fails
+            CompilationError: If compilation fails, or no existing build is
+                found when ``skip_build`` is set
             VersionError: If version file generation fails
             ZipError: If ZIP creation fails
             ReleaseError: If the release stage fails
@@ -718,6 +722,7 @@ class EzCompiler:
                 should_zip=should_zip,
                 should_release=should_release,
                 should_installer=should_installer,
+                should_build=not skip_build,
             ),
         )
 
@@ -726,29 +731,44 @@ class EzCompiler:
 
         with self._printer.wizard.dynamic_layered_progress(stages) as dlp:
             try:
-                # Version file
-                current_phase = "version"
-                dlp.update_layer("version", 0, "Processing template...")
-                config_dict = self._config.to_dict()
-                version_file_path = Path(self._config.version_filename)
-                self._template_service.generate_version_file(
-                    config_dict, version_file_path
-                )
-                self._logger.info(_MSG_VERSION_OK)
-                dlp.complete_layer("version")
-
-                # Compilation
-                current_phase = "compile"
-                dlp.update_layer("compile", 0, "Initializing compiler...")
-                self._compiler_service, self._compilation_result = (
-                    self._pipeline_service.compile_project(
-                        config=self._config,
-                        console=console,
-                        compiler=compiler,
+                if skip_build:
+                    # Resume from a previous build: no version file, no compile
+                    current_phase = "compile"
+                    dlp.update_layer("compile", 0, "Checking existing build...")
+                    self._compiler_service, self._compilation_result = (
+                        self._pipeline_service.reuse_build(
+                            config=self._config,
+                            compiler=compiler,
+                        )
                     )
-                )
-                self._logger.info(_MSG_COMPILED_OK)
-                dlp.complete_layer("compile")
+                    self._logger.info(
+                        f"Reusing existing build in {self._config.output_folder}"
+                    )
+                    dlp.complete_layer("compile")
+                else:
+                    # Version file
+                    current_phase = "version"
+                    dlp.update_layer("version", 0, "Processing template...")
+                    config_dict = self._config.to_dict()
+                    version_file_path = Path(self._config.version_filename)
+                    self._template_service.generate_version_file(
+                        config_dict, version_file_path
+                    )
+                    self._logger.info(_MSG_VERSION_OK)
+                    dlp.complete_layer("version")
+
+                    # Compilation
+                    current_phase = "compile"
+                    dlp.update_layer("compile", 0, "Initializing compiler...")
+                    self._compiler_service, self._compilation_result = (
+                        self._pipeline_service.compile_project(
+                            config=self._config,
+                            console=console,
+                            compiler=compiler,
+                        )
+                    )
+                    self._logger.info(_MSG_COMPILED_OK)
+                    dlp.complete_layer("compile")
 
                 # ZIP
                 zip_needed = (
