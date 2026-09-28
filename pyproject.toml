@@ -176,6 +176,9 @@ exclude = [
 [tool.ruff]
 target-version = "py313"
 line-length = 88
+# Markdown code blocks are authored for readability (aligned comments),
+# not as formatted source.
+extend-exclude = ["docs"]
 
 [tool.ruff.lint]
 select = [
