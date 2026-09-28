@@ -11,12 +11,14 @@ from __future__ import annotations
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
 import shutil
+import subprocess
 from pathlib import Path
 
 import pytest
 
 from ezcompiler.adapters import InstallerFactory
-from ezcompiler.shared import InstallerConfig
+from ezcompiler.services.installer_service import InstallerService
+from ezcompiler.shared import CompilerConfig, InstallerConfig
 
 # ///////////////////////////////////////////////////////////////
 # MARKERS
@@ -88,3 +90,44 @@ def test_should_build_setup_when_add_to_path_emits_its_code_helper(
     setup_exe = installer.build(bundle, "MyApp", "1.2.3", tmp_path / "out")
 
     assert setup_exe.is_file()
+
+
+def test_should_compile_the_standalone_script_as_generated(tmp_path: Path) -> None:
+    """Success criterion 6: `generate iss` output compiles as-is. It differs
+    from the ephemeral script by the #ifndef block and the verbatim icon."""
+    bundle = tmp_path / "bundle"
+    bundle.mkdir()
+    (bundle / "MyApp.exe").write_bytes(b"MZ" + b"\x00" * 128)
+    main_file = tmp_path / "main.py"
+    main_file.write_text("print('hi')")
+    config = CompilerConfig(
+        version="1.2.3",
+        project_name="MyApp",
+        main_file=str(main_file),
+        include_files={"files": [], "folders": []},
+        output_folder=bundle,
+        installer=InstallerConfig(enabled=True, per_user=True, add_to_path=True),
+    )
+    script = InstallerService.generate_iss_script(
+        config, tmp_path / "setup.iss", force=True
+    )
+    out_dir = tmp_path / "out"
+
+    iscc = shutil.which("ISCC.exe") or shutil.which("ISCC")
+    assert iscc is not None
+    result = subprocess.run(  # noqa: S603
+        [
+            iscc,
+            f"/DMyAppVersion={config.version}",
+            "/DVersionInfo=1.2.3.0",
+            f"/DBundleDir={bundle.resolve()}",
+            f"/DOutputDir={out_dir.resolve()}",
+            "/DMainExe=MyApp.exe",
+            str(script),
+        ],
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stdout.decode("utf-8", "replace")
+    assert list(out_dir.glob("*.exe"))
