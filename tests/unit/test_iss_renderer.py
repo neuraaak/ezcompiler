@@ -205,8 +205,10 @@ def test_user_values_are_escaped() -> None:
     )
     # escape_iss doubles only the opening brace (see its docstring): '}' is
     # left untouched, so "My{App}X" becomes "My{{App}X", not "My{{App}}X".
-    assert "My{{App}X" in rendered
-    assert "My{App}X" not in rendered
+    assert '#define MyAppName "My{{App}X"' in rendered
+    # OutputBaseFilename does not expand runtime constants: applying the
+    # same escape there creates a different filename on disk.
+    assert "OutputBaseFilename=My{App}X-{#MyAppVersion}-setup" in rendered
 
 
 def test_per_user_switches_directory_and_privileges() -> None:

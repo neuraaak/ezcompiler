@@ -53,7 +53,7 @@ DefaultGroupName=<< (config.start_menu_group or project_name) | iss >>
 LicenseFile=<< config.license_file | string | iss >>
 <% endif %>
 OutputDir={#OutputDir}
-OutputBaseFilename={#MyAppName}-{#MyAppVersion}-setup
+OutputBaseFilename=<< project_name >>-{#MyAppVersion}-setup
 Compression=<< config.compression | iss >>
 SolidCompression=yes
 WizardStyle=<< config.wizard_style >>
