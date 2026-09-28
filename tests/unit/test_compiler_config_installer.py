@@ -62,6 +62,25 @@ def test_flat_installer_keys_are_rejected(tmp_path: Path, legacy_key: str) -> No
         CompilerConfig.from_dict(data)
 
 
+@pytest.mark.parametrize(
+    ("legacy_key", "replacement"),
+    [
+        ("installer_enabled", "enabled"),
+        ("installer_output_dir", "output_dir"),
+        ("installer_iss_path", "iss_path"),
+        ("installer_per_user", "per_user"),
+    ],
+)
+def test_nested_flat_installer_keys_name_their_replacement(
+    tmp_path: Path, legacy_key: str, replacement: str
+) -> None:
+    """v3.4.0's own to_dict() emitted {"installer": {"installer_enabled": ...}},
+    so this — not the top-level shape — is the config users actually have."""
+    data = {**_base_kwargs(tmp_path), "installer": {legacy_key: True}}
+    with pytest.raises(ConfigurationError, match=f"{legacy_key} -> {replacement}"):
+        CompilerConfig.from_dict(data)
+
+
 def test_ico_icon_is_accepted_when_installer_enabled(tmp_path: Path) -> None:
     icon = tmp_path / "app.ico"
     icon.write_bytes(b"\x00\x00\x01\x00")

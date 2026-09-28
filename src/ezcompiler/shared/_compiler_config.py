@@ -22,7 +22,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 # Local imports
-from ._installer_config import InstallerConfig
+from ._installer_config import InstallerConfig, raise_on_legacy_installer_keys
 from .exceptions import ConfigurationError
 
 if TYPE_CHECKING:
@@ -520,17 +520,7 @@ class CompilerConfig:
 
         # Legacy flat installer keys (pre-4.0.0) — same pattern as the
         # compiler_options / advanced.optimize removals.
-        legacy_installer_keys = [
-            key for key in config_copy if key.startswith("installer_")
-        ]
-        if legacy_installer_keys:
-            raise ConfigurationError(
-                f"Flat installer keys are no longer supported: "
-                f"{', '.join(sorted(legacy_installer_keys))}. Move them into the "
-                f"[tool.ezcompiler.installer] section without the 'installer_' "
-                f"prefix (installer_enabled -> enabled, installer_per_user -> "
-                f"per_user, ...)."
-            )
+        raise_on_legacy_installer_keys(config_copy)
 
         # Flatten nested structures
         compilation = config_copy.get("compilation", {})

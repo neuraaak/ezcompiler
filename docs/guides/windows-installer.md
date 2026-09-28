@@ -227,6 +227,18 @@ per_user = true
 output_dir = "dist/installer"
 ```
 
+A configuration written by ezcompiler 3.4.0 carries the same keys *inside* the
+installer table, because that version's own `to_dict()` emitted them there:
+
+```toml
+[tool.ezcompiler.installer]
+installer_enabled = true
+installer_per_user = true
+```
+
+Both shapes raise the same `ConfigurationError`, which spells out every
+replacement (`installer_enabled -> enabled`, and so on).
+
 ### Update Python constructors
 
 Removed flat constructor keywords raise Python's `TypeError` for an unexpected

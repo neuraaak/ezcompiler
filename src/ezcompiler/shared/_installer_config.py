@@ -19,6 +19,7 @@ from __future__ import annotations
 # ///////////////////////////////////////////////////////////////
 import dataclasses as _dc
 import re
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Literal
@@ -109,8 +110,40 @@ _GUID_RE = re.compile(
     r"-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}\}$"
 )
 
+_LEGACY_PREFIX = "installer_"
 _ARCHITECTURES = ("x64", "x86", "arm64", "auto")
 _WIZARD_STYLES = ("modern", "classic")
+
+# ///////////////////////////////////////////////////////////////
+# FUNCTIONS
+# ///////////////////////////////////////////////////////////////
+
+
+def raise_on_legacy_installer_keys(keys: Iterable[str]) -> None:
+    """Reject pre-4.0.0 ``installer_*`` keys, naming every replacement.
+
+    Both shapes reach this: the top-level flat keys (``installer_enabled``
+    next to ``project_name``) and the nested ones v3.4.0's own ``to_dict()``
+    wrote inside the ``installer`` table. Success depends on the user reading
+    their fix in the message, so every offending key is spelled out.
+
+    Args:
+        keys: Configuration keys to inspect.
+
+    Raises:
+        ConfigurationError: If any key carries the legacy prefix.
+    """
+    legacy = sorted(key for key in keys if key.startswith(_LEGACY_PREFIX))
+    if not legacy:
+        return
+
+    renames = ", ".join(f"{key} -> {key[len(_LEGACY_PREFIX) :]}" for key in legacy)
+    raise ConfigurationError(
+        f"Flat installer keys are no longer supported: {', '.join(legacy)}. "
+        f"Move them into the [tool.ezcompiler.installer] section without the "
+        f"'installer_' prefix ({renames})."
+    )
+
 
 # ///////////////////////////////////////////////////////////////
 # CLASSES
@@ -421,6 +454,10 @@ class InstallerConfig:
             ConfigurationError: If data contains an unknown key.
         """
         valid_fields = {f.name for f in _dc.fields(cls)}
+        # v3.4.0's own to_dict() nested the flat keys inside the installer
+        # table, so they reach here rather than the top-level scan in
+        # CompilerConfig.from_dict — both shapes must name the replacement.
+        raise_on_legacy_installer_keys(data)
         unknown = set(data) - valid_fields
         if unknown:
             raise ConfigurationError(
