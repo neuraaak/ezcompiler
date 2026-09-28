@@ -66,3 +66,25 @@ def test_should_build_setup_when_app_name_contains_accents_and_braces(
     setup_exe = installer.build(bundle, "Éditeur{X}", "1.2.3", tmp_path / "out")
 
     assert setup_exe.is_file()
+
+
+def test_should_build_setup_when_add_to_path_emits_its_code_helper(
+    tmp_path: Path,
+) -> None:
+    """The NeedsAddPath guard is Pascal Script: only real ISCC compiles it."""
+    bundle = tmp_path / "bundle"
+    bundle.mkdir()
+    (bundle / "MyApp.exe").write_bytes(b"MZ" + b"\x00" * 128)
+    installer = InstallerFactory.create_installer(
+        "innosetup",
+        InstallerConfig(
+            enabled=True,
+            per_user=True,
+            add_to_path=True,
+            extra_sections={"Code": ["procedure Unused; begin end;"]},
+        ),
+    )
+
+    setup_exe = installer.build(bundle, "MyApp", "1.2.3", tmp_path / "out")
+
+    assert setup_exe.is_file()

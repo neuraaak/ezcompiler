@@ -155,7 +155,7 @@ Effects describe generated scripts; file mode follows the rule above.
 | `desktop_icon` | `True` | Emit an optional, initially unchecked `desktopicon` task and its `[Icons]` entry; disabling it omits both. |
 | `start_menu_group` | `None` | Set `DefaultGroupName`; default to the project name. A Start Menu shortcut is always emitted. |
 | `launch_after_install` | `True` | Emit the `[Run]` launch entry with `postinstall` and `skipifsilent`; disabling it omits that entry. |
-| `add_to_path` | `False` | Append `{app}` to the user's `HKCU\Environment\Path` through `[Registry]`; uses `preservestringtype`. |
+| `add_to_path` | `False` | Append `{app}` to the user's `HKCU\Environment\Path` through `[Registry]`; uses `preservestringtype`. A generated `[Code]` block guards against duplicate entries on reinstall and removes the entry again at uninstall (never `uninsdeletevalue`, which would wipe the whole `Path`). Defining your own `CurUninstallStepChanged` in `extra_sections.Code` collides with it. |
 | `close_running_app` | `True` | Emit `CloseApplications=force` and `RestartApplications=yes` (an unattended upgrade closes the running app instead of prompting); `False` omits both directives rather than explicitly setting them to `no`. |
 | `uninstall_delete` | `[]` | Emit each value verbatim as a `[UninstallDelete]` `Name` with `Type: filesandordirs`; use application-relative entries such as `{app}\cache`. Absolute paths and `..` segments are rejected. |
 | `license_file` | `None` | Emit `LicenseFile`; the supplied file must exist when enabled. |

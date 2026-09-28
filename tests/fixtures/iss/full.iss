@@ -45,7 +45,48 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MainExe}"; Tasks: desktop
 Filename: "{app}\{#MainExe}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
 [Registry]
-Root: HKCU; Subkey: "Environment"; ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}"; Flags: preservestringtype
+Root: HKCU; Subkey: "Environment"; ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}"; Flags: preservestringtype; Check: NeedsAddPath(ExpandConstant('{app}'))
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}\cache"
+
+[Code]
+// Anti-duplicate guard for the [Registry] Path entry: without it every
+// reinstall re-appends the app directory and Environment\Path truncates.
+function NeedsAddPath(Param: string): Boolean;
+var
+  OrigPath: string;
+begin
+  if not RegQueryStringValue(HKEY_CURRENT_USER, 'Environment', 'Path', OrigPath) then
+  begin
+    Result := True;
+    exit;
+  end;
+  Result := Pos(';' + Uppercase(Param) + ';', ';' + Uppercase(OrigPath) + ';') = 0;
+end;
+
+// Surgical removal of our own entry at uninstall. Never done with
+// uninsdeletevalue on the [Registry] entry: that flag deletes the whole
+// Path value, taking every other program's entry with it.
+procedure RemoveFromPath(Param: string);
+var
+  OrigPath: string;
+  Position: Integer;
+begin
+  if not RegQueryStringValue(HKEY_CURRENT_USER, 'Environment', 'Path', OrigPath) then
+    exit;
+  Position := Pos(';' + Uppercase(Param) + ';', ';' + Uppercase(OrigPath) + ';');
+  if Position = 0 then
+    exit;
+  if Position = 1 then
+    Delete(OrigPath, 1, Length(Param) + 1)
+  else
+    Delete(OrigPath, Position - 1, Length(Param) + 1);
+  RegWriteExpandStringValue(HKEY_CURRENT_USER, 'Environment', 'Path', OrigPath);
+end;
+
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+begin
+  if CurUninstallStep = usPostUninstall then
+    RemoveFromPath(ExpandConstant('{app}'));
+end;

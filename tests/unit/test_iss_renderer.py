@@ -223,6 +223,44 @@ def test_add_to_path_emits_a_registry_section() -> None:
     assert "Path" in rendered
 
 
+def test_add_to_path_guards_against_duplicate_entries() -> None:
+    """Without a Check, every reinstall re-appends {app} to the user's Path
+    and Windows' Environment\\Path eventually truncates."""
+    rendered = _render(InstallerConfig(enabled=True, add_to_path=True))
+    registry = next(
+        line for line in rendered.splitlines() if line.startswith("Root: HKCU")
+    )
+    assert "Check: NeedsAddPath(" in registry
+    assert "function NeedsAddPath(" in rendered
+
+
+def test_add_to_path_removes_its_entry_on_uninstall() -> None:
+    """The entry must be surgically removed, never via uninsdeletevalue —
+    that flag would wipe the user's entire Environment\\Path."""
+    rendered = _render(InstallerConfig(enabled=True, add_to_path=True))
+    registry = next(
+        line for line in rendered.splitlines() if line.startswith("Root: HKCU")
+    )
+    assert "uninsdeletevalue" not in registry
+    assert "procedure CurUninstallStepChanged(" in rendered
+    assert "RegWriteExpandStringValue(" in rendered
+
+
+def test_add_to_path_merges_its_code_helper_with_user_code() -> None:
+    """A user [Code] section and the PATH helper must share one header —
+    two [Code] headers is not a script ISCC accepts."""
+    rendered = _render(
+        InstallerConfig(
+            enabled=True,
+            add_to_path=True,
+            extra_sections={"Code": ["procedure Foo; begin end;"]},
+        )
+    )
+    assert rendered.count("[Code]") == 1
+    assert "function NeedsAddPath(" in rendered
+    assert "procedure Foo; begin end;" in rendered
+
+
 def test_add_to_path_omits_the_registry_section_when_off() -> None:
     rendered = _render(InstallerConfig(enabled=True, add_to_path=False))
     assert "[Registry]" not in rendered
