@@ -254,6 +254,17 @@ class TemplateProcessor:
             advanced = config.get("advanced", {})
             debug = advanced.get("debug", False)
 
+            # Installer options. Only the four that replaced the pre-4.0.0
+            # flat installer_* keys are templated; the remaining twenty are
+            # documented in the Windows installer guide and added by hand.
+            # Paths are emitted as JSON values so an unset one becomes null
+            # rather than an empty string, which would coerce to Path(".").
+            installer = config.get("installer", {})
+            installer_enabled = installer.get("enabled", False)
+            installer_per_user = installer.get("per_user", False)
+            installer_output_dir = installer.get("output_dir") or None
+            installer_iss_path = installer.get("iss_path") or None
+
             # Compiler-specific options: read from the compiler section, then
             # top-level, then defaults.
             section = config.get(compiler_key, {})
@@ -291,6 +302,14 @@ class TemplateProcessor:
                 "#OPTIMIZE#": str(optimize).lower(),
                 "#STRIP#": str(strip).lower(),
                 "#DEBUG#": str(debug).lower(),
+                "#INSTALLER_ENABLED#": str(installer_enabled).lower(),
+                "#INSTALLER_PER_USER#": str(installer_per_user).lower(),
+                "#INSTALLER_OUTPUT_DIR#": json.dumps(
+                    str(installer_output_dir) if installer_output_dir else None
+                ),
+                "#INSTALLER_ISS_PATH#": json.dumps(
+                    str(installer_iss_path) if installer_iss_path else None
+                ),
             }
 
             result = template

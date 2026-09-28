@@ -53,6 +53,18 @@ upload:
   release_endpoint: #RELEASE_ENDPOINT#
   repo_public_url: #REPO_PUBLIC_URL#
 
+# Windows Installer (Inno Setup)
+# Only the four core options are generated here. The full option set --
+# shortcuts, languages, signing, PATH, extra sections and the rest -- is
+# documented in docs/guides/windows-installer.md; add what you need below.
+# Setting iss_path adopts an existing script and makes generation options
+# inert: the file becomes the source of truth.
+installer:
+  enabled: #INSTALLER_ENABLED#
+  per_user: #INSTALLER_PER_USER#
+  output_dir: #INSTALLER_OUTPUT_DIR#
+  iss_path: #INSTALLER_ISS_PATH#
+
 # Advanced Options
 advanced:
   debug: #DEBUG#

@@ -139,18 +139,33 @@ def test_generated_build_script_survives_hostile_string_values(
 
 
 @pytest.mark.parametrize("fmt", ["yaml", "json"])
+def test_generated_config_carries_the_installer_section(
+    loader: TemplateLoader, tmp_path: Path, fmt: str
+) -> None:
+    config = _config(tmp_path, installer={"enabled": True, "per_user": True})
+
+    rendered = loader.process_config_template(fmt, config)
+    data = yaml.safe_load(rendered) if fmt == "yaml" else json.loads(rendered)
+
+    assert data["installer"]["enabled"] is True
+    assert data["installer"]["per_user"] is True
+
+
+@pytest.mark.parametrize("fmt", ["yaml", "json"])
 def test_generated_config_round_trips_through_compiler_config(
     loader: TemplateLoader, tmp_path: Path, fmt: str
 ) -> None:
     """The file a user is handed must load back without editing."""
-    config = _config(tmp_path, company_name="ACME & Co")
+    config = _config(
+        tmp_path, installer={"enabled": True, "output_dir": "dist/installer"}
+    )
 
     rendered = loader.process_config_template(fmt, config)
     data = yaml.safe_load(rendered) if fmt == "yaml" else json.loads(rendered)
     loaded = CompilerConfig.from_dict(dict(data))
 
-    assert loaded.project_name == "MyApp"
-    assert loaded.company_name == "ACME & Co"
+    assert loaded.installer.enabled is True
+    assert loaded.installer.output_dir == Path("dist/installer")
 
 
 @pytest.mark.parametrize("fmt", ["yaml", "json"])
@@ -164,3 +179,16 @@ def test_generated_config_survives_a_windows_path(
     data = yaml.safe_load(rendered) if fmt == "yaml" else json.loads(rendered)
 
     assert data["main_file"] == r"C:\Users\dev\main.py"
+
+
+@pytest.mark.parametrize("fmt", ["yaml", "json"])
+def test_unset_installer_paths_are_null_not_empty(
+    loader: TemplateLoader, tmp_path: Path, fmt: str
+) -> None:
+    """An empty string would coerce to Path('.'), silently writing the
+    installer next to the config file."""
+    rendered = loader.process_config_template(fmt, _config(tmp_path))
+    data = yaml.safe_load(rendered) if fmt == "yaml" else json.loads(rendered)
+
+    assert data["installer"]["output_dir"] is None
+    assert data["installer"]["iss_path"] is None

@@ -30,6 +30,12 @@
     "release_endpoint": #RELEASE_ENDPOINT#,
     "repo_public_url": #REPO_PUBLIC_URL#
   },
+  "installer": {
+    "enabled": #INSTALLER_ENABLED#,
+    "per_user": #INSTALLER_PER_USER#,
+    "output_dir": #INSTALLER_OUTPUT_DIR#,
+    "iss_path": #INSTALLER_ISS_PATH#
+  },
   "advanced": {
     "debug": #DEBUG#
   }
