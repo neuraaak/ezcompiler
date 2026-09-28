@@ -62,9 +62,15 @@ ezcompiler compile --compiler PyInstaller --no-console
 | `--output-folder`            | No       | —       | Output folder (overrides config)                                         |
 | `--debug`                    | No       | `False` | Enable debug mode                                                        |
 | `--no-zip`                   | No       | `False` | Skip ZIP archive creation                                                |
+| `--skip-installer`           | No       | `False` | Skip the Inno Setup installer stage even if the installer is enabled     |
+| `--skip-release`             | No       | `False` | Skip the TUF release stage even if `tuf_enabled=True`                    |
+| `--skip-build`               | No       | `False` | Skip version + compile; resume from the existing build in `output_folder` |
 
-!!! note "Version and zip only"
-    `compile` runs the `version → compile → zip` stages only. The installer and TUF release stages are not part of this command — use the Python API's `run_pipeline()` for the full pipeline, then `ezcompiler upload` to publish.
+!!! note "Pipeline stages"
+    `compile` runs `version → compile → zip`, plus the installer and TUF release stages when enabled in the config (same behaviour as the Python API's `run_pipeline()`). Upload is a separate step: run `ezcompiler upload` afterwards.
+
+!!! tip "Resuming after a build"
+    If the project was already compiled, `ezcompiler compile --skip-build` reuses the existing `output_folder` and only runs the remaining stages (zip, installer and TUF release when enabled). It fails if `output_folder` is missing or empty.
 
 ---
 
