@@ -261,29 +261,33 @@ class TemplateProcessor:
             strip = section.get("strip", config.get("strip", False))
 
             # Replace placeholders with JSON-valid values
+            # String values are emitted as JSON literals, quotes included:
+            # the templates no longer wrap them. A raw Windows path such as
+            # C:\Users\dev\main.py would otherwise produce an invalid
+            # escape and make the generated file unparseable.
             replacements = {
-                "#VERSION#": version,
-                "#PROJECT_NAME#": project_name,
-                "#PROJECT_DESCRIPTION#": project_description,
-                "#COMPANY_NAME#": company_name,
-                "#AUTHOR#": author,
-                "#ICON#": icon,
-                "#MAIN_FILE#": main_file,
-                "#VERSION_FILE#": version_file,
-                "#OUTPUT_FOLDER#": output_folder,
+                "#VERSION#": json.dumps(str(version)),
+                "#PROJECT_NAME#": json.dumps(str(project_name)),
+                "#PROJECT_DESCRIPTION#": json.dumps(str(project_description)),
+                "#COMPANY_NAME#": json.dumps(str(company_name)),
+                "#AUTHOR#": json.dumps(str(author)),
+                "#ICON#": json.dumps(str(icon)),
+                "#MAIN_FILE#": json.dumps(str(main_file)),
+                "#VERSION_FILE#": json.dumps(str(version_file)),
+                "#OUTPUT_FOLDER#": json.dumps(str(output_folder)),
                 "#INCLUDE_FILES#": json.dumps(include_files_list),
                 "#INCLUDE_FOLDERS#": json.dumps(include_folders_list),
                 "#PACKAGES#": json.dumps(packages),
                 "#INCLUDES#": json.dumps(includes),
                 "#EXCLUDES#": json.dumps(excludes),
                 "#CONSOLE#": str(console).lower(),
-                "#COMPILER#": compiler,
+                "#COMPILER#": json.dumps(str(compiler)),
                 "#COMPILER_KEY#": compiler_key,
-                "#REPO_DESTINATION#": repo_destination,
-                "#REPO_ENDPOINT#": repo_endpoint,
-                "#RELEASE_DESTINATION#": release_destination,
-                "#RELEASE_ENDPOINT#": release_endpoint,
-                "#REPO_PUBLIC_URL#": repo_public_url,
+                "#REPO_DESTINATION#": json.dumps(str(repo_destination)),
+                "#REPO_ENDPOINT#": json.dumps(str(repo_endpoint)),
+                "#RELEASE_DESTINATION#": json.dumps(str(release_destination)),
+                "#RELEASE_ENDPOINT#": json.dumps(str(release_endpoint)),
+                "#REPO_PUBLIC_URL#": json.dumps(str(repo_public_url)),
                 "#OPTIMIZE#": str(optimize).lower(),
                 "#STRIP#": str(strip).lower(),
                 "#DEBUG#": str(debug).lower(),
@@ -348,17 +352,37 @@ class TemplateProcessor:
             includes = config.get("includes", [])
             excludes = config.get("excludes", ["debugpy", "test", "unittest"])
 
+            # Pipeline and upload values. A config dict may arrive flat or
+            # with its TOML/YAML sections still nested, depending on the
+            # source, so read both shapes. Left unsubstituted, these
+            # placeholders make the generated script invalid Python: a bare
+            # ``#TOKEN#`` is a comment, so the assignment loses its value.
+            compilation = config.get("compilation", {})
+            upload = config.get("upload", {})
+            console = config.get("console", compilation.get("console", True))
+            compiler = config.get("compiler", compilation.get("compiler", ""))
+            repo_endpoint = config.get("repo_endpoint", upload.get("repo_endpoint", ""))
+
             # Replace placeholders
+            # Same rule as the config templates: string values arrive as
+            # JSON literals, which are valid Python literals too, so a
+            # Windows path cannot break the generated script.
             replacements = {
-                "#VERSION#": version,
-                "#PROJECT_NAME#": project_name,
-                "#PROJECT_DESCRIPTION#": project_description,
-                "#COMPANY_NAME#": company_name,
-                "#AUTHOR#": author,
-                "#ICON#": icon,
-                "#MAIN_FILE#": main_file,
-                "#VERSION_FILE#": version_file,
-                "#OUTPUT_FOLDER#": output_folder,
+                "#CONSOLE#": bool(console),
+                "#COMPILER#": json.dumps(str(compiler)),
+                "#ZIP_NEEDED#": bool(config.get("zip_needed", True)),
+                "#REPO_NEEDED#": bool(repo_endpoint),
+                "#REPO_PATH#": json.dumps(str(repo_endpoint)),
+                "#VERSION#": json.dumps(str(version)),
+                "#PROJECT_NAME_RAW#": project_name,
+                "#PROJECT_NAME#": json.dumps(str(project_name)),
+                "#PROJECT_DESCRIPTION#": json.dumps(str(project_description)),
+                "#COMPANY_NAME#": json.dumps(str(company_name)),
+                "#AUTHOR#": json.dumps(str(author)),
+                "#ICON#": json.dumps(str(icon)),
+                "#MAIN_FILE#": json.dumps(str(main_file)),
+                "#VERSION_FILE#": json.dumps(str(version_file)),
+                "#OUTPUT_FOLDER#": json.dumps(str(output_folder)),
                 "#INCLUDE_FILES#": include_files_str,
                 "#PACKAGES#": str(packages),
                 "#INCLUDES#": str(includes),

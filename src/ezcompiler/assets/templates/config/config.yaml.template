@@ -2,17 +2,17 @@
 # This file contains the configuration for your project compilation
 
 # Project Information
-version: "#VERSION#"
-project_name: "#PROJECT_NAME#"
-project_description: "#PROJECT_DESCRIPTION#"
-company_name: "#COMPANY_NAME#"
-author: "#AUTHOR#"
+version: #VERSION#
+project_name: #PROJECT_NAME#
+project_description: #PROJECT_DESCRIPTION#
+company_name: #COMPANY_NAME#
+author: #AUTHOR#
 
 # Files and Paths
-main_file: "#MAIN_FILE#"
-icon: "#ICON#"
-version_filename: "#VERSION_FILE#"
-output_folder: "#OUTPUT_FOLDER#"
+main_file: #MAIN_FILE#
+icon: #ICON#
+version_filename: #VERSION_FILE#
+output_folder: #OUTPUT_FOLDER#
 
 # Include Configuration
 include_files:
@@ -34,7 +34,7 @@ excludes:
 # Compilation Options
 compilation:
   console: #CONSOLE#
-  compiler: "#COMPILER#"  # "Cx_Freeze", "PyInstaller", or "Nuitka"
+  compiler: #COMPILER#  # "Cx_Freeze", "PyInstaller", or "Nuitka"
 
 # Compiler-specific options
 # Only the section matching 'compiler' above is used; other sections
@@ -47,11 +47,11 @@ compilation:
 
 # Upload Configuration
 upload:
-  repo_destination: "#REPO_DESTINATION#"
-  repo_endpoint: "#REPO_ENDPOINT#"
-  release_destination: "#RELEASE_DESTINATION#"
-  release_endpoint: "#RELEASE_ENDPOINT#"
-  repo_public_url: "#REPO_PUBLIC_URL#"
+  repo_destination: #REPO_DESTINATION#
+  repo_endpoint: #REPO_ENDPOINT#
+  release_destination: #RELEASE_DESTINATION#
+  release_endpoint: #RELEASE_ENDPOINT#
+  repo_public_url: #REPO_PUBLIC_URL#
 
 # Advanced Options
 advanced:
