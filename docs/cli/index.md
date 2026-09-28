@@ -25,6 +25,7 @@ ezcompiler [OPTIONS] COMMAND [ARGS]...
 | `compile`           | Compile the project (version → compile → zip)                           |
 | `generate config`   | Generate a configuration file                                           |
 | `generate setup`    | Generate a `setup.py` from a configuration file                         |
+| `generate iss`      | Generate an editable Inno Setup script from the configuration           |
 | `generate version`  | Generate a Windows version information file                             |
 | `generate template` | Generate a template file with optional mockup data                      |
 | `upload`            | Upload the TUF tree and/or the release directory to their destination   |
@@ -53,17 +54,17 @@ Compile the project. Auto-discovers configuration from `pyproject.toml`, `ezcomp
 ezcompiler compile --compiler PyInstaller --no-console
 ```
 
-| Option                       | Required | Default | Description                                                              |
-| :--------------------------- | :------- | :------ | :----------------------------------------------------------------------- |
-| `--config`                   | No       | —       | Config file path (YAML, JSON)                                            |
-| `--pyproject`                | No       | —       | Explicit `pyproject.toml` path                                           |
-| `--compiler`                 | No       | —       | Compiler to use: `Cx_Freeze`, `PyInstaller`, `Nuitka` (overrides config) |
-| `--console` / `--no-console` | No       | —       | Show console window (overrides config)                                   |
-| `--output-folder`            | No       | —       | Output folder (overrides config)                                         |
-| `--debug`                    | No       | `False` | Enable debug mode                                                        |
-| `--no-zip`                   | No       | `False` | Skip ZIP archive creation                                                |
-| `--skip-installer`           | No       | `False` | Skip the Inno Setup installer stage even if the installer is enabled     |
-| `--skip-release`             | No       | `False` | Skip the TUF release stage even if `tuf_enabled=True`                    |
+| Option                       | Required | Default | Description                                                               |
+| :--------------------------- | :------- | :------ | :------------------------------------------------------------------------ |
+| `--config`                   | No       | —       | Config file path (YAML, JSON)                                             |
+| `--pyproject`                | No       | —       | Explicit `pyproject.toml` path                                            |
+| `--compiler`                 | No       | —       | Compiler to use: `Cx_Freeze`, `PyInstaller`, `Nuitka` (overrides config)  |
+| `--console` / `--no-console` | No       | —       | Show console window (overrides config)                                    |
+| `--output-folder`            | No       | —       | Output folder (overrides config)                                          |
+| `--debug`                    | No       | `False` | Enable debug mode                                                         |
+| `--no-zip`                   | No       | `False` | Skip ZIP archive creation                                                 |
+| `--skip-installer`           | No       | `False` | Skip the Inno Setup installer stage even if the installer is enabled      |
+| `--skip-release`             | No       | `False` | Skip the TUF release stage even if `tuf_enabled=True`                     |
 | `--skip-build`               | No       | `False` | Skip version + compile; resume from the existing build in `output_folder` |
 
 !!! note "Pipeline stages"
@@ -88,9 +89,36 @@ ezcompiler generate config --project-name "MyApp" --main-file "main.py"
 | `--main-file`         | Yes      | —                   | Main Python file                                         |
 | `--version`           | No       | `"1.0.0"`           | Project version                                          |
 | `--output`            | No       | `"ezcompiler.yaml"` | Output file path                                         |
-| `--format`            | No       | `yaml`              | Output format (`yaml` or `json`)                         |
+| `--format`            | No       | `yaml`              | Output format (`yaml`, `json`, or `pyproject`)           |
 | `--installer-enabled` | No       | `False`             | Enable the Inno Setup installer build stage              |
 | `--repo-public-url`   | No       | —                   | Public base URL for the TUF repo (required for `r2`/TUF) |
+
+---
+
+### `generate iss`
+
+Generate an editable Inno Setup script from the project configuration.
+
+Auto-discovers `pyproject.toml`, `ezcompiler.yaml`, or `ezcompiler.json`. The
+generated script is standalone and committable: the five volatile build values
+arrive at compile time through ISCC `/D` defines, so nothing release-specific is
+baked in. Once `installer.iss_path` points at a script, generation options are
+ignored and the file itself is the source of truth.
+
+```bash
+ezcompiler generate iss
+ezcompiler generate iss --output installer/MyApp.iss --force
+```
+
+| Option     | Required | Default                        | Description                  |
+| :--------- | :------- | :----------------------------- | :--------------------------- |
+| `--output` | No       | `installer/<project_name>.iss` | Script path                  |
+| `--force`  | No       | `False`                        | Overwrite an existing script |
+
+!!! warning "Relative `icon` and `license_file`"
+
+    ISCC resolves both against the `.iss` file's own directory, not the current
+    working directory. Generation warns when either is relative.
 
 ---
 
