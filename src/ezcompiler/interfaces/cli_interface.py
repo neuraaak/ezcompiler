@@ -7,7 +7,7 @@
 CLI interface - Command-line interface for EzCompiler.
 
 This module provides a Click-based CLI for generating configuration files,
-setup.py files, version files, and initializing new EzCompiler projects.
+build.py scripts, version files, and initializing new EzCompiler projects.
 
 Interfaces layer can use all log levels (DEBUG, INFO, WARNING, ERROR, CRITICAL).
 """
@@ -103,7 +103,7 @@ def main() -> None:
     """
     EzCompiler - CLI for Python project compilation and distribution.
 
-    Generates configuration files, setup.py, and version files from templates
+    Generates configuration files, build.py, and version files from templates
     with support for multiple formats (YAML, JSON) and template types.
     """
     from ezplog import Ezpl
@@ -589,7 +589,7 @@ def config(
     default=".",
     help="Output directory for generated files (default: .)",
 )
-def setup(
+def build(
     config: str | None,
     from_pyproject: Path | None,
     interactive: bool,
@@ -610,7 +610,7 @@ def setup(
     output: str,
 ) -> None:
     """
-    Generate a setup.py file.
+    Generate a build.py script.
 
     Builds configuration from a config file, pyproject.toml, CLI options,
     and/or interactive prompts.  Sources are merged with the following
@@ -619,10 +619,10 @@ def setup(
 
     \b
     Examples:
-        ezcompiler generate setup -c ezcompiler.yaml
-        ezcompiler generate setup --from-pyproject pyproject.toml
-        ezcompiler generate setup --from-pyproject pyproject.toml -I
-        ezcompiler generate setup -n myproject -v 2.0.0
+        ezcompiler generate build -c ezcompiler.yaml
+        ezcompiler generate build --from-pyproject pyproject.toml
+        ezcompiler generate build --from-pyproject pyproject.toml -I
+        ezcompiler generate build -n myproject -v 2.0.0
     """
 
     printer = _get_printer()
@@ -727,13 +727,13 @@ def setup(
         output_path = Path(output)
         output_path.mkdir(parents=True, exist_ok=True)
 
-        # Generate setup.py using TemplateService
+        # Generate build.py using TemplateService
         template_service = _get_template_service()
-        setup_file_path = template_service.generate_setup_file(
+        build_file_path = template_service.generate_setup_file(
             config_dict, output_dir=output_path
         )
-        printer.success(f"setup.py file generated: {setup_file_path}")
-        logger.info(f"setup.py file generated: {setup_file_path}")
+        printer.success(f"build.py file generated: {build_file_path}")
+        logger.info(f"build.py file generated: {build_file_path}")
 
     except (TemplateError, ConfigError) as e:
         printer.error(str(e))
@@ -789,7 +789,7 @@ def generate_iss(output: Path | None, force: bool) -> None:
 @click.option(
     "--type",
     "-t",
-    type=click.Choice(["config", "setup", "version"]),
+    type=click.Choice(["config", "build", "version"]),
     required=True,
     help="Template type to generate",
 )
@@ -797,7 +797,7 @@ def generate_iss(output: Path | None, force: bool) -> None:
     "--format",
     "-f",
     type=str,
-    help="Template format (yaml/json for config, py for setup, txt for version)",
+    help="Template format (yaml/json for config, py for build, txt for version)",
 )
 @click.option(
     "--output",
@@ -835,13 +835,13 @@ def template_raw(
         # Define allowed formats and default filenames
         allowed_formats = {
             "config": ["yaml", "json"],
-            "setup": ["py"],
+            "build": ["py"],
             "version": ["txt"],
         }
         default_filenames = {
             ("config", "yaml"): "ezcompiler.yaml",
             ("config", "json"): "ezcompiler.json",
-            ("setup", "py"): "setup.py",
+            ("build", "py"): "build.py",
             ("version", "txt"): "version_info.txt",
         }
 
@@ -849,7 +849,7 @@ def template_raw(
         if not format:
             format = {
                 "config": "yaml",
-                "setup": "py",
+                "build": "py",
                 "version": "txt",
             }[type]
 
@@ -1204,7 +1204,7 @@ def init(
                 "type": "spinner",
                 "description": f"Generating {format_type} configuration",
             },
-            {"name": "setup", "type": "spinner", "description": "Generating setup.py"},
+            {"name": "build", "type": "spinner", "description": "Generating build.py"},
         ]
 
         template_service = _get_template_service()
@@ -1241,11 +1241,11 @@ def init(
                 dlp.complete_layer("config")
 
                 # Setup file generation
-                current_phase = "setup"
-                dlp.update_layer("setup", 0, "Processing template...")
+                current_phase = "build"
+                dlp.update_layer("build", 0, "Processing template...")
                 template_service.generate_setup_file(config_dict, output_dir=output_dir)
-                logger.info(f"setup.py generated: {output_dir / 'setup.py'}")
-                dlp.complete_layer("setup")
+                logger.info(f"build.py generated: {output_dir / 'build.py'}")
+                dlp.complete_layer("build")
 
             except (TemplateError, ConfigError) as e:
                 dlp.handle_error(current_phase, str(e))

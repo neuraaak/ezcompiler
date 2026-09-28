@@ -7,7 +7,7 @@
 Template service - Template processing and file generation service for EzCompiler.
 
 This module provides the TemplateService class that orchestrates template
-processing and file generation (setup.py, version_info.txt, config files).
+processing and file generation (build.py, version_info.txt, config files).
 
 Services layer can use WARNING and ERROR log levels.
 """
@@ -38,7 +38,7 @@ class TemplateService:
     Template processing and file generation service.
 
     Orchestrates template loading, processing, and file generation for
-    configuration files, setup.py, and version information files.
+    configuration files, build.py, and version information files.
 
     Attributes:
         _template_loader: TemplateLoader instance for template operations
@@ -47,7 +47,7 @@ class TemplateService:
     Example:
         >>> service = TemplateService()
         >>> config = {"version": "1.0.0", "project_name": "MyApp"}
-        >>> service.generate_setup_file(config, Path("setup.py"))
+        >>> service.generate_setup_file(config, Path("build.py"))
         >>> service.generate_version_file(config, Path("version_info.txt"))
     """
 
@@ -122,15 +122,15 @@ class TemplateService:
         output_dir: Path | None = None,
     ) -> Path:
         """
-        Generate a setup.py file from template.
+        Generate a build.py file from template.
 
         Args:
             config: Project configuration dictionary
-            output_path: Direct path to setup.py file (optional)
-            output_dir: Directory where to save setup.py (optional, defaults to current dir)
+            output_path: Direct path to build.py file (optional)
+            output_dir: Directory where to save build.py (optional, defaults to current dir)
 
         Returns:
-            Path: Path to the generated setup.py file
+            Path: Path to the generated build.py file
 
         Raises:
             TemplateError: If generation fails
@@ -149,7 +149,7 @@ class TemplateService:
                 target_dir = output_dir if output_dir is not None else Path.cwd()
                 target_dir = Path(target_dir)
                 target_dir.mkdir(parents=True, exist_ok=True)
-                final_path = target_dir / "setup.py"
+                final_path = target_dir / "build.py"
 
             # Process template
             content = self._template_loader.process_setup_template("py", config)

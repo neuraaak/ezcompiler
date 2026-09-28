@@ -33,6 +33,7 @@ venv.bak/
 # Artifacts de build
 build/
 !.scripts/build/
+!src/ezcompiler/assets/templates/build/
 dist/
 *.egg-info/
 *.egg

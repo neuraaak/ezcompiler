@@ -69,7 +69,7 @@ class TemplateLoader:
         Get the path to a specific template file.
 
         Args:
-            template_type: Type of template (config, version, setup)
+            template_type: Type of template (config, version, build)
             format_type: Format of the template (yaml, json, txt, py)
 
         Returns:
@@ -98,7 +98,7 @@ class TemplateLoader:
         Load a template file.
 
         Args:
-            template_type: Type of template (config, version, setup)
+            template_type: Type of template (config, version, build)
             format_type: Format of the template (yaml, json, txt, py)
 
         Returns:
@@ -124,7 +124,7 @@ class TemplateLoader:
 
         Example:
             >>> loader.list_available_templates()
-            {'config': ['yaml', 'json'], 'version': ['txt'], 'setup': ['py']}
+            {'config': ['yaml', 'json'], 'version': ['txt'], 'build': ['py']}
         """
         templates: dict[str, list[str]] = {}
 
@@ -201,7 +201,9 @@ class TemplateLoader:
         Returns:
             str: Processed template string
         """
-        template = self.load_template("setup", format_type)
+        # The on-disk template type is "build"; the method name is kept
+        # for API compatibility.
+        template = self.load_template("build", format_type)
         return self._processor.process_setup_template(template, config)
 
     # ////////////////////////////////////////////////
@@ -215,7 +217,7 @@ class TemplateLoader:
         Create a file from a template.
 
         Args:
-            template_type: Type of template (config, version, setup)
+            template_type: Type of template (config, version, build)
             format_type: Format of the template
             output_path: Path where to save the file
             **kwargs: Additional arguments for template processing
@@ -238,7 +240,7 @@ class TemplateLoader:
                 kwargs.get("project_description", "Description"),
                 kwargs.get("project_name", "Project"),
             )
-        elif template_type == "setup":
+        elif template_type == "build":
             content = self.process_setup_template(format_type, kwargs.get("config", {}))
         else:
             raise ValueError(f"Unknown template type: {template_type}")
@@ -260,7 +262,7 @@ class TemplateLoader:
         edited manually with real values.
 
         Args:
-            template_type: Type of template (config, version, setup)
+            template_type: Type of template (config, version, build)
             format_type: Format of the template
             output_path: Path where to save the file
 
@@ -284,7 +286,7 @@ class TemplateLoader:
                     mockup_config["project_description"],
                     mockup_config["project_name"],
                 )
-            elif template_type == "setup":
+            elif template_type == "build":
                 mockup_config = self._processor.create_mockup_config()
                 content = self._processor.process_setup_template(
                     template, mockup_config
@@ -312,7 +314,7 @@ class TemplateLoader:
         later with real values.
 
         Args:
-            template_type: Type of template (config, version, setup)
+            template_type: Type of template (config, version, build)
             format_type: Format of the template
             output_path: Path where to save the file
 

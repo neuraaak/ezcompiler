@@ -348,17 +348,17 @@ class TestTemplateService:
         assert result == out
         mock_writer.write_text.assert_called_once_with(out, "# setup", encoding="utf-8")
 
-    def test_should_write_setup_py_to_dir_when_output_dir_is_given(
+    def test_should_write_build_py_to_dir_when_output_dir_is_given(
         self, temp_dir: Path
     ) -> None:
         service, _, mock_loader = self._make_service()
-        mock_loader.process_setup_template.return_value = "# setup"
+        mock_loader.process_setup_template.return_value = "# build"
         out_dir = temp_dir / "build"
         out_dir.mkdir()
 
         result = service.generate_setup_file({}, output_dir=out_dir)
 
-        assert result == out_dir / "setup.py"
+        assert result == out_dir / "build.py"
 
     def test_should_raise_template_error_when_writer_fails_in_setup(
         self, temp_dir: Path

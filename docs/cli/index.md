@@ -24,7 +24,7 @@ ezcompiler [OPTIONS] COMMAND [ARGS]...
 | `init`              | Initialize a new project interactively                                  |
 | `compile`           | Compile the project (version → compile → zip)                           |
 | `generate config`   | Generate a configuration file                                           |
-| `generate setup`    | Generate a `setup.py` from a configuration file                         |
+| `generate build`    | Generate a `build.py` script from a configuration file                  |
 | `generate iss`      | Generate an editable Inno Setup script from the configuration           |
 | `generate version`  | Generate a Windows version information file                             |
 | `generate template` | Generate a template file with optional mockup data                      |
@@ -122,18 +122,25 @@ ezcompiler generate iss --output installer/MyApp.iss --force
 
 ---
 
-### `generate setup`
+### `generate build`
 
-Generate a `setup.py` from a configuration file.
+Generate a `build.py` script from a configuration file.
+
+The script drives the full pipeline — version file, compilation, ZIP,
+installer, release — and is meant to be committed and run directly. It
+initializes `Ezpl` itself, since EzCompiler produces no output until the host
+application does. The installer stage runs when `installer.enabled` is true in
+the configuration; nothing in the script needs to change to turn it on.
 
 ```bash
-ezcompiler generate setup --config ezcompiler.yaml
+ezcompiler generate build --config ezcompiler.yaml
+ezcompiler generate build --from-pyproject pyproject.toml --output scripts
 ```
 
-| Option     | Required | Default      | Description                |
-| :--------- | :------- | :----------- | :------------------------- |
-| `--config` | Yes      | —            | Path to configuration file |
-| `--output` | No       | `"setup.py"` | Output file path           |
+| Option     | Required | Default | Description                                    |
+| :--------- | :------- | :------ | :--------------------------------------------- |
+| `--config` | No       | —       | Path to configuration file (YAML or JSON)      |
+| `--output` | No       | `"."`   | Output **directory**; the file is `build.py`   |
 
 ---
 
@@ -226,8 +233,8 @@ ezcompiler init
 # Generate a YAML configuration
 ezcompiler generate config --project-name "MyApp" --main-file "main.py" --version "2.0.0"
 
-# Generate setup.py
-ezcompiler generate setup --config ezcompiler.yaml
+# Generate build.py
+ezcompiler generate build --config ezcompiler.yaml
 
 # Generate version information file
 ezcompiler generate version --config ezcompiler.yaml --output version_info.txt
