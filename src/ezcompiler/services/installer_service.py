@@ -56,6 +56,7 @@ class InstallerService:
         installer_config: InstallerConfig | None = None,
         company_name: str = "",
         icon: str = "",
+        main_file: str = "",
     ) -> Path:
         """Build the installer executable for a compiled bundle.
 
@@ -71,6 +72,8 @@ class InstallerService:
                 ``generate iss`` uses for the same product, or the two
                 builds mint different AppIds for one product.
             icon: Path to the setup wizard icon.
+            main_file: Entry-point script; disambiguates the main executable
+                when the bundle holds several and none matches ``app_name``.
 
         Returns:
             Path: The produced setup.exe path.
@@ -86,6 +89,7 @@ class InstallerService:
             output_dir=output_dir,
             company_name=company_name,
             icon=icon,
+            main_file=main_file,
         )
 
     @staticmethod

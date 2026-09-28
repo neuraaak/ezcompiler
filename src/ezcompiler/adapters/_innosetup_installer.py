@@ -114,6 +114,7 @@ class InnoSetupInstaller(BaseInstaller):
         *,
         company_name: str = "",
         icon: str = "",
+        main_file: str = "",
     ) -> Path:
         """Detect the main executable, resolve the .iss, and compile it.
 
@@ -121,9 +122,12 @@ class InnoSetupInstaller(BaseInstaller):
         ``render_iss`` (the former drives the deterministic AppId GUID via
         ``resolve_app_id``, so it must match whatever ``generate iss`` uses
         for the same product — see ``InstallerService.build_installer``).
+        ``main_file`` is the entry-point script: it disambiguates a bundle
+        holding several executables when none matches ``app_name`` (a bundle
+        built from ``main.py`` for project ``MyApp`` emits ``main.exe``).
         """
         self._validate_bundle_dir(bundle_dir)
-        main_exe = detect_main_exe(bundle_dir, app_name, app_name)
+        main_exe = detect_main_exe(bundle_dir, app_name, main_file or app_name)
 
         iscc_path = self._config.iscc_path or self._find_iscc()
         if not iscc_path:

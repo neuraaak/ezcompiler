@@ -74,6 +74,7 @@ def _build(
     returncode: int = 0,
     company_name: str = "",
     icon: str = "",
+    main_file: str = "",
 ) -> tuple[Path, _IsccCall]:
     """Run one full build against a faked ISCC and return (setup_exe, call)."""
     bundle = _bundle(tmp_path, *exe_names)
@@ -82,7 +83,13 @@ def _build(
     _patch_subprocess(monkeypatch, calls, output_dir, app_name, version, returncode)
     installer = InnoSetupInstaller(config or InstallerConfig(enabled=True))
     setup_exe = installer.build(
-        bundle, app_name, version, output_dir, company_name=company_name, icon=icon
+        bundle,
+        app_name,
+        version,
+        output_dir,
+        company_name=company_name,
+        icon=icon,
+        main_file=main_file,
     )
     return setup_exe, calls[0]
 
@@ -105,6 +112,35 @@ def test_detect_main_exe_prefers_project_name(tmp_path: Path) -> None:
 def test_detect_main_exe_falls_back_to_main_file_basename(tmp_path: Path) -> None:
     bundle = _bundle(tmp_path, "helper.exe", "launcher.exe")
     assert detect_main_exe(bundle, "MyApp", "launcher.py") == "launcher.exe"
+
+
+def test_build_uses_main_file_to_disambiguate(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """The main_file fallback must be reachable from build(), not only from
+    detect_main_exe(): a PyInstaller bundle built from main.py for project
+    MyApp emits main.exe, which matches no project candidate."""
+    _, call = _build(
+        monkeypatch,
+        tmp_path,
+        app_name="MyApp",
+        exe_names=("helper.exe", "main.exe"),
+        main_file="main.py",
+    )
+    assert "/DMainExe=main.exe" in call.argv
+
+
+def test_build_still_raises_when_main_file_does_not_disambiguate(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    with pytest.raises(InstallerConfigError, match="main executable"):
+        _build(
+            monkeypatch,
+            tmp_path,
+            app_name="MyApp",
+            exe_names=("one.exe", "two.exe"),
+            main_file="main.py",
+        )
 
 
 def test_detect_main_exe_raises_when_ambiguous(tmp_path: Path) -> None:

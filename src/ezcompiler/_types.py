@@ -242,6 +242,7 @@ class InstallerPort(Protocol):
         *,
         company_name: str = "",
         icon: str = "",
+        main_file: str = "",
     ) -> Path:
         """Build the installer executable. Raises InstallerError on failure."""
         ...

@@ -19,6 +19,7 @@ class _ConcreteInstaller(BaseInstaller):
         *,
         company_name: str = "",
         icon: str = "",
+        main_file: str = "",
     ) -> Path:
         self._validate_bundle_dir(bundle_dir)
         return output_dir / f"{app_name}-{version}-setup.exe"

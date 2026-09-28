@@ -338,4 +338,5 @@ class PipelineService:
             installer_config=config.installer,
             company_name=config.company_name,
             icon=config.icon,
+            main_file=config.main_file,
         )

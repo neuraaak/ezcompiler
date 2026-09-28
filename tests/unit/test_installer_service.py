@@ -29,7 +29,15 @@ def test_build_installer_delegates_to_factory(monkeypatch, tmp_path: Path) -> No
 
     class _FakeInstaller:
         def build(
-            self, bundle_dir, app_name, version, output_dir, *, company_name="", icon=""
+            self,
+            bundle_dir,
+            app_name,
+            version,
+            output_dir,
+            *,
+            company_name="",
+            icon="",
+            main_file="",
         ):
             calls["build"] = (bundle_dir, app_name, version, output_dir)
             return output_dir / f"{app_name}-{version}-setup.exe"
