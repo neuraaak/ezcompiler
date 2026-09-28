@@ -108,6 +108,36 @@ def test_generate_iss_script_warns_on_relative_icon(tmp_path, caplog) -> None:
     assert "relative" in caplog.text
 
 
+def test_generate_iss_script_warns_on_relative_license_file(
+    tmp_path, caplog, monkeypatch
+) -> None:
+    """Same hazard as the icon, and the standalone script is committed as-is."""
+    config = _config(tmp_path)
+    (tmp_path / "LICENSE.txt").write_text("MIT")
+    monkeypatch.chdir(tmp_path)
+    config.installer = InstallerConfig(enabled=True, license_file=Path("LICENSE.txt"))
+    with caplog.at_level("WARNING"):
+        InstallerService.generate_iss_script(
+            config, tmp_path / "MyApp.iss", force=False
+        )
+    assert "LICENSE.txt" in caplog.text
+    assert "relative" in caplog.text
+
+
+def test_generate_iss_script_does_not_warn_on_absolute_license_file(
+    tmp_path, caplog
+) -> None:
+    license_file = tmp_path / "LICENSE.txt"
+    license_file.write_text("MIT")
+    config = _config(tmp_path)
+    config.installer = InstallerConfig(enabled=True, license_file=license_file)
+    with caplog.at_level("WARNING"):
+        InstallerService.generate_iss_script(
+            config, tmp_path / "MyApp.iss", force=False
+        )
+    assert "relative" not in caplog.text
+
+
 def test_generate_iss_script_does_not_warn_on_absolute_icon(tmp_path, caplog) -> None:
     icon = tmp_path / "app.ico"
     target = tmp_path / "MyApp.iss"

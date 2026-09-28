@@ -277,6 +277,35 @@ def test_icon_reaches_the_script_as_an_absolute_path(tmp_path, monkeypatch):
     assert "SetupIconFile=myicon.ico" not in iss_text
 
 
+def test_relative_license_file_is_absolutized_in_the_ephemeral_script(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """Same hazard as icon: the ephemeral .iss lives in mkdtemp(), and ISCC
+    resolves LicenseFile against the .iss directory, not the process cwd."""
+    license_file = tmp_path / "LICENSE.txt"
+    license_file.write_text("MIT")
+    monkeypatch.chdir(tmp_path)
+    captured: dict[str, str] = {}
+    original = Path.write_text
+
+    def _capture(self: Path, data: str, **kwargs: Any) -> int:
+        if self.suffix == ".iss":
+            captured["text"] = data
+        return original(self, data, **kwargs)
+
+    monkeypatch.setattr(Path, "write_text", _capture)
+    _build(
+        monkeypatch,
+        tmp_path,
+        InstallerConfig(enabled=True, license_file=Path("LICENSE.txt")),
+    )
+
+    line = next(
+        ln for ln in captured["text"].splitlines() if ln.startswith("LicenseFile=")
+    )
+    assert Path(line.removeprefix("LicenseFile=")).is_absolute()
+
+
 def test_ephemeral_iss_is_kept_on_failure(tmp_path, monkeypatch):
     """Without the script, 'ISCC failed (exit 2)' is undiagnosable."""
     bundle = _bundle(tmp_path)

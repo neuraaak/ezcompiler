@@ -130,6 +130,15 @@ class InstallerService:
                 config.icon,
             )
 
+        license_file = config.installer.license_file
+        if license_file is not None and not license_file.is_absolute():
+            _logger.warning(
+                "installer.license_file %s is a relative path: ISCC resolves "
+                "it against the .iss file's own directory, not the current "
+                "working directory",
+                license_file,
+            )
+
         content = render_iss(
             config.installer,
             project_name=config.project_name,

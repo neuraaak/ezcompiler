@@ -19,6 +19,7 @@ from __future__ import annotations
 # ///////////////////////////////////////////////////////////////
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
+import copy
 import logging
 import os
 import shutil
@@ -205,8 +206,17 @@ class InnoSetupInstaller(BaseInstaller):
                 )
             return self._config.iss_path, None
 
+        # ISCC resolves LicenseFile against the .iss file's own directory —
+        # the mkdtemp() below — so a relative path would never be found.
+        # Same reasoning as the icon, absolutized by build().
+        config = self._config
+        license_file = config.license_file
+        if license_file is not None and not license_file.is_absolute():
+            config = copy.copy(config)
+            config.license_file = license_file.resolve()
+
         iss_text = render_iss(
-            self._config,
+            config,
             project_name=app_name,
             company_name=company_name,
             icon=icon,
