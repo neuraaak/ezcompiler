@@ -345,9 +345,9 @@ class FileUtils:
         Note:
             If target is not relative to base, returns the absolute path.
         """
+        base = Path(base_path).resolve()
+        target = Path(target_path).resolve()
         try:
-            base = Path(base_path).resolve()
-            target = Path(target_path).resolve()
             return str(target.relative_to(base))
         except ValueError:
             # If target is not relative to base, return the absolute path
