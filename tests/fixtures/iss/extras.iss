@@ -20,7 +20,7 @@ OutputBaseFilename=MyApp-{#MyAppVersion}-setup
 Compression=lzma2/max
 SolidCompression=yes
 WizardStyle=modern
-CloseApplications=yes
+CloseApplications=force
 RestartApplications=yes
 AppCopyright=(c) 2026 ACME
 
