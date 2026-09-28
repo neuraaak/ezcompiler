@@ -65,11 +65,11 @@ ezcompiler generate config --project-name "MyApp" --main-file "main.py" --instal
 
 ## Choose a script mode
 
-| Mode | Selection | Behavior |
-| :--- | :-------- | :------- |
-| Ephemeral | Leave `iss_path` unset | Render the bundled Jinja2 template to a temporary UTF-8 BOM `.iss`, compile it, and remove it on success. No script is left in `installer.output_dir`. A failed ISCC invocation retains the script for diagnosis. |
-| Generated | Run `ezcompiler generate iss` | Write an editable, committable UTF-8 BOM script, by default `installer/<project_name>.iss`. Generation does not run ISCC or automatically adopt the file. |
-| File | Set `iss_path` | Pass the existing `.iss` directly to ISCC. Its contents are authoritative; they are neither re-rendered with Jinja2 nor rewritten. |
+| Mode      | Selection                     | Behavior                                                                                                                                                                                                          |
+| :-------- | :---------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Ephemeral | Leave `iss_path` unset        | Render the bundled Jinja2 template to a temporary UTF-8 BOM `.iss`, compile it, and remove it on success. No script is left in `installer.output_dir`. A failed ISCC invocation retains the script for diagnosis. |
+| Generated | Run `ezcompiler generate iss` | Write an editable, committable UTF-8 BOM script, by default `installer/<project_name>.iss`. Generation does not run ISCC or automatically adopt the file.                                                         |
+| File      | Set `iss_path`                | Pass the existing `.iss` directly to ISCC. Its contents are authoritative; they are neither re-rendered with Jinja2 nor rewritten.                                                                                |
 
 Generate and then adopt a script when the typed options are insufficient:
 
@@ -114,13 +114,13 @@ keep its identity across a rename. In the script, a literal GUID uses
 
 Every build passes five volatile values as ISCC `/D` preprocessor defines:
 
-| Define | Value supplied for the current build | Script consumer |
-| :----- | :----------------------------------- | :-------------- |
-| `MyAppVersion` | `CompilerConfig.version` | `AppVersion` and the setup filename |
-| `VersionInfo` | Numeric four-part version, e.g. `1.2.3.0` from `1.2.3-rc1` | `VersionInfoVersion` |
-| `BundleDir` | Absolute compiled bundle directory | `[Files]` source |
-| `OutputDir` | Absolute installer output directory | `OutputDir` |
-| `MainExe` | Detected executable name at the bundle root | Shortcuts and post-install launch |
+| Define         | Value supplied for the current build                       | Script consumer                     |
+| :------------- | :--------------------------------------------------------- | :---------------------------------- |
+| `MyAppVersion` | `CompilerConfig.version`                                   | `AppVersion` and the setup filename |
+| `VersionInfo`  | Numeric four-part version, e.g. `1.2.3.0` from `1.2.3-rc1` | `VersionInfoVersion`                |
+| `BundleDir`    | Absolute compiled bundle directory                         | `[Files]` source                    |
+| `OutputDir`    | Absolute installer output directory                        | `OutputDir`                         |
+| `MainExe`      | Detected executable name at the bundle root                | Shortcuts and post-install launch   |
 
 The adapter chooses the sole bundle-root `.exe`, otherwise the executable
 matching the project name; an unresolved ambiguity is an error.
@@ -140,32 +140,32 @@ live under `[tool.ezcompiler.installer]`; Python defaults use `None` for unset
 paths or optional values. In TOML, omit those keys instead of writing `null`.
 Effects describe generated scripts; file mode follows the rule above.
 
-| Option | Default | Effect on the `.iss` or compiler invocation |
-| :----- | :------ | :----------------------------------------- |
-| `enabled` | `False` | Enable the pipeline's installer stage; emits no directive. |
-| `iss_path` | `None` | Use this existing script directly instead of rendering the template. |
-| `output_dir` | `None` | Resolve to `output_folder.parent / "installer"`; supply `/DOutputDir` for the script's `OutputDir`. Receives the setup executable. |
-| `iscc_path` | `None` | Explicit compiler binary; otherwise discover ISCC on `PATH` or in default Inno Setup 6 Program Files directories. |
-| `app_id` | `None` | Stable `AppId`; derive a UUIDv5 from company/project names, or use an explicit `{XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}` GUID. |
-| `publisher_url` | `""` | Emit `AppPublisherURL` when non-empty. |
-| `support_url` | `""` | Emit `AppSupportURL` when non-empty. |
-| `updates_url` | `""` | Emit `AppUpdatesURL` when non-empty. |
-| `architecture` | `"x64"` | Emit `ArchitecturesAllowed` and `ArchitecturesInstallIn64BitMode` with the selected value (`x64`, `x86`, or `arm64`); `auto` omits both and leaves Inno's defaults in effect. |
-| `per_user` | `False` | Select `{autopf}\<App>` with `PrivilegesRequired=admin`, or `{localappdata}\Programs\<App>` with `PrivilegesRequired=lowest`. |
-| `desktop_icon` | `True` | Emit an optional, initially unchecked `desktopicon` task and its `[Icons]` entry; disabling it omits both. |
-| `start_menu_group` | `None` | Set `DefaultGroupName`; default to the project name. A Start Menu shortcut is always emitted. |
-| `launch_after_install` | `True` | Emit the `[Run]` launch entry with `postinstall` and `skipifsilent`; disabling it omits that entry. |
-| `add_to_path` | `False` | Append `{app}` to the user's `HKCU\Environment\Path` through `[Registry]`; uses `preservestringtype`. A generated `[Code]` block guards against duplicate entries on reinstall and removes the entry again at uninstall (never `uninsdeletevalue`, which would wipe the whole `Path`). Defining your own `CurUninstallStepChanged` in `extra_sections.Code` collides with it. |
-| `close_running_app` | `True` | Emit `CloseApplications=force` and `RestartApplications=yes` (an unattended upgrade closes the running app instead of prompting); `False` omits both directives rather than explicitly setting them to `no`. |
-| `uninstall_delete` | `[]` | Emit each value verbatim as a `[UninstallDelete]` `Name` with `Type: filesandordirs`; use application-relative entries such as `{app}\cache`. Absolute paths and `..` segments are rejected. |
-| `license_file` | `None` | Emit `LicenseFile`; the supplied file must exist when enabled. |
-| `languages` | `["english"]` | Emit `[Languages]`: English uses `compiler:Default.isl`, others use bundled language files. Names must be supported, non-empty, and unique, e.g. `["english", "french"]`. |
-| `wizard_style` | `"modern"` | Emit `WizardStyle` (`modern` or `classic`). |
-| `compression` | `"lzma2/max"` | Emit `Compression`; `SolidCompression=yes` is always emitted. ISCC validates the algorithm. |
-| `sign_tool_name` | `None` | Emit `SignTool` and register the command with ISCC's `/S`; must be paired with `sign_tool_command`. |
-| `sign_tool_command` | `None` | Supply the command in `/S<name>=<command>`; must be paired with `sign_tool_name`. |
-| `extra_setup_directives` | `{}` | Append raw additional `[Setup]` directives; managed directive collisions are rejected case-insensitively. |
-| `extra_sections` | `{}` | Append raw lines in additional sections; collisions with managed section names are rejected case-insensitively. |
+| Option                   | Default       | Effect on the `.iss` or compiler invocation                                                                                                                                                                                                                                                                                                                                   |
+| :----------------------- | :------------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `enabled`                | `False`       | Enable the pipeline's installer stage; emits no directive.                                                                                                                                                                                                                                                                                                                    |
+| `iss_path`               | `None`        | Use this existing script directly instead of rendering the template.                                                                                                                                                                                                                                                                                                          |
+| `output_dir`             | `None`        | Resolve to `output_folder.parent / "installer"`; supply `/DOutputDir` for the script's `OutputDir`. Receives the setup executable.                                                                                                                                                                                                                                            |
+| `iscc_path`              | `None`        | Explicit compiler binary; otherwise discover ISCC on `PATH` or in default Inno Setup 6 Program Files directories.                                                                                                                                                                                                                                                             |
+| `app_id`                 | `None`        | Stable `AppId`; derive a UUIDv5 from company/project names, or use an explicit `{XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}` GUID.                                                                                                                                                                                                                                                 |
+| `publisher_url`          | `""`          | Emit `AppPublisherURL` when non-empty.                                                                                                                                                                                                                                                                                                                                        |
+| `support_url`            | `""`          | Emit `AppSupportURL` when non-empty.                                                                                                                                                                                                                                                                                                                                          |
+| `updates_url`            | `""`          | Emit `AppUpdatesURL` when non-empty.                                                                                                                                                                                                                                                                                                                                          |
+| `architecture`           | `"x64"`       | Emit `ArchitecturesAllowed` and `ArchitecturesInstallIn64BitMode` with the selected value (`x64`, `x86`, or `arm64`); `auto` omits both and leaves Inno's defaults in effect.                                                                                                                                                                                                 |
+| `per_user`               | `False`       | Select `{autopf}\<App>` with `PrivilegesRequired=admin`, or `{localappdata}\Programs\<App>` with `PrivilegesRequired=lowest`.                                                                                                                                                                                                                                                 |
+| `desktop_icon`           | `True`        | Emit an optional, initially unchecked `desktopicon` task and its `[Icons]` entry; disabling it omits both.                                                                                                                                                                                                                                                                    |
+| `start_menu_group`       | `None`        | Set `DefaultGroupName`; default to the project name. A Start Menu shortcut is always emitted.                                                                                                                                                                                                                                                                                 |
+| `launch_after_install`   | `True`        | Emit the `[Run]` launch entry with `postinstall` and `skipifsilent`; disabling it omits that entry.                                                                                                                                                                                                                                                                           |
+| `add_to_path`            | `False`       | Append `{app}` to the user's `HKCU\Environment\Path` through `[Registry]`; uses `preservestringtype`. A generated `[Code]` block guards against duplicate entries on reinstall and removes the entry again at uninstall (never `uninsdeletevalue`, which would wipe the whole `Path`). Defining your own `CurUninstallStepChanged` in `extra_sections.Code` collides with it. |
+| `close_running_app`      | `True`        | Emit `CloseApplications=force` and `RestartApplications=yes` (an unattended upgrade closes the running app instead of prompting); `False` omits both directives rather than explicitly setting them to `no`.                                                                                                                                                                  |
+| `uninstall_delete`       | `[]`          | Emit each value verbatim as a `[UninstallDelete]` `Name` with `Type: filesandordirs`; use application-relative entries such as `{app}\cache`. Absolute paths and `..` segments are rejected.                                                                                                                                                                                  |
+| `license_file`           | `None`        | Emit `LicenseFile`; the supplied file must exist when enabled.                                                                                                                                                                                                                                                                                                                |
+| `languages`              | `["english"]` | Emit `[Languages]`: English uses `compiler:Default.isl`, others use bundled language files. Names must be supported, non-empty, and unique, e.g. `["english", "french"]`.                                                                                                                                                                                                     |
+| `wizard_style`           | `"modern"`    | Emit `WizardStyle` (`modern` or `classic`).                                                                                                                                                                                                                                                                                                                                   |
+| `compression`            | `"lzma2/max"` | Emit `Compression`; `SolidCompression=yes` is always emitted. ISCC validates the algorithm.                                                                                                                                                                                                                                                                                   |
+| `sign_tool_name`         | `None`        | Emit `SignTool` and register the command with ISCC's `/S`; must be paired with `sign_tool_command`.                                                                                                                                                                                                                                                                           |
+| `sign_tool_command`      | `None`        | Supply the command in `/S<name>=<command>`; must be paired with `sign_tool_name`.                                                                                                                                                                                                                                                                                             |
+| `extra_setup_directives` | `{}`          | Append raw additional `[Setup]` directives; managed directive collisions are rejected case-insensitively.                                                                                                                                                                                                                                                                     |
+| `extra_sections`         | `{}`          | Append raw lines in additional sections; collisions with managed section names are rejected case-insensitively.                                                                                                                                                                                                                                                               |
 
 Shape validation also runs when the stage is disabled. Existing `iss_path` and
 `license_file` checks run when enabled. Invalid installer options raise
@@ -267,15 +267,15 @@ otherwise the adapter raises `InstallerBuildError` even if ISCC exits successful
 When TUF is enabled, the explicit `upload()` step also includes the installer in
 the release directory alongside the ZIP; see [Release pipeline](../concepts/about-release-pipeline.md).
 
-| Exception | Raised when |
-| :-------- | :---------- |
-| `ConfigurationError` | Installer options are invalid, legacy flat keys are loaded, or an enabled configured script/license file does not exist. |
-| `TypeError` | Removed flat installer keywords are passed to the Python `CompilerConfig` constructor. |
-| `IsccNotFoundError` | ISCC cannot be found and no explicit compiler path was supplied. |
-| `InstallerRenderError` | Jinja2 rendering fails or a typed literal value contains unsupported characters. |
-| `InstallerBuildError` | ISCC exits unsuccessfully, or its expected setup executable is missing after a successful invocation. An ISCC failure retains the ephemeral script and reports its path. |
+| Exception              | Raised when                                                                                                                                                                   |
+| :--------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ConfigurationError`   | Installer options are invalid, legacy flat keys are loaded, or an enabled configured script/license file does not exist.                                                      |
+| `TypeError`            | Removed flat installer keywords are passed to the Python `CompilerConfig` constructor.                                                                                        |
+| `IsccNotFoundError`    | ISCC cannot be found and no explicit compiler path was supplied.                                                                                                              |
+| `InstallerRenderError` | Jinja2 rendering fails or a typed literal value contains unsupported characters.                                                                                              |
+| `InstallerBuildError`  | ISCC exits unsuccessfully, or its expected setup executable is missing after a successful invocation. An ISCC failure retains the ephemeral script and reports its path.      |
 | `InstallerConfigError` | The bundle is missing/empty, its main executable cannot be identified, the script is missing at build time, or generation would overwrite an existing file without `--force`. |
-| `InstallerTypeError` | An unsupported installer backend was requested. |
+| `InstallerTypeError`   | An unsupported installer backend was requested.                                                                                                                               |
 
 Installer exceptions can be imported from `ezcompiler.shared.exceptions`.
 They derive from `InstallerError`. Let real compiler failures propagate so the
