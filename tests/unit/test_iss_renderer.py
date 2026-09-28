@@ -7,7 +7,7 @@
 
 from __future__ import annotations
 
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 
 import pytest
 
@@ -386,10 +386,11 @@ def test_golden_advanced() -> None:
     """Covers the three branches no other golden config exercises:
     icon set, license_file set, architecture="auto" (which omits both
     ArchitecturesAllowed and ArchitecturesInstallIn64BitMode)."""
+    license_file = Path("tests/fixtures/iss/LICENSE.txt")
     config = InstallerConfig(
         enabled=True,
         architecture="auto",
-        license_file=Path("tests/fixtures/iss/LICENSE.txt"),
+        license_file=license_file,
     )
     rendered = render_iss(
         config,
@@ -398,4 +399,12 @@ def test_golden_advanced() -> None:
         icon="assets/icon.ico",
         standalone=False,
     )
-    assert rendered == _golden("advanced")
+    # The golden holds a Windows-style LicenseFile; str(Path) uses the host
+    # separator, so rebuild that one line for the OS the test runs on.
+    # Production never hits this: the installer absolutizes license_file
+    # before rendering.
+    golden = _golden("advanced")
+    windows_line = f"LicenseFile={PureWindowsPath(license_file)}"
+    assert windows_line in golden
+    expected = golden.replace(windows_line, f"LicenseFile={license_file}")
+    assert rendered == expected

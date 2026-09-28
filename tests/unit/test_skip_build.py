@@ -16,12 +16,28 @@ from unittest.mock import MagicMock
 
 import pytest
 
+from ezcompiler.adapters.compiler_factory import CompilerFactory
 from ezcompiler.interfaces.python_api import EzCompiler
 from ezcompiler.services.compiler_service import CompilerService
 from ezcompiler.services.pipeline_service import PipelineService
 from ezcompiler.shared._compiler_config import CompilerConfig
 from ezcompiler.shared._installer_config import InstallerConfig
 from ezcompiler.shared.exceptions import CompilationError
+
+
+@pytest.fixture(autouse=True)
+def _compilers_available(monkeypatch) -> None:
+    """The adapters shell out to their compiler, so they need no import of it.
+
+    Stub the availability probe: these tests exercise use_existing_build, not
+    the install state of the optional compiler extras (absent in the docs CI
+    job, which syncs only [test]).
+    """
+    monkeypatch.setattr(
+        CompilerFactory,
+        "_check_compiler_available",
+        staticmethod(lambda _name: None),
+    )
 
 
 def _config(tmp_path: Path, *, built: bool = True, **extra) -> CompilerConfig:
