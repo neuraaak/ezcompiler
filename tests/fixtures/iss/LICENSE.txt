@@ -1,0 +1,2 @@
+Stub license file used only to satisfy InstallerConfig's license_file
+existence check in the "advanced" golden .iss fixture.

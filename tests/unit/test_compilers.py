@@ -65,7 +65,7 @@ class TestCompilerInstantiation:
             project_name="TestProject",
             main_file=str(main_file),
             include_files={"files": [], "folders": []},
-            output_folder=str(temp_dir / "dist"),
+            output_folder=temp_dir / "dist",
         )
         compiler = CxFreezeCompiler(config)
         assert compiler is not None
@@ -83,7 +83,7 @@ class TestCompilerInstantiation:
             project_name="TestProject",
             main_file=str(main_file),
             include_files={"files": [], "folders": []},
-            output_folder=str(temp_dir / "dist"),
+            output_folder=temp_dir / "dist",
         )
         compiler = PyInstallerCompiler(config)
         assert compiler is not None
@@ -101,7 +101,7 @@ class TestCompilerInstantiation:
             project_name="TestProject",
             main_file=str(main_file),
             include_files={"files": [], "folders": []},
-            output_folder=str(temp_dir / "dist"),
+            output_folder=temp_dir / "dist",
         )
         compiler = NuitkaCompiler(config)
         assert compiler is not None
@@ -119,7 +119,7 @@ class TestCompilerInstantiation:
             project_name="TestProject",
             main_file=str(main_file),
             include_files={"files": [], "folders": []},
-            output_folder=str(temp_dir / "dist"),
+            output_folder=temp_dir / "dist",
         )
         compiler = CxFreezeCompiler(config)
         assert hasattr(compiler, "config")
@@ -137,7 +137,7 @@ class TestCompilerInstantiation:
             project_name="TestProject",
             main_file=str(main_file),
             include_files={"files": [], "folders": []},
-            output_folder=str(temp_dir / "dist"),
+            output_folder=temp_dir / "dist",
         )
         assert isinstance(CxFreezeCompiler(config), BaseCompiler)
         assert isinstance(PyInstallerCompiler(config), BaseCompiler)
@@ -164,7 +164,7 @@ class TestCompilerNames:
             project_name="TestProject",
             main_file=str(main_file),
             include_files={"files": [], "folders": []},
-            output_folder=str(temp_dir / "dist"),
+            output_folder=temp_dir / "dist",
         )
         name = CxFreezeCompiler(config).get_compiler_name()
         assert isinstance(name, str)
@@ -182,7 +182,7 @@ class TestCompilerNames:
             project_name="TestProject",
             main_file=str(main_file),
             include_files={"files": [], "folders": []},
-            output_folder=str(temp_dir / "dist"),
+            output_folder=temp_dir / "dist",
         )
         name = PyInstallerCompiler(config).get_compiler_name()
         assert isinstance(name, str)
@@ -200,7 +200,7 @@ class TestCompilerNames:
             project_name="TestProject",
             main_file=str(main_file),
             include_files={"files": [], "folders": []},
-            output_folder=str(temp_dir / "dist"),
+            output_folder=temp_dir / "dist",
         )
         name = NuitkaCompiler(config).get_compiler_name()
         assert isinstance(name, str)
@@ -223,7 +223,7 @@ class TestPyInstallerCompilerOptions:
             project_name="TestProject",
             main_file=str(main_file),
             include_files={"files": [], "folders": []},
-            output_folder=str(temp_dir / "dist"),
+            output_folder=temp_dir / "dist",
             compiler_options=compiler_options,
         )
         return PyInstallerCompiler(config)

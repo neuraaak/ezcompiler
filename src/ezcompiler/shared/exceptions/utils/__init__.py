@@ -77,6 +77,7 @@ from ._installer_exceptions import (
     InstallerBuildError,
     InstallerConfigError,
     InstallerError,
+    InstallerRenderError,
     InstallerTypeError,
     IsccNotFoundError,
 )
@@ -186,6 +187,7 @@ __all__ = [
     "IsccNotFoundError",
     "InstallerBuildError",
     "InstallerConfigError",
+    "InstallerRenderError",
     # Updater exceptions
     "UpdaterError",
     "UpdaterConfigError",

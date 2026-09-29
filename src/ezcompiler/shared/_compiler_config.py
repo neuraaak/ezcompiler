@@ -22,6 +22,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 # Local imports
+from ._installer_config import InstallerConfig, raise_on_legacy_installer_keys
 from .exceptions import ConfigurationError
 
 if TYPE_CHECKING:
@@ -163,13 +164,7 @@ class CompilerConfig:
     # INSTALLER OPTIONS (Inno Setup)
     # ////////////////////////////////////////////////
 
-    installer_enabled: bool = False
-    installer_output_dir: Path | None = None
-    installer_iss_path: Path | None = None
-    # Per-user install: installs to %LOCALAPPDATA%\Programs (no admin rights
-    # required) instead of Program Files. Required for tufup in-place
-    # auto-update, which cannot self-elevate to overwrite Program Files.
-    installer_per_user: bool = False
+    installer: InstallerConfig = field(default_factory=InstallerConfig)
 
     # ////////////////////////////////////////////////
     # COMPILER-SPECIFIC OPTIONS
@@ -196,7 +191,7 @@ class CompilerConfig:
         self._validate_paths()
         self._validate_compiler_option()
         self._validate_destinations()
-        self._validate_installer_option()
+        self._validate_installer_icon()
 
     def _validate_required_fields(self) -> None:
         """
@@ -270,12 +265,6 @@ class CompilerConfig:
         if isinstance(self.tuf_keys_dir, str):
             self.tuf_keys_dir = Path(self.tuf_keys_dir)
 
-        if isinstance(self.installer_output_dir, str):
-            self.installer_output_dir = Path(self.installer_output_dir)
-
-        if isinstance(self.installer_iss_path, str):
-            self.installer_iss_path = Path(self.installer_iss_path)
-
     def _validate_compiler_option(self) -> None:
         """
         Validate compiler option.
@@ -341,21 +330,24 @@ class CompilerConfig:
                 "(e.g. 'https://updates.myapp.com')."
             )
 
-    def _validate_installer_option(self) -> None:
+    def _validate_installer_icon(self) -> None:
         """
-        Validate installer configuration.
+        Validate the icon format when the installer stage is enabled.
 
-        Ensures installer_iss_path, when provided, points to an existing file.
+        Inno Setup requires a .ico file; other formats fail ISCC with an
+        opaque exit 2. Compilers accept other icon formats, so this check
+        only applies once the installer stage is enabled.
 
         Raises:
-            ConfigurationError: If installer_iss_path is set but not found
+            ConfigurationError: If installer.enabled and icon is not a .ico file
         """
         if (
-            self.installer_iss_path is not None
-            and not Path(self.installer_iss_path).is_file()
+            self.installer.enabled
+            and self.icon
+            and Path(self.icon).suffix.lower() != ".ico"
         ):
             raise ConfigurationError(
-                f"installer_iss_path not found: {self.installer_iss_path}"
+                f"icon must be a .ico file when the installer is enabled: {self.icon}"
             )
 
     # ////////////////////////////////////////////////
@@ -456,18 +448,7 @@ class CompilerConfig:
                 "tuf_keys_dir": str(self.tuf_keys_dir) if self.tuf_keys_dir else None,
                 "tuf_expiration_days": self.tuf_expiration_days,
             },
-            "installer": {
-                "installer_enabled": self.installer_enabled,
-                "installer_output_dir": (
-                    str(self.installer_output_dir)
-                    if self.installer_output_dir
-                    else None
-                ),
-                "installer_iss_path": (
-                    str(self.installer_iss_path) if self.installer_iss_path else None
-                ),
-                "installer_per_user": self.installer_per_user,
-            },
+            "installer": self.installer.to_dict(),
         }
 
         # Emit compiler-specific options under the per-compiler section key.
@@ -537,24 +518,31 @@ class CompilerConfig:
                 "du compilateur ([tool.ezcompiler.<pyinstaller|cx_freeze|nuitka>])."
             )
 
+        # Legacy flat installer keys (pre-4.0.0) — same pattern as the
+        # compiler_options / advanced.optimize removals.
+        raise_on_legacy_installer_keys(config_copy)
+
         # Flatten nested structures
         compilation = config_copy.get("compilation", {})
         upload = config_copy.get("upload", {})
         release = config_copy.get("release", {})
-        installer = config_copy.get("installer", {})
 
         config_copy.update(compilation)
         config_copy.update(upload)
         config_copy.update(advanced)
         config_copy.update(release)
-        config_copy.update(installer)
 
         # Remove nested keys
         config_copy.pop("compilation", None)
         config_copy.pop("upload", None)
         config_copy.pop("advanced", None)
         config_copy.pop("release", None)
-        config_copy.pop("installer", None)
+
+        installer_section = config_copy.pop("installer", {})
+        if isinstance(installer_section, InstallerConfig):
+            config_copy["installer"] = installer_section
+        else:
+            config_copy["installer"] = InstallerConfig.from_dict(installer_section)
 
         # Select the per-compiler section matching the resolved compiler.
         # optimize/strip are promoted to top-level fields; the remaining keys

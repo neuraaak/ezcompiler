@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -22,7 +23,7 @@ def test_release_without_publish(monkeypatch, tmp_path: Path) -> None:
         "ezcompiler.services.release_service.ReleaserFactory.create_releaser",
         lambda *_a, **_k: _FakeReleaser(),
     )
-    uploads: list[tuple] = []
+    uploads: list[dict[str, Any]] = []
     monkeypatch.setattr(
         "ezcompiler.services.release_service.UploaderService.upload",
         lambda **kwargs: uploads.append(kwargs),

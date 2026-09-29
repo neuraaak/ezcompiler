@@ -14,7 +14,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ezcompiler"
-version = "3.4.0"
+version = "4.0.0"
 description = "Project compilation and distribution framework for Python projects"
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.13"
@@ -52,6 +52,7 @@ dependencies = [
     "click>=8.0.0",
     "PyYAML>=6.0",
     "ezplog>=2.0.2",
+    "jinja2>=3.1.0",
     "tomli-w>=1.0.0",
     "packaging>=23.0",
 ]
@@ -175,6 +176,9 @@ exclude = [
 [tool.ruff]
 target-version = "py313"
 line-length = 88
+# Markdown code blocks are authored for readability (aligned comments),
+# not as formatted source.
+extend-exclude = ["docs"]
 
 [tool.ruff.lint]
 select = [
@@ -368,6 +372,7 @@ python_functions = ["test_*"]
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks tests as integration tests",
+    "requires_iscc: needs a real ISCC.exe (Inno Setup 6) on the machine",
     "unit: marks tests as unit tests (default)",
     "cli: marks tests related to CLI",
     "compiler: marks tests related to compilers",

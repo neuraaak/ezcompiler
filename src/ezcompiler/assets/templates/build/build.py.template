@@ -1,12 +1,14 @@
 # ///////////////////////////////////////////////////////////////
-# SETUP - Compilation setup script
-# Project: #PROJECT_NAME#
+# BUILD - Compilation build script
+# Project: #PROJECT_NAME_RAW#
 # ///////////////////////////////////////////////////////////////
 
 """
-Setup script for #PROJECT_NAME# compilation.
+Build script for #PROJECT_NAME_RAW#.
 
-This script uses EzCompiler to compile, zip, and upload the project.
+Drives EzCompiler through the build pipeline: version file, compilation,
+optional ZIP archive, optional Windows installer, optional TUF release.
+Upload is a separate, explicit step after the pipeline.
 """
 
 from __future__ import annotations
@@ -15,19 +17,19 @@ from __future__ import annotations
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
 # Standard library imports
-import locale
 import sys
 from datetime import datetime
 from pathlib import Path
 
 # Third-party imports
 from ezcompiler import EzCompiler
+from ezplog import Ezpl
 
 # ///////////////////////////////////////////////////////////////
 # CONSTANTS
 # ///////////////////////////////////////////////////////////////
 
-__VERSION__ = "#VERSION#"
+__VERSION__ = #VERSION#
 __ZIP_NEEDED__ = #ZIP_NEEDED#
 __REPO_NEEDED__ = #REPO_NEEDED#
 
@@ -36,7 +38,7 @@ APP_PATH = (
     if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS")
     else Path(sys.argv[0]).parent
 )
-REPO_PATH = "#REPO_PATH#"
+REPO_PATH = #REPO_PATH#
 
 # ///////////////////////////////////////////////////////////////
 # VARIABLES
@@ -47,20 +49,19 @@ REPO_PATH = "#REPO_PATH#"
 # ------------------------------------------------
 
 version = __VERSION__
-project_name = "#PROJECT_NAME#"
-project_description = "#PROJECT_DESCRIPTION#"
-company_name = "#COMPANY_NAME#"
-author = "#AUTHOR#"
-icon = "#ICON#"
+project_name = #PROJECT_NAME#
+project_description = #PROJECT_DESCRIPTION#
+company_name = #COMPANY_NAME#
+author = #AUTHOR#
+icon = #ICON#
 
 # ------------------------------------------------
 # PATHS AND FILES
 # ------------------------------------------------
 
-main_file = "#MAIN_FILE#"
-config_file = APP_PATH / f"{project_name}_config.exemple.yaml"
-version_file = "#VERSION_FILE#"
-output_folder = APP_PATH / "#OUTPUT_FOLDER#"
+main_file = #MAIN_FILE#
+version_file = #VERSION_FILE#
+output_folder = APP_PATH / #OUTPUT_FOLDER#
 
 # ------------------------------------------------
 # COMPILATION SETTINGS
@@ -72,36 +73,23 @@ includes = #INCLUDES#
 excludes = #EXCLUDES#
 
 # ------------------------------------------------
-# DATE AND COPYRIGHT
+# COPYRIGHT
 # ------------------------------------------------
 
-locale.setlocale(locale.LC_TIME, "fr_FR")
-date = datetime.now()
-annee = str(date.year)
-
-COPYRIGHT = f"Copyright (c) {annee} {company_name}. Tous droits réservés."
-
-ASCII_SCRIPT_DEBUT = """
-┌─────────────────┐
-| Début du script |
-└─────────────────┘
-"""
-
-ASCII_SCRIPT_FIN = """
-┌─────────────────┐
-| Script terminé  |
-└─────────────────┘
-"""
+COPYRIGHT = f"Copyright (c) {datetime.now().year} {company_name}. All rights reserved."
 
 # ///////////////////////////////////////////////////////////////
 # SCRIPT
 # ///////////////////////////////////////////////////////////////
 
 print(COPYRIGHT)
-print(ASCII_SCRIPT_DEBUT, end="\n")
+
+# EzCompiler stays silent until the host application initializes Ezpl:
+# printer and logger are passive proxies, and run_pipeline() needs a live
+# progress display.
+Ezpl()
 
 compiler = EzCompiler()
-compiler._ezpl.add_separator()
 
 try:
     ## => INIT PROJECT
@@ -121,27 +109,21 @@ try:
         excludes=excludes,
     )
 
-    ## => RUN BUILD PIPELINE (version, compile, zip, release with DLP)
+    ## => RUN BUILD PIPELINE (version, compile, zip, installer, release)
+    ## The installer stage runs when installer.enabled is true in the
+    ## configuration; pass skip_installer=True to bypass it for one run.
+    ## Pass skip_build=True to resume from an existing build in output_folder.
     compiler.run_pipeline(
         console=#CONSOLE#,
-        compiler=None,
+        compiler=#COMPILER#,
         skip_zip=not __ZIP_NEEDED__,
     )
 
     ## => UPLOAD (explicit step, separate from the build pipeline)
     if __REPO_NEEDED__:
-        compiler.upload(
-            destination=REPO_PATH,
-            structure="#UPLOAD_STRUCTURE#",
-        )
+        compiler.upload(destination=REPO_PATH)
 
 except Exception as e:
     compiler.printer.error(e)
     compiler.logger.error(e)
     raise SystemExit(1) from e
-
-# ///////////////////////////////////////////////////////////////
-# END
-# ///////////////////////////////////////////////////////////////
-
-print(ASCII_SCRIPT_FIN)

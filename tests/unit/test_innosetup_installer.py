@@ -1,128 +1,367 @@
 from __future__ import annotations
 
+import shutil
 import subprocess
+from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 import pytest
 
-from ezcompiler.adapters._innosetup_installer import InnoSetupInstaller
-from ezcompiler.shared.exceptions import (
-    InstallerBuildError,
-    InstallerConfigError,
-    IsccNotFoundError,
+from ezcompiler.adapters._innosetup_installer import (
+    ISCC_TIMEOUT_SECONDS,
+    InnoSetupInstaller,
+    detect_main_exe,
 )
+from ezcompiler.shared import InstallerConfig
+from ezcompiler.shared.exceptions import InstallerBuildError, InstallerConfigError
 
 
-def _make_bundle(tmp_path: Path) -> Path:
-    bundle = tmp_path / "MyApp"
+def _bundle(tmp_path: Path, *exe_names: str) -> Path:
+    bundle = tmp_path / "bundle"
     bundle.mkdir()
-    (bundle / "MyApp.exe").write_bytes(b"binary")
+    for name in exe_names or ("MyApp.exe",):
+        (bundle / name).write_bytes(b"MZ")
     return bundle
 
 
-def test_build_raises_when_bundle_missing(tmp_path: Path) -> None:
-    installer = InnoSetupInstaller({"iscc_path": tmp_path / "ISCC.exe"})
-    with pytest.raises(InstallerConfigError, match="does not exist"):
-        installer.build(tmp_path / "absent", "MyApp", "1.0.0", tmp_path / "out")
+def _extract_iss_path(message: str) -> str:
+    for token in message.split():
+        stripped = token.rstrip(".,;:)")
+        if stripped.endswith(".iss"):
+            return stripped
+    raise AssertionError(f"no .iss path found in {message!r}")
 
 
-def test_build_raises_when_iscc_not_found(monkeypatch, tmp_path: Path) -> None:
-    bundle = _make_bundle(tmp_path)
-    monkeypatch.setattr(InnoSetupInstaller, "_find_iscc", lambda _self: None)
-    installer = InnoSetupInstaller()
-    with pytest.raises(IsccNotFoundError, match="jrsoftware.org"):
-        installer.build(bundle, "MyApp", "1.0.0", tmp_path / "out")
+@dataclass
+class _IsccCall:
+    argv: list[str]
+    kwargs: dict[str, Any]
 
 
-def test_build_raises_when_override_iss_path_missing(tmp_path: Path) -> None:
-    bundle = _make_bundle(tmp_path)
-    installer = InnoSetupInstaller(
-        {"iscc_path": tmp_path / "ISCC.exe", "iss_path": tmp_path / "custom.iss"}
-    )
-    with pytest.raises(InstallerConfigError, match="custom.iss"):
-        installer.build(bundle, "MyApp", "1.0.0", tmp_path / "out")
-
-
-def test_build_runs_iscc_and_returns_setup_path(monkeypatch, tmp_path: Path) -> None:
-    bundle = _make_bundle(tmp_path)
-    output_dir = tmp_path / "out"
-    fake_iscc = tmp_path / "ISCC.exe"
-    fake_iscc.write_bytes(b"fake")
-
-    calls: dict[str, object] = {}
-
-    def _fake_run(cmd, **_kwargs):
-        calls["cmd"] = cmd
-        # Simulate ISCC producing the setup.exe in OutputDir
-        output_dir.mkdir(parents=True, exist_ok=True)
-        (output_dir / "MyApp-1.0.0-setup.exe").write_bytes(b"setup")
-        return subprocess.CompletedProcess(cmd, returncode=0, stdout=b"", stderr=b"")
-
-    monkeypatch.setattr(subprocess, "run", _fake_run)
-
-    installer = InnoSetupInstaller({"iscc_path": fake_iscc})
-    result = installer.build(bundle, "MyApp", "1.0.0", output_dir)
-
-    assert result == output_dir / "MyApp-1.0.0-setup.exe"
-    assert str(fake_iscc) in calls["cmd"][0]
-
-
-def test_build_raises_installer_build_error_on_nonzero_exit(
-    monkeypatch, tmp_path: Path
+def _patch_subprocess(
+    monkeypatch: pytest.MonkeyPatch,
+    calls: list[_IsccCall],
+    output_dir: Path,
+    app_name: str = "MyApp",
+    version: str = "1.2.3",
+    returncode: int = 0,
 ) -> None:
-    bundle = _make_bundle(tmp_path)
-    fake_iscc = tmp_path / "ISCC.exe"
-    fake_iscc.write_bytes(b"fake")
+    """Replace subprocess.run, record the call, and fake ISCC's output file."""
 
-    def _fake_run(cmd, **_kwargs):
+    def _fake_run(argv: list[str], **kwargs: Any) -> subprocess.CompletedProcess[bytes]:
+        calls.append(_IsccCall(argv=list(argv), kwargs=dict(kwargs)))
+        if returncode == 0:
+            output_dir.mkdir(parents=True, exist_ok=True)
+            (output_dir / f"{app_name}-{version}-setup.exe").write_bytes(b"MZ")
         return subprocess.CompletedProcess(
-            cmd, returncode=1, stdout=b"", stderr=b"syntax error"
+            args=argv, returncode=returncode, stdout=b"iscc says hi", stderr=b""
         )
 
     monkeypatch.setattr(subprocess, "run", _fake_run)
-
-    installer = InnoSetupInstaller({"iscc_path": fake_iscc})
-    with pytest.raises(InstallerBuildError, match="syntax error"):
-        installer.build(bundle, "MyApp", "1.0.0", tmp_path / "out")
+    # ISCC resolution must not depend on the developer's machine.
+    monkeypatch.setattr(shutil, "which", lambda _name: r"C:\Inno\ISCC.exe")
 
 
-def test_build_raises_installer_build_error_when_output_missing(
-    monkeypatch, tmp_path: Path
-) -> None:
-    bundle = _make_bundle(tmp_path)
+def _build(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    config: InstallerConfig | None = None,
+    *,
+    app_name: str = "MyApp",
+    version: str = "1.2.3",
+    exe_names: tuple[str, ...] = ("MyApp.exe",),
+    returncode: int = 0,
+    company_name: str = "",
+    icon: str = "",
+    main_file: str = "",
+) -> tuple[Path, _IsccCall]:
+    """Run one full build against a faked ISCC and return (setup_exe, call)."""
+    bundle = _bundle(tmp_path, *exe_names)
     output_dir = tmp_path / "out"
-    fake_iscc = tmp_path / "ISCC.exe"
-    fake_iscc.write_bytes(b"fake")
-
-    def _fake_run(cmd, **_kwargs):
-        # ISCC "succeeds" but does not produce the expected setup.exe
-        # (e.g. a custom iss_path with a different OutputBaseFilename).
-        return subprocess.CompletedProcess(cmd, returncode=0, stdout=b"", stderr=b"")
-
-    monkeypatch.setattr(subprocess, "run", _fake_run)
-
-    installer = InnoSetupInstaller({"iscc_path": fake_iscc})
-    with pytest.raises(InstallerBuildError, match="not found"):
-        installer.build(bundle, "MyApp", "1.0.0", output_dir)
-
-
-def test_render_absolutizes_relative_icon(tmp_path: Path) -> None:
-    bundle = _make_bundle(tmp_path)
-    installer = InnoSetupInstaller({"icon": "assets/app.ico"})
-    iss = installer._render_iss(bundle, "MyApp", "1.0.0", tmp_path / "out")
-
-    expected = str((Path.cwd() / "assets" / "app.ico").resolve())
-    assert f"SetupIconFile={expected}" in iss
-    # A relative path must never be injected verbatim (ISCC would fail exit 2).
-    assert "SetupIconFile=assets/app.ico" not in iss
+    calls: list[_IsccCall] = []
+    _patch_subprocess(monkeypatch, calls, output_dir, app_name, version, returncode)
+    installer = InnoSetupInstaller(config or InstallerConfig(enabled=True))
+    setup_exe = installer.build(
+        bundle,
+        app_name,
+        version,
+        output_dir,
+        company_name=company_name,
+        icon=icon,
+        main_file=main_file,
+    )
+    return setup_exe, calls[0]
 
 
-def test_render_omits_icon_line_when_absent(tmp_path: Path) -> None:
-    bundle = _make_bundle(tmp_path)
-    installer = InnoSetupInstaller()
-    iss = installer._render_iss(bundle, "MyApp", "1.0.0", tmp_path / "out")
-    assert "SetupIconFile=" not in iss
+# ////////////////////////////////////////////////
+# MAIN EXE DETECTION
+# ////////////////////////////////////////////////
 
 
-def test_get_installer_name() -> None:
-    assert InnoSetupInstaller().get_installer_name() == "InnoSetup"
+def test_detect_main_exe_single_candidate(tmp_path: Path) -> None:
+    bundle = _bundle(tmp_path, "whatever.exe")
+    assert detect_main_exe(bundle, "MyApp", "main.py") == "whatever.exe"
+
+
+def test_detect_main_exe_prefers_project_name(tmp_path: Path) -> None:
+    bundle = _bundle(tmp_path, "helper.exe", "MyApp.exe")
+    assert detect_main_exe(bundle, "MyApp", "main.py") == "MyApp.exe"
+
+
+def test_detect_main_exe_falls_back_to_main_file_basename(tmp_path: Path) -> None:
+    bundle = _bundle(tmp_path, "helper.exe", "launcher.exe")
+    assert detect_main_exe(bundle, "MyApp", "launcher.py") == "launcher.exe"
+
+
+def test_build_uses_main_file_to_disambiguate(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """The main_file fallback must be reachable from build(), not only from
+    detect_main_exe(): a PyInstaller bundle built from main.py for project
+    MyApp emits main.exe, which matches no project candidate."""
+    _, call = _build(
+        monkeypatch,
+        tmp_path,
+        app_name="MyApp",
+        exe_names=("helper.exe", "main.exe"),
+        main_file="main.py",
+    )
+    assert "/DMainExe=main.exe" in call.argv
+
+
+def test_build_still_raises_when_main_file_does_not_disambiguate(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    with pytest.raises(InstallerConfigError, match="main executable"):
+        _build(
+            monkeypatch,
+            tmp_path,
+            app_name="MyApp",
+            exe_names=("one.exe", "two.exe"),
+            main_file="main.py",
+        )
+
+
+def test_detect_main_exe_raises_when_ambiguous(tmp_path: Path) -> None:
+    """Defect 4 guard: never pick one at random — ISCC cannot detect the error."""
+    bundle = _bundle(tmp_path, "one.exe", "two.exe")
+    with pytest.raises(InstallerConfigError, match="main executable"):
+        detect_main_exe(bundle, "MyApp", "main.py")
+
+
+def test_detect_main_exe_raises_when_absent(tmp_path: Path) -> None:
+    bundle = tmp_path / "bundle"
+    bundle.mkdir()
+    (bundle / "data.txt").write_text("x", encoding="utf-8")
+    with pytest.raises(InstallerConfigError, match="no executable"):
+        detect_main_exe(bundle, "MyApp", "main.py")
+
+
+# ////////////////////////////////////////////////
+# ISCC COMMAND LINE
+# ////////////////////////////////////////////////
+
+
+def test_iscc_command_carries_the_five_volatile_defines(tmp_path, monkeypatch):
+    _, call = _build(monkeypatch, tmp_path)
+    argv = call.argv
+    joined = " ".join(argv)
+    assert "/Q" in argv
+    assert "/DMyAppVersion=1.2.3" in joined
+    assert "/DBundleDir=" in joined
+    assert "/DOutputDir=" in joined
+    assert "/DMainExe=MyApp.exe" in joined
+    assert "/DVersionInfo=1.2.3.0" in joined
+
+
+def test_iscc_command_quotes_paths_with_spaces(tmp_path, monkeypatch):
+    """A /D value containing a space must reach ISCC as one argument."""
+    bundle = tmp_path / "Program Files" / "bundle"
+    bundle.mkdir(parents=True)
+    (bundle / "MyApp.exe").write_bytes(b"MZ")
+    output_dir = tmp_path / "out"
+    calls: list[_IsccCall] = []
+    _patch_subprocess(monkeypatch, calls, output_dir)
+    installer = InnoSetupInstaller(InstallerConfig(enabled=True))
+    installer.build(bundle, "MyApp", "1.2.3", output_dir)
+    argv = calls[0].argv
+    assert '/DBundleDir="' in " ".join(argv)
+
+
+def test_iscc_command_includes_sign_tool_when_configured(tmp_path, monkeypatch):
+    config = InstallerConfig(
+        enabled=True, sign_tool_name="mytool", sign_tool_command="tool.exe $f"
+    )
+    _, call = _build(monkeypatch, tmp_path, config)
+    argv = call.argv
+    assert "/Smytool=tool.exe $f" in " ".join(argv)
+
+
+def test_iscc_command_omits_sign_tool_when_absent(tmp_path, monkeypatch):
+    _, call = _build(monkeypatch, tmp_path)
+    argv = call.argv
+    assert not any(arg.startswith("/S") for arg in argv)
+
+
+def test_iscc_is_called_with_a_timeout(tmp_path, monkeypatch):
+    _, call = _build(monkeypatch, tmp_path)
+    assert call.kwargs["timeout"] == ISCC_TIMEOUT_SECONDS
+
+
+# ////////////////////////////////////////////////
+# ISS FILE LIFECYCLE
+# ////////////////////////////////////////////////
+
+
+def test_iss_is_written_with_a_bom(tmp_path, monkeypatch):
+    """Defect 2 guard: ISCC only reads UTF-8 when a BOM is present.
+
+    The ephemeral .iss is removed on success, so the build must fail to
+    inspect the file that was actually written to disk.
+    """
+    calls: list[_IsccCall] = []
+    output_dir = tmp_path / "out"
+    bundle = _bundle(tmp_path, "MyApp.exe")
+    _patch_subprocess(monkeypatch, calls, output_dir, returncode=2)
+    installer = InnoSetupInstaller(InstallerConfig(enabled=True))
+    with pytest.raises(InstallerBuildError):
+        installer.build(bundle, "MyApp", "1.2.3", output_dir)
+    kept_iss = Path(calls[0].argv[-1])
+    written_bytes = kept_iss.read_bytes()
+    assert written_bytes.startswith(b"\xef\xbb\xbf")
+
+
+def test_ephemeral_iss_is_removed_on_success(tmp_path, monkeypatch):
+    _, call = _build(monkeypatch, tmp_path)
+    iss_path = Path(call.argv[-1])
+    assert not iss_path.exists()
+
+
+def test_company_name_changes_the_app_id(tmp_path, monkeypatch):
+    """Defect 1 guard: the AppId GUID is derived from company_name.
+
+    A build with a different company_name must render a different AppId,
+    or two builds of the same product mint two AppIds — every install is
+    then treated as a new, unrelated product.
+    """
+    empty_dir = tmp_path / "empty"
+    acme_dir = tmp_path / "acme"
+    empty_dir.mkdir()
+    acme_dir.mkdir()
+    with pytest.raises(InstallerBuildError) as excinfo_empty:
+        _build(monkeypatch, empty_dir, returncode=2)
+    with pytest.raises(InstallerBuildError) as excinfo_acme:
+        _build(monkeypatch, acme_dir, returncode=2, company_name="ACME")
+    iss_empty = Path(_extract_iss_path(str(excinfo_empty.value)))
+    iss_acme = Path(_extract_iss_path(str(excinfo_acme.value)))
+    app_id_empty = iss_empty.read_text(encoding="utf-8-sig")
+    app_id_acme = iss_acme.read_text(encoding="utf-8-sig")
+    assert app_id_empty != app_id_acme
+
+
+def test_icon_reaches_the_script_as_an_absolute_path(tmp_path, monkeypatch):
+    """A configured icon must not be silently dropped from the .iss.
+
+    ISCC resolves a relative icon path against the ephemeral .iss's own
+    directory (a throwaway tempfile.mkdtemp()), never the process cwd — a
+    relative value must be absolutized against cwd first, or ISCC exits 2.
+    """
+    with pytest.raises(InstallerBuildError) as excinfo:
+        _build(monkeypatch, tmp_path, returncode=2, icon="myicon.ico")
+    iss_text = Path(_extract_iss_path(str(excinfo.value))).read_text(
+        encoding="utf-8-sig"
+    )
+    expected = str((Path.cwd() / "myicon.ico").resolve())
+    assert f"SetupIconFile={expected}" in iss_text
+    assert "SetupIconFile=myicon.ico" not in iss_text
+
+
+def test_relative_license_file_is_absolutized_in_the_ephemeral_script(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """Same hazard as icon: the ephemeral .iss lives in mkdtemp(), and ISCC
+    resolves LicenseFile against the .iss directory, not the process cwd."""
+    license_file = tmp_path / "LICENSE.txt"
+    license_file.write_text("MIT")
+    monkeypatch.chdir(tmp_path)
+    captured: dict[str, str] = {}
+    original = Path.write_text
+
+    def _capture(self: Path, data: str, **kwargs: Any) -> int:
+        if self.suffix == ".iss":
+            captured["text"] = data
+        return original(self, data, **kwargs)
+
+    monkeypatch.setattr(Path, "write_text", _capture)
+    _build(
+        monkeypatch,
+        tmp_path,
+        InstallerConfig(enabled=True, license_file=Path("LICENSE.txt")),
+    )
+
+    line = next(
+        ln for ln in captured["text"].splitlines() if ln.startswith("LicenseFile=")
+    )
+    assert Path(line.removeprefix("LicenseFile=")).is_absolute()
+
+
+def test_ephemeral_iss_is_kept_on_failure(tmp_path, monkeypatch):
+    """Without the script, 'ISCC failed (exit 2)' is undiagnosable."""
+    bundle = _bundle(tmp_path)
+    output_dir = tmp_path / "out"
+    calls: list[_IsccCall] = []
+    _patch_subprocess(monkeypatch, calls, output_dir, returncode=2)
+    installer = InnoSetupInstaller(InstallerConfig(enabled=True))
+    with pytest.raises(InstallerBuildError) as excinfo:
+        installer.build(bundle, "MyApp", "1.2.3", output_dir)
+    assert ".iss" in str(excinfo.value)
+    assert Path(_extract_iss_path(str(excinfo.value))).exists()
+
+
+def test_file_mode_does_not_render(tmp_path, monkeypatch):
+    """With iss_path set, the user's script is the source of truth."""
+    script = tmp_path / "custom.iss"
+    script.write_text("; user script", encoding="utf-8")
+    config = InstallerConfig(enabled=True, iss_path=script)
+    _, call = _build(monkeypatch, tmp_path, config)
+    assert script.read_text(encoding="utf-8") == "; user script"
+    assert str(script) in call.argv
+
+
+def test_file_mode_still_passes_volatile_defines(tmp_path, monkeypatch):
+    script = tmp_path / "custom.iss"
+    script.write_text("; user script", encoding="utf-8")
+    config = InstallerConfig(enabled=True, iss_path=script)
+    _, call = _build(monkeypatch, tmp_path, config)
+    assert "/DMyAppVersion=1.2.3" in " ".join(call.argv)
+
+
+def test_build_raises_when_override_iss_path_missing(tmp_path, monkeypatch):
+    """A user-supplied iss_path that vanished after config construction must
+    raise a clear config error instead of falling through to a bare ISCC
+    exit-code failure.
+    """
+    bundle = _bundle(tmp_path)
+    monkeypatch.setattr(shutil, "which", lambda _name: r"C:\Inno\ISCC.exe")
+    config = InstallerConfig(enabled=True)
+    # Bypass __post_init__'s existence check (which only runs at
+    # construction time) to simulate the file disappearing afterwards.
+    config.iss_path = tmp_path / "custom.iss"
+    installer = InnoSetupInstaller(config)
+    with pytest.raises(InstallerConfigError, match="custom.iss"):
+        installer.build(bundle, "MyApp", "1.2.3", tmp_path / "out")
+
+
+# ////////////////////////////////////////////////
+# ISCC RESOLUTION
+# ////////////////////////////////////////////////
+
+
+def test_explicit_iscc_path_is_used(tmp_path, monkeypatch):
+    """Defect 4 guard: iscc_path was unreachable before v4.0.0."""
+    fake = tmp_path / "ISCC.exe"
+    fake.write_bytes(b"MZ")
+    config = InstallerConfig(enabled=True, iscc_path=fake)
+    _, call = _build(monkeypatch, tmp_path, config)
+    assert call.argv[0] == str(fake)

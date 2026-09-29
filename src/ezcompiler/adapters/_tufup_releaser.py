@@ -68,7 +68,10 @@ class TufupReleaser(BaseReleaser):
             )
 
         try:
-            from tufup.repo import Repository, TargetMeta  # noqa: PLC0415
+            from tufup.repo import (  # noqa: PLC0415 # pyright: ignore[reportMissingImports]
+                Repository,
+                TargetMeta,
+            )
         except ImportError as exc:
             raise ReleaseError(
                 "tufup is not installed; install ezcompiler[tufup]"
@@ -130,7 +133,9 @@ class TufupReleaser(BaseReleaser):
             return False
 
         try:
-            from tufup.repo import Repository  # noqa: PLC0415
+            from tufup.repo import (  # noqa: PLC0415 # pyright: ignore[reportMissingImports]
+                Repository,
+            )
         except ImportError as exc:
             raise ReleaseError(
                 "tufup is not installed; install ezcompiler[tufup]"
@@ -200,7 +205,9 @@ class TufupReleaser(BaseReleaser):
             )
 
         try:
-            from tufup.repo import Repository  # noqa: PLC0415
+            from tufup.repo import (  # noqa: PLC0415 # pyright: ignore[reportMissingImports]
+                Repository,
+            )
         except ImportError as exc:
             raise ReleaseError(
                 "tufup is not installed; install ezcompiler[tufup]"

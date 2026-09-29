@@ -15,7 +15,7 @@ def _cfg(tmp_path: Path) -> CompilerConfig:
         project_name="MyApp",
         main_file=str(tmp_path / "main.py"),
         include_files={"files": [], "folders": []},
-        output_folder=str(tmp_path / "dist"),
+        output_folder=tmp_path / "dist",
     )
 
 
@@ -57,3 +57,40 @@ def test_compile_error_exits_1(monkeypatch, tmp_path: Path) -> None:
     result = runner.invoke(main, ["compile"])
 
     assert result.exit_code == 1
+
+
+def test_should_forward_skip_build_when_flag_given(monkeypatch, tmp_path: Path) -> None:
+    calls: list[dict] = []
+
+    monkeypatch.setattr(
+        "ezcompiler.interfaces.cli_interface.ConfigService.build_compiler_config",
+        staticmethod(lambda **_kw: _cfg(tmp_path)),
+    )
+    monkeypatch.setattr(
+        "ezcompiler.interfaces.python_api.EzCompiler.run_pipeline",
+        lambda _self, **kw: calls.append(kw),
+    )
+
+    runner = CliRunner()
+    result = runner.invoke(main, ["compile", "--skip-build"])
+
+    assert result.exit_code == 0, result.output
+    assert calls[0]["skip_build"] is True
+
+
+def test_should_default_skip_build_to_false(monkeypatch, tmp_path: Path) -> None:
+    calls: list[dict] = []
+
+    monkeypatch.setattr(
+        "ezcompiler.interfaces.cli_interface.ConfigService.build_compiler_config",
+        staticmethod(lambda **_kw: _cfg(tmp_path)),
+    )
+    monkeypatch.setattr(
+        "ezcompiler.interfaces.python_api.EzCompiler.run_pipeline",
+        lambda _self, **kw: calls.append(kw),
+    )
+
+    result = CliRunner().invoke(main, ["compile"])
+
+    assert result.exit_code == 0, result.output
+    assert calls[0]["skip_build"] is False

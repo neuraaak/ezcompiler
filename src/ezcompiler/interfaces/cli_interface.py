@@ -7,7 +7,7 @@
 CLI interface - Command-line interface for EzCompiler.
 
 This module provides a Click-based CLI for generating configuration files,
-setup.py files, version files, and initializing new EzCompiler projects.
+build.py scripts, version files, and initializing new EzCompiler projects.
 
 Interfaces layer can use all log levels (DEBUG, INFO, WARNING, ERROR, CRITICAL).
 """
@@ -42,10 +42,12 @@ from ezplog.lib_mode import get_logger, get_printer
 from .._version import __version__
 from ..services import (
     ConfigService,
+    InstallerService,
     ReleaseService,
     TemplateService,
     UpdaterService,
 )
+from ..shared import COMPILER_SECTION_KEYS
 from ..shared.exceptions import (
     CompilationError,
     ConfigError,
@@ -101,7 +103,7 @@ def main() -> None:
     """
     EzCompiler - CLI for Python project compilation and distribution.
 
-    Generates configuration files, setup.py, and version files from templates
+    Generates configuration files, build.py, and version files from templates
     with support for multiple formats (YAML, JSON) and template types.
     """
     from ezplog import Ezpl
@@ -132,7 +134,7 @@ def generate() -> None:
 @click.option(
     "--format",
     "-fmt",
-    type=click.Choice(["yaml", "json"]),
+    type=click.Choice(["yaml", "json", "pyproject"]),
     default="yaml",
     help="Output format (default: yaml)",
 )
@@ -387,7 +389,7 @@ def config(
         if tuf_enabled:
             cli_overrides.setdefault("release", {})["tuf_enabled"] = True
         if installer_enabled:
-            cli_overrides.setdefault("installer", {})["installer_enabled"] = True
+            cli_overrides.setdefault("installer", {})["enabled"] = True
         # optimize/strip are compiler-specific: the template emits them under
         # the compiler section. debug stays generic (advanced).
         cli_overrides["optimize"] = optimize
@@ -447,6 +449,7 @@ def config(
         config_dict.setdefault("optimize", True)
         config_dict.setdefault("strip", False)
         config_dict.setdefault("advanced", {"debug": False})
+        config_dict.setdefault("installer", {}).setdefault("enabled", False)
 
         # Validate: project_name is required
         if not config_dict.get("project_name"):
@@ -461,9 +464,43 @@ def config(
 
         # Generate configuration file in chosen format
         template_service = _get_template_service()
-        content = template_service.process_config_template(format, config_dict)
-        filename = "ezcompiler.yaml" if format == "yaml" else "ezcompiler.json"
-        target = output_path / filename
+        if format == "pyproject":
+            generated = dict(config_dict)
+            generated.pop("installer")
+            compiler_name = generated["compilation"].get("compiler") or "PyInstaller"
+            generated["compilation"]["compiler"] = compiler_name
+            compiler_key = COMPILER_SECTION_KEYS[compiler_name]
+            compiler_options = dict(generated.get(compiler_key, {}))
+            for option in ("optimize", "strip"):
+                compiler_options.setdefault(option, generated.pop(option))
+            generated[compiler_key] = compiler_options
+            target = output_path / "pyproject.toml"
+            _create_or_update_pyproject(target, generated)
+            installer_block = tomli_w.dumps(
+                {"tool": {"ezcompiler": {"installer": config_dict["installer"]}}}
+            )
+            content = target.read_text(encoding="utf-8") + "\n" + installer_block
+            content += (
+                "# per_user = true                    # installs into %LOCALAPPDATA% "
+                "(required for tufup auto-update)\n"
+                '# iss_path = "installer/MyApp.iss"   # script produced by '
+                "`ezcompiler generate iss`\n"
+                "# Full option set: `ezcompiler generate iss --help` and "
+                "docs/guides/windows-installer.md\n"
+            )
+        else:
+            content = template_service.process_config_template(format, config_dict)
+            filename = "ezcompiler.yaml" if format == "yaml" else "ezcompiler.json"
+            target = output_path / filename
+            if format == "json":
+                # Extend the existing template without changing its other fields.
+                content = content.rstrip().removesuffix("}").rstrip()
+                content += ',\n  "installer": ' + json.dumps(config_dict["installer"])
+                content += "\n}\n"
+            else:
+                content += "\n" + yaml.safe_dump(
+                    {"installer": config_dict["installer"]}
+                )
         target.write_text(content, encoding="utf-8")
         printer.success(f"Configuration file generated: {target}")
         logger.info(f"Configuration file generated: {target}")
@@ -552,7 +589,7 @@ def config(
     default=".",
     help="Output directory for generated files (default: .)",
 )
-def setup(
+def build(
     config: str | None,
     from_pyproject: Path | None,
     interactive: bool,
@@ -573,7 +610,7 @@ def setup(
     output: str,
 ) -> None:
     """
-    Generate a setup.py file.
+    Generate a build.py script.
 
     Builds configuration from a config file, pyproject.toml, CLI options,
     and/or interactive prompts.  Sources are merged with the following
@@ -582,10 +619,10 @@ def setup(
 
     \b
     Examples:
-        ezcompiler generate setup -c ezcompiler.yaml
-        ezcompiler generate setup --from-pyproject pyproject.toml
-        ezcompiler generate setup --from-pyproject pyproject.toml -I
-        ezcompiler generate setup -n myproject -v 2.0.0
+        ezcompiler generate build -c ezcompiler.yaml
+        ezcompiler generate build --from-pyproject pyproject.toml
+        ezcompiler generate build --from-pyproject pyproject.toml -I
+        ezcompiler generate build -n myproject -v 2.0.0
     """
 
     printer = _get_printer()
@@ -690,15 +727,59 @@ def setup(
         output_path = Path(output)
         output_path.mkdir(parents=True, exist_ok=True)
 
-        # Generate setup.py using TemplateService
+        # Generate build.py using TemplateService
         template_service = _get_template_service()
-        setup_file_path = template_service.generate_setup_file(
+        build_file_path = template_service.generate_setup_file(
             config_dict, output_dir=output_path
         )
-        printer.success(f"setup.py file generated: {setup_file_path}")
-        logger.info(f"setup.py file generated: {setup_file_path}")
+        printer.success(f"build.py file generated: {build_file_path}")
+        logger.info(f"build.py file generated: {build_file_path}")
 
     except (TemplateError, ConfigError) as e:
+        printer.error(str(e))
+        logger.error(str(e))
+        sys.exit(1)
+
+
+@generate.command(name="iss")
+@click.option(
+    "--output",
+    "-o",
+    type=click.Path(dir_okay=False, path_type=Path),
+    default=None,
+    help="Script path (default: installer/<project_name>.iss).",
+)
+@click.option(
+    "--force",
+    "-f",
+    is_flag=True,
+    default=False,
+    help="Overwrite an existing script.",
+)
+def generate_iss(output: Path | None, force: bool) -> None:
+    """Generate an editable Inno Setup script from the project configuration.
+
+    Auto-discovers pyproject.toml, ezcompiler.yaml, or ezcompiler.json.
+    Once installer.iss_path is set, script-generation options are ignored;
+    edit the script itself to customize the installer.
+    """
+    printer = _get_printer()
+    logger = _get_logger()
+    try:
+        config_obj = ConfigService.build_compiler_config()
+        output_path = output or Path("installer") / f"{config_obj.project_name}.iss"
+        target = InstallerService.generate_iss_script(
+            config_obj, output_path, force=force
+        )
+        printer.success(f"Inno Setup script generated: {target}")
+        printer.info("Add to [tool.ezcompiler.installer]:")
+        printer.info(tomli_w.dumps({"iss_path": target.as_posix()}).strip())
+        printer.warning(
+            "With iss_path set, installer script-generation options are ignored; "
+            "edit the .iss file to change them."
+        )
+        logger.info("Inno Setup script generated: %s", target)
+    except (InstallerError, ConfigError, ConfigurationError) as e:
         printer.error(str(e))
         logger.error(str(e))
         sys.exit(1)
@@ -708,7 +789,7 @@ def setup(
 @click.option(
     "--type",
     "-t",
-    type=click.Choice(["config", "setup", "version"]),
+    type=click.Choice(["config", "build", "version"]),
     required=True,
     help="Template type to generate",
 )
@@ -716,7 +797,7 @@ def setup(
     "--format",
     "-f",
     type=str,
-    help="Template format (yaml/json for config, py for setup, txt for version)",
+    help="Template format (yaml/json for config, py for build, txt for version)",
 )
 @click.option(
     "--output",
@@ -754,13 +835,13 @@ def template_raw(
         # Define allowed formats and default filenames
         allowed_formats = {
             "config": ["yaml", "json"],
-            "setup": ["py"],
+            "build": ["py"],
             "version": ["txt"],
         }
         default_filenames = {
             ("config", "yaml"): "ezcompiler.yaml",
             ("config", "json"): "ezcompiler.json",
-            ("setup", "py"): "setup.py",
+            ("build", "py"): "build.py",
             ("version", "txt"): "version_info.txt",
         }
 
@@ -768,7 +849,7 @@ def template_raw(
         if not format:
             format = {
                 "config": "yaml",
-                "setup": "py",
+                "build": "py",
                 "version": "txt",
             }[type]
 
@@ -862,6 +943,15 @@ def template_raw(
     default=False,
     help="Skip the TUF release stage even if tuf_enabled=True",
 )
+@click.option(
+    "--skip-build",
+    is_flag=True,
+    default=False,
+    help=(
+        "Skip version generation and compilation; resume from the existing "
+        "build in output_folder (zip, installer, release)"
+    ),
+)
 def compile_project(
     config: str | None,
     pyproject: str | None,
@@ -872,6 +962,7 @@ def compile_project(
     no_zip: bool,
     skip_installer: bool,
     skip_release: bool,
+    skip_build: bool,
 ) -> None:
     """
     Compile the project (full build pipeline).
@@ -882,6 +973,8 @@ def compile_project(
     Runs version -> compile -> zip, plus the installer and TUF release
     stages when enabled in the config (installer_enabled / tuf_enabled).
     Upload is a separate step: run `ezcompiler upload` afterwards.
+    Use --skip-build to resume after a previous compile (zip, installer and
+    release run against the existing output_folder).
 
     Examples:
 
@@ -894,6 +987,8 @@ def compile_project(
         ezcompiler compile --compiler PyInstaller --no-console
 
         ezcompiler compile --skip-installer --skip-release
+
+        ezcompiler compile --skip-build
     """
     printer = _get_printer()
     logger = _get_logger()
@@ -933,6 +1028,7 @@ def compile_project(
             skip_zip=no_zip,
             skip_installer=skip_installer,
             skip_release=skip_release,
+            skip_build=skip_build,
         )
     except (
         ConfigurationError,
@@ -1108,7 +1204,7 @@ def init(
                 "type": "spinner",
                 "description": f"Generating {format_type} configuration",
             },
-            {"name": "setup", "type": "spinner", "description": "Generating setup.py"},
+            {"name": "build", "type": "spinner", "description": "Generating build.py"},
         ]
 
         template_service = _get_template_service()
@@ -1145,11 +1241,11 @@ def init(
                 dlp.complete_layer("config")
 
                 # Setup file generation
-                current_phase = "setup"
-                dlp.update_layer("setup", 0, "Processing template...")
+                current_phase = "build"
+                dlp.update_layer("build", 0, "Processing template...")
                 template_service.generate_setup_file(config_dict, output_dir=output_dir)
-                logger.info(f"setup.py generated: {output_dir / 'setup.py'}")
-                dlp.complete_layer("setup")
+                logger.info(f"build.py generated: {output_dir / 'build.py'}")
+                dlp.complete_layer("build")
 
             except (TemplateError, ConfigError) as e:
                 dlp.handle_error(current_phase, str(e))

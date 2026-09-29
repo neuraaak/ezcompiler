@@ -10,9 +10,8 @@ from __future__ import annotations
 # ///////////////////////////////////////////////////////////////
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
-from typing import Any
-
 from .._types import InstallerPort
+from ..shared import InstallerConfig
 from ..shared.exceptions import InstallerTypeError
 from ._innosetup_installer import InnoSetupInstaller
 
@@ -30,13 +29,13 @@ class InstallerFactory:
 
     @staticmethod
     def create_installer(
-        installer_type: str, config: dict[str, Any] | None = None
+        installer_type: str, config: InstallerConfig | None = None
     ) -> InstallerPort:
         """Create an installer instance for the given type.
 
         Args:
             installer_type: Type of installer builder ("innosetup")
-            config: Configuration dictionary for the installer adapter
+            config: Configuration for the installer adapter
 
         Returns:
             InstallerPort: Configured installer instance (satisfies the Port)
@@ -46,7 +45,7 @@ class InstallerFactory:
         """
         normalized = installer_type.lower()
         if normalized == "innosetup":
-            return InnoSetupInstaller(config)
+            return InnoSetupInstaller(config or InstallerConfig())
         raise InstallerTypeError(f"Unsupported installer type: {installer_type}")
 
     @staticmethod

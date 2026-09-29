@@ -40,3 +40,7 @@ class InstallerBuildError(InstallerError):
 
 class InstallerConfigError(InstallerError):
     """Raised when installer configuration is invalid or incomplete."""
+
+
+class InstallerRenderError(InstallerError):
+    """Raised when rendering the .iss script from the template fails."""

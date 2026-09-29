@@ -1,13 +1,13 @@
 {
-  "version": "#VERSION#",
-  "project_name": "#PROJECT_NAME#",
-  "project_description": "#PROJECT_DESCRIPTION#",
-  "company_name": "#COMPANY_NAME#",
-  "author": "#AUTHOR#",
-  "main_file": "#MAIN_FILE#",
-  "icon": "#ICON#",
-  "version_filename": "#VERSION_FILE#",
-  "output_folder": "#OUTPUT_FOLDER#",
+  "version": #VERSION#,
+  "project_name": #PROJECT_NAME#,
+  "project_description": #PROJECT_DESCRIPTION#,
+  "company_name": #COMPANY_NAME#,
+  "author": #AUTHOR#,
+  "main_file": #MAIN_FILE#,
+  "icon": #ICON#,
+  "version_filename": #VERSION_FILE#,
+  "output_folder": #OUTPUT_FOLDER#,
   "include_files": {
     "files": #INCLUDE_FILES#,
     "folders": #INCLUDE_FOLDERS#
@@ -17,18 +17,24 @@
   "excludes": #EXCLUDES#,
   "compilation": {
     "console": #CONSOLE#,
-    "compiler": "#COMPILER#"
+    "compiler": #COMPILER#
   },
   "#COMPILER_KEY#": {
     "optimize": #OPTIMIZE#,
     "strip": #STRIP#
   },
   "upload": {
-    "repo_destination": "#REPO_DESTINATION#",
-    "repo_endpoint": "#REPO_ENDPOINT#",
-    "release_destination": "#RELEASE_DESTINATION#",
-    "release_endpoint": "#RELEASE_ENDPOINT#",
-    "repo_public_url": "#REPO_PUBLIC_URL#"
+    "repo_destination": #REPO_DESTINATION#,
+    "repo_endpoint": #REPO_ENDPOINT#,
+    "release_destination": #RELEASE_DESTINATION#,
+    "release_endpoint": #RELEASE_ENDPOINT#,
+    "repo_public_url": #REPO_PUBLIC_URL#
+  },
+  "installer": {
+    "enabled": #INSTALLER_ENABLED#,
+    "per_user": #INSTALLER_PER_USER#,
+    "output_dir": #INSTALLER_OUTPUT_DIR#,
+    "iss_path": #INSTALLER_ISS_PATH#
   },
   "advanced": {
     "debug": #DEBUG#

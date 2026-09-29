@@ -16,6 +16,8 @@ from __future__ import annotations
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
 # Standard library imports
+import dataclasses as _dc
+import logging
 import shutil
 from collections.abc import Callable
 from pathlib import Path
@@ -23,10 +25,51 @@ from typing import Any, Literal, cast
 
 # Local imports
 from ..shared import CompilationResult, CompilerConfig
+from ..shared._installer_config import InstallerConfig
 from .compiler_service import CompilerService
 from .installer_service import InstallerService
 from .release_service import ReleaseService
 from .uploader_service import UploaderService
+
+# ///////////////////////////////////////////////////////////////
+# CONSTANTS
+# ///////////////////////////////////////////////////////////////
+
+_logger = logging.getLogger(__name__)
+
+# Frame fields: stay meaningful even in file mode (iss_path is provided).
+_FRAME_FIELDS = frozenset({"enabled", "iss_path", "output_dir", "iscc_path"})
+
+# ///////////////////////////////////////////////////////////////
+# FUNCTIONS
+# ///////////////////////////////////////////////////////////////
+
+
+def _warn_ignored_options(installer: InstallerConfig) -> None:
+    """Warn about typed fields left meaningless when ``iss_path`` is set.
+
+    In file mode, ISCC compiles the user's own ``.iss`` file directly: every
+    typed field besides the frame ones (``enabled``/``iss_path``/
+    ``output_dir``/``iscc_path``) is silently ignored. Only fields the user
+    actually set (differing from the dataclass default) are named, so an
+    untouched default is not flagged as a false positive.
+    """
+    defaults = InstallerConfig()
+    changed = [
+        f.name
+        for f in _dc.fields(installer)
+        if f.name not in _FRAME_FIELDS
+        and getattr(installer, f.name) != getattr(defaults, f.name)
+    ]
+    if changed:
+        _logger.warning(
+            "installer.iss_path is set: the following options are ignored "
+            "because ISCC compiles that file directly instead of one "
+            "generated from config: %s. Run `generate iss --force` to "
+            "regenerate the script from config and pick them up.",
+            ", ".join(sorted(changed)),
+        )
+
 
 # ///////////////////////////////////////////////////////////////
 # CLASSES
@@ -70,6 +113,21 @@ class PipelineService:
         )
         return compiler_service, compilation_result
 
+    def reuse_build(
+        self,
+        config: CompilerConfig,
+        compiler: str | None = None,
+    ) -> tuple[CompilerService, CompilationResult]:
+        """Reuse an existing build (skip compilation) and return service + result."""
+        compiler_service = self._compiler_service_factory(config)
+        compilation_result = compiler_service.use_existing_build(
+            compiler=cast(
+                Literal["Cx_Freeze", "PyInstaller", "Nuitka"] | None,
+                compiler,
+            ),
+        )
+        return compiler_service, compilation_result
+
     def zip_artifact(
         self,
         config: CompilerConfig,
@@ -95,6 +153,7 @@ class PipelineService:
         should_upload: bool = False,
         should_release: bool = False,
         should_installer: bool = False,
+        should_build: bool = True,
     ) -> list[dict[str, Any]]:
         """
         Build the stage list for dynamic_layered_progress.
@@ -103,6 +162,10 @@ class PipelineService:
             config: Compiler configuration (used for display labels)
             should_zip: Whether a ZIP stage should be included
             should_upload: Whether an upload stage should be included
+            should_release: Whether a TUF release stage should be included
+            should_installer: Whether an installer stage should be included
+            should_build: Whether version + compile stages run; when False a
+                single "reuse existing build" stage replaces them
 
         Returns:
             list[dict]: Stage configuration list ready for dynamic_layered_progress
@@ -113,17 +176,28 @@ class PipelineService:
                 "type": "main",
                 "description": f"Building {config.project_name} v{config.version}",
             },
-            {
-                "name": "version",
-                "type": "spinner",
-                "description": "Generating version file",
-            },
-            {
-                "name": "compile",
-                "type": "spinner",
-                "description": f"Compiling with {config.compiler}",
-            },
         ]
+        if should_build:
+            stages += [
+                {
+                    "name": "version",
+                    "type": "spinner",
+                    "description": "Generating version file",
+                },
+                {
+                    "name": "compile",
+                    "type": "spinner",
+                    "description": f"Compiling with {config.compiler}",
+                },
+            ]
+        else:
+            stages.append(
+                {
+                    "name": "compile",
+                    "type": "spinner",
+                    "description": f"Reusing existing build in {config.output_folder}",
+                }
+            )
         if should_zip:
             stages.append(
                 {
@@ -188,7 +262,7 @@ class PipelineService:
 
             release/
             ├── <App>.zip                     (si le fichier existe)
-            └── <App>-<version>-setup.exe      (si installer_enabled=True)
+            └── <App>-<version>-setup.exe      (si installer.enabled=True)
 
         L'arbre TUF (metadata/ + targets/) reste dans tufup_repo_dir et est
         poussé directement vers le backend d'update par upload().
@@ -208,8 +282,8 @@ class PipelineService:
         if zip_path.is_file():
             shutil.copy2(zip_path, release_dir / zip_path.name)
 
-        if config.installer_enabled:
-            installer_dir = config.installer_output_dir or (
+        if config.installer.enabled:
+            installer_dir = config.installer.output_dir or (
                 config.output_folder.parent / "installer"
             )
             installer_exe = (
@@ -245,25 +319,24 @@ class PipelineService:
         config: CompilerConfig,
         compilation_result: CompilationResult | None,  # noqa: ARG004
     ) -> Path | None:
-        """Build the Inno Setup installer when installer_enabled=True."""
-        if not config.installer_enabled:
+        """Build the Inno Setup installer when installer.enabled=True."""
+        if not config.installer.enabled:
             return None
 
-        output_dir = config.installer_output_dir or (
+        output_dir = config.installer.output_dir or (
             config.output_folder.parent / "installer"
         )
-        installer_config: dict[str, Any] = {
-            "icon": config.icon,
-            "company_name": config.company_name,
-            "per_user": config.installer_per_user,
-        }
-        if config.installer_iss_path is not None:
-            installer_config["iss_path"] = config.installer_iss_path
+
+        if config.installer.iss_path is not None:
+            _warn_ignored_options(config.installer)
 
         return InstallerService.build_installer(
             bundle_dir=config.output_folder,
             app_name=config.project_name,
             version=config.version,
             output_dir=output_dir,
-            installer_config=installer_config,
+            installer_config=config.installer,
+            company_name=config.company_name,
+            icon=config.icon,
+            main_file=config.main_file,
         )

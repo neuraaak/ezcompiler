@@ -97,10 +97,12 @@ def test_release_artifact_calls_release_and_publish_with_publish_false(
     monkeypatch, cfg: CompilerConfig
 ) -> None:
     captured: dict = {}
+    assert cfg.tuf_repo_dir is not None
+    repo_dir = cfg.tuf_repo_dir
 
     def _fake_release(**kwargs) -> Path:
         captured.update(kwargs)
-        return cfg.tuf_repo_dir / "repository"
+        return repo_dir / "repository"
 
     monkeypatch.setattr(
         "ezcompiler.services.pipeline_service.ReleaseService.release_and_publish",
@@ -143,6 +145,7 @@ def test_release_artifact_never_publishes_even_if_url_set(
 def test_release_artifact_returns_repository_path(
     monkeypatch, cfg: CompilerConfig
 ) -> None:
+    assert cfg.tuf_repo_dir is not None
     expected = cfg.tuf_repo_dir / "repository"
     monkeypatch.setattr(
         "ezcompiler.services.pipeline_service.ReleaseService.release_and_publish",
