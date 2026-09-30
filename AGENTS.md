@@ -6,8 +6,10 @@ self-contained — there is no external instruction tree to consult.
 ## Project
 
 `ezcompiler` is a Python framework that compiles Python projects into Windows
-executables, then versions, packages (ZIP) and distributes them. It exposes a
-unified interface over three compilers (Cx_Freeze, PyInstaller, Nuitka).
+executables, then versions, packages (ZIP), builds a Windows installer, signs a
+TUF release and distributes them. It exposes a unified interface over three
+compilers (Cx_Freeze, PyInstaller, Nuitka), an Inno Setup installer builder, a
+tufup releaser, and generates a client-side updater script.
 
 - **Package:** `ezcompiler` (PyPI), entry point `EzCompiler` facade + `ezcompiler` CLI
 - **Python:** >= 3.13 (do **not** target 3.12 or below; uses PEP 695 `type` aliases)
@@ -57,22 +59,36 @@ Concrete implementations live in `adapters/` with a `_` prefix (`_cx_freeze_comp
 
 ### Pipeline flow
 
-`run_pipeline()` (the primary production path) executes stages in order:
+`run_pipeline()` (the primary production path) executes stages in order, each
+one conditional (`PipelineService.build_stages()`):
 
 ```text
-compile → zip → release → upload
+version → compile → zip → installer → release
 ```
 
-When both release and upload are active, `PipelineService.assemble_release_dir()` builds a **flat** `dist/release/` directory (signed TUF `metadata/*` + `targets/*` plus the unsigned zip asset, no sub-folders — GitHub-release style), then uploads it as a single `upload()` call. The working TUF repo (`tuf_repository/`) stays structured for incremental patches; only the published folder is flattened. `EzCompiler.release(publish=True)` is **deprecated** — the pipeline handles the full sequence.
+**`upload` is not a pipeline stage.** `run_pipeline()` stops after building the
+local TUF tree; the caller invokes `upload()` explicitly afterwards. (The
+deprecation message in `release(publish=True)` still claims an "upload stage of
+run_pipeline" — that text is stale, the behaviour above is what the code does.)
 
-Config loading: `ConfigService` flattens nested blocks (`compilation`, `upload`, `release`, `advanced`) before passing kwargs to `CompilerConfig.__init__()`. A new config block **must** be added to the flatten step in `from_dict()` or it will raise an unexpected-keyword error.
+When both release and upload are active, `PipelineService.assemble_release_dir()` builds a **flat** `dist/release/` directory (signed TUF `metadata/*` + `targets/*` plus the unsigned zip asset, no sub-folders — GitHub-release style), then uploads it as a single `upload()` call. The working TUF repo (`tuf_repository/`) stays structured for incremental patches; only the published folder is flattened. `EzCompiler.release(publish=True)` is **deprecated** — use `run_pipeline()` then `upload()`.
+
+Config loading: `ConfigService.build_compiler_config()` only assembles the
+layers and delegates to **`CompilerConfig.from_dict()`**
+(`shared/_compiler_config.py`) — that is where the flattening lives, so that is
+the file to edit. It flattens `compilation`, `upload`, `release` and `advanced`
+into kwargs, pops the per-compiler sections (`[tool.ezcompiler.pyinstaller]`
+etc., only the selected one is applied), and turns the `installer` block into an
+`InstallerConfig` sub-object rather than flattening it. A new config block
+**must** be handled there or `CompilerConfig.__init__()` raises an
+unexpected-keyword error.
 
 **Import contracts are enforced in CI by import-linter** (`[tool.importlinter]`
 in `pyproject.toml`). The layer flow is strictly:
 
 `interfaces → services → adapters → utils → shared`
 
-`types` and `assets` must never import from upper layers. Before adding an
+`_types` and `assets` must never import from upper layers. Before adding an
 import across layers, confirm it respects these contracts:
 
 ```bash
@@ -101,8 +117,10 @@ before proceeding.
   `__all__`. Keep that surface deliberate and minimal.
 - **Section separators** in source files use the project banner style:
   `# ///////////////////////////////////////////////////////////////`
-- **Naming:** `*Service`, `Base*` (ports), `*Config`, `*Error`,
-  `_*_utils.py`, `_*_service.py`.
+- **Naming:** `*Service` (orchestration), `*Port` (structural contracts in
+  `_types.py`), `Base*` (shared-implementation ABCs in `adapters/` — **not** the
+  ports, see Working notes), `*Config`, `*Error`, `_*_utils.py`,
+  `_*_service.py`.
 - **Docstrings:** Google style.
 - **Logging:** uses `ezplog` in **lib_mode** — the library stays passive until
   the host application initializes logging. Never use `print()` in library
@@ -113,23 +131,24 @@ before proceeding.
 
 ## Toolchain
 
-| Task          | Command                                                     |
-| ------------- | ----------------------------------------------------------- |
-| Install (dev) | `uv pip install -e ".[dev]"` (or `pip install -e ".[dev]"`) |
-| Lint          | `ruff check .`                                              |
-| Format        | `ruff format .` (check: `ruff format --check .`)            |
-| Type check    | `ty check src/ezcompiler/` (the gate; pyright serves the IDE) |
-| Import rules  | `PYTHONPATH=src lint-imports`                               |
-| Security      | `bandit -r src/ezcompiler`                                  |
-| Tests         | `pytest`                                                    |
+| Task          | Command                                                                  |
+| ------------- | ------------------------------------------------------------------------ |
+| Install (dev) | `uv sync --extra dev --extra docs --extra test --extra tufup --extra r2` |
+| Lint          | `ruff check .`                                                           |
+| Format        | `ruff format .` (check: `ruff format --check .`)                         |
+| Type check    | `ty check src/ezcompiler/` (the gate; pyright serves the IDE)            |
+| Import rules  | `PYTHONPATH=src lint-imports`                                            |
+| Security      | `bandit -r src/ezcompiler`                                               |
+| Tests         | `pytest`                                                                 |
 
 - **ruff** rules: `E W F I B C4 UP S T20 ARG PIE SIM`, line length 88,
   double quotes. See `[tool.ruff]` for per-file ignores.
-- **Coverage:** branch coverage, `--cov-fail-under=70` (audit target is 80%).
-  Some subprocess/TTY modules are omitted from coverage (see
-  `[tool.coverage.run] omit`).
+- **Coverage:** branch coverage, `--cov-fail-under=70` (audit target is 80%;
+  measured at 79.44% over 728 tests as of 2026-09-30). See the exclusions note
+  below before assuming a module is omitted.
 - **Test markers** available: `slow`, `integration`, `unit`, `cli`, `compiler`,
-  `uploader`, `robustness`.
+  `uploader`, `robustness`, `requires_iscc` (needs a real `ISCC.exe` /
+  Inno Setup 6 on the machine).
 - **Test runner wrapper** (`tests/run_tests.py`) provides options: `--type
   unit|integration|robustness|all`, `--coverage`, `--fast`, `--parallel`,
   `--marker <name>`, `--verbose`. Use `pytest` directly for a single file or
