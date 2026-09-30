@@ -412,9 +412,9 @@ omit = [
     "docs/*",
     "examples/*",
     "_temp/*",
-    # Modules non testables unitairement (subprocess vers outils externes / TTY interactif)
-    "*/adapters/nuitka_compiler.py",
-    "*/adapters/pyinstaller_compiler.py",
+    # Modules non testables unitairement (TUF signing / TTY interactif).
+    # Les adaptateurs de compilation restent mesures : leur construction de
+    # ligne de commande est du code testable (cf. _cx_freeze_compiler).
     "*/adapters/_tufup_releaser.py",
     "*/interfaces/cli_interface.py",
 ]

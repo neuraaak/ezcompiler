@@ -130,9 +130,13 @@ before proceeding.
   unit|integration|robustness|all`, `--coverage`, `--fast`, `--parallel`,
   `--marker <name>`, `--verbose`. Use `pytest` directly for a single file or
   `-k` keyword filter.
-- **Coverage exclusions** (subprocess/TTY — not unit-testable):
-  `_nuitka_compiler.py`, `_pyinstaller_compiler.py`, `_tufup_releaser.py`,
-  `cli_interface.py`.
+- **Coverage exclusions** (TUF signing / interactive TTY):
+  `_tufup_releaser.py`, `cli_interface.py`. The compiler adapters are
+  **measured**, including `_nuitka_compiler.py` and `_pyinstaller_compiler.py`
+  — their command-line construction is testable code (see
+  `_cx_freeze_compiler.py`, which extracts `_run_setup_subprocess()` as a
+  mockable seam). Extracting the same seam in the other two is the cheapest
+  honest route to the 80% target.
 
 ## Testing approach
 
