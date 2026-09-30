@@ -251,7 +251,9 @@ respect-ignore-files = true
 output-format = "full"
 error-on-warning = false
 
-# Pyright: Comprehensive type checking with detailed reporting
+# Pyright: powers the IDE (Pylance). Not a CI gate — `ty` is the single
+# type-checking gate, in the pre-commit hook and in 01-ci. This config is kept
+# so editor diagnostics match the checked scope.
 [tool.pyright]
 pythonVersion = "3.13"
 typeCheckingMode = "basic"

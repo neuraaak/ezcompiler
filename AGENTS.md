@@ -118,7 +118,7 @@ before proceeding.
 | Install (dev) | `uv pip install -e ".[dev]"` (or `pip install -e ".[dev]"`) |
 | Lint          | `ruff check .`                                              |
 | Format        | `ruff format .` (check: `ruff format --check .`)            |
-| Type check    | `ty check src/ezcompiler/` and `pyright src/ezcompiler/`    |
+| Type check    | `ty check src/ezcompiler/` (the gate; pyright serves the IDE) |
 | Import rules  | `PYTHONPATH=src lint-imports`                               |
 | Security      | `bandit -r src/ezcompiler`                                  |
 | Tests         | `pytest`                                                    |
@@ -185,8 +185,12 @@ URLs). Update docs when changing public behavior or the API surface.
   former `[AUDIT Px]` TODOs are gone). The standing backlog is: raising branch
   coverage from ~79% toward the 80% audit target, retiring the `Base*` ABCs now
   that the `Protocol` ports exist (both currently coexist), dropping
-  `from __future__ import annotations` (still in ~78 modules), and settling on a
-  single type checker (`ty` and `pyright` both run). Treat those as the backlog;
-  don't silently undo them.
+  `from __future__ import annotations` (still in ~78 modules). Treat those as the
+  backlog; don't silently undo them.
+- **Type checking has one gate: `ty`** (pre-commit hook + `01-ci`). `pyright` is
+  kept in `[tool.pyright]` and in the `dev` extra because it powers Pylance in
+  the editor, but it is no longer run in CI: it analysed the same 80 files as
+  `ty`, with the same scope and the same result. Don't re-add it as a gate;
+  don't remove its config either, editor diagnostics depend on it.
 - General coding-assistant capabilities apply, but these project instructions
   take precedence.

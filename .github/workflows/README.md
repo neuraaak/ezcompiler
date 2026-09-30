@@ -58,7 +58,6 @@ The cascade passes typed `with:` inputs only and relies on **OIDC**
 uv run ruff check .
 uv run ruff format --check .
 uv run ty check src/ezcompiler/
-uv run pyright
 PYTHONPATH=src uv run lint-imports
 uv run pytest
 
