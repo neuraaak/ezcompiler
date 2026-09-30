@@ -182,11 +182,32 @@ URLs). Update docs when changing public behavior or the API surface.
 - Match the surrounding code's style, comment density, and idioms.
 - Review existing similar code before introducing new patterns.
 - Known technical-debt items are no longer tracked as in-code markers (the
-  former `[AUDIT Px]` TODOs are gone). The standing backlog is: raising branch
-  coverage from ~79% toward the 80% audit target, retiring the `Base*` ABCs now
-  that the `Protocol` ports exist (both currently coexist), dropping
-  `from __future__ import annotations` (still in ~78 modules). Treat those as the
-  backlog; don't silently undo them.
+  former `[AUDIT Px]` TODOs are gone). **The standing backlog is one item:**
+  raising branch coverage from ~79% toward the 80% audit target — the cheapest
+  honest route is extracting a mockable subprocess seam in `_nuitka_compiler.py`
+  and `_pyinstaller_compiler.py`, as `_cx_freeze_compiler.py` already does.
+- **Two former backlog items are settled; do not reopen them.**
+    - *"Migrate the `Base*` ABCs to `Protocol` ports"* — **won't do, the premise
+      is wrong.** The two serve different jobs and are meant to coexist: the
+      ports are structural contracts at the service boundary
+      (`CompilerService` types `_compiler_instance` as `CompilerPort`), while
+      the ABCs carry shared implementation the concretes inherit
+      (`BaseCompiler` has 2 abstract methods against 6 concrete helpers —
+      `_validate_config`, `_prepare_output_directory`, `_extract_error_summary`,
+      `_get_include_files_data`, plus `__init__` and the `config`/`zip_needed`
+      properties). A `Protocol` provides no implementation, so "migrating"
+      would mean duplicating those helpers across every adapter. Current state
+      is the target state.
+    - *"Drop `from __future__ import annotations`"* — **blocked on Python 3.13,
+      not a cleanup.** 8 of the 78 modules pair it with a `TYPE_CHECKING` block,
+      and on 3.13 annotations are still evaluated eagerly without it. Verified
+      by removing it from two modules: `import ezcompiler` dies on
+      `NameError: name 'RepoDestination' is not defined` at
+      `_compiler_config.py:135`. For `_types.py` ↔ `shared._compiler_config` the
+      `TYPE_CHECKING` guard is also what breaks a real import cycle, so it
+      cannot be resolved by moving the import to runtime. This becomes a safe
+      mechanical change only once the floor moves to Python 3.14 (PEP 649,
+      lazy annotations); until then the import is load-bearing.
 - **Type checking has one gate: `ty`** (pre-commit hook + `01-ci`). `pyright` is
   kept in `[tool.pyright]` and in the `dev` extra because it powers Pylance in
   the editor, but it is no longer run in CI: it analysed the same 80 files as
