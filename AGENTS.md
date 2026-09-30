@@ -67,9 +67,9 @@ version → compile → zip → installer → release
 ```
 
 **`upload` is not a pipeline stage.** `run_pipeline()` stops after building the
-local TUF tree; the caller invokes `upload()` explicitly afterwards. (The
-deprecation message in `release(publish=True)` still claims an "upload stage of
-run_pipeline" — that text is stale, the behaviour above is what the code does.)
+local TUF tree; the caller invokes `upload()` explicitly afterwards. This is
+pinned by `test_run_pipeline_does_not_upload`, and the deprecation message of
+`release(publish=True)` names that sequence.
 
 When both release and upload are active, `PipelineService.assemble_release_dir()` builds a **flat** `dist/release/` directory (signed TUF `metadata/*` + `targets/*` plus the unsigned zip asset, no sub-folders — GitHub-release style), then uploads it as a single `upload()` call. The working TUF repo (`tuf_repository/`) stays structured for incremental patches; only the published folder is flattened. `EzCompiler.release(publish=True)` is **deprecated** — use `run_pipeline()` then `upload()`.
 
