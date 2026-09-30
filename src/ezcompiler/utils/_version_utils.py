@@ -21,10 +21,10 @@ import re
 # CONSTANTS
 # ///////////////////////////////////////////////////////////////
 
-# Marqueurs de pre-release. Aligne sur le workflow 02-tag-sync.yml : toute
-# divergence ferait qu'un tag marque pre-release par la CI serait publie
-# comme stable, ou l'inverse.
-_PRERELEASE_RE = re.compile(r"(alpha|beta|rc|dev|a\d+|b\d+)", re.IGNORECASE)
+# Marqueurs de pre-release en tant que composants, pas comme sous-chaînes.
+_PRERELEASE_RE = re.compile(
+    r"(?<![a-z])(?:alpha|beta|rc|dev|a\d+|b\d+)(?![a-z])", re.IGNORECASE
+)
 
 # ///////////////////////////////////////////////////////////////
 # FUNCTIONS
@@ -46,4 +46,5 @@ def is_prerelease(version: str) -> bool:
         >>> is_prerelease("1.2.3-beta")
         True
     """
-    return bool(_PRERELEASE_RE.search(version))
+    version_without_local_metadata = version.partition("+")[0]
+    return bool(_PRERELEASE_RE.search(version_without_local_metadata))
