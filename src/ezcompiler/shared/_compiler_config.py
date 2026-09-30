@@ -13,6 +13,8 @@ packaging, and distribution.
 
 from __future__ import annotations
 
+import re
+
 # ///////////////////////////////////////////////////////////////
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
@@ -40,6 +42,8 @@ COMPILER_SECTION_KEYS: dict[str, str] = {
     "Cx_Freeze": "cx_freeze",
     "Nuitka": "nuitka",
 }
+
+_OWNER_REPO_RE = re.compile(r"[A-Za-z0-9._-]+/[A-Za-z0-9._-]+")
 
 # ///////////////////////////////////////////////////////////////
 # CLASSES
@@ -73,9 +77,10 @@ class CompilerConfig:
         console: Show console window in compiled app (default: True)
         compiler: Compiler to use - "" (unset -> prompt), "Cx_Freeze", "PyInstaller", "Nuitka"
         repo_destination: TUF repo upload backend - "disk" | "server" | "r2"
-        release_destination: Zip installer upload backend - "disk" | "server"
+        release_destination: Release asset destination - disk, server, r2,
+            github, or gitlab
         repo_endpoint: Endpoint for TUF repo upload (path, URL, or "bucket/prefix")
-        release_endpoint: Endpoint for zip installer upload (path or URL)
+        release_endpoint: Release endpoint (path, URL, bucket/prefix, or owner/repo)
         optimize: Optimize code (default: True)
         strip: Strip debug info (default: False)
         debug: Enable debug mode (default: False)
@@ -283,11 +288,11 @@ class CompilerConfig:
 
     def _validate_destinations(self) -> None:
         """
-        Validate upload destination backends and require endpoints for non-disk targets.
+        Validate upload and publication destinations and their endpoints.
 
-        The TUF repository may be uploaded to disk, server or r2; the release
-        zip only to disk or server. Any other value is rejected.
-        Non-disk destinations require the matching endpoint to be non-empty.
+        The TUF repository may be uploaded to disk, server or r2. Release assets
+        may also be published to github or gitlab. Server and r2 destinations
+        require an endpoint; publication destinations may infer the repository.
 
         Raises:
             ConfigurationError: If a destination is not supported or endpoint is missing
@@ -299,7 +304,7 @@ class CompilerConfig:
                 f"Must be one of {valid_repo}"
             )
 
-        valid_release = ["disk", "server", "r2"]
+        valid_release = ["disk", "server", "r2", "github", "gitlab"]
         if self.release_destination not in valid_release:
             raise ConfigurationError(
                 f"Invalid release_destination: {self.release_destination}. "
@@ -312,7 +317,18 @@ class CompilerConfig:
                 "For 'server': provide a URL. For 'r2': provide 'bucket/prefix'."
             )
 
-        if self.release_destination != "disk" and not self.release_endpoint:
+        if self.release_destination in ("github", "gitlab"):
+            if self.release_endpoint and not _OWNER_REPO_RE.fullmatch(
+                self.release_endpoint
+            ):
+                raise ConfigurationError(
+                    f"release_endpoint invalide pour "
+                    f"release_destination='{self.release_destination}' : "
+                    f"'{self.release_endpoint}'. Attendu le format "
+                    f'"owner/repo" (sans URL ni protocole), ou vide pour '
+                    f"laisser la CLI déduire le dépôt du remote git."
+                )
+        elif self.release_destination != "disk" and not self.release_endpoint:
             raise ConfigurationError(
                 f"release_endpoint is required when release_destination='{self.release_destination}'. "
                 "For 'server': provide a URL. For 'r2': provide 'bucket/prefix'."

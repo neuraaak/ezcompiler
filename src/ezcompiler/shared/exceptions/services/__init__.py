@@ -13,6 +13,8 @@ error scenarios.
 
 from __future__ import annotations
 
+from ..utils import PublishAuthError, PublishCliError, PublishError, PublisherTypeError
+
 # ///////////////////////////////////////////////////////////////
 # IMPORTS - Service exceptions
 # ///////////////////////////////////////////////////////////////
@@ -50,6 +52,11 @@ __all__ = [
     "UploadError",
     # Release exceptions (canonical, re-exported from utils)
     "ReleaseError",
+    # Publish exceptions (canonical, re-exported from utils)
+    "PublishError",
+    "PublisherTypeError",
+    "PublishCliError",
+    "PublishAuthError",
     # Updater exceptions (canonical, re-exported from utils)
     "UpdaterError",
 ]

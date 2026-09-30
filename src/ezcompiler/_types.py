@@ -66,12 +66,12 @@ Valid values: "disk", "server", "r2"
 Used by: CompilerConfig.repo_destination, EzCompiler.upload().
 """
 
-type ReleaseDestination = Literal["disk", "server", "r2"]
-"""Type alias for the release zip upload backend.
+type ReleaseDestination = Literal["disk", "server", "r2", "github", "gitlab"]
+"""Type alias for the release asset destination or publication platform.
 
-Valid values: "disk", "server", "r2"
+Valid values: "disk", "server", "r2", "github", "gitlab"
 
-Used by: CompilerConfig.release_destination, EzCompiler.upload().
+Used by: CompilerConfig.release_destination, EzCompiler.upload() and publishing.
 """
 
 type ReleaseTarget = Literal["tufup"]
@@ -218,6 +218,32 @@ class ReleaserPort(Protocol):
 
 
 @runtime_checkable
+class PublisherPort(Protocol):
+    """Structural contract for an addressable release publisher (Port)."""
+
+    def exists(self, tag: str) -> bool:
+        """Whether a release already exists for ``tag``."""
+        ...
+
+    def publish(
+        self,
+        assets: list[Path],
+        *,
+        tag: str,
+        title: str,
+        notes: str | None = None,
+        prerelease: bool = False,
+        draft: bool = False,
+    ) -> str:
+        """Create a release with ``assets`` and return its URL."""
+        ...
+
+    def get_publisher_name(self) -> str:
+        """Human-readable publisher name."""
+        ...
+
+
+@runtime_checkable
 class InstallerPort(Protocol):
     """Structural contract for a first-deployment installer builder (Port).
 
@@ -267,5 +293,6 @@ __all__ = [
     "CompilerPort",
     "UploaderPort",
     "ReleaserPort",
+    "PublisherPort",
     "InstallerPort",
 ]

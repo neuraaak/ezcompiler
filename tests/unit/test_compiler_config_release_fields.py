@@ -143,6 +143,54 @@ def test_release_destination_disk_allows_empty_release_endpoint(
     assert cfg.release_endpoint == ""
 
 
+def test_should_accept_github_release_destination_without_endpoint(
+    main_file: Path,
+) -> None:
+    cfg = _base(main_file, release_destination="github", release_endpoint="")
+    assert cfg.release_destination == "github"
+
+
+def test_should_accept_owner_repo_endpoint_for_github(main_file: Path) -> None:
+    cfg = _base(
+        main_file,
+        release_destination="github",
+        release_endpoint="neuraaak/ezcompiler",
+    )
+    assert cfg.release_endpoint == "neuraaak/ezcompiler"
+
+
+def test_should_accept_gitlab_release_destination_without_endpoint(
+    main_file: Path,
+) -> None:
+    cfg = _base(main_file, release_destination="gitlab", release_endpoint="")
+    assert cfg.release_destination == "gitlab"
+
+
+def test_should_accept_owner_repo_endpoint_for_gitlab(main_file: Path) -> None:
+    cfg = _base(
+        main_file,
+        release_destination="gitlab",
+        release_endpoint="group/project",
+    )
+    assert cfg.release_endpoint == "group/project"
+
+
+def test_should_reject_full_url_endpoint_for_github(main_file: Path) -> None:
+    with pytest.raises(ConfigurationError, match="owner/repo"):
+        _base(
+            main_file,
+            release_destination="github",
+            release_endpoint="https://github.com/neuraaak/ezcompiler",
+        )
+
+
+def test_should_still_require_endpoint_for_server_release_destination(
+    main_file: Path,
+) -> None:
+    with pytest.raises(ConfigurationError, match="release_endpoint"):
+        _base(main_file, release_destination="server", release_endpoint="")
+
+
 # ── destination values unchanged ───────────────────────────────────────────────
 
 

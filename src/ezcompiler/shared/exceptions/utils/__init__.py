@@ -83,6 +83,16 @@ from ._installer_exceptions import (
 )
 
 # ///////////////////////////////////////////////////////////////
+# IMPORTS - Publish exceptions
+# ///////////////////////////////////////////////////////////////
+from ._publish_exceptions import (
+    PublishAuthError,
+    PublishCliError,
+    PublishError,
+    PublisherTypeError,
+)
+
+# ///////////////////////////////////////////////////////////////
 # IMPORTS - Release exceptions
 # ///////////////////////////////////////////////////////////////
 from ._release_exceptions import (
@@ -181,6 +191,12 @@ __all__ = [
     "BundleBuildError",
     "SigningKeyError",
     "ReleaseConfigError",
+    # Publish exceptions
+    "PublishError",
+    "PublisherTypeError",
+    "PublishCliError",
+    "PublishAuthError",
+    "_publish_exceptions",
     # Installer exceptions
     "InstallerError",
     "InstallerTypeError",
