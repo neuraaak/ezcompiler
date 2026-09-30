@@ -31,25 +31,29 @@ unified interface over three compilers (Cx_Freeze, PyInstaller, Nuitka).
 ```text
 interfaces/   ← entry points: CLI (click) + Python API (EzCompiler facade)
 services/     ← business orchestration (CompilerService, PipelineService,
-                ConfigService, TemplateService, UploaderService, ReleaseService)
-adapters/     ← concrete compilers, uploaders & releaser behind ports, + factories
-shared/       ← domain models (CompilerConfig, CompilationResult) + exceptions/
+                ConfigService, TemplateService, UploaderService, ReleaseService,
+                InstallerService, UpdaterService)
+adapters/     ← concrete compilers, uploaders, releaser & installer behind
+                ports, + factories
+shared/       ← domain models (CompilerConfig, InstallerConfig,
+                CompilationResult) + exceptions/
 utils/        ← technical helpers + validators/
 assets/       ← templates and static resources (no upward deps)
-types.py      ← type aliases + the three @runtime_checkable Protocol ports
+_types.py     ← type aliases + the four @runtime_checkable Protocol ports
 ```
 
-### Ports (`types.py`)
+### Ports (`_types.py`)
 
-Three structural contracts that decouple services from concrete adapters:
+Four structural contracts that decouple services from concrete adapters:
 
-| Port           | Key methods                                                                                 |
-| -------------- | ------------------------------------------------------------------------------------------- |
-| `CompilerPort` | `compile()`, `get_compiler_name()`, `zip_needed`, `config`                                  |
-| `UploaderPort` | `upload(source_path, destination)`, `get_uploader_name()`                                   |
-| `ReleaserPort` | `release(bundle_dir, app_name, version, repo_dir)`, `init_keys(...)`, `get_releaser_name()` |
+| Port            | Key methods                                                                                                  |
+| --------------- | ------------------------------------------------------------------------------------------------------------ |
+| `CompilerPort`  | `compile()`, `get_compiler_name()`, `zip_needed`, `config`                                                   |
+| `UploaderPort`  | `upload(source_path, destination)`, `get_uploader_name()`                                                    |
+| `ReleaserPort`  | `release(bundle_dir, app_name, version, repo_dir)`, `init_keys(...)`, `get_releaser_name()`                  |
+| `InstallerPort` | `build(bundle_dir, app_name, version, output_dir, *, company_name, icon, main_file)`, `get_installer_name()` |
 
-Concrete implementations live in `adapters/` with a `_` prefix (`_cx_freeze_compiler.py`, `_disk_uploader.py`, `_tufup_releaser.py`). Always go through the factories — never instantiate adapters directly.
+Concrete implementations live in `adapters/` with a `_` prefix (`_cx_freeze_compiler.py`, `_disk_uploader.py`, `_tufup_releaser.py`, `_innosetup_installer.py`). Always go through the factories — never instantiate adapters directly.
 
 ### Pipeline flow
 
@@ -177,10 +181,12 @@ URLs). Update docs when changing public behavior or the API surface.
 
 - Match the surrounding code's style, comment density, and idioms.
 - Review existing similar code before introducing new patterns.
-- Known technical-debt items are tracked as `[AUDIT Px]` TODO markers in the
-  code (e.g. raising coverage, typing `compiler_instance`, merging exception
-  hierarchies, migrating `Base*` ABCs to `Protocol` ports, dropping
-  `from __future__ import annotations`, choosing one type checker). Treat those
-  as the backlog; don't silently undo them.
+- Known technical-debt items are no longer tracked as in-code markers (the
+  former `[AUDIT Px]` TODOs are gone). The standing backlog is: raising branch
+  coverage from ~79% toward the 80% audit target, retiring the `Base*` ABCs now
+  that the `Protocol` ports exist (both currently coexist), dropping
+  `from __future__ import annotations` (still in ~78 modules), and settling on a
+  single type checker (`ty` and `pyright` both run). Treat those as the backlog;
+  don't silently undo them.
 - General coding-assistant capabilities apply, but these project instructions
   take precedence.
