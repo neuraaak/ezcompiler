@@ -519,8 +519,8 @@ class EzCompiler:
             import warnings  # noqa: PLC0415
 
             warnings.warn(
-                "release(publish=True) est déprécié : le transfert distant est "
-                "désormais assuré par le stage upload de run_pipeline.",
+                "release(publish=True) est déprécié : enchaîner run_pipeline() "
+                "puis upload(). run_pipeline() ne fait pas le transfert distant.",
                 DeprecationWarning,
                 stacklevel=2,
             )

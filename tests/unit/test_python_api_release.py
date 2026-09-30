@@ -166,7 +166,14 @@ def test_release_publish_true_warns(monkeypatch, tmp_path: Path) -> None:
     with warnings.catch_warnings(record=True) as caught:
         warnings.simplefilter("always")
         compiler.release(tmp_path / "bundle", publish=True)
-    assert any(issubclass(w.category, DeprecationWarning) for w in caught)
+    deprecations = [w for w in caught if issubclass(w.category, DeprecationWarning)]
+    assert deprecations
+    # The message must point at the real replacement: run_pipeline() does not
+    # upload (see test_run_pipeline_does_not_upload above), so it cannot be
+    # advertised as handling the transfer on its own.
+    message = str(deprecations[0].message)
+    assert "upload()" in message
+    assert "stage upload" not in message
 
 
 def test_run_pipeline_skip_release_bypasses_release_stage(

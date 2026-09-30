@@ -58,7 +58,6 @@ jobs:
           enable-cache: true
       - run: uv sync --frozen --all-extras
       - run: uv run --frozen ty check src/ezcompiler/
-      - run: uv run --frozen pyright
       - run: PYTHONPATH=src uv run --frozen lint-imports
 
   test:

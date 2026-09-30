@@ -6,8 +6,10 @@ self-contained — there is no external instruction tree to consult.
 ## Project
 
 `ezcompiler` is a Python framework that compiles Python projects into Windows
-executables, then versions, packages (ZIP) and distributes them. It exposes a
-unified interface over three compilers (Cx_Freeze, PyInstaller, Nuitka).
+executables, then versions, packages (ZIP), builds a Windows installer, signs a
+TUF release and distributes them. It exposes a unified interface over three
+compilers (Cx_Freeze, PyInstaller, Nuitka), an Inno Setup installer builder, a
+tufup releaser, and generates a client-side updater script.
 
 - **Package:** `ezcompiler` (PyPI), entry point `EzCompiler` facade + `ezcompiler` CLI
 - **Python:** >= 3.13 (do **not** target 3.12 or below; uses PEP 695 `type` aliases)
@@ -31,44 +33,62 @@ unified interface over three compilers (Cx_Freeze, PyInstaller, Nuitka).
 ```text
 interfaces/   ← entry points: CLI (click) + Python API (EzCompiler facade)
 services/     ← business orchestration (CompilerService, PipelineService,
-                ConfigService, TemplateService, UploaderService, ReleaseService)
-adapters/     ← concrete compilers, uploaders & releaser behind ports, + factories
-shared/       ← domain models (CompilerConfig, CompilationResult) + exceptions/
+                ConfigService, TemplateService, UploaderService, ReleaseService,
+                InstallerService, UpdaterService)
+adapters/     ← concrete compilers, uploaders, releaser & installer behind
+                ports, + factories
+shared/       ← domain models (CompilerConfig, InstallerConfig,
+                CompilationResult) + exceptions/
 utils/        ← technical helpers + validators/
 assets/       ← templates and static resources (no upward deps)
-types.py      ← type aliases + the three @runtime_checkable Protocol ports
+_types.py     ← type aliases + the four @runtime_checkable Protocol ports
 ```
 
-### Ports (`types.py`)
+### Ports (`_types.py`)
 
-Three structural contracts that decouple services from concrete adapters:
+Four structural contracts that decouple services from concrete adapters:
 
-| Port           | Key methods                                                                                 |
-| -------------- | ------------------------------------------------------------------------------------------- |
-| `CompilerPort` | `compile()`, `get_compiler_name()`, `zip_needed`, `config`                                  |
-| `UploaderPort` | `upload(source_path, destination)`, `get_uploader_name()`                                   |
-| `ReleaserPort` | `release(bundle_dir, app_name, version, repo_dir)`, `init_keys(...)`, `get_releaser_name()` |
+| Port            | Key methods                                                                                                  |
+| --------------- | ------------------------------------------------------------------------------------------------------------ |
+| `CompilerPort`  | `compile()`, `get_compiler_name()`, `zip_needed`, `config`                                                   |
+| `UploaderPort`  | `upload(source_path, destination)`, `get_uploader_name()`                                                    |
+| `ReleaserPort`  | `release(bundle_dir, app_name, version, repo_dir)`, `init_keys(...)`, `get_releaser_name()`                  |
+| `InstallerPort` | `build(bundle_dir, app_name, version, output_dir, *, company_name, icon, main_file)`, `get_installer_name()` |
 
-Concrete implementations live in `adapters/` with a `_` prefix (`_cx_freeze_compiler.py`, `_disk_uploader.py`, `_tufup_releaser.py`). Always go through the factories — never instantiate adapters directly.
+Concrete implementations live in `adapters/` with a `_` prefix (`_cx_freeze_compiler.py`, `_disk_uploader.py`, `_tufup_releaser.py`, `_innosetup_installer.py`). Always go through the factories — never instantiate adapters directly.
 
 ### Pipeline flow
 
-`run_pipeline()` (the primary production path) executes stages in order:
+`run_pipeline()` (the primary production path) executes stages in order, each
+one conditional (`PipelineService.build_stages()`):
 
 ```text
-compile → zip → release → upload
+version → compile → zip → installer → release
 ```
 
-When both release and upload are active, `PipelineService.assemble_release_dir()` builds a **flat** `dist/release/` directory (signed TUF `metadata/*` + `targets/*` plus the unsigned zip asset, no sub-folders — GitHub-release style), then uploads it as a single `upload()` call. The working TUF repo (`tuf_repository/`) stays structured for incremental patches; only the published folder is flattened. `EzCompiler.release(publish=True)` is **deprecated** — the pipeline handles the full sequence.
+**`upload` is not a pipeline stage.** `run_pipeline()` stops after building the
+local TUF tree; the caller invokes `upload()` explicitly afterwards. This is
+pinned by `test_run_pipeline_does_not_upload`, and the deprecation message of
+`release(publish=True)` names that sequence.
 
-Config loading: `ConfigService` flattens nested blocks (`compilation`, `upload`, `release`, `advanced`) before passing kwargs to `CompilerConfig.__init__()`. A new config block **must** be added to the flatten step in `from_dict()` or it will raise an unexpected-keyword error.
+When both release and upload are active, `PipelineService.assemble_release_dir()` builds a **flat** `dist/release/` directory (signed TUF `metadata/*` + `targets/*` plus the unsigned zip asset, no sub-folders — GitHub-release style), then uploads it as a single `upload()` call. The working TUF repo (`tuf_repository/`) stays structured for incremental patches; only the published folder is flattened. `EzCompiler.release(publish=True)` is **deprecated** — use `run_pipeline()` then `upload()`.
+
+Config loading: `ConfigService.build_compiler_config()` only assembles the
+layers and delegates to **`CompilerConfig.from_dict()`**
+(`shared/_compiler_config.py`) — that is where the flattening lives, so that is
+the file to edit. It flattens `compilation`, `upload`, `release` and `advanced`
+into kwargs, pops the per-compiler sections (`[tool.ezcompiler.pyinstaller]`
+etc., only the selected one is applied), and turns the `installer` block into an
+`InstallerConfig` sub-object rather than flattening it. A new config block
+**must** be handled there or `CompilerConfig.__init__()` raises an
+unexpected-keyword error.
 
 **Import contracts are enforced in CI by import-linter** (`[tool.importlinter]`
 in `pyproject.toml`). The layer flow is strictly:
 
 `interfaces → services → adapters → utils → shared`
 
-`types` and `assets` must never import from upper layers. Before adding an
+`_types` and `assets` must never import from upper layers. Before adding an
 import across layers, confirm it respects these contracts:
 
 ```bash
@@ -97,8 +117,10 @@ before proceeding.
   `__all__`. Keep that surface deliberate and minimal.
 - **Section separators** in source files use the project banner style:
   `# ///////////////////////////////////////////////////////////////`
-- **Naming:** `*Service`, `Base*` (ports), `*Config`, `*Error`,
-  `_*_utils.py`, `_*_service.py`.
+- **Naming:** `*Service` (orchestration), `*Port` (structural contracts in
+  `_types.py`), `Base*` (shared-implementation ABCs in `adapters/` — **not** the
+  ports, see Working notes), `*Config`, `*Error`, `_*_utils.py`,
+  `_*_service.py`.
 - **Docstrings:** Google style.
 - **Logging:** uses `ezplog` in **lib_mode** — the library stays passive until
   the host application initializes logging. Never use `print()` in library
@@ -109,30 +131,35 @@ before proceeding.
 
 ## Toolchain
 
-| Task          | Command                                                     |
-| ------------- | ----------------------------------------------------------- |
-| Install (dev) | `uv pip install -e ".[dev]"` (or `pip install -e ".[dev]"`) |
-| Lint          | `ruff check .`                                              |
-| Format        | `ruff format .` (check: `ruff format --check .`)            |
-| Type check    | `ty check src/ezcompiler/` and `pyright src/ezcompiler/`    |
-| Import rules  | `PYTHONPATH=src lint-imports`                               |
-| Security      | `bandit -r src/ezcompiler`                                  |
-| Tests         | `pytest`                                                    |
+| Task          | Command                                                                  |
+| ------------- | ------------------------------------------------------------------------ |
+| Install (dev) | `uv sync --extra dev --extra docs --extra test --extra tufup --extra r2` |
+| Lint          | `ruff check .`                                                           |
+| Format        | `ruff format .` (check: `ruff format --check .`)                         |
+| Type check    | `ty check src/ezcompiler/` (the gate; pyright serves the IDE)            |
+| Import rules  | `PYTHONPATH=src lint-imports`                                            |
+| Security      | `bandit -r src/ezcompiler`                                               |
+| Tests         | `pytest`                                                                 |
 
 - **ruff** rules: `E W F I B C4 UP S T20 ARG PIE SIM`, line length 88,
   double quotes. See `[tool.ruff]` for per-file ignores.
-- **Coverage:** branch coverage, `--cov-fail-under=70` (audit target is 80%).
-  Some subprocess/TTY modules are omitted from coverage (see
-  `[tool.coverage.run] omit`).
+- **Coverage:** branch coverage, `--cov-fail-under=70` (audit target is 80%;
+  measured at 79.44% over 728 tests as of 2026-09-30). See the exclusions note
+  below before assuming a module is omitted.
 - **Test markers** available: `slow`, `integration`, `unit`, `cli`, `compiler`,
-  `uploader`, `robustness`.
+  `uploader`, `robustness`, `requires_iscc` (needs a real `ISCC.exe` /
+  Inno Setup 6 on the machine).
 - **Test runner wrapper** (`tests/run_tests.py`) provides options: `--type
   unit|integration|robustness|all`, `--coverage`, `--fast`, `--parallel`,
   `--marker <name>`, `--verbose`. Use `pytest` directly for a single file or
   `-k` keyword filter.
-- **Coverage exclusions** (subprocess/TTY — not unit-testable):
-  `_nuitka_compiler.py`, `_pyinstaller_compiler.py`, `_tufup_releaser.py`,
-  `cli_interface.py`.
+- **Coverage exclusions** (TUF signing / interactive TTY):
+  `_tufup_releaser.py`, `cli_interface.py`. The compiler adapters are
+  **measured**, including `_nuitka_compiler.py` and `_pyinstaller_compiler.py`
+  — their command-line construction is testable code (see
+  `_cx_freeze_compiler.py`, which extracts `_run_setup_subprocess()` as a
+  mockable seam). Extracting the same seam in the other two is the cheapest
+  honest route to the 80% target.
 
 ## Testing approach
 
@@ -173,10 +200,37 @@ URLs). Update docs when changing public behavior or the API surface.
 
 - Match the surrounding code's style, comment density, and idioms.
 - Review existing similar code before introducing new patterns.
-- Known technical-debt items are tracked as `[AUDIT Px]` TODO markers in the
-  code (e.g. raising coverage, typing `compiler_instance`, merging exception
-  hierarchies, migrating `Base*` ABCs to `Protocol` ports, dropping
-  `from __future__ import annotations`, choosing one type checker). Treat those
-  as the backlog; don't silently undo them.
+- Known technical-debt items are no longer tracked as in-code markers (the
+  former `[AUDIT Px]` TODOs are gone). **The standing backlog is one item:**
+  raising branch coverage from ~79% toward the 80% audit target — the cheapest
+  honest route is extracting a mockable subprocess seam in `_nuitka_compiler.py`
+  and `_pyinstaller_compiler.py`, as `_cx_freeze_compiler.py` already does.
+- **Two former backlog items are settled; do not reopen them.**
+    - *"Migrate the `Base*` ABCs to `Protocol` ports"* — **won't do, the premise
+      is wrong.** The two serve different jobs and are meant to coexist: the
+      ports are structural contracts at the service boundary
+      (`CompilerService` types `_compiler_instance` as `CompilerPort`), while
+      the ABCs carry shared implementation the concretes inherit
+      (`BaseCompiler` has 2 abstract methods against 6 concrete helpers —
+      `_validate_config`, `_prepare_output_directory`, `_extract_error_summary`,
+      `_get_include_files_data`, plus `__init__` and the `config`/`zip_needed`
+      properties). A `Protocol` provides no implementation, so "migrating"
+      would mean duplicating those helpers across every adapter. Current state
+      is the target state.
+    - *"Drop `from __future__ import annotations`"* — **blocked on Python 3.13,
+      not a cleanup.** 8 of the 78 modules pair it with a `TYPE_CHECKING` block,
+      and on 3.13 annotations are still evaluated eagerly without it. Verified
+      by removing it from two modules: `import ezcompiler` dies on
+      `NameError: name 'RepoDestination' is not defined` at
+      `_compiler_config.py:135`. For `_types.py` ↔ `shared._compiler_config` the
+      `TYPE_CHECKING` guard is also what breaks a real import cycle, so it
+      cannot be resolved by moving the import to runtime. This becomes a safe
+      mechanical change only once the floor moves to Python 3.14 (PEP 649,
+      lazy annotations); until then the import is load-bearing.
+- **Type checking has one gate: `ty`** (pre-commit hook + `01-ci`). `pyright` is
+  kept in `[tool.pyright]` and in the `dev` extra because it powers Pylance in
+  the editor, but it is no longer run in CI: it analysed the same 80 files as
+  `ty`, with the same scope and the same result. Don't re-add it as a gate;
+  don't remove its config either, editor diagnostics depend on it.
 - General coding-assistant capabilities apply, but these project instructions
   take precedence.

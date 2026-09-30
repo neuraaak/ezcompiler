@@ -17,7 +17,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ezcompiler"
-version = "4.0.0"
+version = "4.0.1"
 description = "Project compilation and distribution framework for Python projects"
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.13"
@@ -251,7 +251,9 @@ respect-ignore-files = true
 output-format = "full"
 error-on-warning = false
 
-# Pyright: Comprehensive type checking with detailed reporting
+# Pyright: powers the IDE (Pylance). Not a CI gate — `ty` is the single
+# type-checking gate, in the pre-commit hook and in 01-ci. This config is kept
+# so editor diagnostics match the checked scope.
 [tool.pyright]
 pythonVersion = "3.13"
 typeCheckingMode = "basic"
@@ -412,9 +414,9 @@ omit = [
     "docs/*",
     "examples/*",
     "_temp/*",
-    # Modules non testables unitairement (subprocess vers outils externes / TTY interactif)
-    "*/adapters/nuitka_compiler.py",
-    "*/adapters/pyinstaller_compiler.py",
+    # Modules non testables unitairement (TUF signing / TTY interactif).
+    # Les adaptateurs de compilation restent mesures : leur construction de
+    # ligne de commande est du code testable (cf. _cx_freeze_compiler).
     "*/adapters/_tufup_releaser.py",
     "*/interfaces/cli_interface.py",
 ]

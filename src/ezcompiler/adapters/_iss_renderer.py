@@ -96,7 +96,7 @@ def build_environment() -> Environment:
     Uses custom delimiters (``<% %>`` / ``<< >>`` / ``<# #>``) because the
     defaults collide with Inno Setup's own ``{#`` and ``{{`` syntax.
     """
-    env = Environment(
+    env = Environment(  # nosec B701 - .iss is not HTML; escape_iss handles safety
         loader=FileSystemLoader(_TEMPLATE_DIR),
         undefined=StrictUndefined,
         autoescape=False,  # noqa: S701 - .iss is not HTML; escape_iss handles safety
