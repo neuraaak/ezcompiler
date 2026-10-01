@@ -596,4 +596,23 @@ def test_update_should_still_refuse_an_empty_tree_without_withdrawal(tmp_path):
     result, publish = _invoke_update(cfg)
 
     assert result.exit_code == 1
+    assert "ne référence aucune archive" in " ".join(result.output.split())
     publish.assert_not_called()
+
+
+def test_update_should_say_no_version_is_offered_when_the_tree_is_emptied(tmp_path):
+    cfg = _make_config(
+        tmp_path, version="1.0.1", tuf_enabled=True, repo_public_url="https://h/u/"
+    )
+    meta = tmp_path / "repo" / "metadata"
+    meta.mkdir(parents=True, exist_ok=True)
+    (meta / "targets.json").write_text('{"signed": {"targets": {}}}', encoding="utf-8")
+    _withdraw(tmp_path, "1.0.0")
+
+    result, publish = _invoke_update(cfg)
+
+    out = " ".join(result.output.split())
+    assert result.exit_code == 0, result.output
+    assert "ne propose plus aucune version" in out
+    assert "passeront en" not in out
+    publish.assert_called_once()

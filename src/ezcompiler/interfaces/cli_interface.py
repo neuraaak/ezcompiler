@@ -1490,11 +1490,17 @@ def publish_update_command(
                     f"porte {tree_version} : c'est {tree_version} qui sera publiée. "
                     "Relancer le pipeline si ce n'est pas voulu."
                 )
-            printer.warning(
-                f"Les clients installés passeront en {shown} automatiquement. "
-                "Cette publication ne peut pas être annulée, seulement remplacée "
-                "par une version supérieure."
-            )
+            if tree_version is None:
+                printer.warning(
+                    "L'arbre republié ne propose plus aucune version : les "
+                    "clients installés restent sur leur version actuelle."
+                )
+            else:
+                printer.warning(
+                    f"Les clients installés passeront en {shown} automatiquement. "
+                    "Cette publication ne peut pas être annulée, seulement "
+                    "remplacée par une version supérieure."
+                )
 
         if not yes and not click.confirm("Publier cet arbre ?", default=False):
             printer.info("Annulé.")
