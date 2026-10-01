@@ -1310,6 +1310,97 @@ def publish_release_command(
         sys.exit(1)
 
 
+@publish.command("update")
+@click.option(
+    "--config", "-c", type=click.Path(exists=True), help="Config file path (YAML, JSON)"
+)
+@click.option(
+    "--pyproject",
+    "-p",
+    type=click.Path(exists=True),
+    help="Explicit pyproject.toml path",
+)
+@click.option(
+    "--repo-destination",
+    "-rd",
+    "repo_destination",
+    type=click.Choice(["disk", "server", "r2"]),
+    default=None,
+    help="Backend pour l'arbre TUF (overrides config)",
+)
+@click.option("--destination", "-d", default=None, help="Destination (override config)")
+@click.option("--yes", "-y", is_flag=True, help="Ne pas demander de confirmation")
+def publish_update_command(
+    config: str | None,
+    pyproject: str | None,
+    repo_destination: str | None,
+    destination: str | None,
+    yes: bool,
+) -> None:
+    """Publier l'arbre de mise à jour TUF.
+
+    C'est la plus irréversible des deux publications : les versions de
+    métadonnées TUF sont monotones et les clients auto-updatent sans
+    action humaine. On ne dépublie pas, on republie plus haut.
+
+    Exemples :
+
+        ezcompiler publish update
+
+        ezcompiler publish update --repo-destination r2 --yes
+    """
+    _force_utf8_stdout()
+    printer = _get_printer()
+    logger = _get_logger()
+
+    try:
+        cfg = ConfigService.build_compiler_config(
+            config_path=Path(config) if config else None,
+            pyproject_path=Path(pyproject) if pyproject else None,
+        )
+
+        repo_dir = cfg.tuf_repo_dir or (cfg.output_folder / "repo")
+        metadata_dir = repo_dir / "metadata"
+        if not metadata_dir.is_dir() or not any(metadata_dir.iterdir()):
+            printer.error(
+                f"Aucun arbre TUF signé dans {repo_dir}. "
+                "Lancer d'abord le pipeline de build (`ezcompiler compile`)."
+            )
+            sys.exit(1)
+
+        repo_dest = repo_destination or cfg.repo_destination
+        target = destination or cfg.resolved_repo_destination or "(config)"
+        file_count = sum(1 for f in repo_dir.rglob("*") if f.is_file())
+
+        printer.info("─" * 60)
+        printer.info("Arbre de mise à jour TUF à publier")
+        printer.info(f"   Backend    : {repo_dest}")
+        printer.info(f"   Destination: {target}/update/")
+        printer.info(f"   Version    : {cfg.version}")
+        printer.info(f"   Fichiers   : {file_count}")
+        printer.info("─" * 60)
+        printer.warning(
+            f"Les clients installés passeront en {cfg.version} automatiquement. "
+            "Cette publication ne peut pas être annulée, seulement remplacée "
+            "par une version supérieure."
+        )
+
+        if not yes and not click.confirm("Publier cet arbre ?", default=False):
+            printer.info("Annulé.")
+            sys.exit(1)
+
+        PublishService.publish_update(
+            cfg, destination=destination, repo_destination=repo_destination
+        )
+        printer.success(f"Arbre TUF publié ({repo_dest})")
+        logger.info("TUF update tree published (%s)", repo_dest)
+
+    except (ConfigurationError, UploadError, ReleaseError) as e:
+        printer.error(str(e))
+        logger.error(str(e))
+        sys.exit(1)
+
+
 @main.command()
 @click.argument(
     "format_type",

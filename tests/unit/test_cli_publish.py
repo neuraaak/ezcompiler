@@ -199,3 +199,80 @@ def test_should_not_prompt_on_a_file_destination(tmp_path, staged):
         result = CliRunner().invoke(main, ["publish", "release"])
     assert result.exit_code == 0
     pub.assert_called_once()
+
+
+# ------------------------------------------------
+# publish update
+# ------------------------------------------------
+
+
+def test_update_should_abort_without_uploading_when_declined(tmp_path):
+    cfg = _make_config(tmp_path, repo_destination="disk", version="1.2.3")
+    repo = tmp_path / "repo" / "metadata"
+    repo.mkdir(parents=True)
+    (repo / "timestamp.json").write_text("{}", encoding="utf-8")
+    with (
+        patch(
+            "ezcompiler.interfaces.cli_interface.ConfigService.build_compiler_config",
+            return_value=cfg,
+        ),
+        patch(
+            "ezcompiler.interfaces.cli_interface.PublishService.publish_update"
+        ) as pub,
+    ):
+        result = CliRunner().invoke(main, ["publish", "update"], input="n\n")
+    assert result.exit_code == 1
+    pub.assert_not_called()
+
+
+def test_update_should_upload_when_confirmed(tmp_path):
+    cfg = _make_config(tmp_path, repo_destination="disk", version="1.2.3")
+    repo = tmp_path / "repo" / "metadata"
+    repo.mkdir(parents=True)
+    (repo / "timestamp.json").write_text("{}", encoding="utf-8")
+    with (
+        patch(
+            "ezcompiler.interfaces.cli_interface.ConfigService.build_compiler_config",
+            return_value=cfg,
+        ),
+        patch(
+            "ezcompiler.interfaces.cli_interface.PublishService.publish_update"
+        ) as pub,
+    ):
+        result = CliRunner().invoke(main, ["publish", "update", "--yes"])
+    assert result.exit_code == 0
+    pub.assert_called_once()
+
+
+def test_update_should_name_the_version_in_the_recap(tmp_path):
+    """Sans la version, l'operateur confirme a l'aveugle."""
+    cfg = _make_config(tmp_path, repo_destination="disk", version="1.2.3")
+    repo = tmp_path / "repo" / "metadata"
+    repo.mkdir(parents=True)
+    (repo / "timestamp.json").write_text("{}", encoding="utf-8")
+    with (
+        patch(
+            "ezcompiler.interfaces.cli_interface.ConfigService.build_compiler_config",
+            return_value=cfg,
+        ),
+        patch("ezcompiler.interfaces.cli_interface.PublishService.publish_update"),
+    ):
+        result = CliRunner().invoke(main, ["publish", "update"], input="n\n")
+    assert "1.2.3" in result.output
+
+
+def test_update_should_refuse_a_missing_tuf_tree(tmp_path):
+    cfg = _make_config(tmp_path, repo_destination="disk", version="1.2.3")
+    with (
+        patch(
+            "ezcompiler.interfaces.cli_interface.ConfigService.build_compiler_config",
+            return_value=cfg,
+        ),
+        patch(
+            "ezcompiler.interfaces.cli_interface.PublishService.publish_update"
+        ) as pub,
+    ):
+        result = CliRunner().invoke(main, ["publish", "update", "--yes"])
+    assert result.exit_code == 1
+    pub.assert_not_called()
+    assert "pipeline" in result.output.lower()
