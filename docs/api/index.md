@@ -10,7 +10,7 @@ Curated index of the public **EzCompiler** API, organized by layer.
 | Services   | Compiler, config, pipeline, template, upload logic   | [Services](services.md)     |
 | Adapters   | Compiler and uploader factories and implementations  | [Adapters](adapters.md)     |
 | Shared     | `CompilerConfig`, `CompilationResult`, exceptions    | [Shared](shared.md)         |
-| Types      | `FilePath`, `CompilerName`, `UploadTarget`, etc.     | [Types](types.md)           |
+| Types      | `FilePath`, `CompilerName`, `ReleaseDestination`, etc.| [Types](types.md)           |
 | Utils      | File, config, template, zip utilities and validators | [Utils](utils.md)           |
 
 ## 🔍 Full reference

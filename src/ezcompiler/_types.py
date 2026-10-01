@@ -63,7 +63,7 @@ type RepoDestination = Literal["disk", "server", "r2"]
 
 Valid values: "disk", "server", "r2"
 
-Used by: CompilerConfig.repo_destination, EzCompiler.upload().
+Used by: CompilerConfig.repo_destination, `ezcompiler publish update`.
 """
 
 type ReleaseDestination = Literal["disk", "server", "r2", "github", "gitlab"]
@@ -71,7 +71,7 @@ type ReleaseDestination = Literal["disk", "server", "r2", "github", "gitlab"]
 
 Valid values: "disk", "server", "r2", "github", "gitlab"
 
-Used by: CompilerConfig.release_destination, EzCompiler.upload() and publishing.
+Used by: CompilerConfig.release_destination, `ezcompiler publish release`.
 """
 
 type ReleaseTarget = Literal["tufup"]

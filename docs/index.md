@@ -43,16 +43,22 @@ config = CompilerConfig(
 ezcompiler = EzCompiler(config)
 ezcompiler.compile_project(compiler="PyInstaller")  # (1)!
 ezcompiler.zip_compiled_project()
-ezcompiler.upload(destination="./releases", structure="disk")
 ```
 
 1. Supported backends: `"PyInstaller"`, `"Cx_Freeze"`, `"Nuitka"`.
+
+Publication is a separate CLI step, never done by the Python API:
+
+```bash
+# Publication is a separate CLI step: it reads your ezcompiler.yaml / pyproject.toml
+ezcompiler publish release --release-destination disk --destination ./releases
+```
 
 ## ✨ Key features
 
 - Multi-backend compilation: Cx_Freeze, PyInstaller, and Nuitka.
 - ZIP packaging with configurable compression.
-- Disk and HTTP server upload backends.
+- Publication to disk, HTTP servers, R2 or GitHub Releases with `ezcompiler publish`.
 - Template-based generation for config, setup, and version files.
 - Complete Python 3.11+ type hints throughout the public API.
 

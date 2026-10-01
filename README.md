@@ -53,11 +53,15 @@ compiler.init_project(
 )
 
 # Run the full build pipeline with DLP progress display
-compiler.run_pipeline(
-    console=True,
-    upload_structure="disk",
-    upload_destination="./releases",
-)
+# (version, compile, zip, installer, TUF release — all local)
+compiler.run_pipeline(console=True)
+```
+
+Publication is a separate, deliberate CLI step:
+
+```bash
+# Publication is a separate CLI step: it reads your ezcompiler.yaml / pyproject.toml
+ezcompiler publish release --release-destination disk --destination ./releases
 ```
 
 ## 🎯 Key Features
@@ -66,7 +70,7 @@ compiler.run_pipeline(
 - **✅ Automatic File Generation**: Version files, setup.py, and configuration from templates
 - **✅ Template System**: Flexible file generation based on customizable templates
 - **✅ Packaging**: Automatic ZIP archive creation for distribution
-- **✅ Distribution**: Upload support for local disk and remote HTTP/HTTPS servers
+- **✅ Publication**: `ezcompiler publish` to local disk, HTTP/HTTPS servers, R2 or GitHub Releases, with a recap and confirmation before irreversible steps
 - **✅ Configuration Management**: Centralized configuration with automatic validation
 - **✅ Structured Logging**: Integration with Ezpl for professional logging
 - **✅ Full Type Hints**: Complete typing support for IDEs and linters
@@ -171,19 +175,18 @@ compiler.init_project(
     output_folder="dist",
 )
 
-# Run full pipeline with DLP progress (version, compile, zip, upload)
-compiler.run_pipeline(
-    console=True,
-    upload_structure="disk",
-    upload_destination="./releases",
-)
+# Run full pipeline with DLP progress (version, compile, zip, installer, release)
+compiler.run_pipeline(console=True)
 
 # Or call individual steps manually:
 # compiler.generate_version_file()
 # compiler.compile_project(compiler="Nuitka")
 # compiler.zip_compiled_project()
-# compiler.upload(destination="./releases", structure="disk")
 ```
+
+The Python API never publishes. Use the CLI afterwards:
+`ezcompiler publish update` (TUF update tree) and `ezcompiler publish release`
+(installer + ZIP). `EzCompiler.upload()` is deprecated and will be removed in v5.
 
 ## 🛡️ Robustness
 
@@ -215,6 +218,10 @@ ezcompiler generate version --config ezcompiler.yaml
 
 # Generate templates
 ezcompiler generate template --type config --mockup
+
+# Publish the TUF update tree, then the release
+ezcompiler publish update
+ezcompiler publish release
 ```
 
 See **[CLI Reference](docs/cli/index.md)** for complete reference.
