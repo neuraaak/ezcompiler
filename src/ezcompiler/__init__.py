@@ -37,7 +37,6 @@ for professional and industrial Python applications.
     >>> compiler = EzCompiler(config)
     >>> compiler.compile_project()
     >>> compiler.zip_compiled_project()
-    >>> compiler.upload()
 """
 
 from __future__ import annotations

@@ -28,8 +28,11 @@ ezcompiler [OPTIONS] COMMAND [ARGS]...
 | `generate iss`      | Generate an editable Inno Setup script from the configuration           |
 | `generate version`  | Generate a Windows version information file                             |
 | `generate template` | Generate a template file with optional mockup data                      |
-| `upload`            | Upload the TUF tree and/or the release directory to their destination   |
-| `release init`      | Initialize TUF signing keys and repository skeleton                     |
+| `publish update`    | Publish the signed TUF update tree (asks for confirmation)              |
+| `publish release`   | Publish the installer and ZIP as a release (asks for confirmation)      |
+| `keys init`         | Initialize TUF signing keys and repository skeleton                     |
+| `keys refresh`      | Re-sign TUF metadata to extend expiration without a new release         |
+| `upload`            | **Deprecated** — use `publish update` then `publish release`            |
 | `updater generate`  | Generate client updater files (`update.py`, `settings.py`, `root.json`) |
 
 ---
@@ -68,7 +71,7 @@ ezcompiler compile --compiler PyInstaller --no-console
 | `--skip-build`               | No       | `False` | Skip version + compile; resume from the existing build in `output_folder` |
 
 !!! note "Pipeline stages"
-    `compile` runs `version → compile → zip`, plus the installer and TUF release stages when enabled in the config (same behaviour as the Python API's `run_pipeline()`). Upload is a separate step: run `ezcompiler upload` afterwards.
+    `compile` runs `version → compile → zip`, plus the installer and TUF release stages when enabled in the config (same behaviour as the Python API's `run_pipeline()`). Publication is a separate step: run `ezcompiler publish update` and `ezcompiler publish release` afterwards.
 
 !!! tip "Resuming after a build"
     If the project was already compiled, `ezcompiler compile --skip-build` reuses the existing `output_folder` and only runs the remaining stages (zip, installer and TUF release when enabled). It fails if `output_folder` is missing or empty.
@@ -173,7 +176,63 @@ ezcompiler generate template --type config --mockup
 | `--mockup` | No       | Include sample data                            |
 | `--output` | No       | Output file path                               |
 
+### `publish update`
+
+Publish the signed TUF update tree to `<repo_endpoint>/update/`. Before transferring anything, the command prints a recap — backend, destination, the version that becomes current, file count — and asks for confirmation.
+
+This is the less reversible of the two publications: TUF metadata versions are monotonic and installed clients update on their own. A published tree cannot be withdrawn, only superseded by a higher version.
+
+```bash
+ezcompiler publish update
+ezcompiler publish update --repo-destination r2 --yes
+```
+
+| Option               | Required | Default | Description                                                         |
+| :------------------- | :------- | :------ | :------------------------------------------------------------------ |
+| `--config`           | No       | —       | Config file path (YAML, JSON)                                       |
+| `--pyproject`        | No       | —       | Explicit `pyproject.toml` path                                      |
+| `--repo-destination` | No       | —       | Backend for the TUF tree: `disk`, `server`, `r2` (overrides config) |
+| `--destination`      | No       | —       | Destination override                                                |
+| `--yes`, `-y`        | No       | off     | Skip the confirmation prompt                                        |
+
+The command fails before the recap when no signed tree exists in the TUF repository directory: run the build pipeline first.
+
+---
+
+### `publish release`
+
+Publish the installer `setup.exe` (when `installer.enabled`) and the ZIP. The ZIP is published under its versioned name, `<Project>-<version>.zip`. The path depends on `release_destination`:
+
+- **`github`** — creates a GitHub Release through the [`gh` CLI](https://cli.github.com/), with the artifacts attached. `release_endpoint` is the `owner/repo`; when empty, `gh` infers the repository from the current git remote. Requires `gh` on the `PATH` and an authenticated session (`gh auth login`, or `GH_TOKEN` in the environment). No credential goes through the configuration or the command line. Every check (existing tag, artifacts, notes file) runs before the recap; the release is never overwritten — an existing tag stops the command.
+- **`disk`, `server`, `r2`** — copies the release directory to `<release_endpoint>/release/`, as `ezcompiler upload` did, without a confirmation prompt.
+
+`gitlab` is not supported yet: selecting it fails with an explicit error.
+
+```bash
+ezcompiler publish release
+ezcompiler publish release --yes --notes-file CHANGELOG.md
+```
+
+| Option                              | Required | Default                      | Description                                                       |
+| :---------------------------------- | :------- | :--------------------------- | :---------------------------------------------------------------- |
+| `--config`                          | No       | —                            | Config file path (YAML, JSON)                                     |
+| `--pyproject`                       | No       | —                            | Explicit `pyproject.toml` path                                    |
+| `--release-destination`             | No       | —                            | `disk`, `server`, `r2`, `github`, `gitlab` (overrides config)     |
+| `--destination`                     | No       | —                            | Destination override (file backends)                              |
+| `--tag`                             | No       | `v<version>`                 | Release tag                                                       |
+| `--title`                           | No       | `<project> v<version>`       | Release title                                                     |
+| `--notes`                           | No       | generated                    | Literal release body (exclusive with `--notes-file`)              |
+| `--notes-file`                      | No       | —                            | File holding the release body (exclusive with `--notes`)          |
+| `--prerelease` / `--no-prerelease`  | No       | derived from the version     | Force the pre-release flag (`1.2.0rc1` is a pre-release)          |
+| `--draft`                           | No       | off                          | Create the release unpublished                                    |
+| `--yes`, `-y`                       | No       | off                          | Skip the confirmation prompt                                      |
+
+---
+
 ### `upload`
+
+!!! warning "Deprecated"
+    `ezcompiler upload` is deprecated and will be removed in v5. Use `ezcompiler publish update` then `ezcompiler publish release`, which ask for confirmation before any irreversible publication. `EzCompiler.upload()` is deprecated likewise.
 
 Upload the TUF tree and/or the release directory (ZIP + installer `setup.exe`) to their destination. Auto-detects the flow from `tuf_enabled`: TUF tree → `<dest>/update/`, release directory → `<dest>/release/`. Destination and backends fall back to the config when not provided.
 
@@ -191,17 +250,35 @@ ezcompiler upload --config ezcompiler.yaml
 
 ---
 
-### `release init`
+### `keys init`
 
 Initialize TUF signing keys and the repository skeleton. Run once per project, before the first `ezcompiler compile` with `tuf_enabled = true`. Safe to re-run: skips silently when keys already exist.
 
+Formerly `ezcompiler release init`, which still works as a hidden, deprecated alias until v5.
+
 ```bash
-ezcompiler release init
+ezcompiler keys init
 ```
 
 | Option     | Required | Default | Description                                    |
 | :--------- | :------- | :------ | :--------------------------------------------- |
 | `--config` | No       | —       | Path to config file (auto-detected if omitted) |
+
+---
+
+### `keys refresh`
+
+Re-sign the short-lived TUF roles to extend their expiration without publishing a new version. Formerly `ezcompiler release refresh` (deprecated alias until v5).
+
+```bash
+ezcompiler keys refresh --role timestamp --days 60
+```
+
+| Option     | Required | Default                           | Description                                    |
+| :--------- | :------- | :-------------------------------- | :--------------------------------------------- |
+| `--config` | No       | —                                 | Path to config file (auto-detected if omitted) |
+| `--role`   | No       | `targets`, `snapshot`, `timestamp` | TUF role to refresh (repeatable)               |
+| `--days`   | No       | config `tuf_expiration_days`      | Expiration in days from now                    |
 
 ---
 
@@ -246,9 +323,9 @@ ezcompiler generate template --type config --mockup
 ezcompiler compile --compiler PyInstaller
 
 # Initialize TUF signing keys (one-time)
-ezcompiler release init
+ezcompiler keys init
 
-# Upload the TUF tree and release directory
-ezcompiler upload --repo-destination server --release-destination server \
-    --destination https://uploads.example.com/MyApp
+# Publish the TUF update tree, then the release (each asks for confirmation)
+ezcompiler publish update
+ezcompiler publish release --notes-file CHANGELOG.md
 ```

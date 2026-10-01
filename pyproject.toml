@@ -17,7 +17,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ezcompiler"
-version = "4.0.1"
+version = "4.1.0"
 description = "Project compilation and distribution framework for Python projects"
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.13"
@@ -378,6 +378,7 @@ markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks tests as integration tests",
     "requires_iscc: needs a real ISCC.exe (Inno Setup 6) on the machine",
+    "requires_gh: needs a real, authenticated gh CLI on the machine",
     "unit: marks tests as unit tests (default)",
     "cli: marks tests related to CLI",
     "compiler: marks tests related to compilers",

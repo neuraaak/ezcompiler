@@ -34,19 +34,19 @@ tufup releaser, and generates a client-side updater script.
 interfaces/   ← entry points: CLI (click) + Python API (EzCompiler facade)
 services/     ← business orchestration (CompilerService, PipelineService,
                 ConfigService, TemplateService, UploaderService, ReleaseService,
-                InstallerService, UpdaterService)
+                InstallerService, UpdaterService, PublishService)
 adapters/     ← concrete compilers, uploaders, releaser & installer behind
                 ports, + factories
 shared/       ← domain models (CompilerConfig, InstallerConfig,
                 CompilationResult) + exceptions/
 utils/        ← technical helpers + validators/
 assets/       ← templates and static resources (no upward deps)
-_types.py     ← type aliases + the four @runtime_checkable Protocol ports
+_types.py     ← type aliases + the five @runtime_checkable Protocol ports
 ```
 
 ### Ports (`_types.py`)
 
-Four structural contracts that decouple services from concrete adapters:
+Five structural contracts that decouple services from concrete adapters:
 
 | Port            | Key methods                                                                                                  |
 | --------------- | ------------------------------------------------------------------------------------------------------------ |
@@ -54,6 +54,7 @@ Four structural contracts that decouple services from concrete adapters:
 | `UploaderPort`  | `upload(source_path, destination)`, `get_uploader_name()`                                                    |
 | `ReleaserPort`  | `release(bundle_dir, app_name, version, repo_dir)`, `init_keys(...)`, `get_releaser_name()`                  |
 | `InstallerPort` | `build(bundle_dir, app_name, version, output_dir, *, company_name, icon, main_file)`, `get_installer_name()` |
+| `PublisherPort` | `exists(tag)`, `publish(assets, *, tag, title, notes, prerelease, draft)`, `get_publisher_name()`             |
 
 Concrete implementations live in `adapters/` with a `_` prefix (`_cx_freeze_compiler.py`, `_disk_uploader.py`, `_tufup_releaser.py`, `_innosetup_installer.py`). Always go through the factories — never instantiate adapters directly.
 
@@ -66,12 +67,17 @@ one conditional (`PipelineService.build_stages()`):
 version → compile → zip → installer → release
 ```
 
-**`upload` is not a pipeline stage.** `run_pipeline()` stops after building the
-local TUF tree; the caller invokes `upload()` explicitly afterwards. This is
-pinned by `test_run_pipeline_does_not_upload`, and the deprecation message of
-`release(publish=True)` names that sequence.
+**Publication is not a pipeline stage.** `run_pipeline()` stops after building
+the local TUF tree; publication is a separate, deliberate CLI step:
+`ezcompiler publish update` (TUF tree) and `ezcompiler publish release`
+(installer + zip), both of which show a recap and ask for confirmation
+(`--yes` skips it). This is pinned by `test_run_pipeline_does_not_upload`, and
+the deprecation message of `release(publish=True)` names that sequence.
+`EzCompiler.upload()` and `ezcompiler upload` still work but are **deprecated**
+(removal in v5). The publisher/uploader routing (`github` → `PublisherPort`,
+`disk|server|r2` → `UploaderPort`) lives in `PublishService` only.
 
-When both release and upload are active, `PipelineService.assemble_release_dir()` builds a **flat** `dist/release/` directory (signed TUF `metadata/*` + `targets/*` plus the unsigned zip asset, no sub-folders — GitHub-release style), then uploads it as a single `upload()` call. The working TUF repo (`tuf_repository/`) stays structured for incremental patches; only the published folder is flattened. `EzCompiler.release(publish=True)` is **deprecated** — use `run_pipeline()` then `upload()`.
+`PipelineService.assemble_release_dir()` builds a flat `dist/release/` directory holding **only the zip and, when enabled, the installer `.exe`** — never TUF metadata (see `test_assemble_release_dir_contains_only_zip`). `PipelineService.stage_versioned_assets()` resolves those same artifacts and copies the zip under its versioned name, which is what the publication path consumes. The working TUF repo (`tuf_repository/`) stays structured for incremental patches and is published separately by `ezcompiler publish update`.
 
 Config loading: `ConfigService.build_compiler_config()` only assembles the
 layers and delegates to **`CompilerConfig.from_dict()`**

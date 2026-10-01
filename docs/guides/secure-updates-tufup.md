@@ -25,13 +25,13 @@ tufup requires Python ≥ 3.13 and depends on `python-tuf` and `cryptography`.
 Use the `ezcompiler` CLI to initialize the key set and the repository skeleton:
 
 ```bash
-ezcompiler release init
+ezcompiler keys init
 ```
 
 The paths (`tuf_repo_dir`, `tuf_keys_dir`) are read from the project config file (auto-detected in the current directory). You can also point to a specific config:
 
 ```bash
-ezcompiler release init --config path/to/ezcompiler.config.yaml
+ezcompiler keys init --config path/to/ezcompiler.config.yaml
 ```
 
 This creates:
@@ -100,18 +100,22 @@ print(f"Signed repository written to: {repository_path}")
 
 ---
 
-## Step 4 — Build via the pipeline, then upload
+## Step 4 — Build via the pipeline, then publish
 
 The build pipeline runs the stages `compile → zip → release`. When `tuf_enabled`
 is set, `run_pipeline()` builds the signed TUF tree locally — it does **not**
-transfer anything. Upload is a separate, explicit step:
+transfer anything. Publication is a separate, explicit CLI step:
 
 ```python
 compiler.run_pipeline(console=False)   # compile → zip → release (local only)
-compiler.upload()                      # transfer TUF tree + installer zip
 ```
 
-`upload()` performs **two sequential transfers**, mirrored by the client's update URL:
+```bash
+ezcompiler publish update    # TUF tree — asks for confirmation
+ezcompiler publish release   # installer + ZIP — asks for confirmation
+```
+
+The two commands perform **two independent transfers**, mirrored by the client's update URL:
 
 | Artifact      | Destination                                | Landing path                  |
 | :------------ | :----------------------------------------- | :---------------------------- |
@@ -123,16 +127,13 @@ subdir) and the installer ZIP is skipped. The `/update/` suffix is what the
 generated client polls — keep `repo_public_url` pointing at the same root
 (the client appends `/update` itself for `disk` and `server`).
 
+`publish release` can also create a GitHub Release (`release_destination = "github"`);
+see the [CLI reference](../cli/index.md#publish-release).
+
 !!! warning "Deprecated"
-    `compiler.release(bundle_dir, publish=True)` is deprecated: remote transfer is
-    now handled by `upload()`. The call still works but emits a `DeprecationWarning`.
-
-You can drive the CLI instead of the Python API:
-
-```bash
-ezcompiler upload --repo-destination server --release-destination server \
-    --destination https://uploads.example.com/MyApp
-```
+    `compiler.upload()`, `ezcompiler upload` and
+    `compiler.release(bundle_dir, publish=True)` are deprecated and will be removed
+    in v5: use the `ezcompiler publish` commands. The calls still work but warn.
 
 ---
 
@@ -147,7 +148,7 @@ silently breaks updates between releases.
 Two native tufup mechanisms address this:
 
 **1. Longer lifetimes via config.** Set `tuf_expiration_days` to raise the per-role
-lifetime (unset roles fall back to tufup defaults). It is applied on `release init`
+lifetime (unset roles fall back to tufup defaults). It is applied on `keys init`
 and every release:
 
 ```python
@@ -162,16 +163,16 @@ config = CompilerConfig(
 without cutting a new release — run this periodically (e.g. a scheduled job):
 
 ```bash
-ezcompiler release refresh                       # targets/snapshot/timestamp
-ezcompiler release refresh --role timestamp --days 60
+ezcompiler keys refresh                          # targets/snapshot/timestamp
+ezcompiler keys refresh --role timestamp --days 60
 ```
 
 ```python
 compiler.refresh_release_expiration(days=60)
 ```
 
-Both require the signing keys (`release init`). After a refresh, re-run
-`ezcompiler upload` so the freshly-signed metadata reaches the clients.
+Both require the signing keys (`keys init`). After a refresh, re-run
+`ezcompiler publish update` so the freshly-signed metadata reaches the clients.
 
 ---
 

@@ -976,7 +976,7 @@ def compile_project(
 
     Runs version -> compile -> zip, plus the installer and TUF release
     stages when enabled in the config (installer_enabled / tuf_enabled).
-    Upload is a separate step: run `ezcompiler upload` afterwards.
+    Publication is a separate step: run `ezcompiler publish` afterwards.
     Use --skip-build to resume after a previous compile (zip, installer and
     release run against the existing output_folder).
 
