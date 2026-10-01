@@ -122,3 +122,89 @@ def test_status_should_exit_1_on_an_uninitialized_tree(tmp_path: Path) -> None:
 
     assert result.exit_code == 1
     assert "Aucun arbre TUF initialisé" in result.output
+
+
+# remove-latest -------------------------------------------------------
+
+
+def _remove(
+    tmp_path: Path,
+    *args: str,
+    status: TufStatus | None = None,
+    stdin: str | None = None,
+    keys: bool = True,
+):
+    if keys:
+        (tmp_path / "keystore").mkdir(exist_ok=True)
+    removed: list[str] = []
+
+    def _fake_remove(_cfg: Any) -> str:
+        removed.append("called")
+        return "1.0.2"
+
+    with (
+        patch(
+            f"{_CLI}.ConfigService.build_compiler_config", return_value=_cfg(tmp_path)
+        ),
+        patch(f"{_CLI}.TufService.status", return_value=status or _status(tmp_path)),
+        patch(f"{_CLI}.TufService.remove_latest", side_effect=_fake_remove),
+        patch(f"{_CLI}.TufService.keys_dir", return_value=tmp_path / "keystore"),
+    ):
+        result = CliRunner().invoke(main, ["tuf", "remove-latest", *args], input=stdin)
+    return result, removed
+
+
+def test_remove_latest_should_show_recap_and_ask(tmp_path: Path) -> None:
+    result, removed = _remove(tmp_path, stdin="y\n")
+
+    out = _flat(result.output)
+    assert result.exit_code == 0, result.output
+    assert "Version retirée : 1.0.2" in out
+    assert "App-1.0.2.tar.gz" in out and "App-1.0.2.patch" in out
+    assert "Nouvelle dernière version : 1.0.0" in out
+    assert "Retirer cette version ?" in out
+    assert removed == ["called"]
+    assert "ezcompiler compile --required" in out
+    assert "ezcompiler publish update" in out
+
+
+def test_remove_latest_should_stop_when_declined(tmp_path: Path) -> None:
+    result, removed = _remove(tmp_path, stdin="n\n")
+
+    assert result.exit_code == 1
+    assert removed == []
+
+
+def test_remove_latest_should_skip_prompt_with_yes(tmp_path: Path) -> None:
+    result, removed = _remove(tmp_path, "--yes")
+
+    assert result.exit_code == 0, result.output
+    assert "Retirer cette version ?" not in result.output
+    assert removed == ["called"]
+
+
+def test_remove_latest_should_warn_when_removing_the_only_version(
+    tmp_path: Path,
+) -> None:
+    only = _status(tmp_path, versions=(TufVersion("1.0.2", False, False),))
+    result, _ = _remove(tmp_path, "--yes", status=only)
+
+    out = _flat(result.output)
+    assert "Nouvelle dernière version : aucune" in out
+    assert "ne proposera plus aucune version" in out
+
+
+def test_remove_latest_should_fail_before_recap_without_keys(tmp_path: Path) -> None:
+    result, removed = _remove(tmp_path, "--yes", keys=False)
+
+    assert result.exit_code == 1
+    assert "Version retirée" not in result.output
+    assert removed == []
+
+
+def test_remove_latest_should_fail_when_tree_is_empty(tmp_path: Path) -> None:
+    result, removed = _remove(tmp_path, "--yes", status=_status(tmp_path, versions=()))
+
+    assert result.exit_code == 1
+    assert "Aucune version à retirer" in result.output
+    assert removed == []

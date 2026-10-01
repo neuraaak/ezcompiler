@@ -1820,6 +1820,87 @@ def tuf_status(config: str | None, pyproject: str | None) -> None:
     printer.info("Versions retirées : " + (", ".join(status.withdrawn) or "aucune"))
 
 
+@tuf.command("remove-latest")
+@click.option(
+    "--config", "-c", type=click.Path(exists=True), help="Config file path (YAML, JSON)"
+)
+@click.option(
+    "--pyproject",
+    "-p",
+    type=click.Path(exists=True),
+    help="Explicit pyproject.toml path",
+)
+@click.option("--yes", "-y", is_flag=True, help="Ne pas demander de confirmation")
+def tuf_remove_latest(config: str | None, pyproject: str | None, yes: bool) -> None:
+    """Retirer la dernière version de l'arbre TUF local et le re-signer.
+
+    Les clients qui n'ont pas encore cette version ne la recevront plus une
+    fois l'arbre republié (`ezcompiler publish update`). Ceux qui l'ont déjà
+    n'en sortiront que par une version supérieure.
+
+    Exemples :
+
+        ezcompiler tuf remove-latest
+
+        ezcompiler tuf remove-latest --yes
+    """
+    _force_utf8_stdout()
+    printer = _get_printer()
+    logger = _get_logger()
+    try:
+        cfg = ConfigService.build_compiler_config(
+            config_path=Path(config) if config else None,
+            pyproject_path=Path(pyproject) if pyproject else None,
+        )
+        keys_dir = TufService.keys_dir(cfg)
+        if not keys_dir.is_dir():
+            raise SigningKeyError(
+                f"Clés de signature introuvables : {keys_dir}. "
+                "Lancer `ezcompiler tuf init` ou corriger tuf_keys_dir."
+            )
+        status = TufService.status(cfg)
+        if not status.versions:
+            raise ReleaseError(f"Aucune version à retirer dans {status.repo_dir}.")
+
+        latest = status.versions[0]
+        previous = status.versions[1].version if len(status.versions) > 1 else None
+        files = [f"{cfg.project_name}-{latest.version}.tar.gz"]
+        if latest.has_patch:
+            files.append(f"{cfg.project_name}-{latest.version}.patch")
+
+        printer.info("─" * 60)
+        printer.info(f"Version retirée : {latest.version}")
+        printer.info(f"Fichiers supprimés en local : {', '.join(files)}")
+        printer.info(f"Nouvelle dernière version : {previous or 'aucune'}")
+        printer.info("─" * 60)
+        if previous is None:
+            printer.warning(
+                "C'est la seule version de l'arbre : une fois republié, il ne "
+                "proposera plus aucune version."
+            )
+        printer.warning(
+            f"Les clients qui ont déjà installé {latest.version} y restent : "
+            "seule une version supérieure les en sortira."
+        )
+
+        if not yes and not click.confirm("Retirer cette version ?", default=False):
+            printer.info("Annulé.")
+            sys.exit(1)
+
+        removed = TufService.remove_latest(cfg)
+        printer.success(f"Version {removed} retirée de l'arbre local, re-signé.")
+        printer.info(
+            "Suite : `ezcompiler compile --required` avec une version "
+            f"> {removed}, puis `ezcompiler publish update`."
+        )
+        logger.info("TUF version %s withdrawn locally", removed)
+
+    except (ConfigurationError, ReleaseError, SigningKeyError) as e:
+        printer.error(str(e))
+        logger.error(str(e))
+        sys.exit(1)
+
+
 def _deprecated_alias(target: click.Command, old: str, new: str) -> click.Command:
     """Build a hidden-group alias of ``target`` that warns before delegating.
 
