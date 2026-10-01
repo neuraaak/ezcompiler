@@ -8,6 +8,7 @@ import pytest
 
 from ezcompiler import CompilerConfig
 from ezcompiler.services.publish_service import PublishService
+from ezcompiler.shared.exceptions import PublishError, PublisherTypeError
 
 
 def _make_config(tmp_path: Path, **kwargs: Any) -> CompilerConfig:
@@ -174,3 +175,50 @@ def test_publish_update_never_resolves_a_publisher(tmp_path) -> None:
     ):
         PublishService.publish_update(cfg)
     resolve.assert_not_called()
+
+
+# ------------------------------------------------
+# Garde-fous (revue tasks 6-7)
+# ------------------------------------------------
+
+
+def test_should_refuse_gitlab_explicitly(tmp_path: Path) -> None:
+    cfg = _make_config(tmp_path, release_destination="disk")
+    with pytest.raises(PublisherTypeError, match="gitlab"):
+        PublishService.resolve_publisher(cfg, "gitlab")
+
+
+def test_should_refuse_a_file_endpoint_overridden_to_github(tmp_path: Path) -> None:
+    """-rld github sur une config r2 : le bucket ne doit pas partir en --repo."""
+    cfg = _make_config(tmp_path, release_destination="r2", release_endpoint="bkt/pre/x")
+    with pytest.raises(PublishError, match="owner/repo"):
+        PublishService.resolve_publisher(cfg, "github")
+
+
+def test_should_refuse_an_empty_asset_list_on_the_platform_path(
+    tmp_path: Path,
+) -> None:
+    cfg = _make_config(tmp_path, release_destination="github")
+    fake = MagicMock()
+    with (
+        patch.object(PublishService, "resolve_publisher", return_value=fake),
+        pytest.raises(PublishError, match="[Aa]ucun"),
+    ):
+        PublishService.publish_release(cfg, [], tag="v1.0.0", title="T")
+    fake.publish.assert_not_called()
+
+
+def test_should_publish_with_the_publisher_given_by_the_caller(
+    tmp_path: Path,
+) -> None:
+    cfg = _make_config(tmp_path, release_destination="github")
+    asset = tmp_path / "a.zip"
+    asset.write_bytes(b"x")
+    given = MagicMock()
+    given.publish.return_value = "u"
+    with patch.object(PublishService, "resolve_publisher") as resolve:
+        PublishService.publish_release(
+            cfg, [asset], tag="v1.0.0", title="T", publisher=given
+        )
+    resolve.assert_not_called()
+    given.publish.assert_called_once()

@@ -299,7 +299,12 @@ class PipelineService:
         La copie est idempotente : ré-exécuter la méthode ne change rien.
 
         Un projet sans installeur (``installer.enabled = False``) est un cas
-        légitime : la liste contient alors le seul zip.
+        légitime : la liste contient alors le seul zip. En revanche, un
+        installeur activé mais absent est une erreur. Le zip reste
+        facultatif : une compilation mono-fichier n'en produit pas.
+
+        Les copies versionnées s'accumulent dans ``dist/`` (une par version) ;
+        elles ne sont jamais nettoyées automatiquement.
 
         Args:
             config: Configuration (fournit project_name, version, chemins).
@@ -308,12 +313,22 @@ class PipelineService:
             list[Path]: Les assets existants — installeur d'abord, zip ensuite.
 
         Raises:
-            ReleaseError: Si aucun artefact publiable n'existe.
+            ReleaseError: Si l'installeur activé manque, ou si aucun artefact
+                publiable n'existe.
         """
         assets: list[Path] = []
 
         installer_exe = PipelineService._installer_exe_path(config)
-        if installer_exe is not None and installer_exe.is_file():
+        if installer_exe is not None:
+            # Installeur activé mais absent : build d'installeur raté ou
+            # version désalignée. Publier sans lui serait une release
+            # incomplète, irréversible côté plateforme.
+            if not installer_exe.is_file():
+                raise ReleaseError(
+                    f"Installeur introuvable : {installer_exe} "
+                    "(installer.enabled = true). "
+                    "Relancer le pipeline de build avant de publier."
+                )
             assets.append(installer_exe)
 
         zip_path = Path(config.zip_file_path)

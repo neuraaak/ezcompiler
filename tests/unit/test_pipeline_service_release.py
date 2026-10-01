@@ -174,7 +174,6 @@ def test_release_artifact_returns_repository_path(
 
 def test_should_copy_the_zip_under_its_versioned_name(tmp_path: Path) -> None:
     cfg = _make_config(tmp_path, version="1.2.3", project_name="App")
-    Path(cfg.zip_file_path).parent.mkdir(parents=True, exist_ok=True)
     Path(cfg.zip_file_path).write_bytes(b"zip")
 
     assets = PipelineService.stage_versioned_assets(cfg)
@@ -222,6 +221,19 @@ def test_should_be_idempotent(tmp_path: Path) -> None:
     Path(cfg.zip_file_path).write_bytes(b"zip")
 
     first = PipelineService.stage_versioned_assets(cfg)
+    listing = sorted(p.name for p in first[0].parent.iterdir())
     second = PipelineService.stage_versioned_assets(cfg)
 
     assert first == second
+    assert first[0].read_bytes() == b"zip"
+    assert sorted(p.name for p in first[0].parent.iterdir()) == listing
+
+
+def test_should_raise_when_an_enabled_installer_is_missing(tmp_path: Path) -> None:
+    """installer.enabled=true sans .exe : refuser plutot que publier sans lui."""
+    cfg = _make_config(tmp_path, version="1.2.3", project_name="App")
+    cfg.installer.enabled = True
+    Path(cfg.zip_file_path).write_bytes(b"zip")
+
+    with pytest.raises(ReleaseError, match="App-1.2.3-setup.exe"):
+        PipelineService.stage_versioned_assets(cfg)

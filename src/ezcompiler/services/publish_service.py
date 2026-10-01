@@ -28,6 +28,7 @@ from typing import TYPE_CHECKING, Any
 # Local imports
 from .._types import PublisherPort
 from ..adapters import PublisherFactory
+from ..shared._compiler_config import _OWNER_REPO_RE
 from ..shared.exceptions import PublishError
 from .pipeline_service import PipelineService
 from .uploader_service import UploaderService
@@ -71,11 +72,20 @@ class PublishService:
 
         Raises:
             PublisherTypeError: If the platform is not supported.
+            PublishError: If ``release_endpoint`` is not an ``owner/repo``.
         """
         dest = release_destination or config.release_destination
         if dest not in _PLATFORMS:
             return None
         endpoint = config.release_endpoint
+        # La config ne valide le format owner/repo que si release_destination
+        # y désigne déjà une plateforme : un override (-rld github) sur une
+        # config disk/r2 apporterait un chemin ou un bucket passé à --repo.
+        if endpoint and not _OWNER_REPO_RE.fullmatch(endpoint):
+            raise PublishError(
+                f"release_endpoint '{endpoint}' n'est pas un dépôt 'owner/repo' "
+                f"utilisable pour la publication '{dest}'."
+            )
         return PublisherFactory.create_publisher(
             dest, {"repo": endpoint} if endpoint else None
         )
@@ -126,12 +136,14 @@ class PublishService:
         destination: str | None = None,
         release_destination: str | None = None,
         upload_config: dict[str, Any] | None = None,
+        publisher: PublisherPort | None = None,
     ) -> str | None:
         """Publish the release assets.
 
         Args:
             config: Current configuration.
-            assets: Files to publish.
+            assets: Files to attach (platform path only). The file path
+                re-assembles ``release/`` exactly as before and ignores it.
             tag: Release tag (platform path only).
             title: Release title (platform path only).
             notes: Release body; ``None`` requests generated notes.
@@ -140,6 +152,8 @@ class PublishService:
             destination: Override for the resolved release destination.
             release_destination: Override for ``config.release_destination``.
             upload_config: Extra options forwarded to the uploader.
+            publisher: Publisher already resolved by the caller (the one
+                that ran the pre-publication checks). Resolved here if None.
 
         Returns:
             str | None: The release URL on the platform path, ``None`` on the
@@ -149,7 +163,8 @@ class PublishService:
             PublishError: If platform publication fails.
             UploadError: If the file transfer fails.
         """
-        publisher = PublishService.resolve_publisher(config, release_destination)
+        if publisher is None:
+            publisher = PublishService.resolve_publisher(config, release_destination)
 
         if publisher is None:
             # Chemin fichiers : délégué tel quel à l'existant, qui place les
@@ -163,6 +178,9 @@ class PublishService:
                 config, release_root, rel_dest, destination, upload_config
             )
             return None
+
+        if not assets:
+            raise PublishError(f"Aucun asset à publier pour {tag}.")
 
         logger.info("Publishing release %s via %s", tag, publisher.get_publisher_name())
         url = publisher.publish(
