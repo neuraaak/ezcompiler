@@ -1679,13 +1679,15 @@ def tuf() -> None:
 
 @tuf.command("init")
 @click.option(
-    "--config",
-    "config_path",
-    default=None,
-    type=click.Path(exists=True, dir_okay=False, path_type=Path),
-    help="Path to ezcompiler config file (auto-detected if omitted).",
+    "--config", "-c", type=click.Path(exists=True), help="Config file path (YAML, JSON)"
 )
-def tuf_init(config_path: Path | None) -> None:
+@click.option(
+    "--pyproject",
+    "-p",
+    type=click.Path(exists=True),
+    help="Explicit pyproject.toml path",
+)
+def tuf_init(config: str | None, pyproject: str | None) -> None:
     """Initialise TUF signing keys and repository skeleton.
 
     Run once per project, before the first `ezcompiler compile` with
@@ -1695,11 +1697,10 @@ def tuf_init(config_path: Path | None) -> None:
     printer = _get_printer()
     logger = _get_logger()
     try:
-        config_service = ConfigService()
-        cfg = config_service.load_config(config_path)
-        from ..shared import CompilerConfig  # noqa: PLC0415
-
-        compiler_config = CompilerConfig.from_dict(cfg)
+        compiler_config = ConfigService.build_compiler_config(
+            config_path=Path(config) if config else None,
+            pyproject_path=Path(pyproject) if pyproject else None,
+        )
         repo_dir = TufService.repo_dir(compiler_config)
         keys_dir = TufService.keys_dir(compiler_config)
         initialized = ReleaseService.init_release(
@@ -1725,11 +1726,13 @@ def tuf_init(config_path: Path | None) -> None:
 
 @tuf.command("refresh")
 @click.option(
-    "--config",
-    "config_path",
-    default=None,
-    type=click.Path(exists=True, dir_okay=False, path_type=Path),
-    help="Path to ezcompiler config file (auto-detected if omitted).",
+    "--config", "-c", type=click.Path(exists=True), help="Config file path (YAML, JSON)"
+)
+@click.option(
+    "--pyproject",
+    "-p",
+    type=click.Path(exists=True),
+    help="Explicit pyproject.toml path",
 )
 @click.option(
     "--role",
@@ -1746,7 +1749,8 @@ def tuf_init(config_path: Path | None) -> None:
     help="Expiration in days from now (default: config tuf_expiration_days).",
 )
 def tuf_refresh(
-    config_path: Path | None,
+    config: str | None,
+    pyproject: str | None,
     roles: tuple[str, ...],
     days: int | None,
 ) -> None:
@@ -1759,11 +1763,10 @@ def tuf_refresh(
     printer = _get_printer()
     logger = _get_logger()
     try:
-        config_service = ConfigService()
-        cfg = config_service.load_config(config_path)
-        from ..shared import CompilerConfig  # noqa: PLC0415
-
-        compiler_config = CompilerConfig.from_dict(cfg)
+        compiler_config = ConfigService.build_compiler_config(
+            config_path=Path(config) if config else None,
+            pyproject_path=Path(pyproject) if pyproject else None,
+        )
         from .python_api import EzCompiler  # noqa: PLC0415
 
         repo = EzCompiler(config=compiler_config).refresh_release_expiration(

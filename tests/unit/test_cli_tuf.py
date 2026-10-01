@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any
 from unittest.mock import patch
 
+import pytest
 from click.testing import CliRunner
 
 from ezcompiler import CompilerConfig
@@ -257,3 +258,43 @@ def test_init_should_exit_1_with_a_message_without_config(
     assert isinstance(result.exception, SystemExit), repr(result.exception)
     assert not isinstance(result.exception, ConfigurationError)
     assert "No configuration source found" in _flat(result.output)
+
+
+# options communes ----------------------------------------------------
+
+
+def _write_config(tmp_path: Path) -> tuple[Path, Path]:
+    (tmp_path / "main.py").write_text("# m", encoding="utf-8")
+    cfg_file = tmp_path / "ezcompiler.yaml"
+    cfg_file.write_text("x: 1", encoding="utf-8")
+    pyproject = tmp_path / "pyproject.toml"
+    pyproject.write_text("[project]\nname = 'x'\n", encoding="utf-8")
+    return cfg_file, pyproject
+
+
+@pytest.mark.parametrize("command", ["init", "refresh"])
+@pytest.mark.parametrize("short", [False, True])
+def test_init_and_refresh_should_accept_config_and_pyproject(
+    tmp_path: Path, command: str, short: bool
+) -> None:
+    cfg_file, pyproject = _write_config(tmp_path)
+    args = (
+        ["-c", str(cfg_file), "-p", str(pyproject)]
+        if short
+        else ["--config", str(cfg_file), "--pyproject", str(pyproject)]
+    )
+    with (
+        patch(
+            f"{_CLI}.ConfigService.build_compiler_config",
+            return_value=_cfg(tmp_path),
+        ) as build,
+        patch(f"{_CLI}.ReleaseService.init_release", return_value=True),
+        patch(
+            "ezcompiler.services.release_service.ReleaseService.refresh_expiration",
+            return_value=tmp_path / "repo",
+        ),
+    ):
+        result = CliRunner().invoke(main, ["tuf", command, *args])
+
+    assert result.exit_code == 0, result.output
+    build.assert_called_once_with(config_path=cfg_file, pyproject_path=pyproject)

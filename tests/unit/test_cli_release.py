@@ -172,8 +172,8 @@ def test_release_init_alias_forwards_config(monkeypatch, tmp_path: Path) -> None
     cfg_file.write_text("x: 1", encoding="utf-8")
     seen: list = []
 
-    def fake_load(_self, path):
-        seen.append(path)
+    def fake_load(*_a, **kwargs):
+        seen.append(kwargs["config_path"])
         raise RuntimeError("stop ici")
 
     monkeypatch.setattr(

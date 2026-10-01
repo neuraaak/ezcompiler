@@ -270,9 +270,10 @@ Formerly `ezcompiler release init`, which still works as a hidden, deprecated al
 ezcompiler tuf init
 ```
 
-| Option     | Required | Default | Description                                    |
-| :--------- | :------- | :------ | :--------------------------------------------- |
-| `--config` | No       | —       | Path to config file (auto-detected if omitted) |
+| Option              | Required | Default | Description                                             |
+| :------------------ | :------- | :------ | :------------------------------------------------------ |
+| `--config`, `-c`    | No       | —       | Config file path (YAML, JSON; auto-detected if omitted) |
+| `--pyproject`, `-p` | No       | —       | Explicit `pyproject.toml` path                          |
 
 ---
 
@@ -284,11 +285,12 @@ Re-sign the short-lived TUF roles to extend their expiration without publishing 
 ezcompiler tuf refresh --role timestamp --days 60
 ```
 
-| Option     | Required | Default                           | Description                                    |
-| :--------- | :------- | :-------------------------------- | :--------------------------------------------- |
-| `--config` | No       | —                                 | Path to config file (auto-detected if omitted) |
-| `--role`   | No       | `targets`, `snapshot`, `timestamp` | TUF role to refresh (repeatable)               |
-| `--days`   | No       | config `tuf_expiration_days`      | Expiration in days from now                    |
+| Option              | Required | Default                            | Description                                             |
+| :------------------ | :------- | :--------------------------------- | :------------------------------------------------------ |
+| `--config`, `-c`    | No       | —                                  | Config file path (YAML, JSON; auto-detected if omitted) |
+| `--pyproject`, `-p` | No       | —                                  | Explicit `pyproject.toml` path                          |
+| `--role`            | No       | `targets`, `snapshot`, `timestamp` | TUF role to refresh (repeatable)                        |
+| `--days`            | No       | config `tuf_expiration_days`       | Expiration in days from now                             |
 
 ---
 
@@ -302,10 +304,10 @@ Exits with code 1 when the tree is not initialized (`metadata/root.json` missing
 ezcompiler tuf status
 ```
 
-| Option        | Required | Default | Description                    |
-| :------------ | :------- | :------ | :----------------------------- |
-| `--config`    | No       | —       | Config file path (YAML, JSON)  |
-| `--pyproject` | No       | —       | Explicit `pyproject.toml` path |
+| Option              | Required | Default | Description                    |
+| :------------------ | :------- | :------ | :----------------------------- |
+| `--config`, `-c`    | No       | —       | Config file path (YAML, JSON)  |
+| `--pyproject`, `-p` | No       | —       | Explicit `pyproject.toml` path |
 
 ---
 
@@ -320,11 +322,11 @@ ezcompiler tuf remove-latest
 ezcompiler tuf remove-latest --yes
 ```
 
-| Option        | Required | Default | Description                    |
-| :------------ | :------- | :------ | :----------------------------- |
-| `--config`    | No       | —       | Config file path (YAML, JSON)  |
-| `--pyproject` | No       | —       | Explicit `pyproject.toml` path |
-| `--yes`, `-y` | No       | off     | Skip the confirmation prompt   |
+| Option              | Required | Default | Description                    |
+| :------------------ | :------- | :------ | :----------------------------- |
+| `--config`, `-c`    | No       | —       | Config file path (YAML, JSON)  |
+| `--pyproject`, `-p` | No       | —       | Explicit `pyproject.toml` path |
+| `--yes`, `-y`       | No       | off     | Skip the confirmation prompt   |
 
 ---
 
