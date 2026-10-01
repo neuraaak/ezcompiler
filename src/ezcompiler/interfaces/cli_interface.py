@@ -1448,7 +1448,7 @@ def publish_update_command(
             pyproject_path=Path(pyproject) if pyproject else None,
         )
 
-        repo_dir = cfg.tuf_repo_dir or (cfg.output_folder / "repo")
+        repo_dir = TufService.repo_dir(cfg)
         # Lit la version dans l'arbre signé lui-même : c'est elle que les
         # clients recevront, pas forcément celle de la config.
         withdrawn = TufService.withdrawn_versions(repo_dir)
@@ -1699,10 +1699,8 @@ def tuf_init(config_path: Path | None) -> None:
         from ..shared import CompilerConfig  # noqa: PLC0415
 
         compiler_config = CompilerConfig.from_dict(cfg)
-        repo_dir = compiler_config.tuf_repo_dir or (
-            compiler_config.output_folder / "repo"
-        )
-        keys_dir = compiler_config.tuf_keys_dir or (repo_dir / "keystore")
+        repo_dir = TufService.repo_dir(compiler_config)
+        keys_dir = TufService.keys_dir(compiler_config)
         initialized = ReleaseService.init_release(
             app_name=compiler_config.project_name,
             repo_dir=repo_dir,

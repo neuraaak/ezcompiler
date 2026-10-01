@@ -32,6 +32,7 @@ from ..adapters import PublisherFactory
 from ..shared._compiler_config import _OWNER_REPO_RE
 from ..shared.exceptions import PublishError, UploadError
 from .pipeline_service import PipelineService
+from .tuf_service import TufService
 from .uploader_service import UploaderService
 
 if TYPE_CHECKING:
@@ -117,7 +118,7 @@ class PublishService:
         Raises:
             UploadError: If the transfer fails.
         """
-        repo_dir = config.tuf_repo_dir or (config.output_folder / "repo")
+        repo_dir = TufService.repo_dir(config)
         repo_dest = repo_destination or config.repo_destination
         logger.info("Publishing TUF update tree (%s)", repo_dest)
         UploaderService.upload_tuf_repo(

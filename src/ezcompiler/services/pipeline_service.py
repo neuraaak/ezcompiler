@@ -30,6 +30,7 @@ from ..shared.exceptions import ReleaseError
 from .compiler_service import CompilerService
 from .installer_service import InstallerService
 from .release_service import ReleaseService
+from .tuf_service import TufService
 from .uploader_service import UploaderService
 
 # ///////////////////////////////////////////////////////////////
@@ -367,8 +368,8 @@ class PipelineService:
         required: bool = False,
     ) -> Path:
         """Build le repo TUF local depuis output_folder. Ne publie jamais."""
-        repo_dir = config.tuf_repo_dir or (config.output_folder / "repo")
-        keys_dir = config.tuf_keys_dir or (repo_dir / "keystore")
+        repo_dir = TufService.repo_dir(config)
+        keys_dir = TufService.keys_dir(config)
         return ReleaseService.release_and_publish(
             bundle_dir=config.output_folder,
             app_name=config.project_name,

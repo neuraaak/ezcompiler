@@ -40,6 +40,7 @@ from ..services import (
     PipelineService,
     ReleaseService,
     TemplateService,
+    TufService,
     UpdaterService,
     UploaderService,
 )
@@ -466,9 +467,7 @@ class EzCompiler:
 
         try:
             if self._config.tuf_enabled:
-                repo_dir = self._config.tuf_repo_dir or (
-                    self._config.output_folder / "repo"
-                )
+                repo_dir = TufService.repo_dir(self._config)
                 rel_dest = release_destination or self._config.release_destination
                 release_root = (
                     None
@@ -545,8 +544,8 @@ class EzCompiler:
                 DeprecationWarning,
                 stacklevel=2,
             )
-        repo_dir = self._config.tuf_repo_dir or (self._config.output_folder / "repo")
-        keys_dir = self._config.tuf_keys_dir or (repo_dir / "keystore")
+        repo_dir = TufService.repo_dir(self._config)
+        keys_dir = TufService.keys_dir(self._config)
         return ReleaseService.release_and_publish(
             bundle_dir=bundle_dir,
             app_name=self._config.project_name,
@@ -576,8 +575,8 @@ class EzCompiler:
         """
         if not self._config:
             raise ConfigurationError(_MSG_NOT_INITIALIZED)
-        repo_dir = self._config.tuf_repo_dir or (self._config.output_folder / "repo")
-        keys_dir = self._config.tuf_keys_dir or (repo_dir / "keystore")
+        repo_dir = TufService.repo_dir(self._config)
+        keys_dir = TufService.keys_dir(self._config)
         return ReleaseService.init_release(
             app_name=self._config.project_name,
             repo_dir=repo_dir,
@@ -615,8 +614,8 @@ class EzCompiler:
         """
         if not self._config:
             raise ConfigurationError(_MSG_NOT_INITIALIZED)
-        repo_dir = self._config.tuf_repo_dir or (self._config.output_folder / "repo")
-        keys_dir = self._config.tuf_keys_dir or (repo_dir / "keystore")
+        repo_dir = TufService.repo_dir(self._config)
+        keys_dir = TufService.keys_dir(self._config)
         repo = ReleaseService.refresh_expiration(
             app_name=self._config.project_name,
             repo_dir=repo_dir,
@@ -740,11 +739,7 @@ class EzCompiler:
 
         # Pre-flight: fail early if release needed but keys absent
         if should_release:
-            repo_dir = self._config.tuf_repo_dir or (
-                self._config.output_folder / "repo"
-            )
-            keys_dir = self._config.tuf_keys_dir or (repo_dir / "keystore")
-            self._preflight_release(keys_dir)
+            self._preflight_release(TufService.keys_dir(self._config))
 
         # Build stages
         stages: list[StageConfig] = cast(
