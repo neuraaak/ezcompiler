@@ -170,9 +170,11 @@ def test_release_publish_true_warns(monkeypatch, tmp_path: Path) -> None:
     assert deprecations
     # The message must point at the real replacement: run_pipeline() does not
     # upload (see test_run_pipeline_does_not_upload above), so it cannot be
-    # advertised as handling the transfer on its own.
+    # advertised as handling the transfer on its own. upload() is itself
+    # deprecated, so the CLI publish commands are the replacement.
     message = str(deprecations[0].message)
-    assert "upload()" in message
+    assert "run_pipeline()" in message
+    assert "ezcompiler publish" in message
     assert "stage upload" not in message
 
 

@@ -1093,7 +1093,9 @@ def upload_command(
     release_destination: ReleaseDestination | None,
     destination: str | None,
 ) -> None:
-    """Upload l'arbre TUF et le zip installeur vers leur destination.
+    """[Déprécié] Utiliser `ezcompiler publish update` / `publish release`.
+
+    Upload l'arbre TUF et le zip installeur vers leur destination.
 
     Auto-détecte selon release_needed : arbre TUF → <dest>/update/,
     zip → <dest>/release/. Destination et backends tombent en fallback
@@ -1108,6 +1110,11 @@ def upload_command(
     printer = _get_printer()
     logger = _get_logger()
     try:
+        printer.warning(
+            "`ezcompiler upload` est déprécié et sera retiré en v5. "
+            "Utiliser `ezcompiler publish update` puis "
+            "`ezcompiler publish release`."
+        )
         config_obj = ConfigService.build_compiler_config(
             config_path=Path(config) if config else None,
             pyproject_path=Path(pyproject) if pyproject else None,

@@ -88,7 +88,6 @@ class EzCompiler:
         >>> compiler = EzCompiler(config)
         >>> compiler.compile_project()
         >>> compiler.zip_compiled_project()
-        >>> compiler.upload()
     """
 
     # ////////////////////////////////////////////////
@@ -447,6 +446,17 @@ class EzCompiler:
         if not self._config:
             raise ConfigurationError(_MSG_NOT_INITIALIZED)
 
+        import warnings  # noqa: PLC0415
+
+        warnings.warn(
+            "EzCompiler.upload() est déprécié et sera retiré en v5. "
+            "Utiliser la CLI : `ezcompiler publish update` puis "
+            "`ezcompiler publish release`. Le chemin CLI demande "
+            "confirmation avant toute publication irréversible.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
         repo_dest = repo_destination or self._config.repo_destination
 
         try:
@@ -519,8 +529,9 @@ class EzCompiler:
             import warnings  # noqa: PLC0415
 
             warnings.warn(
-                "release(publish=True) est déprécié : enchaîner run_pipeline() "
-                "puis upload(). run_pipeline() ne fait pas le transfert distant.",
+                "release(publish=True) est déprécié : lancer run_pipeline() "
+                "puis `ezcompiler publish update` / `ezcompiler publish "
+                "release`. run_pipeline() ne fait aucun transfert distant.",
                 DeprecationWarning,
                 stacklevel=2,
             )
@@ -672,8 +683,9 @@ class EzCompiler:
 
         Executes version generation, compilation, optional ZIP creation,
         optional installer build and optional TUF release in sequence with a
-        DynamicLayeredProgress display. Upload is no longer part of the
-        pipeline — call ``upload()`` explicitly afterwards.
+        DynamicLayeredProgress display. Publication is not part of the
+        pipeline — run ``ezcompiler publish update`` / ``ezcompiler publish
+        release`` afterwards.
 
         Args:
             console: Whether to show console window (default: True)
@@ -696,7 +708,6 @@ class EzCompiler:
         Example:
             >>> compiler = EzCompiler(config)
             >>> compiler.run_pipeline(console=False)
-            >>> compiler.upload()
         """
         if not self._config:
             raise ConfigurationError(_MSG_NOT_INITIALIZED)

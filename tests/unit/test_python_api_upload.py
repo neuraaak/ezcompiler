@@ -142,3 +142,33 @@ def test_upload_raises_when_not_initialized() -> None:
     ez._config = None
     with pytest.raises(ConfigurationError):
         ez.upload()
+
+
+def test_upload_should_warn_that_it_is_deprecated(monkeypatch, tmp_path: Path) -> None:
+    cfg = _cfg(tmp_path, tuf_enabled=False, repo_destination="disk")
+    monkeypatch.setattr(
+        "ezcompiler.interfaces.python_api.PipelineService.upload_artifact",
+        lambda *_a, **_kw: None,
+    )
+    ez = EzCompiler(cfg)
+    ez._printer = MagicMock()
+    with pytest.warns(DeprecationWarning, match="ezcompiler publish"):
+        ez.upload()
+
+
+def test_upload_should_remain_non_interactive(monkeypatch, tmp_path: Path) -> None:
+    """Une methode Python ne doit jamais interroger stdin."""
+
+    def _boom(*_args: Any, **_kwargs: Any) -> str:
+        raise AssertionError("upload() ne doit pas lire stdin")
+
+    monkeypatch.setattr("builtins.input", _boom)
+    cfg = _cfg(tmp_path, tuf_enabled=False, repo_destination="disk")
+    monkeypatch.setattr(
+        "ezcompiler.interfaces.python_api.PipelineService.upload_artifact",
+        lambda *_a, **_kw: None,
+    )
+    ez = EzCompiler(cfg)
+    ez._printer = MagicMock()
+    with pytest.warns(DeprecationWarning):
+        ez.upload()

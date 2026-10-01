@@ -98,3 +98,24 @@ def test_upload_error_exits_1(monkeypatch, tmp_path: Path) -> None:
     result = runner.invoke(main, ["upload", "--config", str(cfg_file)])
 
     assert result.exit_code == 1
+
+
+def test_upload_command_should_announce_its_deprecation(
+    monkeypatch, tmp_path: Path
+) -> None:
+    monkeypatch.setattr(
+        "ezcompiler.interfaces.cli_interface.ConfigService.build_compiler_config",
+        staticmethod(lambda **_kw: _real_cfg(tmp_path)),
+    )
+    monkeypatch.setattr(
+        "ezcompiler.interfaces.python_api.EzCompiler.upload",
+        lambda *_a, **_kw: None,
+    )
+    result = CliRunner().invoke(main, ["upload"])
+    assert result.exit_code == 0, result.output
+    assert "ezcompiler publish" in result.output
+
+
+def test_upload_command_help_says_deprecated() -> None:
+    result = CliRunner().invoke(main, ["upload", "--help"])
+    assert "Déprécié" in result.output
