@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
 from click.testing import CliRunner
 
 from ezcompiler.interfaces.cli_interface import main
@@ -16,6 +17,19 @@ def _cfg(tmp_path: Path) -> CompilerConfig:
         main_file=str(tmp_path / "main.py"),
         include_files={"files": [], "folders": []},
         output_folder=tmp_path / "dist",
+    )
+
+
+def _tuf_cfg(tmp_path: Path) -> CompilerConfig:
+    (tmp_path / "main.py").write_text("# m", encoding="utf-8")
+    return CompilerConfig(
+        version="1.0.0",
+        project_name="MyApp",
+        main_file=str(tmp_path / "main.py"),
+        include_files={"files": [], "folders": []},
+        output_folder=tmp_path / "dist",
+        tuf_enabled=True,
+        repo_public_url="https://h/update/",
     )
 
 
@@ -94,3 +108,59 @@ def test_should_default_skip_build_to_false(monkeypatch, tmp_path: Path) -> None
 
     assert result.exit_code == 0, result.output
     assert calls[0]["skip_build"] is False
+
+
+def test_compile_should_forward_required(monkeypatch, tmp_path: Path) -> None:
+    calls: list[dict] = []
+    monkeypatch.setattr(
+        "ezcompiler.interfaces.cli_interface.ConfigService.build_compiler_config",
+        staticmethod(lambda **_kw: _tuf_cfg(tmp_path)),
+    )
+    monkeypatch.setattr(
+        "ezcompiler.interfaces.python_api.EzCompiler.run_pipeline",
+        lambda _self, **kw: calls.append(kw),
+    )
+
+    result = CliRunner().invoke(main, ["compile", "--required"])
+
+    assert result.exit_code == 0, result.output
+    assert calls[0]["required"] is True
+
+
+def test_compile_should_default_required_to_false(monkeypatch, tmp_path: Path) -> None:
+    calls: list[dict] = []
+    monkeypatch.setattr(
+        "ezcompiler.interfaces.cli_interface.ConfigService.build_compiler_config",
+        staticmethod(lambda **_kw: _tuf_cfg(tmp_path)),
+    )
+    monkeypatch.setattr(
+        "ezcompiler.interfaces.python_api.EzCompiler.run_pipeline",
+        lambda _self, **kw: calls.append(kw),
+    )
+
+    result = CliRunner().invoke(main, ["compile"])
+
+    assert result.exit_code == 0, result.output
+    assert calls[0]["required"] is False
+
+
+@pytest.mark.parametrize(("args", "tuf"), [(["--skip-release"], True), ([], False)])
+def test_compile_should_refuse_required_without_release_stage(
+    monkeypatch, tmp_path: Path, args: list[str], tuf: bool
+) -> None:
+    calls: list[dict] = []
+    cfg = _tuf_cfg(tmp_path) if tuf else _cfg(tmp_path)
+    monkeypatch.setattr(
+        "ezcompiler.interfaces.cli_interface.ConfigService.build_compiler_config",
+        staticmethod(lambda **_kw: cfg),
+    )
+    monkeypatch.setattr(
+        "ezcompiler.interfaces.python_api.EzCompiler.run_pipeline",
+        lambda _self, **kw: calls.append(kw),
+    )
+
+    result = CliRunner().invoke(main, ["compile", "--required", *args])
+
+    assert result.exit_code == 2
+    assert "--required" in result.output
+    assert calls == []

@@ -958,6 +958,12 @@ def template_raw(
         "build in output_folder (zip, installer, release)"
     ),
 )
+@click.option(
+    "--required",
+    is_flag=True,
+    default=False,
+    help="Marquer la version produite comme obligatoire pour les clients TUF",
+)
 def compile_project(
     config: str | None,
     pyproject: str | None,
@@ -969,6 +975,7 @@ def compile_project(
     skip_installer: bool,
     skip_release: bool,
     skip_build: bool,
+    required: bool,
 ) -> None:
     """
     Compile the project (full build pipeline).
@@ -995,6 +1002,8 @@ def compile_project(
         ezcompiler compile --skip-installer --skip-release
 
         ezcompiler compile --skip-build
+
+        ezcompiler compile --required
     """
     printer = _get_printer()
     logger = _get_logger()
@@ -1023,6 +1032,13 @@ def compile_project(
         logger.error(str(e))
         sys.exit(1)
 
+    # Validate --required flag
+    if required and (skip_release or not config_obj.tuf_enabled):
+        raise click.UsageError(
+            "--required n'a d'effet que si l'étape release TUF s'exécute "
+            "(tuf_enabled, sans --skip-release)."
+        )
+
     # Delegate to the shared pipeline so installer and TUF release stages run
     # when enabled in the config — identical behaviour to EzCompiler.run_pipeline.
     from .python_api import EzCompiler  # noqa: PLC0415
@@ -1035,6 +1051,7 @@ def compile_project(
             skip_installer=skip_installer,
             skip_release=skip_release,
             skip_build=skip_build,
+            required=required,
         )
     except (
         ConfigurationError,
