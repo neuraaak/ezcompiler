@@ -151,7 +151,7 @@ def test_missing_root_json_raises_config_error(tmp_path: Path) -> None:
 
 def test_disk_url_includes_update_subdir(cfg: CompilerConfig, tmp_path: Path) -> None:
     """Client URL must point at the /update subtree where the TUF repo is
-    uploaded (UploaderService._upload_tuf_repo)."""
+    uploaded (UploaderService.upload_tuf_repo)."""
     out = tmp_path / "updater"
     out.mkdir()
     UpdaterService.generate(cfg, out)

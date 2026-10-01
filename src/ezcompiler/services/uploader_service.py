@@ -175,17 +175,17 @@ class UploaderService:
         repo_dest = repo_destination or config.repo_destination
         rel_dest = release_destination or config.release_destination
 
-        UploaderService._upload_tuf_repo(
+        UploaderService.upload_tuf_repo(
             config, repo_dir, repo_dest, destination, upload_config
         )
 
         if release_root is not None:
-            UploaderService._upload_release_zip(
+            UploaderService.upload_release_zip(
                 config, release_root, rel_dest, destination, upload_config
             )
 
     @staticmethod
-    def _upload_tuf_repo(
+    def upload_tuf_repo(
         config: CompilerConfig,
         repo_dir: Path,
         repo_dest: str,
@@ -223,7 +223,7 @@ class UploaderService:
             raise UploadError(f"TUF repo upload failed: {e}") from e
 
     @staticmethod
-    def _upload_release_zip(
+    def upload_release_zip(
         config: CompilerConfig,
         release_root: Path,
         rel_dest: str,
