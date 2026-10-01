@@ -43,6 +43,8 @@ from .._version import __version__
 from ..services import (
     ConfigService,
     InstallerService,
+    PipelineService,
+    PublishService,
     ReleaseService,
     TemplateService,
     UpdaterService,
@@ -53,6 +55,7 @@ from ..shared.exceptions import (
     ConfigError,
     ConfigurationError,
     InstallerError,
+    PublishError,
     ReleaseError,
     SigningKeyError,
     TemplateError,
@@ -60,6 +63,7 @@ from ..shared.exceptions import (
     VersionError,
     ZipError,
 )
+from ..utils import is_prerelease
 
 # ///////////////////////////////////////////////////////////////
 # MODULE-LEVEL LOGGING (lib_mode — passive proxies)
@@ -1116,6 +1120,191 @@ def upload_command(
             release_destination=release_destination,
         )
     except (ConfigurationError, UploadError, ReleaseError) as e:
+        printer.error(str(e))
+        logger.error(str(e))
+        sys.exit(1)
+
+
+# ///////////////////////////////////////////////////////////////
+# PUBLISH COMMANDS
+# ///////////////////////////////////////////////////////////////
+
+
+def _force_utf8_stdout() -> None:
+    """Évite les UnicodeEncodeError sur une console Windows cp1252."""
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is not None:
+            reconfigure(encoding="utf-8", errors="replace")
+
+
+def _format_size(num_bytes: int) -> str:
+    """Formate une taille en octets de façon lisible."""
+    size = float(num_bytes)
+    for unit in ("o", "Ko", "Mo", "Go"):
+        if size < 1024 or unit == "Go":
+            return f"{size:.1f} {unit}"
+        size /= 1024
+    return f"{size:.1f} Go"
+
+
+@main.group()
+def publish() -> None:
+    """Publier l'arbre de mise à jour TUF ou une release.
+
+    Séparée du pipeline de build : la publication est un acte délibéré,
+    irréversible, et demande confirmation (sauf --yes).
+    """
+
+
+@publish.command("release")
+@click.option(
+    "--config", "-c", type=click.Path(exists=True), help="Config file path (YAML, JSON)"
+)
+@click.option(
+    "--pyproject",
+    "-p",
+    type=click.Path(exists=True),
+    help="Explicit pyproject.toml path",
+)
+@click.option(
+    "--release-destination",
+    "-rld",
+    "release_destination",
+    type=click.Choice(["disk", "server", "r2", "github", "gitlab"]),
+    default=None,
+    help="Backend de publication (overrides config)",
+)
+@click.option("--destination", "-d", default=None, help="Destination (override config)")
+@click.option("--tag", default=None, help="Tag de la release (défaut : v<version>)")
+@click.option("--title", default=None, help="Titre (défaut : <projet> v<version>)")
+@click.option("--notes", default=None, help="Corps de la release (littéral)")
+@click.option(
+    "--notes-file",
+    "notes_file",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+    help="Fichier contenant le corps de la release",
+)
+@click.option(
+    "--prerelease/--no-prerelease",
+    "prerelease",
+    default=None,
+    help="Force l'étiquette pré-release (défaut : déduite de la version)",
+)
+@click.option("--draft", is_flag=True, help="Créer la release non publiée")
+@click.option("--yes", "-y", is_flag=True, help="Ne pas demander de confirmation")
+def publish_release_command(
+    config: str | None,
+    pyproject: str | None,
+    release_destination: str | None,
+    destination: str | None,
+    tag: str | None,
+    title: str | None,
+    notes: str | None,
+    notes_file: Path | None,
+    prerelease: bool | None,
+    draft: bool,
+    yes: bool,
+) -> None:
+    """Publier l'installeur et le zip comme release.
+
+    Sur github, crée une Release attachant les artefacts. Sur disk, server
+    ou r2, copie les fichiers vers la destination configurée.
+
+    Exemples :
+
+        ezcompiler publish release
+
+        ezcompiler publish release --yes --notes-file CHANGELOG.md
+    """
+    _force_utf8_stdout()
+    printer = _get_printer()
+    logger = _get_logger()
+
+    if notes and notes_file:
+        raise click.UsageError("--notes et --notes-file sont mutuellement exclusives.")
+
+    try:
+        cfg = ConfigService.build_compiler_config(
+            config_path=Path(config) if config else None,
+            pyproject_path=Path(pyproject) if pyproject else None,
+        )
+
+        resolved_tag = tag or f"v{cfg.version}"
+        resolved_title = title or f"{cfg.project_name} v{cfg.version}"
+        body = notes_file.read_text(encoding="utf-8") if notes_file else notes
+        is_pre = is_prerelease(cfg.version) if prerelease is None else prerelease
+
+        publisher = PublishService.resolve_publisher(cfg, release_destination)
+
+        # Chemin fichiers (disk/server/r2) : comportement historique, sans
+        # confirmation — rien n'est irréversible côté clients.
+        if publisher is None:
+            assets = PipelineService.stage_versioned_assets(cfg)
+            PublishService.publish_release(
+                cfg,
+                assets,
+                tag=resolved_tag,
+                title=resolved_title,
+                notes=body,
+                prerelease=is_pre,
+                draft=draft,
+                destination=destination,
+                release_destination=release_destination,
+            )
+            printer.success("Assets de release transférés")
+            logger.info("Release assets uploaded")
+            return
+
+        # Toutes les vérifications passent AVANT le récapitulatif : quand
+        # l'opérateur confirme, il ne reste qu'un risque réseau.
+        if publisher.exists(resolved_tag):
+            printer.error(
+                f"La release {resolved_tag} existe déjà. "
+                "Supprime-la ou change de version."
+            )
+            sys.exit(1)
+
+        assets = PipelineService.stage_versioned_assets(cfg)
+
+        printer.info("─" * 60)
+        printer.info(f"Release à publier via {publisher.get_publisher_name()}")
+        if cfg.release_endpoint:
+            printer.info(f"   Dépôt      : {cfg.release_endpoint}")
+        printer.info(f"   Tag        : {resolved_tag}")
+        printer.info(f"   Titre      : {resolved_title}")
+        printer.info(f"   Pré-release: {'oui' if is_pre else 'non'}")
+        printer.info(f"   Brouillon  : {'oui' if draft else 'non'}")
+        printer.info(
+            f"   Notes      : {'fournies' if body else 'générées automatiquement'}"
+        )
+        printer.info("   Artefacts  :")
+        for asset in assets:
+            printer.info(
+                f"     - {asset.name}   ({_format_size(asset.stat().st_size)})"
+            )
+        printer.info("─" * 60)
+
+        if not yes and not click.confirm("Publier cette release ?", default=False):
+            printer.info("Annulé.")
+            sys.exit(1)
+
+        url = PublishService.publish_release(
+            cfg,
+            assets,
+            tag=resolved_tag,
+            title=resolved_title,
+            notes=body,
+            prerelease=is_pre,
+            draft=draft,
+            destination=destination,
+            release_destination=release_destination,
+        )
+        printer.success(f"Release {resolved_tag} publiée : {url}")
+        logger.info("Release %s published: %s", resolved_tag, url)
+
+    except (ConfigurationError, PublishError, UploadError, ReleaseError) as e:
         printer.error(str(e))
         logger.error(str(e))
         sys.exit(1)
