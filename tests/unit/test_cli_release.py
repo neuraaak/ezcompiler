@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from unittest.mock import patch
 
 from click.testing import CliRunner
 
@@ -125,3 +126,52 @@ def test_release_init_error_exits_1(monkeypatch, tmp_path: Path) -> None:
     result = runner.invoke(main, ["release", "init"])
 
     assert result.exit_code == 1
+
+
+def test_keys_group_is_visible_in_help() -> None:
+    result = CliRunner().invoke(main, ["--help"])
+    assert "keys" in result.output
+
+
+def test_release_group_is_hidden_from_help() -> None:
+    """Deprecie : encore fonctionnel, mais plus propose."""
+    result = CliRunner().invoke(main, ["--help"])
+    assert "  release" not in result.output
+
+
+def test_keys_init_is_wired() -> None:
+    result = CliRunner().invoke(main, ["keys", "init", "--help"])
+    assert result.exit_code == 0
+    assert "TUF" in result.output
+
+
+def test_keys_refresh_is_wired() -> None:
+    result = CliRunner().invoke(main, ["keys", "refresh", "--help"])
+    assert result.exit_code == 0
+
+
+def test_release_init_still_works_and_warns() -> None:
+    with patch(
+        "ezcompiler.interfaces.cli_interface.ConfigService.load_config",
+        side_effect=RuntimeError("stop ici"),
+    ):
+        result = CliRunner().invoke(main, ["release", "init"])
+    assert "keys init" in result.output
+    assert "déprécié" in result.output or "deprecie" in result.output.lower()
+
+
+def test_release_init_alias_forwards_config(monkeypatch, tmp_path: Path) -> None:
+    """L'option --config traverse l'alias jusqu'a keys init."""
+    cfg_file = tmp_path / "ezcompiler.yaml"
+    cfg_file.write_text("x: 1", encoding="utf-8")
+    seen: list = []
+
+    def fake_load(_self, path):
+        seen.append(path)
+        raise RuntimeError("stop ici")
+
+    monkeypatch.setattr(
+        "ezcompiler.interfaces.cli_interface.ConfigService.load_config", fake_load
+    )
+    CliRunner().invoke(main, ["release", "init", "--config", str(cfg_file)])
+    assert seen == [cfg_file]

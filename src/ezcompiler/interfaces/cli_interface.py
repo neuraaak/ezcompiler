@@ -1551,11 +1551,11 @@ def init(
 
 
 @main.group()
-def release() -> None:
-    """Secure-release operations (TUF)."""
+def keys() -> None:
+    """Gestion des clés de signature TUF."""
 
 
-@release.command("init")
+@keys.command("init")
 @click.option(
     "--config",
     "config_path",
@@ -1563,7 +1563,7 @@ def release() -> None:
     type=click.Path(exists=True, dir_okay=False, path_type=Path),
     help="Path to ezcompiler config file (auto-detected if omitted).",
 )
-def release_init(config_path: Path | None) -> None:
+def keys_init(config_path: Path | None) -> None:
     """Initialise TUF signing keys and repository skeleton.
 
     Run once per project, before the first `ezcompiler compile` with
@@ -1603,7 +1603,7 @@ def release_init(config_path: Path | None) -> None:
         sys.exit(1)
 
 
-@release.command("refresh")
+@keys.command("refresh")
 @click.option(
     "--config",
     "config_path",
@@ -1625,7 +1625,7 @@ def release_init(config_path: Path | None) -> None:
     default=None,
     help="Expiration in days from now (default: config tuf_expiration_days).",
 )
-def release_refresh(
+def keys_refresh(
     config_path: Path | None,
     roles: tuple[str, ...],
     days: int | None,
@@ -1634,7 +1634,7 @@ def release_refresh(
 
     Native tufup keep-alive for projects updated irregularly: repushes the
     expiration date of the short-lived roles so clients keep trusting the
-    repository between releases. Requires signing keys (`release init`).
+    repository between releases. Requires signing keys (`keys init`).
     """
     printer = _get_printer()
     logger = _get_logger()
@@ -1656,6 +1656,37 @@ def release_refresh(
         printer.error(str(e))
         logger.error(str(e))
         sys.exit(1)
+
+
+def _deprecated_alias(target: click.Command, old: str, new: str) -> click.Command:
+    """Build a hidden-group alias of ``target`` that warns before delegating.
+
+    The alias copies the target's parameters, so every option given to the
+    old spelling reaches the new command unchanged.
+    """
+
+    def callback(**kwargs: Any) -> None:
+        _get_printer().warning(
+            f"`ezcompiler {old}` est déprécié et sera retiré en v5. "
+            f"Utiliser `ezcompiler {new}`."
+        )
+        click.get_current_context().invoke(target, **kwargs)
+
+    return click.Command(
+        name=target.name,
+        params=list(target.params),
+        callback=callback,
+        help=f"[Déprécié] Alias de `ezcompiler {new}`.",
+    )
+
+
+@main.group(hidden=True)
+def release() -> None:
+    """[Déprécié] Utiliser `ezcompiler keys` à la place."""
+
+
+release.add_command(_deprecated_alias(keys_init, "release init", "keys init"))
+release.add_command(_deprecated_alias(keys_refresh, "release refresh", "keys refresh"))
 
 
 @main.group()
