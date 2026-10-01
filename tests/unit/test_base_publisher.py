@@ -57,11 +57,12 @@ def test_should_raise_auth_error_when_auth_status_fails() -> None:
         stderr="not logged in",
     )
     with (
-        patch.object(pub, "_run_cli", return_value=completed),
+        patch.object(pub, "_run_cli", return_value=completed) as run_cli,
         pytest.raises(PublishAuthError) as exc,
     ):
         pub._check_auth()
     assert "faketool auth login" in str(exc.value)
+    run_cli.assert_called_once_with(["auth", "status"], check=False)
 
 
 def test_should_pass_when_authenticated() -> None:
@@ -69,8 +70,9 @@ def test_should_pass_when_authenticated() -> None:
     completed = subprocess.CompletedProcess(
         args=["faketool", "auth", "status"], returncode=0, stdout="ok", stderr=""
     )
-    with patch.object(pub, "_run_cli", return_value=completed):
+    with patch.object(pub, "_run_cli", return_value=completed) as run_cli:
         pub._check_auth()
+    run_cli.assert_called_once_with(["auth", "status"], check=False)
 
 
 def test_should_never_invoke_a_shell() -> None:
@@ -79,10 +81,15 @@ def test_should_never_invoke_a_shell() -> None:
         patch("subprocess.run") as run,
     ):
         run.return_value = subprocess.CompletedProcess([], 0, "", "")
-        _Fake()._run_cli(["release", "view", "v1.0.0"])
+        _Fake()._run_cli(["release", "view", "a b;&|$()`'\".zip"])
     assert run.call_args.kwargs.get("shell", False) is False
     assert run.call_args.kwargs["capture_output"] is True
-    assert isinstance(run.call_args.args[0], list)
+    assert run.call_args.args[0] == [
+        "C:\\bin\\faketool.exe",
+        "release",
+        "view",
+        "a b;&|$()`'\".zip",
+    ]
 
 
 def test_should_surface_stderr_when_cli_exits_non_zero() -> None:
@@ -134,3 +141,36 @@ def test_should_not_expose_token_in_auth_error(monkeypatch: pytest.MonkeyPatch) 
     ):
         pub._check_auth()
     assert token not in str(exc.value)
+
+
+@pytest.mark.parametrize(
+    "stderr, credential",
+    [
+        ("authentication failed: gho_storedcredential123", "gho_storedcredential123"),
+        ("token: shortsecret", "shortsecret"),
+        ("request failed for abcDEF0123456789xyzABC", "abcDEF0123456789xyzABC"),
+    ],
+)
+def test_should_redact_cli_credentials_not_present_in_environment(
+    stderr: str, credential: str
+) -> None:
+    with (
+        patch("shutil.which", return_value="C:\\bin\\faketool.exe"),
+        patch("subprocess.run") as run,
+        pytest.raises(PublishCliError) as exc,
+    ):
+        run.return_value = subprocess.CompletedProcess([], 1, "", stderr)
+        _Fake()._run_cli(["release", "create"])
+    assert credential not in str(exc.value)
+    assert "[REDACTED]" in str(exc.value)
+
+
+def test_should_wrap_os_error_without_exposing_exception_text() -> None:
+    with (
+        patch("shutil.which", return_value="C:\\bin\\faketool.exe"),
+        patch("subprocess.run", side_effect=OSError("sensitive details")),
+        pytest.raises(PublishCliError) as exc,
+    ):
+        _Fake()._run_cli(["release", "create"])
+    assert "sensitive details" not in str(exc.value)
+    assert "faketool" in str(exc.value)

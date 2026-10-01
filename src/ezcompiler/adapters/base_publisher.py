@@ -11,6 +11,7 @@ from __future__ import annotations
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
 import os
+import re
 import shutil
 
 # CLI execution is isolated in _run_cli and always disables the shell.
@@ -89,13 +90,18 @@ class BasePublisher(ABC):
         """Run a CLI command without a shell and capture its output."""
         exe = self._resolve_cli()
         # Argument vector is passed directly; no shell interprets asset names.
-        result = subprocess.run(  # noqa: S603  # nosec B603
-            [exe, *args],
-            capture_output=True,
-            text=True,
-            check=False,
-            shell=False,
-        )
+        try:
+            result = subprocess.run(  # noqa: S603  # nosec B603
+                [exe, *args],
+                capture_output=True,
+                text=True,
+                check=False,
+                shell=False,
+            )
+        except OSError:
+            raise PublishCliError(
+                f"'{self._cli_name}' n'a pas pu être exécuté."
+            ) from None
         if check and result.returncode != 0:
             detail = self._redact_secrets(result.stderr.strip())
             raise PublishCliError(
@@ -105,7 +111,12 @@ class BasePublisher(ABC):
 
     @staticmethod
     def _redact_secrets(message: str) -> str:
-        """Mask environment-supplied credentials echoed by an external CLI."""
+        """Mask likely credentials in CLI diagnostics before displaying stderr.
+
+        The CLI can echo credentials stored outside the environment. Mask known
+        token prefixes, labelled values, and long opaque strings in addition to
+        environment credentials; never include raw command arguments in errors.
+        """
         secret_values = {
             value
             for name, value in os.environ.items()
@@ -114,4 +125,16 @@ class BasePublisher(ABC):
         }
         for value in sorted(secret_values, key=len, reverse=True):
             message = message.replace(value, "[REDACTED]")
+        message = re.sub(
+            r"(?i)\b(token|secret|password|authorization|api[-_ ]?key)\s*([=:])\s*\S+",
+            r"\1\2 [REDACTED]",
+            message,
+        )
+        message = re.sub(r"(?i)\bbearer\s+\S+", "Bearer [REDACTED]", message)
+        message = re.sub(
+            r"(?i)\b(?:github_pat_|gh[pousr]_|glpat-)[A-Za-z0-9_-]+",
+            "[REDACTED]",
+            message,
+        )
+        message = re.sub(r"\b[A-Za-z0-9_+/=-]{20,}\b", "[REDACTED]", message)
         return message
