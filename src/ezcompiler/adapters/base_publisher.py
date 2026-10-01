@@ -10,8 +10,6 @@ from __future__ import annotations
 # ///////////////////////////////////////////////////////////////
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
-import os
-import re
 import shutil
 
 # CLI execution is isolated in _run_cli and always disables the shell.
@@ -77,17 +75,21 @@ class BasePublisher(ABC):
         """Raise when the external CLI reports no valid credentials."""
         result = self._run_cli(["auth", "status"], check=False)
         if result.returncode != 0:
-            detail = self._redact_secrets(result.stderr.strip())
             raise PublishAuthError(
                 f"'{self._cli_name}' n'est pas authentifié. "
                 f"Lancer `{self._cli_name} auth login`, ou exporter le token "
-                f"dans l'environnement. Détail : {detail}"
+                "dans l'environnement."
             )
 
     def _run_cli(
         self, args: list[str], *, check: bool = True
     ) -> subprocess.CompletedProcess[str]:
-        """Run a CLI command without a shell and capture its output."""
+        """Run a CLI command without a shell and capture its output.
+
+        CLI stderr is retained in the returned result for callers using
+        ``check=False``. It is never copied into an exception, because the
+        external CLI can print credentials from outside this process.
+        """
         exe = self._resolve_cli()
         # Argument vector is passed directly; no shell interprets asset names.
         try:
@@ -103,38 +105,7 @@ class BasePublisher(ABC):
                 f"'{self._cli_name}' n'a pas pu être exécuté."
             ) from None
         if check and result.returncode != 0:
-            detail = self._redact_secrets(result.stderr.strip())
             raise PublishCliError(
-                f"`{self._cli_name}` a échoué (code {result.returncode}) : {detail}"
+                f"`{self._cli_name}` a échoué (code {result.returncode})."
             )
         return result
-
-    @staticmethod
-    def _redact_secrets(message: str) -> str:
-        """Mask likely credentials in CLI diagnostics before displaying stderr.
-
-        The CLI can echo credentials stored outside the environment. Mask known
-        token prefixes, labelled values, and long opaque strings in addition to
-        environment credentials; never include raw command arguments in errors.
-        """
-        secret_values = {
-            value
-            for name, value in os.environ.items()
-            if value
-            and any(part in name.upper() for part in ("TOKEN", "SECRET", "PASSWORD"))
-        }
-        for value in sorted(secret_values, key=len, reverse=True):
-            message = message.replace(value, "[REDACTED]")
-        message = re.sub(
-            r"(?i)\b(token|secret|password|authorization|api[-_ ]?key)\s*([=:])\s*\S+",
-            r"\1\2 [REDACTED]",
-            message,
-        )
-        message = re.sub(r"(?i)\bbearer\s+\S+", "Bearer [REDACTED]", message)
-        message = re.sub(
-            r"(?i)\b(?:github_pat_|gh[pousr]_|glpat-)[A-Za-z0-9_-]+",
-            "[REDACTED]",
-            message,
-        )
-        message = re.sub(r"\b[A-Za-z0-9_+/=-]{20,}\b", "[REDACTED]", message)
-        return message

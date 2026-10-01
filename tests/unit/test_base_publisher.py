@@ -92,7 +92,7 @@ def test_should_never_invoke_a_shell() -> None:
     ]
 
 
-def test_should_surface_stderr_when_cli_exits_non_zero() -> None:
+def test_should_report_exit_code_without_exposing_stderr() -> None:
     with (
         patch("shutil.which", return_value="C:\\bin\\faketool.exe"),
         patch("subprocess.run") as run,
@@ -100,7 +100,8 @@ def test_should_surface_stderr_when_cli_exits_non_zero() -> None:
         run.return_value = subprocess.CompletedProcess([], 2, "", "boom details")
         with pytest.raises(PublishCliError) as exc:
             _Fake()._run_cli(["release", "create"], check=True)
-    assert "boom details" in str(exc.value)
+    assert "boom details" not in str(exc.value)
+    assert "faketool" in str(exc.value)
     assert "2" in str(exc.value)
 
 
@@ -109,16 +110,14 @@ def test_should_not_raise_when_check_is_false() -> None:
         patch("shutil.which", return_value="C:\\bin\\faketool.exe"),
         patch("subprocess.run") as run,
     ):
-        run.return_value = subprocess.CompletedProcess([], 1, "", "")
+        run.return_value = subprocess.CompletedProcess([], 1, "", "diagnostic detail")
         result = _Fake()._run_cli(["release", "view", "v9"], check=False)
     assert result.returncode == 1
+    assert result.stderr == "diagnostic detail"
 
 
-def test_should_not_expose_token_from_arguments_or_stderr(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
+def test_should_not_expose_token_from_arguments_or_stderr() -> None:
     token = "ghp_example_value_for_redaction"  # noqa: S105 - dummy test value
-    monkeypatch.setenv("GH_TOKEN", token)
     with (
         patch("shutil.which", return_value="C:\\bin\\faketool.exe"),
         patch("subprocess.run") as run,
@@ -127,20 +126,19 @@ def test_should_not_expose_token_from_arguments_or_stderr(
         with pytest.raises(PublishCliError) as exc:
             _Fake()._run_cli(["release", "create", token])
     assert token not in str(exc.value)
-    assert "failed:" in str(exc.value)
+    assert "failed:" not in str(exc.value)
 
 
-def test_should_not_expose_token_in_auth_error(monkeypatch: pytest.MonkeyPatch) -> None:
-    token = "ghp_example_auth_value"  # noqa: S105 - dummy test value
-    monkeypatch.setenv("GH_TOKEN", token)
+def test_should_not_expose_token_in_auth_error() -> None:
     pub = _Fake()
-    completed = subprocess.CompletedProcess([], 1, "", f"invalid token: {token}")
+    completed = subprocess.CompletedProcess([], 1, "", "credential: hunter2")
     with (
         patch.object(pub, "_run_cli", return_value=completed),
         pytest.raises(PublishAuthError) as exc,
     ):
         pub._check_auth()
-    assert token not in str(exc.value)
+    assert "hunter2" not in str(exc.value)
+    assert "credential:" not in str(exc.value)
 
 
 @pytest.mark.parametrize(
@@ -148,12 +146,13 @@ def test_should_not_expose_token_in_auth_error(monkeypatch: pytest.MonkeyPatch) 
     [
         ("authentication failed: gho_storedcredential123", "gho_storedcredential123"),
         ("token: shortsecret", "shortsecret"),
+        ("credential: hunter2", "hunter2"),
+        ("access_token: shortsecret", "shortsecret"),
+        ("token is shortsecret", "shortsecret"),
         ("request failed for abcDEF0123456789xyzABC", "abcDEF0123456789xyzABC"),
     ],
 )
-def test_should_redact_cli_credentials_not_present_in_environment(
-    stderr: str, credential: str
-) -> None:
+def test_should_never_expose_arbitrary_cli_stderr(stderr: str, credential: str) -> None:
     with (
         patch("shutil.which", return_value="C:\\bin\\faketool.exe"),
         patch("subprocess.run") as run,
@@ -161,8 +160,9 @@ def test_should_redact_cli_credentials_not_present_in_environment(
     ):
         run.return_value = subprocess.CompletedProcess([], 1, "", stderr)
         _Fake()._run_cli(["release", "create"])
+    assert stderr not in str(exc.value)
     assert credential not in str(exc.value)
-    assert "[REDACTED]" in str(exc.value)
+    assert "faketool" in str(exc.value)
 
 
 def test_should_wrap_os_error_without_exposing_exception_text() -> None:
