@@ -1264,7 +1264,6 @@ def publish_release_command(
 
         resolved_tag = tag or f"v{cfg.version}"
         resolved_title = title or f"{cfg.project_name} v{cfg.version}"
-        body = _read_notes_file(notes_file) if notes_file else notes
         is_pre = is_prerelease(cfg.version) if prerelease is None else prerelease
 
         publisher = PublishService.resolve_publisher(cfg, release_destination)
@@ -1309,6 +1308,7 @@ def publish_release_command(
 
         # Toutes les vérifications passent AVANT le récapitulatif : quand
         # l'opérateur confirme, il ne reste qu'un risque réseau.
+        body = _read_notes_file(notes_file) if notes_file else notes
         publisher.preflight()
         if publisher.exists(resolved_tag):
             printer.error(
@@ -1417,6 +1417,11 @@ def publish_update_command(
         tree_version = PublishService.read_tree_version(cfg)
 
         repo_dest = repo_destination or cfg.repo_destination
+        if repo_dest == "r2" and destination:
+            printer.warning(
+                "--destination est ignoré avec r2 : la cible vient de "
+                "repo_endpoint (bucket/préfixe)."
+            )
         target = _describe_update_target(cfg, repo_dest, destination)
         file_count = sum(1 for f in repo_dir.rglob("*") if f.is_file())
 
@@ -1427,7 +1432,7 @@ def publish_update_command(
         printer.info(f"   Version    : {tree_version}")
         printer.info(f"   Fichiers   : {file_count}")
         printer.info("─" * 60)
-        if tree_version != cfg.version:
+        if not PublishService.same_version(tree_version, cfg.version):
             printer.warning(
                 f"La configuration annonce {cfg.version}, mais l'arbre signé "
                 f"porte {tree_version} : c'est {tree_version} qui sera publiée. "

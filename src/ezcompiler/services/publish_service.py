@@ -132,13 +132,15 @@ class PublishService:
             raise ReleaseError(f"{targets_meta} illisible : {e}") from e
 
         pattern = re.compile(rf"^{re.escape(config.project_name)}-(.+)\.tar\.gz$")
-        versions: list[Version] = []
+        # tufup nomme l'archive avec la chaîne brute de la config : on la
+        # renvoie telle quelle (1.2.3-rc.1, pas sa forme normalisée 1.2.3rc1).
+        versions: list[tuple[Version, str]] = []
         for name in names:
             match = pattern.match(name)
             if match is None:
                 continue
             try:
-                versions.append(Version(match.group(1)))
+                versions.append((Version(match.group(1)), match.group(1)))
             except InvalidVersion:
                 continue
         if not versions:
@@ -146,7 +148,19 @@ class PublishService:
                 f"{targets_meta} ne référence aucune archive de "
                 f"{config.project_name}. Lancer d'abord le pipeline de build."
             )
-        return str(max(versions))
+        return max(versions)[1]
+
+    @staticmethod
+    def same_version(left: str, right: str) -> bool:
+        """Compare two version strings by PEP 440 meaning, not spelling.
+
+        ``1.2.3-rc.1`` and ``1.2.3rc1`` are the same version. Strings that
+        are not PEP 440 versions fall back to an exact comparison.
+        """
+        try:
+            return Version(left) == Version(right)
+        except InvalidVersion:
+            return left == right
 
     @staticmethod
     def publish_update(

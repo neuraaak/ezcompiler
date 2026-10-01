@@ -273,3 +273,22 @@ def test_tree_version_rejects_unreadable_metadata(tmp_path: Path) -> None:
     (meta / "targets.json").write_text("{pas du json", encoding="utf-8")
     with pytest.raises(ReleaseError, match="illisible"):
         PublishService.read_tree_version(cfg)
+
+
+@pytest.mark.parametrize("version", ["1.2.3-rc.1", "1.0.0-beta", "2.0.0"])
+def test_tree_version_keeps_the_spelling_tufup_used(
+    tmp_path: Path, version: str
+) -> None:
+    """tufup nomme l'archive avec la chaine brute : pas de forme normalisee."""
+    cfg = _make_config(tmp_path)
+    _write_targets(tmp_path, [f"App-{version}.tar.gz"])
+    tree = PublishService.read_tree_version(cfg)
+    assert tree == version
+    assert PublishService.same_version(tree, version)
+
+
+def test_same_version_compares_meaning_not_spelling() -> None:
+    assert PublishService.same_version("1.2.3-rc.1", "1.2.3rc1")
+    assert not PublishService.same_version("1.2.3", "1.2.4")
+    assert PublishService.same_version("not-pep440", "not-pep440")
+    assert not PublishService.same_version("not-pep440", "other")

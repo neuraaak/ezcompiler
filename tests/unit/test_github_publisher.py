@@ -217,3 +217,13 @@ def test_should_reject_a_tag_gh_would_read_as_an_option(
     ):
         pub.publish([asset], tag=tag, title="T")
     run.assert_not_called()
+
+
+def test_exists_should_reject_a_tag_gh_would_read_as_an_option() -> None:
+    pub = GitHubPublisher()
+    with (
+        patch.object(pub, "_run_cli") as run,
+        pytest.raises(PublishError, match="Tag"),
+    ):
+        pub.exists("-x")
+    run.assert_not_called()

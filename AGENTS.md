@@ -151,7 +151,7 @@ before proceeding.
 - **ruff** rules: `E W F I B C4 UP S T20 ARG PIE SIM`, line length 88,
   double quotes. See `[tool.ruff]` for per-file ignores.
 - **Coverage:** branch coverage, `--cov-fail-under=70` (audit target is 80%;
-  measured at 80.80% over 862 tests as of 2026-10-01). See the exclusions note
+  measured at 80.84% over 870 tests as of 2026-10-01). See the exclusions note
   below before assuming a module is omitted.
 - **Test markers** available: `slow`, `integration`, `unit`, `cli`, `compiler`,
   `uploader`, `robustness`, `requires_iscc` (needs a real `ISCC.exe` /

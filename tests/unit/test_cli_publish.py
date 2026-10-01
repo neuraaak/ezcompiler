@@ -465,3 +465,60 @@ def test_update_should_forward_its_overrides(tmp_path):
         "destination": "https://h/x",
         "repo_destination": "server",
     }
+
+
+def test_update_should_not_warn_for_a_prerelease_spelling(tmp_path):
+    """1.2.3-rc.1 en config et dans l'arbre : aucune fausse alerte."""
+    cfg = _make_config(tmp_path, repo_destination="disk", version="1.2.3-rc.1")
+    _sign_tree(tmp_path, "1.2.3-rc.1")
+    with (
+        patch(
+            "ezcompiler.interfaces.cli_interface.ConfigService.build_compiler_config",
+            return_value=cfg,
+        ),
+        patch("ezcompiler.interfaces.cli_interface.PublishService.publish_update"),
+    ):
+        result = CliRunner().invoke(main, ["publish", "update"], input="n\n")
+    assert "1.2.3-rc.1" in result.output
+    assert "configuration annonce" not in result.output
+
+
+def test_should_ignore_a_bad_notes_file_on_a_file_destination(tmp_path, staged):
+    cfg = _make_config(
+        tmp_path, release_destination="disk", release_endpoint=str(tmp_path / "out")
+    )
+    notes = tmp_path / "n.md"
+    notes.write_bytes("Notes".encode("utf-16"))
+    p1, p2, p3 = _patches(cfg, staged, None)
+    with (
+        p1,
+        p2,
+        p3,
+        patch(
+            "ezcompiler.interfaces.cli_interface.PublishService.publish_release",
+            return_value=None,
+        ),
+    ):
+        result = CliRunner().invoke(
+            main, ["publish", "release", "--notes-file", str(notes)]
+        )
+    assert result.exit_code == 0
+    assert "--notes-file" in result.output
+
+
+def test_update_should_warn_that_destination_is_ignored_with_r2(tmp_path):
+    cfg = _make_config(
+        tmp_path, repo_destination="r2", repo_endpoint="bkt/pre", version="1.2.3"
+    )
+    _sign_tree(tmp_path, "1.2.3")
+    with (
+        patch(
+            "ezcompiler.interfaces.cli_interface.ConfigService.build_compiler_config",
+            return_value=cfg,
+        ),
+        patch("ezcompiler.interfaces.cli_interface.PublishService.publish_update"),
+    ):
+        result = CliRunner().invoke(
+            main, ["publish", "update", "-d", "ailleurs"], input="n\n"
+        )
+    assert "ignoré avec r2" in result.output

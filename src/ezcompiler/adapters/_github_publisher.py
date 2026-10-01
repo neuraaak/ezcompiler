@@ -81,6 +81,7 @@ class GitHubPublisher(BasePublisher):
             PublishError: If existence cannot be determined — an auth,
                 network or permission failure is never reported as absence.
         """
+        self._validate_tag(tag)
         result = self._run_cli(
             ["release", "view", tag, *self._repo_args()], check=False
         )
