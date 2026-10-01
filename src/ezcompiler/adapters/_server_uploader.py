@@ -20,6 +20,7 @@ from __future__ import annotations
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
 # Standard library imports
+import os
 from pathlib import Path
 from typing import Any
 
@@ -31,6 +32,17 @@ from .._version import __version__
 from ..shared.exceptions import UploadError
 from ..utils import UploaderUtils
 from .base_uploader import BaseUploader
+
+# ///////////////////////////////////////////////////////////////
+# CONSTANTS
+# ///////////////////////////////////////////////////////////////
+
+# Explicit config wins; the environment fills empty credentials only.
+_CREDENTIAL_ENV_VARS: dict[str, str] = {
+    "username": "EZCOMPILER_SERVER_USERNAME",
+    "password": "EZCOMPILER_SERVER_PASSWORD",  # nosec B105 - env var name
+    "api_key": "EZCOMPILER_SERVER_API_KEY",
+}
 
 # ///////////////////////////////////////////////////////////////
 # CLASSES
@@ -49,6 +61,10 @@ class ServerUploader(BaseUploader):
         username (str): Username for basic authentication (default: "")
         password (str): Password for basic authentication (default: "")
         api_key (str): API key for bearer token authentication (default: "")
+            Empty ``username``, ``password`` and ``api_key`` fall back to the
+            ``EZCOMPILER_SERVER_USERNAME``, ``EZCOMPILER_SERVER_PASSWORD`` and
+            ``EZCOMPILER_SERVER_API_KEY`` environment variables, so the CLI
+            never needs a credential on its command line.
         timeout (int|float): Request timeout in seconds (default: 30)
         verify_ssl (bool): Verify SSL certificates (default: True)
         chunk_size (int): Chunk size for uploads (default: 8192)
@@ -80,6 +96,10 @@ class ServerUploader(BaseUploader):
 
         if config:
             default_config.update(config)
+
+        for key, env_var in _CREDENTIAL_ENV_VARS.items():
+            if not default_config.get(key):
+                default_config[key] = os.environ.get(env_var, "")
 
         super().__init__(default_config)
 

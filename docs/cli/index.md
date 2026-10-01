@@ -208,6 +208,8 @@ Publish the installer `setup.exe` (when `installer.enabled`) and the ZIP. The pa
 
 `gitlab` is not supported yet: selecting it fails with an explicit error.
 
+**Server credentials.** The `server` backend (for `publish update` and `publish release`) reads its credentials from the environment, never from the command line: `EZCOMPILER_SERVER_USERNAME` and `EZCOMPILER_SERVER_PASSWORD` (basic auth), or `EZCOMPILER_SERVER_API_KEY` (bearer token). A value set explicitly in the uploader configuration takes precedence.
+
 ```bash
 ezcompiler publish release
 ezcompiler publish release --yes --notes-file CHANGELOG.md

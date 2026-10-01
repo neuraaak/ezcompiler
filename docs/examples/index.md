@@ -172,10 +172,13 @@ ezcompiler publish release --release-destination server \
     --destination https://releases.example.com/upload
 ```
 
-!!! note
-    The CLI does not expose the `server` authentication options (`username`,
-    `password`, `api_key`) yet. Until it does, the deprecated
-    `EzCompiler.upload(upload_config=...)` remains the only way to pass them.
+Credentials never go on the command line: export them before publishing.
+
+```bash
+export EZCOMPILER_SERVER_USERNAME=deploy_user
+export EZCOMPILER_SERVER_PASSWORD=...        # basic auth
+# or: export EZCOMPILER_SERVER_API_KEY=...   # bearer token
+```
 
 ## 💡 Error handling
 
