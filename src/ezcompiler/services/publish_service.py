@@ -21,20 +21,16 @@ from __future__ import annotations
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
 # Standard library imports
-import json
 import logging
-import re
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 # Third-party imports
-from packaging.version import InvalidVersion, Version
-
 # Local imports
 from .._types import PublisherPort
 from ..adapters import PublisherFactory
 from ..shared._compiler_config import _OWNER_REPO_RE
-from ..shared.exceptions import PublishError, ReleaseError, UploadError
+from ..shared.exceptions import PublishError, UploadError
 from .pipeline_service import PipelineService
 from .uploader_service import UploaderService
 
@@ -98,69 +94,6 @@ class PublishService:
     # ////////////////////////////////////////////////
     # PUBLICATION
     # ////////////////////////////////////////////////
-
-    @staticmethod
-    def read_tree_version(config: CompilerConfig) -> str:
-        """Return the highest version signed in the local TUF tree.
-
-        The recap of ``publish update`` names this version, not
-        ``config.version``: a config bumped without a rebuild would otherwise
-        announce a version the tree does not carry.
-
-        Args:
-            config: Current configuration (repo dir and project name).
-
-        Returns:
-            str: Highest version among the ``<app>-<version>`` targets.
-
-        Raises:
-            ReleaseError: If no signed ``targets.json`` exists or it names no
-                archive of the project.
-        """
-        repo_dir = config.tuf_repo_dir or (config.output_folder / "repo")
-        targets_meta = repo_dir / "metadata" / "targets.json"
-        if not targets_meta.is_file():
-            raise ReleaseError(
-                f"Aucun arbre TUF signé dans {repo_dir} "
-                f"({targets_meta.name} absent). "
-                "Lancer d'abord le pipeline de build (`ezcompiler compile`)."
-            )
-        try:
-            doc = json.loads(targets_meta.read_text(encoding="utf-8"))
-            names = doc["signed"]["targets"]
-        except (OSError, ValueError, KeyError, TypeError) as e:
-            raise ReleaseError(f"{targets_meta} illisible : {e}") from e
-
-        pattern = re.compile(rf"^{re.escape(config.project_name)}-(.+)\.tar\.gz$")
-        # tufup nomme l'archive avec la chaîne brute de la config : on la
-        # renvoie telle quelle (1.2.3-rc.1, pas sa forme normalisée 1.2.3rc1).
-        versions: list[tuple[Version, str]] = []
-        for name in names:
-            match = pattern.match(name)
-            if match is None:
-                continue
-            try:
-                versions.append((Version(match.group(1)), match.group(1)))
-            except InvalidVersion:
-                continue
-        if not versions:
-            raise ReleaseError(
-                f"{targets_meta} ne référence aucune archive de "
-                f"{config.project_name}. Lancer d'abord le pipeline de build."
-            )
-        return max(versions)[1]
-
-    @staticmethod
-    def same_version(left: str, right: str) -> bool:
-        """Compare two version strings by PEP 440 meaning, not spelling.
-
-        ``1.2.3-rc.1`` and ``1.2.3rc1`` are the same version. Strings that
-        are not PEP 440 versions fall back to an exact comparison.
-        """
-        try:
-            return Version(left) == Version(right)
-        except InvalidVersion:
-            return left == right
 
     @staticmethod
     def publish_update(

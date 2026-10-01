@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import Any
 from unittest.mock import MagicMock, patch
@@ -12,7 +11,6 @@ from ezcompiler.services.publish_service import PublishService
 from ezcompiler.shared.exceptions import (
     PublishError,
     PublisherTypeError,
-    ReleaseError,
     UploadError,
 )
 
@@ -235,75 +233,6 @@ def test_should_publish_with_the_publisher_given_by_the_caller(
         )
     resolve.assert_not_called()
     given.publish.assert_called_once()
-
-
-# ------------------------------------------------
-# read_tree_version
-# ------------------------------------------------
-
-
-def _write_targets(tmp_path: Path, names: list[str]) -> None:
-    meta = tmp_path / "repo" / "metadata"
-    meta.mkdir(parents=True, exist_ok=True)
-    doc = {"signed": {"targets": {n: {} for n in names}}}
-    (meta / "targets.json").write_text(json.dumps(doc), encoding="utf-8")
-
-
-def test_tree_version_is_the_highest_signed_archive(tmp_path: Path) -> None:
-    cfg = _make_config(tmp_path)
-    _write_targets(
-        tmp_path,
-        [
-            "App-1.9.0.tar.gz",
-            "App-1.10.0.tar.gz",
-            "App-1.10.0.patch",
-            "Other-9.0.tar.gz",
-        ],
-    )
-    assert PublishService.read_tree_version(cfg) == "1.10.0"
-
-
-def test_tree_version_requires_signed_targets(tmp_path: Path) -> None:
-    cfg = _make_config(tmp_path)
-    (tmp_path / "repo" / "metadata").mkdir(parents=True)
-    (tmp_path / "repo" / "metadata" / "root.json").write_text("{}", encoding="utf-8")
-    with pytest.raises(ReleaseError, match="pipeline"):
-        PublishService.read_tree_version(cfg)
-
-
-def test_tree_version_requires_an_archive_of_the_project(tmp_path: Path) -> None:
-    cfg = _make_config(tmp_path)
-    _write_targets(tmp_path, ["Other-1.0.0.tar.gz"])
-    with pytest.raises(ReleaseError, match="App"):
-        PublishService.read_tree_version(cfg)
-
-
-def test_tree_version_rejects_unreadable_metadata(tmp_path: Path) -> None:
-    cfg = _make_config(tmp_path)
-    meta = tmp_path / "repo" / "metadata"
-    meta.mkdir(parents=True)
-    (meta / "targets.json").write_text("{pas du json", encoding="utf-8")
-    with pytest.raises(ReleaseError, match="illisible"):
-        PublishService.read_tree_version(cfg)
-
-
-@pytest.mark.parametrize("version", ["1.2.3-rc.1", "1.0.0-beta", "2.0.0"])
-def test_tree_version_keeps_the_spelling_tufup_used(
-    tmp_path: Path, version: str
-) -> None:
-    """tufup nomme l'archive avec la chaine brute : pas de forme normalisee."""
-    cfg = _make_config(tmp_path)
-    _write_targets(tmp_path, [f"App-{version}.tar.gz"])
-    tree = PublishService.read_tree_version(cfg)
-    assert tree == version
-    assert PublishService.same_version(tree, version)
-
-
-def test_same_version_compares_meaning_not_spelling() -> None:
-    assert PublishService.same_version("1.2.3-rc.1", "1.2.3rc1")
-    assert not PublishService.same_version("1.2.3", "1.2.4")
-    assert PublishService.same_version("not-pep440", "not-pep440")
-    assert not PublishService.same_version("not-pep440", "other")
 
 
 def test_should_refuse_to_upload_an_empty_release_dir(tmp_path) -> None:

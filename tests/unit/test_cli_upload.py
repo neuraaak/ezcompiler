@@ -50,7 +50,7 @@ class _Recorder:
 def _invoke(cfg: CompilerConfig, rec: _Recorder, *args: str):
     with (
         patch(f"{_CLI}.ConfigService.build_compiler_config", return_value=cfg),
-        patch(f"{_CLI}.PublishService.read_tree_version", return_value="1.0.0"),
+        patch(f"{_CLI}.TufService.read_tree_version", return_value="1.0.0"),
         patch(f"{_CLI}.PublishService.publish_update", side_effect=rec.update),
         patch(f"{_CLI}.PublishService.publish_release", side_effect=rec.release),
     ):
@@ -161,7 +161,7 @@ def test_upload_should_forward_config_and_pyproject_to_both_commands(
             f"{_CLI}.ConfigService.build_compiler_config",
             return_value=_cfg(tmp_path),
         ) as build,
-        patch(f"{_CLI}.PublishService.read_tree_version", return_value="1.0.0"),
+        patch(f"{_CLI}.TufService.read_tree_version", return_value="1.0.0"),
         patch(f"{_CLI}.PublishService.publish_update", side_effect=rec.update),
         patch(f"{_CLI}.PublishService.publish_release", side_effect=rec.release),
     ):

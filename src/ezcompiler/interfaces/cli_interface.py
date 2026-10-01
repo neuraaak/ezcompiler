@@ -48,6 +48,7 @@ from ..services import (
     PublishService,
     ReleaseService,
     TemplateService,
+    TufService,
     UpdaterService,
 )
 from ..shared import COMPILER_SECTION_KEYS
@@ -1432,7 +1433,7 @@ def publish_update_command(
         repo_dir = cfg.tuf_repo_dir or (cfg.output_folder / "repo")
         # Lit la version dans l'arbre signé lui-même : c'est elle que les
         # clients recevront, pas forcément celle de la config.
-        tree_version = PublishService.read_tree_version(cfg)
+        tree_version = TufService.read_tree_version(cfg)
 
         repo_dest = repo_destination or cfg.repo_destination
         if repo_dest == "r2" and destination:
@@ -1450,7 +1451,7 @@ def publish_update_command(
         printer.info(f"   Version    : {tree_version}")
         printer.info(f"   Fichiers   : {file_count}")
         printer.info("─" * 60)
-        if not PublishService.same_version(tree_version, cfg.version):
+        if not TufService.same_version(tree_version, cfg.version):
             printer.warning(
                 f"La configuration annonce {cfg.version}, mais l'arbre signé "
                 f"porte {tree_version} : c'est {tree_version} qui sera publiée. "

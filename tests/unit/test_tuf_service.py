@@ -186,3 +186,84 @@ def test_status_should_refuse_an_unreadable_metadata_file(tmp_path: Path) -> Non
 
     with pytest.raises(ReleaseError, match="root.json"):
         TufService.status(_cfg(tmp_path))
+
+
+# ------------------------------------------------
+# read_tree_version
+# ------------------------------------------------
+
+
+def _write_targets(tmp_path: Path, names: list[str]) -> None:
+    meta = tmp_path / "repo" / "metadata"
+    meta.mkdir(parents=True, exist_ok=True)
+    doc = {"signed": {"targets": {n: {} for n in names}}}
+    (meta / "targets.json").write_text(json.dumps(doc), encoding="utf-8")
+
+
+def test_tree_version_is_the_highest_signed_archive(tmp_path: Path) -> None:
+    cfg = _cfg(tmp_path)
+    _write_targets(
+        tmp_path,
+        [
+            "App-1.9.0.tar.gz",
+            "App-1.10.0.tar.gz",
+            "App-1.10.0.patch",
+            "Other-9.0.tar.gz",
+        ],
+    )
+    assert TufService.read_tree_version(cfg) == "1.10.0"
+
+
+def test_tree_version_requires_signed_targets(tmp_path: Path) -> None:
+    cfg = _cfg(tmp_path)
+    (tmp_path / "repo" / "metadata").mkdir(parents=True)
+    (tmp_path / "repo" / "metadata" / "root.json").write_text("{}", encoding="utf-8")
+    with pytest.raises(ReleaseError, match="pipeline"):
+        TufService.read_tree_version(cfg)
+
+
+def test_tree_version_requires_an_archive_of_the_project(tmp_path: Path) -> None:
+    cfg = _cfg(tmp_path)
+    _write_targets(tmp_path, ["Other-1.0.0.tar.gz"])
+    with pytest.raises(ReleaseError, match="App"):
+        TufService.read_tree_version(cfg)
+
+
+def test_tree_version_rejects_unreadable_metadata(tmp_path: Path) -> None:
+    cfg = _cfg(tmp_path)
+    meta = tmp_path / "repo" / "metadata"
+    meta.mkdir(parents=True)
+    (meta / "targets.json").write_text("{pas du json", encoding="utf-8")
+    with pytest.raises(ReleaseError, match="illisible"):
+        TufService.read_tree_version(cfg)
+
+
+@pytest.mark.parametrize("version", ["1.2.3-rc.1", "1.0.0-beta", "2.0.0"])
+def test_tree_version_keeps_the_spelling_tufup_used(
+    tmp_path: Path, version: str
+) -> None:
+    """tufup nomme l'archive avec la chaine brute : pas de forme normalisee."""
+    cfg = _cfg(tmp_path)
+    _write_targets(tmp_path, [f"App-{version}.tar.gz"])
+    tree = TufService.read_tree_version(cfg)
+    assert tree == version
+    assert TufService.same_version(tree, version)
+
+
+def test_same_version_compares_meaning_not_spelling() -> None:
+    assert TufService.same_version("1.2.3-rc.1", "1.2.3rc1")
+    assert not TufService.same_version("1.2.3", "1.2.4")
+    assert TufService.same_version("not-pep440", "not-pep440")
+    assert not TufService.same_version("not-pep440", "other")
+
+
+def test_read_tree_version_should_return_none_for_an_emptied_tree_when_allowed(
+    make_tuf_tree, tmp_path: Path
+) -> None:
+    make_tuf_tree(["1.0.0"])
+    cfg = _cfg(tmp_path)
+    TufService.remove_latest(cfg)
+
+    assert TufService.read_tree_version(cfg, allow_empty=True) is None
+    with pytest.raises(ReleaseError, match="aucune archive"):
+        TufService.read_tree_version(cfg)
