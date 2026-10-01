@@ -124,10 +124,13 @@ class GitHubPublisher(BasePublisher):
             str: URL of the created release, as printed by `gh`.
 
         Raises:
-            PublishError: If authentication, validation or `gh` fails.
+            PublishError: If validation, authentication or `gh` fails.
         """
-        self._check_auth()
+        # Local checks first: they are cheap and must not hide behind a
+        # missing or unauthenticated gh.
+        self._validate_tag(tag)
         self._validate_assets(assets)
+        self._check_auth()
 
         args = ["release", "create", tag, *self._repo_args(), "--title", title]
         if notes is None:
@@ -160,6 +163,17 @@ class GitHubPublisher(BasePublisher):
         """Return ``--repo owner/repo`` when configured, else nothing."""
         repo = self._config.get("repo")
         return ["--repo", str(repo)] if repo else []
+
+    @staticmethod
+    def _validate_tag(tag: str) -> None:
+        """
+        Reject a tag that `gh` would parse as an option.
+
+        Raises:
+            PublishError: If the tag is empty or starts with ``-``.
+        """
+        if not tag or tag.startswith("-"):
+            raise PublishError(f"Tag de release invalide : '{tag}'.")
 
     @staticmethod
     def _validate_assets(assets: list[Path]) -> None:

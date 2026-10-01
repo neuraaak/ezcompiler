@@ -40,8 +40,10 @@ def test_should_report_existing_tag() -> None:
 def test_should_report_absent_tag_on_release_not_found() -> None:
     pub = GitHubPublisher()
     absent = _completed(1, stderr="release not found")
-    with patch.object(pub, "_run_cli", return_value=absent):
+    with patch.object(pub, "_run_cli", return_value=absent) as run:
         assert pub.exists("v9.9.9") is False
+    # Sans check=False, chaque tag absent leverait PublishCliError.
+    assert run.call_args.kwargs["check"] is False
 
 
 def test_should_raise_when_existence_cannot_be_determined() -> None:
@@ -189,3 +191,29 @@ def test_should_not_copy_stderr_into_the_existence_error() -> None:
     ):
         pub.exists("v1.0.0")
     assert "ghp_secretvalue" not in str(excinfo.value)
+
+
+def test_should_validate_assets_before_checking_auth(tmp_path: Path) -> None:
+    pub = GitHubPublisher()
+    with (
+        patch.object(pub, "_check_auth") as auth,
+        pytest.raises(PublishError, match="introuvable"),
+    ):
+        pub.publish([tmp_path / "absent.zip"], tag="v1.0.0", title="T")
+    auth.assert_not_called()
+
+
+@pytest.mark.parametrize("tag", ["", "--draft", "-v1"])
+def test_should_reject_a_tag_gh_would_read_as_an_option(
+    tmp_path: Path, tag: str
+) -> None:
+    asset = tmp_path / "a.zip"
+    asset.write_bytes(b"x")
+    pub = GitHubPublisher()
+    with (
+        patch.object(pub, "_check_auth"),
+        patch.object(pub, "_run_cli") as run,
+        pytest.raises(PublishError, match="Tag"),
+    ):
+        pub.publish([asset], tag=tag, title="T")
+    run.assert_not_called()
