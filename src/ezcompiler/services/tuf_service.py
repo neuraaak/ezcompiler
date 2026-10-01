@@ -20,6 +20,7 @@ from __future__ import annotations
 # Standard library imports
 import json
 import logging
+import re
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -30,6 +31,7 @@ from packaging.version import InvalidVersion, Version
 # Local imports
 from .._types import ReleaserPort
 from ..adapters import ReleaserFactory
+from ..shared import TufStatus, TufVersion
 from ..shared.exceptions import ReleaseError
 
 if TYPE_CHECKING:
@@ -40,6 +42,7 @@ if TYPE_CHECKING:
 # ///////////////////////////////////////////////////////////////
 
 WITHDRAWN_FILE = "withdrawn.json"
+TUF_ROLES = ("root", "targets", "snapshot", "timestamp")
 
 logger = logging.getLogger(__name__)
 
@@ -171,3 +174,76 @@ class TufService:
         TufService.record_withdrawn(repo_dir, removed)
         logger.info("TUF version withdrawn: %s", removed)
         return removed
+
+    # ////////////////////////////////////////////////
+    # STATUS
+    # ////////////////////////////////////////////////
+
+    @staticmethod
+    def status(config: CompilerConfig) -> TufStatus:
+        """Read the local tree: versions, flags, expirations, withdrawals.
+
+        Raises:
+            ReleaseError: If the tree is not initialized or a metadata file
+                cannot be read.
+        """
+        repo_dir = TufService.repo_dir(config)
+        meta_dir = repo_dir / "metadata"
+        if not (meta_dir / "root.json").is_file():
+            raise ReleaseError(
+                f"Aucun arbre TUF initialisé dans {repo_dir} "
+                "(metadata/root.json absent). Lancer `ezcompiler tuf init`."
+            )
+
+        signed = {role: TufService._read_signed(meta_dir, role) for role in TUF_ROLES}
+        try:
+            expirations = {
+                role: datetime.fromisoformat(
+                    str(signed[role]["expires"]).replace("Z", "+00:00")
+                )
+                for role in TUF_ROLES
+            }
+            targets = signed["targets"].get("targets", {})
+        except (KeyError, ValueError, AttributeError) as e:
+            raise ReleaseError(
+                f"Métadonnées TUF illisibles dans {meta_dir} : {e}"
+            ) from e
+
+        return TufStatus(
+            repo_dir=repo_dir,
+            versions=TufService._versions(config.project_name, targets),
+            expirations=expirations,
+            withdrawn=tuple(TufService.withdrawn_versions(repo_dir)),
+        )
+
+    @staticmethod
+    def _read_signed(meta_dir: Path, role: str) -> dict[str, Any]:
+        path = meta_dir / f"{role}.json"
+        try:
+            signed = json.loads(path.read_text(encoding="utf-8"))["signed"]
+        except (OSError, ValueError, KeyError, TypeError) as e:
+            raise ReleaseError(f"{path} illisible : {e}") from e
+        if not isinstance(signed, dict):
+            raise ReleaseError(f"{path} illisible : 'signed' n'est pas un objet")
+        return signed
+
+    @staticmethod
+    def _versions(app_name: str, targets: dict[str, Any]) -> tuple[TufVersion, ...]:
+        archive = re.compile(rf"^{re.escape(app_name)}-(.+)\.tar\.gz$")
+        patch = re.compile(rf"^{re.escape(app_name)}-(.+)\.patch$")
+        patched = {m.group(1) for name in targets if (m := patch.match(name))}
+        found: list[tuple[Version, TufVersion]] = []
+        for name, info in targets.items():
+            match = archive.match(name)
+            if match is None:
+                continue
+            raw = match.group(1)
+            try:
+                parsed = Version(raw)
+            except InvalidVersion:
+                continue
+            custom = (info or {}).get("custom") or {}
+            required = bool((custom.get("tufup") or {}).get("required", False))
+            found.append((parsed, TufVersion(raw, required, raw in patched)))
+        found.sort(key=lambda item: item[0], reverse=True)
+        return tuple(v for _, v in found)
