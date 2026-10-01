@@ -6,6 +6,21 @@ import pytest
 
 from ezcompiler import CompilerConfig
 from ezcompiler.services.pipeline_service import PipelineService
+from ezcompiler.shared.exceptions import ReleaseError
+
+
+def _make_config(tmp_path: Path, *, version: str, project_name: str) -> CompilerConfig:
+    main = tmp_path / "main.py"
+    main.write_text("# m", encoding="utf-8")
+    cfg = CompilerConfig(
+        version=version,
+        project_name=project_name,
+        main_file=str(main),
+        include_files={"files": [], "folders": []},
+        output_folder=tmp_path / "dist",
+    )
+    Path(cfg.zip_file_path).parent.mkdir(parents=True, exist_ok=True)
+    return cfg
 
 
 @pytest.fixture()
@@ -155,3 +170,58 @@ def test_release_artifact_returns_repository_path(
     result = PipelineService.release_artifact(cfg, compilation_result=None)
 
     assert result == expected
+
+
+def test_should_copy_the_zip_under_its_versioned_name(tmp_path: Path) -> None:
+    cfg = _make_config(tmp_path, version="1.2.3", project_name="App")
+    Path(cfg.zip_file_path).parent.mkdir(parents=True, exist_ok=True)
+    Path(cfg.zip_file_path).write_bytes(b"zip")
+
+    assets = PipelineService.stage_versioned_assets(cfg)
+
+    names = [a.name for a in assets]
+    assert "App-1.2.3.zip" in names
+    assert "App.zip" not in names
+    assert all(a.is_file() for a in assets)
+
+
+def test_should_accept_a_project_without_installer(tmp_path: Path) -> None:
+    """Review Focus #4 : installer.enabled=false est legitime, pas une erreur."""
+    cfg = _make_config(tmp_path, version="1.2.3", project_name="App")
+    cfg.installer.enabled = False
+    Path(cfg.zip_file_path).write_bytes(b"zip")
+
+    assets = PipelineService.stage_versioned_assets(cfg)
+
+    assert len(assets) == 1
+    assert assets[0].name == "App-1.2.3.zip"
+
+
+def test_should_list_installer_first_then_zip(tmp_path: Path) -> None:
+    cfg = _make_config(tmp_path, version="1.2.3", project_name="App")
+    cfg.installer.enabled = True
+    Path(cfg.zip_file_path).write_bytes(b"zip")
+    installer_dir = cfg.output_folder.parent / "installer"
+    installer_dir.mkdir(parents=True, exist_ok=True)
+    (installer_dir / "App-1.2.3-setup.exe").write_bytes(b"exe")
+
+    assets = PipelineService.stage_versioned_assets(cfg)
+
+    assert [a.name for a in assets] == ["App-1.2.3-setup.exe", "App-1.2.3.zip"]
+
+
+def test_should_raise_when_no_artifact_exists(tmp_path: Path) -> None:
+    cfg = _make_config(tmp_path, version="1.2.3", project_name="App")
+
+    with pytest.raises(ReleaseError, match="compile"):
+        PipelineService.stage_versioned_assets(cfg)
+
+
+def test_should_be_idempotent(tmp_path: Path) -> None:
+    cfg = _make_config(tmp_path, version="1.2.3", project_name="App")
+    Path(cfg.zip_file_path).write_bytes(b"zip")
+
+    first = PipelineService.stage_versioned_assets(cfg)
+    second = PipelineService.stage_versioned_assets(cfg)
+
+    assert first == second

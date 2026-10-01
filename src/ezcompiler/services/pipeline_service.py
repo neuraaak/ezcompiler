@@ -26,6 +26,7 @@ from typing import Any, Literal, cast
 # Local imports
 from ..shared import CompilationResult, CompilerConfig
 from ..shared._installer_config import InstallerConfig
+from ..shared.exceptions import ReleaseError
 from .compiler_service import CompilerService
 from .installer_service import InstallerService
 from .release_service import ReleaseService
@@ -282,17 +283,66 @@ class PipelineService:
         if zip_path.is_file():
             shutil.copy2(zip_path, release_dir / zip_path.name)
 
-        if config.installer.enabled:
-            installer_dir = config.installer.output_dir or (
-                config.output_folder.parent / "installer"
-            )
-            installer_exe = (
-                installer_dir / f"{config.project_name}-{config.version}-setup.exe"
-            )
-            if installer_exe.is_file():
-                shutil.copy2(installer_exe, release_dir / installer_exe.name)
+        installer_exe = PipelineService._installer_exe_path(config)
+        if installer_exe is not None and installer_exe.is_file():
+            shutil.copy2(installer_exe, release_dir / installer_exe.name)
 
         return release_dir
+
+    @staticmethod
+    def stage_versioned_assets(config: CompilerConfig) -> list[Path]:
+        """Résout les artefacts publiables et versionne le nom du zip.
+
+        ``config.zip_file_path`` vaut ``dist/<Projet>.zip`` — sans version.
+        Publier ce nom tel quel produirait des assets indistinguables entre
+        deux releases, donc le zip est copié sous ``<Projet>-<version>.zip``.
+        La copie est idempotente : ré-exécuter la méthode ne change rien.
+
+        Un projet sans installeur (``installer.enabled = False``) est un cas
+        légitime : la liste contient alors le seul zip.
+
+        Args:
+            config: Configuration (fournit project_name, version, chemins).
+
+        Returns:
+            list[Path]: Les assets existants — installeur d'abord, zip ensuite.
+
+        Raises:
+            ReleaseError: Si aucun artefact publiable n'existe.
+        """
+        assets: list[Path] = []
+
+        installer_exe = PipelineService._installer_exe_path(config)
+        if installer_exe is not None and installer_exe.is_file():
+            assets.append(installer_exe)
+
+        zip_path = Path(config.zip_file_path)
+        if zip_path.is_file():
+            versioned = zip_path.with_name(
+                f"{config.project_name}-{config.version}{zip_path.suffix}"
+            )
+            if versioned != zip_path:
+                shutil.copy2(zip_path, versioned)
+            assets.append(versioned)
+
+        if not assets:
+            raise ReleaseError(
+                "Aucun artefact publiable dans "
+                f"{config.output_folder.parent}. "
+                "Lancer d'abord `ezcompiler compile`."
+            )
+
+        return assets
+
+    @staticmethod
+    def _installer_exe_path(config: CompilerConfig) -> Path | None:
+        """Chemin attendu de l'installeur, ou None si l'installeur est désactivé."""
+        if not config.installer.enabled:
+            return None
+        installer_dir = config.installer.output_dir or (
+            config.output_folder.parent / "installer"
+        )
+        return installer_dir / f"{config.project_name}-{config.version}-setup.exe"
 
     @staticmethod
     def release_artifact(
