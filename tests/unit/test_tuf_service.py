@@ -135,6 +135,40 @@ def test_remove_latest_should_not_record_on_failure(
     assert TufService.withdrawn_versions(tmp_path / "repo") == []
 
 
+def test_remove_latest_should_not_touch_the_tree_when_withdrawn_json_is_malformed(
+    make_tuf_tree, tmp_path: Path
+) -> None:
+    """Sinon la version disparaît sans être enregistrée : garde-fou désactivé."""
+    make_tuf_tree(["1.0.0", "1.0.1"])
+    cfg = _cfg(tmp_path)
+    (tmp_path / "repo" / "withdrawn.json").write_text("{cassé", encoding="utf-8")
+
+    with pytest.raises(ReleaseError, match="illisible"):
+        TufService.remove_latest(cfg)
+
+    assert TufService.read_tree_version(cfg) == "1.0.1"
+    assert (tmp_path / "repo" / "targets" / "App-1.0.1.tar.gz").exists()
+
+
+def test_record_withdrawn_should_name_the_version_when_the_write_fails(
+    monkeypatch, tmp_path: Path
+) -> None:
+    TufService.record_withdrawn(tmp_path, "1.0.0")
+    before = (tmp_path / "withdrawn.json").read_text("utf-8")
+
+    def _fail(*_a: Any) -> None:
+        raise PermissionError("accès refusé")
+
+    monkeypatch.setattr("ezcompiler.services.tuf_service.os.replace", _fail)
+
+    with pytest.raises(ReleaseError, match=r"1\.0\.1"):
+        TufService.record_withdrawn(tmp_path, "1.0.1")
+
+    # Écriture atomique : l'ancien contenu reste intact, pas de fichier temporaire.
+    assert (tmp_path / "withdrawn.json").read_text("utf-8") == before
+    assert sorted(p.name for p in tmp_path.iterdir()) == ["withdrawn.json"]
+
+
 # status --------------------------------------------------------------
 
 

@@ -20,6 +20,7 @@ from __future__ import annotations
 # Standard library imports
 import json
 import logging
+import os
 import re
 from datetime import UTC, datetime
 from pathlib import Path
@@ -99,7 +100,15 @@ class TufService:
     def record_withdrawn(
         repo_dir: Path, version: str, *, now: datetime | None = None
     ) -> None:
-        """Append ``version`` to ``withdrawn.json``."""
+        """Append ``version`` to ``withdrawn.json``.
+
+        The file is written atomically (temporary file in the same directory,
+        then ``os.replace``): an interrupted write never truncates it.
+
+        Raises:
+            ReleaseError: If the existing file is malformed, or if the write
+                fails — the message names the version to add by hand.
+        """
         path = repo_dir / WITHDRAWN_FILE
         entries: list[dict[str, Any]] = [
             {"version": v, "withdrawn_at": at}
@@ -107,9 +116,19 @@ class TufService:
         ]
         stamp = (now or datetime.now(UTC)).strftime("%Y-%m-%dT%H:%M:%SZ")
         entries.append({"version": version, "withdrawn_at": stamp})
-        path.write_text(
-            json.dumps({"withdrawn": entries}, indent=2) + "\n", encoding="utf-8"
-        )
+        tmp = path.with_name(f"{WITHDRAWN_FILE}.tmp")
+        try:
+            tmp.write_text(
+                json.dumps({"withdrawn": entries}, indent=2) + "\n", encoding="utf-8"
+            )
+            os.replace(tmp, path)
+        except OSError as e:
+            tmp.unlink(missing_ok=True)
+            raise ReleaseError(
+                f"Impossible d'enregistrer le retrait de {version} dans {path} : "
+                f"{e}. Ajouter {version} à la main dans ce fichier avant toute "
+                "nouvelle release."
+            ) from e
 
     @staticmethod
     def _withdrawn_entries(path: Path) -> list[tuple[str, str]]:
@@ -159,11 +178,16 @@ class TufService:
             str: The removed version.
 
         Raises:
+            ReleaseError: If ``withdrawn.json`` is malformed (nothing is
+                removed) or cannot be written (the message names the version).
             ReleaseError / SigningKeyError: From the releaser; nothing is
                 recorded when the removal fails.
         """
         repo_dir = TufService.repo_dir(config)
         keys_dir = TufService.keys_dir(config)
+        # Valide withdrawn.json AVANT le retrait irréversible : un fichier
+        # illisible ferait disparaître la version sans l'enregistrer.
+        TufService.withdrawn_versions(repo_dir)
         releaser: ReleaserPort = ReleaserFactory.create_releaser(
             release_type,
             {"keys_dir": keys_dir, "expiration_days": config.tuf_expiration_days},
