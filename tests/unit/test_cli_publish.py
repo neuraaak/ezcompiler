@@ -522,3 +522,78 @@ def test_update_should_warn_that_destination_is_ignored_with_r2(tmp_path):
             main, ["publish", "update", "-d", "ailleurs"], input="n\n"
         )
     assert "ignoré avec r2" in result.output
+
+
+# ------------------------------------------------
+# publish update après un retrait
+# ------------------------------------------------
+
+
+def _withdraw(tmp_path: Path, version: str) -> None:
+    from ezcompiler.services.tuf_service import TufService
+
+    (tmp_path / "repo").mkdir(parents=True, exist_ok=True)
+    TufService.record_withdrawn(tmp_path / "repo", version)
+
+
+def _invoke_update(cfg: CompilerConfig):
+    with (
+        patch(
+            "ezcompiler.interfaces.cli_interface.ConfigService.build_compiler_config",
+            return_value=cfg,
+        ),
+        patch(
+            "ezcompiler.interfaces.cli_interface.PublishService.publish_update"
+        ) as publish,
+    ):
+        result = CliRunner().invoke(main, ["publish", "update", "--yes"])
+    return result, publish
+
+
+def test_update_should_explain_a_withdrawal_instead_of_a_mismatch(tmp_path):
+    cfg = _make_config(
+        tmp_path, version="1.0.1", tuf_enabled=True, repo_public_url="https://h/u/"
+    )
+    _sign_tree(tmp_path, "1.0.0")
+    _withdraw(tmp_path, "1.0.1")
+
+    result, publish = _invoke_update(cfg)
+
+    out = " ".join(result.output.split())
+    assert result.exit_code == 0, result.output
+    assert "1.0.1 a été retirée" in out
+    assert "n'atteigne plus de nouveaux clients" in out
+    assert "Relancer le pipeline" not in out
+    assert "déjà en 1.0.1 y restent" in out
+    publish.assert_called_once()
+
+
+def test_update_should_publish_an_emptied_tree_after_withdrawal(tmp_path):
+    cfg = _make_config(
+        tmp_path, version="1.0.0", tuf_enabled=True, repo_public_url="https://h/u/"
+    )
+    meta = tmp_path / "repo" / "metadata"
+    meta.mkdir(parents=True, exist_ok=True)
+    (meta / "targets.json").write_text('{"signed": {"targets": {}}}', encoding="utf-8")
+    _withdraw(tmp_path, "1.0.0")
+
+    result, publish = _invoke_update(cfg)
+
+    out = " ".join(result.output.split())
+    assert result.exit_code == 0, result.output
+    assert "aucune (toutes retirées)" in out
+    publish.assert_called_once()
+
+
+def test_update_should_still_refuse_an_empty_tree_without_withdrawal(tmp_path):
+    cfg = _make_config(
+        tmp_path, version="1.0.0", tuf_enabled=True, repo_public_url="https://h/u/"
+    )
+    meta = tmp_path / "repo" / "metadata"
+    meta.mkdir(parents=True, exist_ok=True)
+    (meta / "targets.json").write_text('{"signed": {"targets": {}}}', encoding="utf-8")
+
+    result, publish = _invoke_update(cfg)
+
+    assert result.exit_code == 1
+    publish.assert_not_called()

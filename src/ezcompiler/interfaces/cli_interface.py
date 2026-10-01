@@ -1451,7 +1451,12 @@ def publish_update_command(
         repo_dir = cfg.tuf_repo_dir or (cfg.output_folder / "repo")
         # Lit la version dans l'arbre signé lui-même : c'est elle que les
         # clients recevront, pas forcément celle de la config.
-        tree_version = TufService.read_tree_version(cfg)
+        withdrawn = TufService.withdrawn_versions(repo_dir)
+        tree_version = TufService.read_tree_version(cfg, allow_empty=bool(withdrawn))
+        config_withdrawn = any(
+            TufService.same_version(cfg.version, w) for w in withdrawn
+        )
+        shown = tree_version or "aucune (toutes retirées)"
 
         repo_dest = repo_destination or cfg.repo_destination
         if repo_dest == "r2" and destination:
@@ -1466,20 +1471,30 @@ def publish_update_command(
         printer.info("Arbre de mise à jour TUF à publier")
         printer.info(f"   Backend    : {repo_dest}")
         printer.info(f"   Destination: {target}")
-        printer.info(f"   Version    : {tree_version}")
+        printer.info(f"   Version    : {shown}")
         printer.info(f"   Fichiers   : {file_count}")
         printer.info("─" * 60)
-        if not TufService.same_version(tree_version, cfg.version):
+        if config_withdrawn:
             printer.warning(
-                f"La configuration annonce {cfg.version}, mais l'arbre signé "
-                f"porte {tree_version} : c'est {tree_version} qui sera publiée. "
-                "Relancer le pipeline si ce n'est pas voulu."
+                f"{cfg.version} a été retirée : l'arbre republié propose "
+                f"{shown}, pour que {cfg.version} n'atteigne plus de nouveaux "
+                f"clients. Les clients déjà en {cfg.version} y restent jusqu'à "
+                "une version supérieure."
             )
-        printer.warning(
-            f"Les clients installés passeront en {tree_version} automatiquement. "
-            "Cette publication ne peut pas être annulée, seulement remplacée "
-            "par une version supérieure."
-        )
+        else:
+            if tree_version is not None and not TufService.same_version(
+                tree_version, cfg.version
+            ):
+                printer.warning(
+                    f"La configuration annonce {cfg.version}, mais l'arbre signé "
+                    f"porte {tree_version} : c'est {tree_version} qui sera publiée. "
+                    "Relancer le pipeline si ce n'est pas voulu."
+                )
+            printer.warning(
+                f"Les clients installés passeront en {shown} automatiquement. "
+                "Cette publication ne peut pas être annulée, seulement remplacée "
+                "par une version supérieure."
+            )
 
         if not yes and not click.confirm("Publier cet arbre ?", default=False):
             printer.info("Annulé.")
