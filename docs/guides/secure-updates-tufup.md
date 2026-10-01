@@ -111,8 +111,8 @@ compiler.run_pipeline(console=False)   # compile → zip → release (local only
 ```
 
 ```bash
-ezcompiler publish update    # TUF tree — asks for confirmation
-ezcompiler publish release   # installer + ZIP — asks for confirmation
+ezcompiler publish update    # TUF tree — recap + confirmation
+ezcompiler publish release   # installer + ZIP (recap + confirmation on GitHub)
 ```
 
 The two commands perform **two independent transfers**, mirrored by the client's update URL:
@@ -122,8 +122,8 @@ The two commands perform **two independent transfers**, mirrored by the client's
 | TUF tree      | `repo_destination` / `repo_endpoint`       | `<repo_endpoint>/update/`     |
 | Installer ZIP | `release_destination` / `release_endpoint` | `<release_endpoint>/release/` |
 
-For `r2`, the TUF tree is uploaded straight to the bucket prefix (no `/update/`
-subdir) and the installer ZIP is skipped. The `/update/` suffix is what the
+For `r2`, each tree is uploaded straight to its bucket prefix (no `/update/`
+or `/release/` subdir). The `/update/` suffix is what the
 generated client polls — keep `repo_public_url` pointing at the same root
 (the client appends `/update` itself for `disk` and `server`).
 

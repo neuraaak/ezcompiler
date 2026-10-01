@@ -29,7 +29,7 @@ ezcompiler [OPTIONS] COMMAND [ARGS]...
 | `generate version`  | Generate a Windows version information file                             |
 | `generate template` | Generate a template file with optional mockup data                      |
 | `publish update`    | Publish the signed TUF update tree (asks for confirmation)              |
-| `publish release`   | Publish the installer and ZIP as a release (asks for confirmation)      |
+| `publish release`   | Publish the installer and ZIP (GitHub: recap + confirmation)            |
 | `keys init`         | Initialize TUF signing keys and repository skeleton                     |
 | `keys refresh`      | Re-sign TUF metadata to extend expiration without a new release         |
 | `upload`            | **Deprecated** — use `publish update` then `publish release`            |
@@ -178,7 +178,7 @@ ezcompiler generate template --type config --mockup
 
 ### `publish update`
 
-Publish the signed TUF update tree to `<repo_endpoint>/update/`. Before transferring anything, the command prints a recap — backend, destination, the version that becomes current, file count — and asks for confirmation.
+Publish the signed TUF update tree to `<repo_endpoint>/update/`. Before transferring anything, the command prints a recap — backend, destination, the version that becomes current, file count — and asks for confirmation. The version is read from the signed tree (`metadata/targets.json`), not from the config; when the two differ, the recap warns.
 
 This is the less reversible of the two publications: TUF metadata versions are monotonic and installed clients update on their own. A published tree cannot be withdrawn, only superseded by a higher version.
 
@@ -201,10 +201,10 @@ The command fails before the recap when no signed tree exists in the TUF reposit
 
 ### `publish release`
 
-Publish the installer `setup.exe` (when `installer.enabled`) and the ZIP. The ZIP is published under its versioned name, `<Project>-<version>.zip`. The path depends on `release_destination`:
+Publish the installer `setup.exe` (when `installer.enabled`) and the ZIP. When `installer.enabled` is true, a missing `setup.exe` stops the command instead of publishing an incomplete release. The path depends on `release_destination`:
 
-- **`github`** — creates a GitHub Release through the [`gh` CLI](https://cli.github.com/), with the artifacts attached. `release_endpoint` is the `owner/repo`; when empty, `gh` infers the repository from the current git remote. Requires `gh` on the `PATH` and an authenticated session (`gh auth login`, or `GH_TOKEN` in the environment). No credential goes through the configuration or the command line. Every check (existing tag, artifacts, notes file) runs before the recap; the release is never overwritten — an existing tag stops the command.
-- **`disk`, `server`, `r2`** — copies the release directory to `<release_endpoint>/release/`, as `ezcompiler upload` did, without a confirmation prompt.
+- **`github`** — creates a GitHub Release through the [`gh` CLI](https://cli.github.com/), with the artifacts attached; the ZIP is attached under its versioned name, `<Project>-<version>.zip`. `release_endpoint` is the `owner/repo`; when empty, `gh` infers the repository from the current git remote, and the recap says so. `--destination` is rejected on this path. Requires `gh` on the `PATH` and an authenticated session (`gh auth login`, or `GH_TOKEN` in the environment). No credential goes through the configuration or the command line. Every check (`gh` installed and authenticated, existing tag, artifacts, notes file) runs before the recap; the release is never overwritten — an existing tag stops the command.
+- **`disk`, `server`, `r2`** — copies the release directory to `<release_endpoint>/release/`, as `ezcompiler upload` did (the ZIP keeps its unversioned name), without a recap or confirmation prompt. `--tag`, `--title`, `--notes`, `--notes-file`, `--draft` and `--prerelease` do not apply there; the command warns when they are given.
 
 `gitlab` is not supported yet: selecting it fails with an explicit error.
 
@@ -232,7 +232,7 @@ ezcompiler publish release --yes --notes-file CHANGELOG.md
 ### `upload`
 
 !!! warning "Deprecated"
-    `ezcompiler upload` is deprecated and will be removed in v5. Use `ezcompiler publish update` then `ezcompiler publish release`, which ask for confirmation before any irreversible publication. `EzCompiler.upload()` is deprecated likewise.
+    `ezcompiler upload` is deprecated and will be removed in v5. Use `ezcompiler publish update` then `ezcompiler publish release`, which ask for confirmation before any irreversible publication (the TUF tree, and GitHub releases). `EzCompiler.upload()` is deprecated likewise.
 
 Upload the TUF tree and/or the release directory (ZIP + installer `setup.exe`) to their destination. Auto-detects the flow from `tuf_enabled`: TUF tree → `<dest>/update/`, release directory → `<dest>/release/`. Destination and backends fall back to the config when not provided.
 
@@ -325,7 +325,7 @@ ezcompiler compile --compiler PyInstaller
 # Initialize TUF signing keys (one-time)
 ezcompiler keys init
 
-# Publish the TUF update tree, then the release (each asks for confirmation)
+# Publish the TUF update tree, then the release
 ezcompiler publish update
 ezcompiler publish release --notes-file CHANGELOG.md
 ```

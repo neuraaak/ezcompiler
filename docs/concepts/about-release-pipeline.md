@@ -18,7 +18,7 @@ compile → zip → installer → release
 
 ## Local vs published
 
-The pipeline produces and signs **locally**; the CLI **publishes**. Nothing irreversible happens until an operator runs a `publish` command, and both commands print a recap and ask for confirmation first (`--yes` skips it for automation).
+The pipeline produces and signs **locally**; the CLI **publishes**. Nothing irreversible happens until an operator runs a `publish` command. The irreversible publications, the TUF tree and a GitHub release, print a recap and ask for confirmation first (`--yes` skips it for automation). A release copied to `disk`, `server` or `r2` is an overwritable file and is copied without a prompt, as before.
 
 The two publications are not equivalent, which is why they are two commands rather than one:
 
@@ -41,7 +41,7 @@ When `tuf_enabled=True`, the two publications target independent destinations:
 <release_endpoint>/release/  # distributable ZIP archive + setup.exe (if installer.enabled)
 ```
 
-The TUF tree (`repo_destination`/`repo_endpoint`) and the release directory (`release_destination`/`release_endpoint`) are decoupled so each can target a different backend (`disk`, `server`, or `r2` for the TUF tree). The release can also go to a **GitHub Release** (`release_destination = "github"`, `release_endpoint = "owner/repo"`), created through the `gh` CLI; the TUF tree never can, because it must be served over HTTP on stable paths. For `r2`, the TUF tree is written straight to the bucket prefix and the release directory is skipped — including the installer.
+The TUF tree (`repo_destination`/`repo_endpoint`) and the release directory (`release_destination`/`release_endpoint`) are decoupled so each can target a different backend (`disk`, `server`, or `r2` for the TUF tree). The release can also go to a **GitHub Release** (`release_destination = "github"`, `release_endpoint = "owner/repo"`), created through the `gh` CLI; the TUF tree never can, because it must be served over HTTP on stable paths. For `r2`, each tree is written straight to its bucket prefix, with no `update/` or `release/` sub-folder.
 
 ---
 

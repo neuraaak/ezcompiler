@@ -70,8 +70,9 @@ version → compile → zip → installer → release
 **Publication is not a pipeline stage.** `run_pipeline()` stops after building
 the local TUF tree; publication is a separate, deliberate CLI step:
 `ezcompiler publish update` (TUF tree) and `ezcompiler publish release`
-(installer + zip), both of which show a recap and ask for confirmation
-(`--yes` skips it). This is pinned by `test_run_pipeline_does_not_upload`, and
+(installer + zip). `publish update` and a `github` release show a recap and
+ask for confirmation (`--yes` skips it); a release to `disk|server|r2` is
+copied without a prompt, as before. This is pinned by `test_run_pipeline_does_not_upload`, and
 the deprecation message of `release(publish=True)` names that sequence.
 `EzCompiler.upload()` and `ezcompiler upload` still work but are **deprecated**
 (removal in v5). The publisher/uploader routing (`github` → `PublisherPort`,
@@ -150,11 +151,12 @@ before proceeding.
 - **ruff** rules: `E W F I B C4 UP S T20 ARG PIE SIM`, line length 88,
   double quotes. See `[tool.ruff]` for per-file ignores.
 - **Coverage:** branch coverage, `--cov-fail-under=70` (audit target is 80%;
-  measured at 79.44% over 728 tests as of 2026-09-30). See the exclusions note
+  measured at 80.80% over 862 tests as of 2026-10-01). See the exclusions note
   below before assuming a module is omitted.
 - **Test markers** available: `slow`, `integration`, `unit`, `cli`, `compiler`,
   `uploader`, `robustness`, `requires_iscc` (needs a real `ISCC.exe` /
-  Inno Setup 6 on the machine).
+  Inno Setup 6 on the machine), `requires_gh` (needs a real, authenticated
+  `gh` CLI).
 - **Test runner wrapper** (`tests/run_tests.py`) provides options: `--type
   unit|integration|robustness|all`, `--coverage`, `--fast`, `--parallel`,
   `--marker <name>`, `--verbose`. Use `pytest` directly for a single file or
