@@ -45,6 +45,7 @@ class TufupReleaser(BaseReleaser):
         repo_dir: Path,
         *,
         patch: bool = True,  # noqa: ARG002
+        required: bool = False,
     ) -> Path:
         """Build and sign the local TUF repository for the bundle."""
         self._validate_bundle_dir(bundle_dir)
@@ -99,7 +100,9 @@ class TufupReleaser(BaseReleaser):
             # Use create_keys=False — same path as Repository.from_config() — so the
             # build never prompts to overwrite keys nor regenerates them.
             repository._load_keys_and_roles(create_keys=False)
-            repository.add_bundle(new_bundle_dir=bundle_dir, new_version=version)
+            repository.add_bundle(
+                new_bundle_dir=bundle_dir, new_version=version, required=required
+            )
             repository.publish_changes(private_key_dirs=[keys_dir])
         except (ReleaseError, SigningKeyError):
             raise
@@ -230,6 +233,76 @@ class TufupReleaser(BaseReleaser):
             raise ReleaseError(f"tufup expiration refresh failed: {exc}") from exc
 
         return repo_dir
+
+    # ////////////////////////////////////////////////
+    # REMOVE LATEST
+    # ////////////////////////////////////////////////
+
+    def remove_latest(self, app_name: str, repo_dir: Path, keys_dir: Path) -> str:
+        """Remove the latest archive and its patch, then re-sign the tree.
+
+        Native tufup ``remove_latest_bundle``: only the latest version can be
+        removed, intermediate ones would break the patch chain. The change is
+        local; ``ezcompiler publish update`` publishes it.
+
+        Args:
+            app_name: Application name (must match the initialized repo).
+            repo_dir: Root of the local TUF repository tree.
+            keys_dir: Directory holding the private signing keys.
+
+        Returns:
+            str: The removed version, as spelled in the archive name.
+
+        Raises:
+            SigningKeyError: If the keys directory is missing.
+            ReleaseError: If the repo is not initialized, holds no version,
+                or tufup fails.
+        """
+        if not keys_dir.is_dir():
+            raise SigningKeyError(
+                f"Signing keys directory not found: {keys_dir}. "
+                "Initialize keys first (`ezcompiler tuf init`)."
+            )
+        root_metadata = repo_dir / "metadata" / "root.json"
+        if not root_metadata.exists():
+            raise ReleaseError(
+                f"TUF repository not initialized at {repo_dir} "
+                f"(missing {root_metadata}). Run `ezcompiler tuf init` first."
+            )
+
+        try:
+            from tufup.repo import (  # noqa: PLC0415 # pyright: ignore[reportMissingImports]
+                Repository,
+            )
+        except ImportError as exc:
+            raise ReleaseError(
+                "tufup is not installed; install ezcompiler[tufup]"
+            ) from exc
+
+        try:
+            repository = Repository(
+                app_name=app_name,
+                repo_dir=str(repo_dir),
+                keys_dir=str(keys_dir),
+                expiration_days=self._config.get("expiration_days"),
+            )
+            repository._load_keys_and_roles(create_keys=False)
+            assert repository.roles is not None  # noqa: S101
+            latest = repository.roles.get_latest_archive()
+            if latest is None:
+                raise ReleaseError(f"Aucune version à retirer dans {repo_dir}.")
+            # TargetMeta.version est normalisée (1.0.1rc1) : on renvoie la
+            # chaîne du nom d'archive (1.0.1-rc.1), celle de la config.
+            name = Path(latest.target_path_str).name
+            version = name[len(app_name) + 1 : -len(".tar.gz")]
+            repository.remove_latest_bundle()
+            repository.publish_changes(private_key_dirs=[keys_dir])
+        except (ReleaseError, SigningKeyError):
+            raise
+        except Exception as exc:
+            raise ReleaseError(f"tufup remove-latest failed: {exc}") from exc
+
+        return version
 
     # ////////////////////////////////////////////////
     # METADATA

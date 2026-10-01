@@ -180,8 +180,11 @@ class ReleaserPort(Protocol):
         repo_dir: Path,
         *,
         patch: bool = True,
+        required: bool = False,
     ) -> Path:
         """Build and sign the local TUF repository for ``bundle_dir``.
+
+        ``required`` marks the version as mandatory for clients (tufup ``required``).
 
         Returns the path to the produced ``repository/`` tree.
         Raises ReleaseError on failure.
@@ -208,6 +211,14 @@ class ReleaserPort(Protocol):
         """Re-sign metadata to push out expiration without a new release.
 
         Returns the local repository directory.
+        Raises ReleaseError / SigningKeyError on failure.
+        """
+        ...
+
+    def remove_latest(self, app_name: str, repo_dir: Path, keys_dir: Path) -> str:
+        """Remove the latest archive (and its patch), then re-sign.
+
+        Returns the removed version as spelled in the archive name.
         Raises ReleaseError / SigningKeyError on failure.
         """
         ...

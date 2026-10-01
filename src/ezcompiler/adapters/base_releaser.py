@@ -54,6 +54,7 @@ class BaseReleaser(ABC):
         repo_dir: Path,
         *,
         patch: bool = True,
+        required: bool = False,
     ) -> Path:
         """Build and sign the local TUF repository. Raises ReleaseError."""
 
@@ -78,6 +79,13 @@ class BaseReleaser(ABC):
         """Re-sign metadata to push out expiration without a new release.
 
         Returns the local repository directory.
+        Raises ReleaseError / SigningKeyError on failure.
+        """
+
+    @abstractmethod
+    def remove_latest(self, app_name: str, repo_dir: Path, keys_dir: Path) -> str:
+        """Remove the latest archive and its patch, re-sign, return the version.
+
         Raises ReleaseError / SigningKeyError on failure.
         """
 

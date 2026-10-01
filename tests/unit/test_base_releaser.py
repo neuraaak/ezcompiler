@@ -10,7 +10,9 @@ from ezcompiler.shared.exceptions import BundleBuildError
 
 
 class _Dummy(BaseReleaser):
-    def release(self, bundle_dir, app_name, version, repo_dir, *, patch=True):
+    def release(
+        self, bundle_dir, app_name, version, repo_dir, *, patch=True, required=False
+    ):
         self._validate_bundle_dir(bundle_dir)
         return repo_dir
 
@@ -21,6 +23,9 @@ class _Dummy(BaseReleaser):
         self, app_name, repo_dir, keys_dir, *, roles=(...), days=None
     ):
         return repo_dir
+
+    def remove_latest(self, app_name: str, repo_dir: Path, keys_dir: Path) -> str:
+        return "1.0.0"
 
     def get_releaser_name(self) -> str:
         return "dummy"
