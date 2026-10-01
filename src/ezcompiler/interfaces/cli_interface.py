@@ -21,6 +21,7 @@ from __future__ import annotations
 import json
 import sys
 import tomllib
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -1755,6 +1756,68 @@ def tuf_refresh(
         printer.error(str(e))
         logger.error(str(e))
         sys.exit(1)
+
+
+_EXPIRY_WARN_DAYS = 7
+
+
+@tuf.command("status")
+@click.option(
+    "--config", "-c", type=click.Path(exists=True), help="Config file path (YAML, JSON)"
+)
+@click.option(
+    "--pyproject",
+    "-p",
+    type=click.Path(exists=True),
+    help="Explicit pyproject.toml path",
+)
+def tuf_status(config: str | None, pyproject: str | None) -> None:
+    """Afficher l'état de l'arbre TUF local (lecture seule).
+
+    Versions signées, drapeaux, expirations des rôles et versions retirées.
+
+    Exemple :
+
+        ezcompiler tuf status
+    """
+    _force_utf8_stdout()
+    printer = _get_printer()
+    logger = _get_logger()
+    try:
+        cfg = ConfigService.build_compiler_config(
+            config_path=Path(config) if config else None,
+            pyproject_path=Path(pyproject) if pyproject else None,
+        )
+        status = TufService.status(cfg)
+    except (ConfigurationError, ReleaseError) as e:
+        printer.error(str(e))
+        logger.error(str(e))
+        sys.exit(1)
+
+    printer.info(f"Arbre TUF : {status.repo_dir}")
+    printer.info("Versions (de la plus récente à la plus ancienne)")
+    if not status.versions:
+        printer.info("   (aucune)")
+    for v in status.versions:
+        flags = [
+            f for f, on in (("obligatoire", v.required), ("patch", v.has_patch)) if on
+        ]
+        printer.info(f"   {v.version:<12} {'  '.join(flags)}".rstrip())
+
+    printer.info("Expirations")
+    now = datetime.now(UTC)
+    for role, expires in status.expirations.items():
+        refresh = "ezcompiler tuf refresh" + (" --role root" if role == "root" else "")
+        days = (expires - now).days
+        line = f"   {role:<10} {expires:%Y-%m-%d}   ({days} j)"
+        if expires <= now:
+            printer.error(f"{line}   expiré : lancer `{refresh}`")
+        elif days < _EXPIRY_WARN_DAYS:
+            printer.warning(f"{line}   expire bientôt : lancer `{refresh}`")
+        else:
+            printer.info(line)
+
+    printer.info("Versions retirées : " + (", ".join(status.withdrawn) or "aucune"))
 
 
 def _deprecated_alias(target: click.Command, old: str, new: str) -> click.Command:
