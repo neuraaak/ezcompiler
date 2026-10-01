@@ -208,6 +208,40 @@ def test_status_should_ignore_other_projects_archives(tmp_path: Path) -> None:
     assert status.versions[0].required is False  # pas de bloc custom
 
 
+def _write_meta(tmp_path: Path, *, expires: str, targets: Any) -> None:
+    meta = tmp_path / "repo" / "metadata"
+    meta.mkdir(parents=True, exist_ok=True)
+    for role in ("root", "targets", "snapshot", "timestamp"):
+        signed: dict[str, Any] = {"expires": expires}
+        if role == "targets":
+            signed["targets"] = targets
+        (meta / f"{role}.json").write_text(
+            json.dumps({"signed": signed}), encoding="utf-8"
+        )
+
+
+def test_status_should_read_a_naive_expiry_as_utc(tmp_path: Path) -> None:
+    """Fichier édité à la main sans « Z » : pas de datetime naïf."""
+    _write_meta(tmp_path, expires="2030-01-01T00:00:00", targets={})
+
+    status = TufService.status(_cfg(tmp_path))
+
+    assert all(
+        d == datetime(2030, 1, 1, tzinfo=UTC) for d in status.expirations.values()
+    )
+
+
+@pytest.mark.parametrize(
+    "targets",
+    [["App-1.0.0.tar.gz"], "App-1.0.0.tar.gz", {"App-1.0.0.tar.gz": ["x"]}],
+)
+def test_status_should_refuse_malformed_targets(tmp_path: Path, targets: Any) -> None:
+    _write_meta(tmp_path, expires="2030-01-01T00:00:00Z", targets=targets)
+
+    with pytest.raises(ReleaseError, match="illisible"):
+        TufService.status(_cfg(tmp_path))
+
+
 def test_status_should_refuse_an_uninitialized_tree(tmp_path: Path) -> None:
     with pytest.raises(ReleaseError, match="tuf init"):
         TufService.status(_cfg(tmp_path))

@@ -222,23 +222,32 @@ class TufService:
         signed = {role: TufService._read_signed(meta_dir, role) for role in TUF_ROLES}
         try:
             expirations = {
-                role: datetime.fromisoformat(
-                    str(signed[role]["expires"]).replace("Z", "+00:00")
-                )
+                role: TufService._parse_expires(signed[role]["expires"])
                 for role in TUF_ROLES
             }
             targets = signed["targets"].get("targets", {})
-        except (KeyError, ValueError, AttributeError) as e:
+            if not isinstance(targets, dict):
+                raise TypeError("'targets' n'est pas un objet")
+            versions = TufService._versions(config.project_name, targets)
+        except (KeyError, ValueError, AttributeError, TypeError) as e:
             raise ReleaseError(
                 f"Métadonnées TUF illisibles dans {meta_dir} : {e}"
             ) from e
 
         return TufStatus(
             repo_dir=repo_dir,
-            versions=TufService._versions(config.project_name, targets),
+            versions=versions,
             expirations=expirations,
             withdrawn=tuple(TufService.withdrawn_versions(repo_dir)),
         )
+
+    @staticmethod
+    def _parse_expires(raw: object) -> datetime:
+        """ISO 8601 expiry; a value without offset is read as UTC."""
+        expires = datetime.fromisoformat(str(raw).replace("Z", "+00:00"))
+        if expires.tzinfo is None:
+            expires = expires.replace(tzinfo=UTC)
+        return expires
 
     @staticmethod
     def _read_signed(meta_dir: Path, role: str) -> dict[str, Any]:
@@ -266,7 +275,9 @@ class TufService:
                 parsed = Version(raw)
             except InvalidVersion:
                 continue
-            custom = (info or {}).get("custom") or {}
+            if not isinstance(info, dict):
+                raise TypeError(f"entrée {name!r} n'est pas un objet")
+            custom = info.get("custom") or {}
             required = bool((custom.get("tufup") or {}).get("required", False))
             found.append((parsed, TufVersion(raw, required, raw in patched)))
         found.sort(key=lambda item: item[0], reverse=True)
