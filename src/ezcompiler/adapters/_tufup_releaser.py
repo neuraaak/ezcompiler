@@ -64,7 +64,7 @@ class TufupReleaser(BaseReleaser):
             raise ReleaseError(
                 f"TUF repository not initialized at {repo_dir} "
                 f"(missing {root_metadata}). Run key/repo initialization first "
-                "(e.g. `ezcompiler release init`)."
+                "(e.g. `ezcompiler keys init`)."
             )
 
         try:
@@ -201,7 +201,7 @@ class TufupReleaser(BaseReleaser):
         if not root_metadata.exists():
             raise ReleaseError(
                 f"TUF repository not initialized at {repo_dir} "
-                f"(missing {root_metadata}). Run `ezcompiler release init` first."
+                f"(missing {root_metadata}). Run `ezcompiler keys init` first."
             )
 
         try:

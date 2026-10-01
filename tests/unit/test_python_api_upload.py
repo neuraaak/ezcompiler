@@ -162,7 +162,16 @@ def test_upload_should_remain_non_interactive(monkeypatch, tmp_path: Path) -> No
     def _boom(*_args: Any, **_kwargs: Any) -> str:
         raise AssertionError("upload() ne doit pas lire stdin")
 
+    class _NoStdin:
+        """click.confirm lit stdin sans passer par builtins.input."""
+
+        def read(self, *_args: Any) -> str:
+            raise AssertionError("upload() ne doit pas lire stdin")
+
+        readline = read
+
     monkeypatch.setattr("builtins.input", _boom)
+    monkeypatch.setattr("sys.stdin", _NoStdin())
     cfg = _cfg(tmp_path, tuf_enabled=False, repo_destination="disk")
     monkeypatch.setattr(
         "ezcompiler.interfaces.python_api.PipelineService.upload_artifact",

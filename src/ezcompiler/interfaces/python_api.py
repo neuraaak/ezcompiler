@@ -427,6 +427,11 @@ class EzCompiler:
     ) -> None:
         """Upload le repo TUF et/ou le zip installeur selon la config.
 
+        Deprecated:
+            Déprécié depuis 4.1.0, retiré en v5. Utiliser la CLI :
+            ``ezcompiler publish update`` puis ``ezcompiler publish release``,
+            qui demandent confirmation avant toute publication irréversible.
+
         Quand ``release_needed`` est True, effectue deux uploads séquentiels :
         1. arbre TUF → ``<dest>/update/``
         2. zip installeur → ``<dest>/release/`` (ignoré si repo_destination="r2")
@@ -515,6 +520,9 @@ class EzCompiler:
         Args:
             bundle_dir: Directory containing the compiled application artifacts.
             publish: When True, upload the repository/ tree to ``update_repo_url``.
+                Deprecated since 4.1.0 (removed in v5): run ``run_pipeline()``
+                then ``ezcompiler publish update`` / ``ezcompiler publish
+                release`` instead.
 
         Returns:
             Path: The local ``repository/`` tree produced by tufup.
