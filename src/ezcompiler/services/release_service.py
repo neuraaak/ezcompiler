@@ -92,6 +92,9 @@ class ReleaseService:
 
         # Après le pull : withdrawn.json voyage avec l'arbre distant.
         TufService.ensure_releasable(repo_dir, version)
+        # Première release après un retrait : archive complète seulement, le
+        # patch partirait d'une archive que les clients retirés n'ont pas.
+        patch = not TufService.needs_full_archive(repo_dir, app_name)
 
         releaser: ReleaserPort = ReleaserFactory.create_releaser(
             release_type, releaser_config
@@ -101,6 +104,7 @@ class ReleaseService:
             app_name=app_name,
             version=version,
             repo_dir=repo_dir,
+            patch=patch,
             required=required,
         )
 

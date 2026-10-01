@@ -44,7 +44,7 @@ class TufupReleaser(BaseReleaser):
         version: str,
         repo_dir: Path,
         *,
-        patch: bool = True,  # noqa: ARG002
+        patch: bool = True,
         required: bool = False,
     ) -> Path:
         """Build and sign the local TUF repository for the bundle."""
@@ -101,7 +101,10 @@ class TufupReleaser(BaseReleaser):
             # build never prompts to overwrite keys nor regenerates them.
             repository._load_keys_and_roles(create_keys=False)
             repository.add_bundle(
-                new_bundle_dir=bundle_dir, new_version=version, required=required
+                new_bundle_dir=bundle_dir,
+                new_version=version,
+                skip_patch=not patch,
+                required=required,
             )
             repository.publish_changes(private_key_dirs=[keys_dir])
         except (ReleaseError, SigningKeyError):

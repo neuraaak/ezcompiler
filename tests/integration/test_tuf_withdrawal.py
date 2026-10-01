@@ -65,3 +65,40 @@ def test_withdraw_then_ship_a_required_fix(make_tuf_tree, tmp_path: Path) -> Non
     )["signed"]["targets"]
     assert "App-1.0.1.tar.gz" not in targets
     assert targets["App-1.0.2.tar.gz"]["custom"]["tufup"]["required"] is True
+
+
+def _targets(tmp_path: Path) -> dict:
+    return json.loads(
+        (tmp_path / "repo" / "metadata" / "targets.json").read_text("utf-8")
+    )["signed"]["targets"]
+
+
+def test_first_release_after_a_withdrawal_should_ship_the_full_archive_only(
+    make_tuf_tree, tmp_path: Path
+) -> None:
+    """Un client en 1.0.1 (retirée) ne peut pas appliquer un patch 1.0.0→1.0.2."""
+    make_tuf_tree(["1.0.0", "1.0.1"])
+    assert "App-1.0.1.patch" in _targets(tmp_path)  # release normale : patch
+    main_file = tmp_path / "main.py"
+    main_file.write_text("# m", encoding="utf-8")
+    cfg = CompilerConfig(
+        version="1.0.1",
+        project_name="App",
+        main_file=str(main_file),
+        include_files={"files": [], "folders": []},
+        output_folder=tmp_path / "dist",
+        tuf_repo_dir=tmp_path / "repo",
+        tuf_keys_dir=tmp_path / "keystore",
+    )
+    assert TufService.remove_latest(cfg) == "1.0.1"
+
+    _release(tmp_path, "1.0.2")
+
+    targets = _targets(tmp_path)
+    assert "App-1.0.2.tar.gz" in targets
+    assert "App-1.0.2.patch" not in targets
+    assert not (tmp_path / "repo" / "targets" / "App-1.0.2.patch").exists()
+
+    # Une fois la version retirée dépassée, les patchs reprennent.
+    _release(tmp_path, "1.0.3")
+    assert "App-1.0.3.patch" in _targets(tmp_path)

@@ -295,13 +295,35 @@ class TufService:
                 f"({targets_meta.name} absent). "
                 "Lancer d'abord le pipeline de build (`ezcompiler compile`)."
             )
+        latest = TufService.latest_tree_version(repo_dir, config.project_name)
+        if latest is None and not allow_empty:
+            raise ReleaseError(
+                f"{targets_meta} ne référence aucune archive de "
+                f"{config.project_name}. Lancer d'abord le pipeline de build."
+            )
+        return latest
+
+    @staticmethod
+    def latest_tree_version(repo_dir: Path, app_name: str) -> str | None:
+        """Highest ``<app>-<version>`` archive signed in ``repo_dir``.
+
+        Returns:
+            str | None: The raw version spelling tufup used, or ``None`` when
+                no signed ``targets.json`` exists or it names no archive.
+
+        Raises:
+            ReleaseError: If ``targets.json`` exists but cannot be read.
+        """
+        targets_meta = repo_dir / "metadata" / "targets.json"
+        if not targets_meta.is_file():
+            return None
         try:
             doc = json.loads(targets_meta.read_text(encoding="utf-8"))
             names = doc["signed"]["targets"]
         except (OSError, ValueError, KeyError, TypeError) as e:
             raise ReleaseError(f"{targets_meta} illisible : {e}") from e
 
-        pattern = re.compile(rf"^{re.escape(config.project_name)}-(.+)\.tar\.gz$")
+        pattern = re.compile(rf"^{re.escape(app_name)}-(.+)\.tar\.gz$")
         # tufup nomme l'archive avec la chaîne brute de la config : on la
         # renvoie telle quelle (1.2.3-rc.1, pas sa forme normalisée 1.2.3rc1).
         versions: list[tuple[Version, str]] = []
@@ -313,14 +335,23 @@ class TufService:
                 versions.append((Version(match.group(1)), match.group(1)))
             except InvalidVersion:
                 continue
-        if not versions and allow_empty:
-            return None
-        if not versions:
-            raise ReleaseError(
-                f"{targets_meta} ne référence aucune archive de "
-                f"{config.project_name}. Lancer d'abord le pipeline de build."
-            )
-        return max(versions)[1]
+        return max(versions)[1] if versions else None
+
+    @staticmethod
+    def needs_full_archive(repo_dir: Path, app_name: str) -> bool:
+        """True for the first release after a withdrawal.
+
+        tufup builds the patch from the latest archive still in the tree.
+        Clients on a withdrawn version above it hold another archive: the
+        patch would fail its hash check, so the release ships without one.
+        """
+        withdrawn = TufService.withdrawn_versions(repo_dir)
+        if not withdrawn:
+            return False
+        latest = TufService.latest_tree_version(repo_dir, app_name)
+        if latest is None:
+            return True
+        return any(not TufService._not_above(w, latest) for w in withdrawn)
 
     @staticmethod
     def same_version(left: str, right: str) -> bool:

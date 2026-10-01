@@ -205,3 +205,41 @@ def test_release_should_forward_required(monkeypatch, tmp_path: Path) -> None:
     )
 
     assert releaser.calls == [{"version": "1.0.2", "required": True}]
+
+
+class _PatchRecordingReleaser:
+    def __init__(self) -> None:
+        self.patch: bool | None = None
+
+    def release(
+        self, bundle_dir, app_name, version, repo_dir, *, patch=True, required=False
+    ) -> Path:
+        self.patch = patch
+        return repo_dir
+
+    def get_releaser_name(self) -> str:
+        return "fake"
+
+
+@pytest.mark.parametrize(("needs_full", "patch"), [(True, False), (False, True)])
+def test_release_should_skip_the_patch_only_after_a_withdrawal(
+    monkeypatch, tmp_path: Path, needs_full: bool, patch: bool
+) -> None:
+    releaser = _PatchRecordingReleaser()
+    monkeypatch.setattr(
+        "ezcompiler.services.release_service.ReleaserFactory.create_releaser",
+        lambda *_a, **_k: releaser,
+    )
+    monkeypatch.setattr(
+        "ezcompiler.services.release_service.TufService.needs_full_archive",
+        lambda *_a: needs_full,
+    )
+
+    ReleaseService.release_and_publish(
+        bundle_dir=tmp_path / "bundle",
+        app_name="MyApp",
+        version="1.0.2",
+        repo_dir=tmp_path / "repo",
+    )
+
+    assert releaser.patch is patch

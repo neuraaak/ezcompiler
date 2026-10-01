@@ -267,3 +267,34 @@ def test_read_tree_version_should_return_none_for_an_emptied_tree_when_allowed(
     assert TufService.read_tree_version(cfg, allow_empty=True) is None
     with pytest.raises(ReleaseError, match="aucune archive"):
         TufService.read_tree_version(cfg)
+
+
+# needs_full_archive --------------------------------------------------
+
+
+def _withdraw(tmp_path: Path, *versions: str) -> None:
+    for version in versions:
+        TufService.record_withdrawn(tmp_path / "repo", version)
+
+
+@pytest.mark.parametrize(
+    ("archives", "withdrawn", "expected"),
+    [
+        (["App-1.0.0.tar.gz"], [], False),
+        (["App-1.0.0.tar.gz"], ["1.0.1"], True),
+        (["App-1.0.0.tar.gz", "App-1.0.2.tar.gz"], ["1.0.1"], False),
+        (["App-1.0.0.tar.gz"], ["0.9.0", "1.0.1rc1"], True),
+        (["App-1.0.1.tar.gz"], ["1.0.1-rc.1"], False),
+        ([], ["1.0.0"], True),
+    ],
+)
+def test_needs_full_archive_when_a_withdrawn_version_is_above_the_tree(
+    tmp_path: Path, archives: list[str], withdrawn: list[str], expected: bool
+) -> None:
+    _write_targets(tmp_path, archives)
+    _withdraw(tmp_path, *withdrawn)
+    assert TufService.needs_full_archive(tmp_path / "repo", "App") is expected
+
+
+def test_needs_full_archive_should_be_false_without_metadata(tmp_path: Path) -> None:
+    assert TufService.needs_full_archive(tmp_path / "repo", "App") is False

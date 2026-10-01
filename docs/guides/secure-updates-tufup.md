@@ -196,6 +196,8 @@ ezcompiler publish update              # clients on 1.2.3 move to 1.2.4
 
 Clients never downgrade: withdrawing stops the version from reaching clients that do not have it yet; clients that installed it leave it only through a higher version, which `--required` makes mandatory.
 
+The first release after a withdrawal ships **without a patch**: tufup would build it from the latest archive left in the tree (1.2.2), which clients on the withdrawn version do not have. Clients on 1.2.3 therefore download the full archive of 1.2.4; patches resume from the next release.
+
 Only the latest version can be withdrawn. The archive and patch stay on the remote storage, unusable because no signed metadata references them.
 
 `withdrawn.json` at the repository root records withdrawn versions; ezcompiler refuses to release a version that is not above them. It is published with the tree and ignored by clients. The rule also applies from the Python API (`EzCompiler.release(..., required=True)`, `run_pipeline(..., required=True)`).

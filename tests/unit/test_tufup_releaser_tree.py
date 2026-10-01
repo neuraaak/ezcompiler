@@ -23,6 +23,22 @@ def test_release_should_mark_the_archive_required(make_tuf_tree) -> None:
     assert targets["App-1.0.0.tar.gz"]["custom"]["tufup"]["required"] is False
 
 
+def test_release_should_skip_the_patch_when_asked(make_tuf_tree, tmp_path) -> None:
+    repo_dir, keys_dir = make_tuf_tree(["1.0.0"])
+    bundle = tmp_path / "nopatch-bundle"
+    bundle.mkdir()
+    (bundle / "app.exe").write_bytes(b"1.0.1" * 1000)
+
+    TufupReleaser({"keys_dir": keys_dir}).release(
+        bundle, "App", "1.0.1", repo_dir, patch=False
+    )
+
+    targets = _signed_targets(repo_dir)["targets"]
+    assert "App-1.0.1.tar.gz" in targets
+    assert "App-1.0.1.patch" not in targets
+    assert not (repo_dir / "targets" / "App-1.0.1.patch").exists()
+
+
 def test_remove_latest_should_drop_archive_and_patch_and_resign(
     make_tuf_tree,
 ) -> None:
