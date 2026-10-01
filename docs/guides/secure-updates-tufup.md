@@ -188,9 +188,12 @@ When the latest published version turns out to be broken, withdraw it from the s
 ```bash
 ezcompiler tuf remove-latest           # withdraw 1.2.3 from the local tree, re-sign
 ezcompiler publish update              # republish the tree without 1.2.3
+# set `version` to 1.2.4 in the config before building
 ezcompiler compile --required          # build 1.2.4, mandatory
 ezcompiler publish update              # clients on 1.2.3 move to 1.2.4
 ```
+
+Bump `version` in the config first: a build that keeps 1.2.3 is refused, because a new release must be above every withdrawn version.
 
 `ezcompiler tuf status` shows the versions, their flags, the role expirations and the withdrawn versions before and after.
 
