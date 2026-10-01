@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Any
 from unittest.mock import MagicMock, patch
@@ -8,7 +9,7 @@ import pytest
 
 from ezcompiler import CompilerConfig
 from ezcompiler.services.publish_service import PublishService
-from ezcompiler.shared.exceptions import PublishError, PublisherTypeError
+from ezcompiler.shared.exceptions import PublishError, PublisherTypeError, ReleaseError
 
 
 def _make_config(tmp_path: Path, **kwargs: Any) -> CompilerConfig:
@@ -222,3 +223,53 @@ def test_should_publish_with_the_publisher_given_by_the_caller(
         )
     resolve.assert_not_called()
     given.publish.assert_called_once()
+
+
+# ------------------------------------------------
+# read_tree_version
+# ------------------------------------------------
+
+
+def _write_targets(tmp_path: Path, names: list[str]) -> None:
+    meta = tmp_path / "repo" / "metadata"
+    meta.mkdir(parents=True, exist_ok=True)
+    doc = {"signed": {"targets": {n: {} for n in names}}}
+    (meta / "targets.json").write_text(json.dumps(doc), encoding="utf-8")
+
+
+def test_tree_version_is_the_highest_signed_archive(tmp_path: Path) -> None:
+    cfg = _make_config(tmp_path)
+    _write_targets(
+        tmp_path,
+        [
+            "App-1.9.0.tar.gz",
+            "App-1.10.0.tar.gz",
+            "App-1.10.0.patch",
+            "Other-9.0.tar.gz",
+        ],
+    )
+    assert PublishService.read_tree_version(cfg) == "1.10.0"
+
+
+def test_tree_version_requires_signed_targets(tmp_path: Path) -> None:
+    cfg = _make_config(tmp_path)
+    (tmp_path / "repo" / "metadata").mkdir(parents=True)
+    (tmp_path / "repo" / "metadata" / "root.json").write_text("{}", encoding="utf-8")
+    with pytest.raises(ReleaseError, match="pipeline"):
+        PublishService.read_tree_version(cfg)
+
+
+def test_tree_version_requires_an_archive_of_the_project(tmp_path: Path) -> None:
+    cfg = _make_config(tmp_path)
+    _write_targets(tmp_path, ["Other-1.0.0.tar.gz"])
+    with pytest.raises(ReleaseError, match="App"):
+        PublishService.read_tree_version(cfg)
+
+
+def test_tree_version_rejects_unreadable_metadata(tmp_path: Path) -> None:
+    cfg = _make_config(tmp_path)
+    meta = tmp_path / "repo" / "metadata"
+    meta.mkdir(parents=True)
+    (meta / "targets.json").write_text("{pas du json", encoding="utf-8")
+    with pytest.raises(ReleaseError, match="illisible"):
+        PublishService.read_tree_version(cfg)
