@@ -111,12 +111,14 @@ class ReleaseService:
             raise ValueError("publish=True requires both upload_type and destination")
 
         try:
-            UploaderService.upload(
-                source_path=repository_path,
-                upload_type=cast(Literal["disk", "server", "r2"], upload_type),
-                destination=destination,
-                upload_config=upload_config,
-            )
+            # Jamais l'arbre brut : le keystore par défaut vit sous repo_dir.
+            with UploaderService.staged_tuf_tree(repository_path) as staged:
+                UploaderService.upload(
+                    source_path=staged,
+                    upload_type=cast(Literal["disk", "server", "r2"], upload_type),
+                    destination=destination,
+                    upload_config=upload_config,
+                )
         except Exception as exc:
             raise ReleaseError(f"Publishing release repository failed: {exc}") from exc
 

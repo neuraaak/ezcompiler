@@ -13,7 +13,8 @@ class _FakeReleaser:
         self, bundle_dir, app_name, version, repo_dir, *, patch=True, required=False
     ) -> Path:
         out = repo_dir / "repository"
-        out.mkdir(parents=True, exist_ok=True)
+        (out / "metadata").mkdir(parents=True, exist_ok=True)
+        (out / "metadata" / "root.json").write_text("{}", encoding="utf-8")
         return out
 
     def get_releaser_name(self) -> str:
@@ -51,9 +52,15 @@ def test_release_with_publish_delegates_to_uploader(
         lambda *_a, **_k: _FakeReleaser(),
     )
     uploads: list[dict] = []
+
+    def _record(**kwargs) -> None:
+        src: Path = kwargs["source_path"]
+        files = {p.relative_to(src).as_posix() for p in src.rglob("*") if p.is_file()}
+        uploads.append({**kwargs, "files": files})
+
     monkeypatch.setattr(
         "ezcompiler.services.release_service.UploaderService.upload",
-        lambda **kwargs: uploads.append(kwargs),
+        _record,
         raising=False,
     )
 
@@ -70,7 +77,9 @@ def test_release_with_publish_delegates_to_uploader(
     assert len(uploads) == 1
     assert uploads[0]["upload_type"] == "server"
     assert uploads[0]["destination"] == "https://updates.example.com"
-    assert uploads[0]["source_path"] == tmp_path / "repo" / "repository"
+    # Copie filtrée (jamais l'arbre brut), même disposition.
+    assert uploads[0]["source_path"] != tmp_path / "repo" / "repository"
+    assert uploads[0]["files"] == {"metadata/root.json"}
 
 
 class _FakeReleaserWithInit:

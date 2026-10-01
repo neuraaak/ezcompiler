@@ -18,6 +18,10 @@ from __future__ import annotations
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
 # Standard library imports
+import shutil
+import tempfile
+from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 
@@ -26,6 +30,7 @@ from ..adapters import UploaderFactory
 from ..shared._constants import RELEASE_SUBDIR, UPDATE_SUBDIR
 from ..shared.exceptions import UploadError
 from ..utils.validators import validate_upload_structure
+from .tuf_service import WITHDRAWN_FILE
 
 if TYPE_CHECKING:
     from .._types import UploaderPort
@@ -36,6 +41,14 @@ if TYPE_CHECKING:
 # ///////////////////////////////////////////////////////////////
 
 UploadType = Literal["disk", "server", "r2"]
+
+# ///////////////////////////////////////////////////////////////
+# CONSTANTS
+# ///////////////////////////////////////////////////////////////
+
+# Seuls ces dossiers de l'arbre TUF sont publics. Tout le reste (dont le
+# keystore par défaut, <repo>/keystore) ne quitte jamais la machine.
+TUF_PUBLIC_DIRS = ("metadata", "targets")
 
 # ///////////////////////////////////////////////////////////////
 # CLASSES
@@ -192,35 +205,84 @@ class UploaderService:
         destination: str | None,
         upload_config: dict[str, Any] | None,
     ) -> None:
-        """Upload l'arbre TUF vers la destination configurée."""
+        """Upload la partie publique de l'arbre TUF vers la destination configurée.
+
+        Seuls ``metadata/``, ``targets/`` et ``withdrawn.json`` sont publiés,
+        depuis une copie temporaire (voir ``staged_tuf_tree``) : les clés
+        privées rangées sous ``repo_dir`` ne sont jamais transférées.
+        """
         try:
-            if repo_dest == "r2":
-                endpoint = config.repo_endpoint
-                bucket, _, prefix = endpoint.partition("/")
-                UploaderService.upload(
-                    source_path=repo_dir,
-                    upload_type="r2",
-                    destination=prefix,
-                    upload_config={"bucket": bucket},
-                )
-            elif repo_dest == "server":
-                base = destination or config.resolved_repo_destination or ""
-                UploaderService.upload(
-                    source_path=repo_dir,
-                    upload_type="server",
-                    destination=base.rstrip("/") + f"/{UPDATE_SUBDIR}",
-                    upload_config=upload_config,
-                )
-            else:  # disk (default)
-                base = destination or config.resolved_repo_destination or ""
-                UploaderService.upload(
-                    source_path=repo_dir,
-                    upload_type="disk",
-                    destination=str(Path(base) / UPDATE_SUBDIR),
-                    upload_config=upload_config,
+            with UploaderService.staged_tuf_tree(repo_dir) as staged:
+                UploaderService._upload_tuf_tree(
+                    config, staged, repo_dest, destination, upload_config
                 )
         except UploadError as e:
             raise UploadError(f"TUF repo upload failed: {e}") from e
+
+    @staticmethod
+    @contextmanager
+    def staged_tuf_tree(repo_dir: Path) -> Iterator[Path]:
+        """Copie les fichiers publics de l'arbre TUF dans un dossier temporaire.
+
+        La disposition est conservée (``metadata/``, ``targets/``,
+        ``withdrawn.json`` à la racine) ; le dossier est supprimé à la sortie.
+
+        Raises:
+            UploadError: Si ``repo_dir/metadata`` est absent (publier un arbre
+                vide écraserait le canal distant) ou si la copie échoue.
+        """
+        if not (repo_dir / "metadata").is_dir():
+            raise UploadError(
+                f"Arbre TUF absent : {repo_dir / 'metadata'} introuvable. "
+                "Lancer d'abord `ezcompiler tuf init` puis le build."
+            )
+        with tempfile.TemporaryDirectory(prefix="ezcompiler-tuf-") as tmp:
+            staging = Path(tmp)
+            try:
+                for name in TUF_PUBLIC_DIRS:
+                    if (repo_dir / name).is_dir():
+                        shutil.copytree(repo_dir / name, staging / name)
+                withdrawn = repo_dir / WITHDRAWN_FILE
+                if withdrawn.is_file():
+                    shutil.copy2(withdrawn, staging / WITHDRAWN_FILE)
+            except OSError as e:
+                raise UploadError(f"Copie de l'arbre TUF impossible : {e}") from e
+            yield staging
+
+    @staticmethod
+    def _upload_tuf_tree(
+        config: CompilerConfig,
+        staged_dir: Path,
+        repo_dest: str,
+        destination: str | None,
+        upload_config: dict[str, Any] | None,
+    ) -> None:
+        """Route un arbre TUF déjà filtré vers le backend configuré."""
+        if repo_dest == "r2":
+            endpoint = config.repo_endpoint
+            bucket, _, prefix = endpoint.partition("/")
+            UploaderService.upload(
+                source_path=staged_dir,
+                upload_type="r2",
+                destination=prefix,
+                upload_config={"bucket": bucket},
+            )
+        elif repo_dest == "server":
+            base = destination or config.resolved_repo_destination or ""
+            UploaderService.upload(
+                source_path=staged_dir,
+                upload_type="server",
+                destination=base.rstrip("/") + f"/{UPDATE_SUBDIR}",
+                upload_config=upload_config,
+            )
+        else:  # disk (default)
+            base = destination or config.resolved_repo_destination or ""
+            UploaderService.upload(
+                source_path=staged_dir,
+                upload_type="disk",
+                destination=str(Path(base) / UPDATE_SUBDIR),
+                upload_config=upload_config,
+            )
 
     @staticmethod
     def upload_release_zip(

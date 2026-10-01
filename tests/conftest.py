@@ -95,9 +95,11 @@ def make_tuf_tree(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
         *,
         app: str = "App",
         required: tuple[str, ...] = (),
+        keys_in_repo: bool = False,
     ) -> tuple[Path, Path]:
         repo_dir = tmp_path / "repo"
-        keys_dir = tmp_path / "keystore"
+        # keys_in_repo : emplacement par défaut d'ezcompiler (repo/keystore).
+        keys_dir = repo_dir / "keystore" if keys_in_repo else tmp_path / "keystore"
         releaser = TufupReleaser({"keys_dir": keys_dir})
         releaser.init_keys(app, repo_dir, keys_dir)
         for version in versions:

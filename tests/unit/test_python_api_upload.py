@@ -27,6 +27,21 @@ def _cfg(tmp_path: Path, **kwargs: Any) -> CompilerConfig:
     )
 
 
+def _upload_recorder(calls: list[dict]):
+    """Enregistre chaque upload avec les fichiers de la source (copie temporaire)."""
+
+    def _record(**kw: Any) -> None:
+        src = Path(kw["source_path"])
+        files = (
+            {p.relative_to(src).as_posix() for p in src.rglob("*") if p.is_file()}
+            if src.is_dir()
+            else set()
+        )
+        calls.append({**kw, "files": files})
+
+    return staticmethod(_record)
+
+
 def test_upload_release_pushes_tuf_to_update_and_zip_to_release(
     monkeypatch, tmp_path: Path
 ) -> None:
@@ -39,6 +54,8 @@ def test_upload_release_pushes_tuf_to_update_and_zip_to_release(
         release_endpoint=str(tmp_path / "remote"),
     )
     # Créer le zip pour que assemble_release_dir le copie
+    (tmp_path / "repo" / "metadata").mkdir(parents=True)
+    (tmp_path / "repo" / "metadata" / "root.json").write_text("{}", encoding="utf-8")
     zip_path = tmp_path / "MyApp.zip"
     zip_path.write_bytes(b"zip")
     release_root = tmp_path / "dist" / "release"
@@ -52,7 +69,7 @@ def test_upload_release_pushes_tuf_to_update_and_zip_to_release(
     upload_calls: list[dict] = []
     monkeypatch.setattr(
         "ezcompiler.interfaces.python_api.UploaderService.upload",
-        staticmethod(lambda **kw: upload_calls.append(kw)),
+        _upload_recorder(upload_calls),
     )
 
     ez = EzCompiler(cfg)
@@ -63,7 +80,8 @@ def test_upload_release_pushes_tuf_to_update_and_zip_to_release(
     # 1er appel : arbre TUF vers update/
     repo_call = upload_calls[0]
     assert repo_call["upload_type"] == "disk"
-    assert str(repo_call["source_path"]) == str(cfg.tuf_repo_dir)
+    # Copie filtrée de l'arbre TUF, même disposition.
+    assert repo_call["files"] == {"metadata/root.json"}
     assert repo_call["destination"].endswith("/update") or repo_call[
         "destination"
     ].endswith("\\update")
@@ -84,6 +102,7 @@ def test_upload_release_r2_only_uploads_tuf(monkeypatch, tmp_path: Path) -> None
         repo_endpoint="my-bucket/chan",
         repo_public_url="https://pub.r2.example.com",
     )
+    (tmp_path / "repo" / "metadata").mkdir(parents=True)
     upload_calls: list[dict] = []
     monkeypatch.setattr(
         "ezcompiler.interfaces.python_api.UploaderService.upload",

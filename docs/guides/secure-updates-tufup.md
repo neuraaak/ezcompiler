@@ -37,7 +37,7 @@ ezcompiler tuf init --config path/to/ezcompiler.config.yaml
 This creates:
 
 - `./keystore/` — signing keys (root, targets, snapshot, timestamp).
-- `./repo/repository/` — the initial signed metadata.
+- `./repo/metadata/` — the initial signed metadata (`./repo/targets/` receives the archives at release time).
 
 **Security rules for keys:**
 
@@ -96,7 +96,7 @@ repository_path = compiler.release(bundle_dir=Path("dist/MyApp"))
 print(f"Signed repository written to: {repository_path}")
 ```
 
-`release()` calls `tufup.repo.Repository.add_bundle()` + `publish_changes()` and returns the path to the local `repository/` tree.
+`release()` calls `tufup.repo.Repository.add_bundle()` + `publish_changes()` and returns the path to the local TUF repository (`tuf_repo_dir`).
 
 ---
 
@@ -121,6 +121,11 @@ The two commands perform **two independent transfers**, mirrored by the client's
 | :------------ | :----------------------------------------- | :---------------------------- |
 | TUF tree      | `repo_destination` / `repo_endpoint`       | `<repo_endpoint>/update/`     |
 | Installer ZIP | `release_destination` / `release_endpoint` | `<release_endpoint>/release/` |
+
+`publish update` uploads only the public part of the local tree: `metadata/`,
+`targets/` and `withdrawn.json`. Anything else under `tuf_repo_dir` — including
+the default keystore `<tuf_repo_dir>/keystore/` when `tuf_keys_dir` is unset —
+never leaves the machine.
 
 For `r2`, each tree is uploaded straight to its bucket prefix (no `/update/`
 or `/release/` subdir). The `/update/` suffix is what the

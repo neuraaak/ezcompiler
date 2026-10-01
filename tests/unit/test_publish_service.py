@@ -172,6 +172,7 @@ def test_should_upload_the_tuf_tree_to_the_update_subdir(tmp_path) -> None:
     cfg = _make_config(
         tmp_path, repo_destination="disk", release_endpoint="", tuf_enabled=True
     )
+    (tmp_path / "repo" / "metadata").mkdir(parents=True)
     with patch("ezcompiler.services.publish_service.UploaderService.upload") as upload:
         PublishService.publish_update(cfg)
     assert "update" in str(upload.call_args.kwargs["destination"])
@@ -180,6 +181,7 @@ def test_should_upload_the_tuf_tree_to_the_update_subdir(tmp_path) -> None:
 def test_publish_update_never_resolves_a_publisher(tmp_path) -> None:
     """Un arbre TUF exige des chemins HTTP stables : jamais d'assets de release."""
     cfg = _make_config(tmp_path, repo_destination="disk", tuf_enabled=True)
+    (tmp_path / "repo" / "metadata").mkdir(parents=True)
     with (
         patch("ezcompiler.services.publish_service.UploaderService.upload"),
         patch.object(PublishService, "resolve_publisher") as resolve,
