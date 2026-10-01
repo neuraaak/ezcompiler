@@ -31,6 +31,7 @@ if TYPE_CHECKING:
     from ezplog.lib_mode import _LazyPrinter
 
     from .._types import ReleaseDestination, RepoDestination
+    from ..shared import CompilerConfig
 
 # Third-party imports
 import click
@@ -1145,6 +1146,17 @@ def _force_utf8_stdout() -> None:
             reconfigure(encoding="utf-8", errors="replace")
 
 
+def _read_notes_file(path: Path) -> str:
+    """Read a release-notes file as UTF-8, or fail as a usage error."""
+    try:
+        return path.read_text(encoding="utf-8")
+    except UnicodeDecodeError as e:
+        raise click.BadParameter(
+            f"{path} n'est pas encodé en UTF-8 ({e.reason}).",
+            param_hint="--notes-file",
+        ) from None
+
+
 def _format_size(num_bytes: int) -> str:
     """Formate une taille en octets de façon lisible."""
     size = float(num_bytes)
@@ -1153,6 +1165,18 @@ def _format_size(num_bytes: int) -> str:
             return f"{size:.1f} {unit}"
         size /= 1024
     return f"{size:.1f} Go"
+
+
+def _describe_update_target(
+    cfg: CompilerConfig, repo_dest: str, destination: str | None
+) -> str:
+    """Where ``publish update`` will land, mirroring UploaderService."""
+    if repo_dest == "r2":
+        return f"r2://{cfg.repo_endpoint} (bucket/préfixe)"
+    base = destination or cfg.resolved_repo_destination or ""
+    if repo_dest == "server":
+        return base.rstrip("/") + "/update/"
+    return str(Path(base or ".") / "update")
 
 
 @main.group()
@@ -1240,23 +1264,36 @@ def publish_release_command(
 
         resolved_tag = tag or f"v{cfg.version}"
         resolved_title = title or f"{cfg.project_name} v{cfg.version}"
-        body = notes_file.read_text(encoding="utf-8") if notes_file else notes
+        body = _read_notes_file(notes_file) if notes_file else notes
         is_pre = is_prerelease(cfg.version) if prerelease is None else prerelease
 
         publisher = PublishService.resolve_publisher(cfg, release_destination)
 
         # Chemin fichiers (disk/server/r2) : comportement historique, sans
-        # confirmation — rien n'est irréversible côté clients.
+        # confirmation — rien n'est irréversible côté clients. Les assets sont
+        # réassemblés dans release/ par le service, comme avant.
         if publisher is None:
-            assets = PipelineService.stage_versioned_assets(cfg)
+            ignored = [
+                flag
+                for flag, given in (
+                    ("--tag", tag),
+                    ("--title", title),
+                    ("--notes", notes),
+                    ("--notes-file", notes_file),
+                    ("--draft", draft),
+                    ("--prerelease/--no-prerelease", prerelease is not None),
+                )
+                if given
+            ]
+            if ignored:
+                printer.warning(
+                    f"Ignoré(s) hors plateforme de release : {', '.join(ignored)}."
+                )
             PublishService.publish_release(
                 cfg,
-                assets,
+                [],
                 tag=resolved_tag,
                 title=resolved_title,
-                notes=body,
-                prerelease=is_pre,
-                draft=draft,
                 destination=destination,
                 release_destination=release_destination,
             )
@@ -1264,8 +1301,15 @@ def publish_release_command(
             logger.info("Release assets uploaded")
             return
 
+        if destination:
+            raise click.UsageError(
+                "--destination ne s'applique pas à une publication sur "
+                "plateforme : le dépôt vient de release_endpoint (owner/repo)."
+            )
+
         # Toutes les vérifications passent AVANT le récapitulatif : quand
         # l'opérateur confirme, il ne reste qu'un risque réseau.
+        publisher.preflight()
         if publisher.exists(resolved_tag):
             printer.error(
                 f"La release {resolved_tag} existe déjà. "
@@ -1277,8 +1321,9 @@ def publish_release_command(
 
         printer.info("─" * 60)
         printer.info(f"Release à publier via {publisher.get_publisher_name()}")
-        if cfg.release_endpoint:
-            printer.info(f"   Dépôt      : {cfg.release_endpoint}")
+        printer.info(
+            f"   Dépôt      : {cfg.release_endpoint or '(déduit du remote git courant)'}"
+        )
         printer.info(f"   Tag        : {resolved_tag}")
         printer.info(f"   Titre      : {resolved_title}")
         printer.info(f"   Pré-release: {'oui' if is_pre else 'non'}")
@@ -1305,8 +1350,8 @@ def publish_release_command(
             notes=body,
             prerelease=is_pre,
             draft=draft,
-            destination=destination,
             release_destination=release_destination,
+            publisher=publisher,
         )
         printer.success(f"Release {resolved_tag} publiée : {url}")
         logger.info("Release %s published: %s", resolved_tag, url)
@@ -1367,27 +1412,29 @@ def publish_update_command(
         )
 
         repo_dir = cfg.tuf_repo_dir or (cfg.output_folder / "repo")
-        metadata_dir = repo_dir / "metadata"
-        if not metadata_dir.is_dir() or not any(metadata_dir.iterdir()):
-            printer.error(
-                f"Aucun arbre TUF signé dans {repo_dir}. "
-                "Lancer d'abord le pipeline de build (`ezcompiler compile`)."
-            )
-            sys.exit(1)
+        # Lit la version dans l'arbre signé lui-même : c'est elle que les
+        # clients recevront, pas forcément celle de la config.
+        tree_version = PublishService.read_tree_version(cfg)
 
         repo_dest = repo_destination or cfg.repo_destination
-        target = destination or cfg.resolved_repo_destination or "(config)"
+        target = _describe_update_target(cfg, repo_dest, destination)
         file_count = sum(1 for f in repo_dir.rglob("*") if f.is_file())
 
         printer.info("─" * 60)
         printer.info("Arbre de mise à jour TUF à publier")
         printer.info(f"   Backend    : {repo_dest}")
-        printer.info(f"   Destination: {target}/update/")
-        printer.info(f"   Version    : {cfg.version}")
+        printer.info(f"   Destination: {target}")
+        printer.info(f"   Version    : {tree_version}")
         printer.info(f"   Fichiers   : {file_count}")
         printer.info("─" * 60)
+        if tree_version != cfg.version:
+            printer.warning(
+                f"La configuration annonce {cfg.version}, mais l'arbre signé "
+                f"porte {tree_version} : c'est {tree_version} qui sera publiée. "
+                "Relancer le pipeline si ce n'est pas voulu."
+            )
         printer.warning(
-            f"Les clients installés passeront en {cfg.version} automatiquement. "
+            f"Les clients installés passeront en {tree_version} automatiquement. "
             "Cette publication ne peut pas être annulée, seulement remplacée "
             "par une version supérieure."
         )
