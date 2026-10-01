@@ -174,3 +174,10 @@ def test_should_wrap_os_error_without_exposing_exception_text() -> None:
         _Fake()._run_cli(["release", "create"])
     assert "sensitive details" not in str(exc.value)
     assert "faketool" in str(exc.value)
+
+
+def test_preflight_checks_auth() -> None:
+    pub = _Fake()
+    with patch.object(pub, "_check_auth") as auth:
+        pub.preflight()
+    auth.assert_called_once()

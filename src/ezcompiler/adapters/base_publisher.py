@@ -39,6 +39,15 @@ class BasePublisher(ABC):
         """Publisher configuration."""
         return self._config
 
+    def preflight(self) -> None:
+        """Raise unless the CLI is installed and authenticated.
+
+        Lets callers run every check before showing a recap, so that an
+        unauthenticated CLI is reported as such rather than as an opaque
+        failure of a later call.
+        """
+        self._check_auth()
+
     @abstractmethod
     def exists(self, tag: str) -> bool:
         """Whether a release exists for ``tag``."""

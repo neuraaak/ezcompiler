@@ -6,6 +6,9 @@ from ezcompiler._types import PublisherPort
 
 
 class _Conforming:
+    def preflight(self) -> None:
+        return None
+
     def exists(self, tag: str) -> bool:
         return False
 

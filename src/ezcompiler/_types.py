@@ -221,6 +221,10 @@ class ReleaserPort(Protocol):
 class PublisherPort(Protocol):
     """Structural contract for an addressable release publisher (Port)."""
 
+    def preflight(self) -> None:
+        """Raise unless the platform CLI is installed and authenticated."""
+        ...
+
     def exists(self, tag: str) -> bool:
         """Whether a release already exists for ``tag``."""
         ...
