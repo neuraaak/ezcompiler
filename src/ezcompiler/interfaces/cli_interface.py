@@ -1717,7 +1717,7 @@ def tuf_init(config_path: Path | None) -> None:
         else:
             printer.info(f"Keys already present in {keys_dir} — skipped.")
             logger.info("TUF keys already present, skipped.")
-    except (ReleaseError, SigningKeyError, ConfigError) as e:
+    except (ReleaseError, SigningKeyError, ConfigError, ConfigurationError) as e:
         printer.error(str(e))
         logger.error(str(e))
         sys.exit(1)

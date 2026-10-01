@@ -239,3 +239,21 @@ def test_remove_latest_should_fail_when_tree_is_empty(tmp_path: Path) -> None:
     assert result.exit_code == 1
     assert "Aucune version à retirer" in result.output
     assert removed == []
+
+
+# init ----------------------------------------------------------------
+
+
+def test_init_should_exit_1_with_a_message_without_config(
+    monkeypatch, tmp_path: Path
+) -> None:
+    from ezcompiler.shared.exceptions import ConfigurationError
+
+    monkeypatch.chdir(tmp_path)
+
+    result = CliRunner().invoke(main, ["tuf", "init"])
+
+    assert result.exit_code == 1, result.output
+    assert isinstance(result.exception, SystemExit), repr(result.exception)
+    assert not isinstance(result.exception, ConfigurationError)
+    assert "No configuration source found" in _flat(result.output)
