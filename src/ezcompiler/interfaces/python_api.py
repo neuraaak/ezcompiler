@@ -893,7 +893,7 @@ class EzCompiler:
         if not keys_dir.is_dir() or not any(keys_dir.iterdir()):
             raise SigningKeyError(
                 f"Signing keys not found in {keys_dir}. "
-                "Run `ezcompiler keys init` first."
+                "Run `ezcompiler tuf init` first."
             )
 
     def _zip_progress_callback(self, filename: str, progress: int) -> None:

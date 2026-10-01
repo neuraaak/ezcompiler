@@ -1646,11 +1646,15 @@ def init(
 
 
 @main.group()
-def keys() -> None:
-    """Gestion des clés de signature TUF."""
+def tuf() -> None:
+    """Arbre de mise à jour TUF local : clés, état, retrait de version.
+
+    Ces commandes ne modifient que l'arbre local ; `ezcompiler publish
+    update` le publie.
+    """
 
 
-@keys.command("init")
+@tuf.command("init")
 @click.option(
     "--config",
     "config_path",
@@ -1658,7 +1662,7 @@ def keys() -> None:
     type=click.Path(exists=True, dir_okay=False, path_type=Path),
     help="Path to ezcompiler config file (auto-detected if omitted).",
 )
-def keys_init(config_path: Path | None) -> None:
+def tuf_init(config_path: Path | None) -> None:
     """Initialise TUF signing keys and repository skeleton.
 
     Run once per project, before the first `ezcompiler compile` with
@@ -1698,7 +1702,7 @@ def keys_init(config_path: Path | None) -> None:
         sys.exit(1)
 
 
-@keys.command("refresh")
+@tuf.command("refresh")
 @click.option(
     "--config",
     "config_path",
@@ -1720,7 +1724,7 @@ def keys_init(config_path: Path | None) -> None:
     default=None,
     help="Expiration in days from now (default: config tuf_expiration_days).",
 )
-def keys_refresh(
+def tuf_refresh(
     config_path: Path | None,
     roles: tuple[str, ...],
     days: int | None,
@@ -1729,7 +1733,7 @@ def keys_refresh(
 
     Native tufup keep-alive for projects updated irregularly: repushes the
     expiration date of the short-lived roles so clients keep trusting the
-    repository between releases. Requires signing keys (`keys init`).
+    repository between releases. Requires signing keys (`tuf init`).
     """
     printer = _get_printer()
     logger = _get_logger()
@@ -1777,11 +1781,11 @@ def _deprecated_alias(target: click.Command, old: str, new: str) -> click.Comman
 
 @main.group(hidden=True)
 def release() -> None:
-    """[Déprécié] Utiliser `ezcompiler keys` à la place."""
+    """[Déprécié] Utiliser `ezcompiler tuf` à la place."""
 
 
-release.add_command(_deprecated_alias(keys_init, "release init", "keys init"))
-release.add_command(_deprecated_alias(keys_refresh, "release refresh", "keys refresh"))
+release.add_command(_deprecated_alias(tuf_init, "release init", "tuf init"))
+release.add_command(_deprecated_alias(tuf_refresh, "release refresh", "tuf refresh"))
 
 
 @main.group()

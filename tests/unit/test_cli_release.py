@@ -128,9 +128,15 @@ def test_release_init_error_exits_1(monkeypatch, tmp_path: Path) -> None:
     assert result.exit_code == 1
 
 
-def test_keys_group_is_visible_in_help() -> None:
+def test_tuf_group_is_visible_in_help() -> None:
     result = CliRunner().invoke(main, ["--help"])
-    assert "keys" in result.output
+    assert "tuf" in result.output
+
+
+def test_keys_group_should_no_longer_exist() -> None:
+    result = CliRunner().invoke(main, ["keys", "init", "--help"])
+    assert result.exit_code != 0
+    assert "No such command" in result.output
 
 
 def test_release_group_is_hidden_from_help() -> None:
@@ -139,14 +145,14 @@ def test_release_group_is_hidden_from_help() -> None:
     assert "  release" not in result.output
 
 
-def test_keys_init_is_wired() -> None:
-    result = CliRunner().invoke(main, ["keys", "init", "--help"])
+def test_tuf_init_is_wired() -> None:
+    result = CliRunner().invoke(main, ["tuf", "init", "--help"])
     assert result.exit_code == 0
     assert "TUF" in result.output
 
 
-def test_keys_refresh_is_wired() -> None:
-    result = CliRunner().invoke(main, ["keys", "refresh", "--help"])
+def test_tuf_refresh_is_wired() -> None:
+    result = CliRunner().invoke(main, ["tuf", "refresh", "--help"])
     assert result.exit_code == 0
 
 
@@ -156,12 +162,12 @@ def test_release_init_still_works_and_warns() -> None:
         side_effect=RuntimeError("stop ici"),
     ):
         result = CliRunner().invoke(main, ["release", "init"])
-    assert "keys init" in result.output
+    assert "ezcompiler tuf init" in result.output
     assert "déprécié" in result.output or "deprecie" in result.output.lower()
 
 
 def test_release_init_alias_forwards_config(monkeypatch, tmp_path: Path) -> None:
-    """L'option --config traverse l'alias jusqu'a keys init."""
+    """L'option --config traverse l'alias jusqu'a tuf init."""
     cfg_file = tmp_path / "ezcompiler.yaml"
     cfg_file.write_text("x: 1", encoding="utf-8")
     seen: list = []

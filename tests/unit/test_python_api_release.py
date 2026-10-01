@@ -114,7 +114,7 @@ def test_run_pipeline_preflight_raises_before_compile_when_keys_missing(
         lambda *_a, **_kw: compile_called.append(True),
     )
 
-    with pytest.raises(SigningKeyError, match="ezcompiler keys init"):
+    with pytest.raises(SigningKeyError, match="ezcompiler tuf init"):
         EzCompiler(cfg).run_pipeline()
 
     assert compile_called == [], "compile_project must NOT be called before pre-flight"

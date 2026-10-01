@@ -81,7 +81,7 @@ class UpdaterService:
         if not root_json.exists():
             raise UpdaterConfigError(
                 f"root.json not found at {root_json}. "
-                "Run 'ezcompiler keys init' first to initialise the TUF repository."
+                "Run 'ezcompiler tuf init' first to initialise the TUF repository."
             )
 
     @staticmethod
