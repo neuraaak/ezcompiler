@@ -67,3 +67,11 @@ Service orchestrating first-deployment installer packaging via an installer adap
 Service orchestrating secure-release packaging (TUF) and, optionally, publication.
 
 ::: ezcompiler.services.release_service.ReleaseService
+
+---
+
+## TufService
+
+Service reading the local TUF tree without tufup (status, expirations), recording withdrawn versions in `withdrawn.json`, and enforcing the release version rule.
+
+::: ezcompiler.services.tuf_service.TufService

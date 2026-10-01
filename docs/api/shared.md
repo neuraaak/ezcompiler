@@ -37,6 +37,20 @@ from ezcompiler.shared import CompilationResult
 
 ---
 
+### TufStatus and TufVersion
+
+Read-only snapshot of the local TUF tree returned by `TufService.status()`.
+
+```python
+from ezcompiler.shared import TufStatus, TufVersion
+```
+
+::: ezcompiler.shared.TufStatus
+
+::: ezcompiler.shared.TufVersion
+
+---
+
 ## Exceptions
 
 ### Base exceptions

@@ -34,7 +34,7 @@ tufup releaser, and generates a client-side updater script.
 interfaces/   ← entry points: CLI (click) + Python API (EzCompiler facade)
 services/     ← business orchestration (CompilerService, PipelineService,
                 ConfigService, TemplateService, UploaderService, ReleaseService,
-                InstallerService, UpdaterService, PublishService)
+                InstallerService, UpdaterService, PublishService, TufService)
 adapters/     ← concrete compilers, uploaders, releaser & installer behind
                 ports, + factories
 shared/       ← domain models (CompilerConfig, InstallerConfig,
@@ -52,9 +52,20 @@ Five structural contracts that decouple services from concrete adapters:
 | --------------- | ------------------------------------------------------------------------------------------------------------ |
 | `CompilerPort`  | `compile()`, `get_compiler_name()`, `zip_needed`, `config`                                                   |
 | `UploaderPort`  | `upload(source_path, destination)`, `get_uploader_name()`                                                    |
-| `ReleaserPort`  | `release(bundle_dir, app_name, version, repo_dir)`, `init_keys(...)`, `get_releaser_name()`                  |
+| `ReleaserPort`  | `release(bundle_dir, app_name, version, repo_dir, *, patch, required)`, `init_keys(...)`, `remove_latest(app_name, repo_dir, keys_dir)`, `get_releaser_name()` |
 | `InstallerPort` | `build(bundle_dir, app_name, version, output_dir, *, company_name, icon, main_file)`, `get_installer_name()` |
 | `PublisherPort` | `exists(tag)`, `publish(assets, *, tag, title, notes, prerelease, draft)`, `get_publisher_name()`             |
+
+`TufService` reads the local TUF tree without tufup (`status()` returns a
+`TufStatus` of `TufVersion` entries and role expirations, from `metadata/*.json`),
+owns `<tuf_repo_dir>/withdrawn.json` (`withdrawn_versions`, `record_withdrawn`,
+`remove_latest` via `ReleaserPort.remove_latest`) and holds the shared tree
+helpers `read_tree_version` / `same_version`. `ReleaseService` calls
+`TufService.ensure_releasable()` before any release: a version not strictly
+above every withdrawn version raises `ReleaseError`, from the CLI and the Python
+API alike. The `ezcompiler tuf` group (`init`, `refresh`, `status`,
+`remove-latest`) only prints and confirms; `release init` / `release refresh`
+remain as hidden deprecated aliases.
 
 Concrete implementations live in `adapters/` with a `_` prefix (`_cx_freeze_compiler.py`, `_disk_uploader.py`, `_tufup_releaser.py`, `_innosetup_installer.py`). Always go through the factories — never instantiate adapters directly.
 
@@ -154,7 +165,7 @@ before proceeding.
 - **ruff** rules: `E W F I B C4 UP S T20 ARG PIE SIM`, line length 88,
   double quotes. See `[tool.ruff]` for per-file ignores.
 - **Coverage:** branch coverage, `--cov-fail-under=70` (audit target is 80%;
-  measured at 80.84% over 870 tests as of 2026-10-01). See the exclusions note
+  measured at 81.48% over 938 tests as of 2026-10-01). See the exclusions note
   below before assuming a module is omitted.
 - **Test markers** available: `slow`, `integration`, `unit`, `cli`, `compiler`,
   `uploader`, `robustness`, `requires_iscc` (needs a real `ISCC.exe` /

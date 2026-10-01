@@ -25,13 +25,13 @@ tufup requires Python ≥ 3.13 and depends on `python-tuf` and `cryptography`.
 Use the `ezcompiler` CLI to initialize the key set and the repository skeleton:
 
 ```bash
-ezcompiler keys init
+ezcompiler tuf init
 ```
 
 The paths (`tuf_repo_dir`, `tuf_keys_dir`) are read from the project config file (auto-detected in the current directory). You can also point to a specific config:
 
 ```bash
-ezcompiler keys init --config path/to/ezcompiler.config.yaml
+ezcompiler tuf init --config path/to/ezcompiler.config.yaml
 ```
 
 This creates:
@@ -148,7 +148,7 @@ silently breaks updates between releases.
 Two native tufup mechanisms address this:
 
 **1. Longer lifetimes via config.** Set `tuf_expiration_days` to raise the per-role
-lifetime (unset roles fall back to tufup defaults). It is applied on `keys init`
+lifetime (unset roles fall back to tufup defaults). It is applied on `tuf init`
 and every release:
 
 ```python
@@ -163,16 +163,37 @@ config = CompilerConfig(
 without cutting a new release — run this periodically (e.g. a scheduled job):
 
 ```bash
-ezcompiler keys refresh                          # targets/snapshot/timestamp
-ezcompiler keys refresh --role timestamp --days 60
+ezcompiler tuf refresh                          # targets/snapshot/timestamp
+ezcompiler tuf refresh --role timestamp --days 60
 ```
 
 ```python
 compiler.refresh_release_expiration(days=60)
 ```
 
-Both require the signing keys (`keys init`). After a refresh, re-run
+Both require the signing keys (`tuf init`). After a refresh, re-run
 `ezcompiler publish update` so the freshly-signed metadata reaches the clients.
+
+---
+
+## Withdraw a broken version
+
+When the latest published version turns out to be broken, withdraw it from the signed tree, then ship a mandatory fix:
+
+```bash
+ezcompiler tuf remove-latest           # withdraw 1.2.3 from the local tree, re-sign
+ezcompiler publish update              # republish the tree without 1.2.3
+ezcompiler compile --required          # build 1.2.4, mandatory
+ezcompiler publish update              # clients on 1.2.3 move to 1.2.4
+```
+
+`ezcompiler tuf status` shows the versions, their flags, the role expirations and the withdrawn versions before and after.
+
+Clients never downgrade: withdrawing stops the version from reaching clients that do not have it yet; clients that installed it leave it only through a higher version, which `--required` makes mandatory.
+
+Only the latest version can be withdrawn. The archive and patch stay on the remote storage, unusable because no signed metadata references them.
+
+`withdrawn.json` at the repository root records withdrawn versions; ezcompiler refuses to release a version that is not above them. It is published with the tree and ignored by clients. The rule also applies from the Python API (`EzCompiler.release(..., required=True)`, `run_pipeline(..., required=True)`).
 
 ---
 

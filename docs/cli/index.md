@@ -30,8 +30,10 @@ ezcompiler [OPTIONS] COMMAND [ARGS]...
 | `generate template` | Generate a template file with optional mockup data                      |
 | `publish update`    | Publish the signed TUF update tree (asks for confirmation)              |
 | `publish release`   | Publish the installer and ZIP (GitHub: recap + confirmation)            |
-| `keys init`         | Initialize TUF signing keys and repository skeleton                     |
-| `keys refresh`      | Re-sign TUF metadata to extend expiration without a new release         |
+| `tuf init`          | Initialize TUF signing keys and repository skeleton                     |
+| `tuf refresh`       | Re-sign TUF metadata to extend expiration without a new release         |
+| `tuf status`        | Show the local TUF tree: versions, flags, expirations, withdrawn versions |
+| `tuf remove-latest` | Withdraw the latest version from the local tree                         |
 | `upload`            | **Deprecated** — use `publish update` then `publish release`            |
 | `updater generate`  | Generate client updater files (`update.py`, `settings.py`, `root.json`) |
 
@@ -69,6 +71,7 @@ ezcompiler compile --compiler PyInstaller --no-console
 | `--skip-installer`           | No       | `False` | Skip the Inno Setup installer stage even if the installer is enabled      |
 | `--skip-release`             | No       | `False` | Skip the TUF release stage even if `tuf_enabled=True`                     |
 | `--skip-build`               | No       | `False` | Skip version + compile; resume from the existing build in `output_folder` |
+| `--required`                 | No       | `False` | Mark this version as mandatory for TUF clients. Requires the TUF release stage (`tuf_enabled`, no `--skip-release`). |
 
 !!! note "Pipeline stages"
     `compile` runs `version → compile → zip`, plus the installer and TUF release stages when enabled in the config (same behaviour as the Python API's `run_pipeline()`). Publication is a separate step: run `ezcompiler publish update` and `ezcompiler publish release` afterwards.
@@ -180,7 +183,7 @@ ezcompiler generate template --type config --mockup
 
 Publish the signed TUF update tree to `<repo_endpoint>/update/`. Before transferring anything, the command prints a recap — backend, destination, the version that becomes current, file count — and asks for confirmation. The version is read from the signed tree (`metadata/targets.json`), not from the config; when the two differ, the recap warns.
 
-This is the less reversible of the two publications: TUF metadata versions are monotonic and installed clients update on their own. A published tree cannot be withdrawn, only superseded by a higher version.
+This is the less reversible of the two publications: TUF metadata versions are monotonic and installed clients update on their own. A published tree cannot be rolled back, only superseded by a higher version. After `ezcompiler tuf remove-latest`, the recap explains that the config version was withdrawn and that clients already running it stay on it until a higher version; the command can then publish a tree emptied of versions.
 
 ```bash
 ezcompiler publish update
@@ -257,14 +260,14 @@ ezcompiler upload --config ezcompiler.yaml
 
 ---
 
-### `keys init`
+### `tuf init`
 
 Initialize TUF signing keys and the repository skeleton. Run once per project, before the first `ezcompiler compile` with `tuf_enabled = true`. Safe to re-run: skips silently when keys already exist.
 
 Formerly `ezcompiler release init`, which still works as a hidden, deprecated alias until v5.
 
 ```bash
-ezcompiler keys init
+ezcompiler tuf init
 ```
 
 | Option     | Required | Default | Description                                    |
@@ -273,12 +276,12 @@ ezcompiler keys init
 
 ---
 
-### `keys refresh`
+### `tuf refresh`
 
 Re-sign the short-lived TUF roles to extend their expiration without publishing a new version. Formerly `ezcompiler release refresh` (deprecated alias until v5).
 
 ```bash
-ezcompiler keys refresh --role timestamp --days 60
+ezcompiler tuf refresh --role timestamp --days 60
 ```
 
 | Option     | Required | Default                           | Description                                    |
@@ -286,6 +289,42 @@ ezcompiler keys refresh --role timestamp --days 60
 | `--config` | No       | —                                 | Path to config file (auto-detected if omitted) |
 | `--role`   | No       | `targets`, `snapshot`, `timestamp` | TUF role to refresh (repeatable)               |
 | `--days`   | No       | config `tuf_expiration_days`      | Expiration in days from now                    |
+
+---
+
+### `tuf status`
+
+Show the local TUF tree (`tuf_repo_dir`) without touching tufup or the signing keys: signed versions from the most recent to the oldest (with the `obligatoire` and `patch` flags), the expiration of each role, and the versions withdrawn by `tuf remove-latest`. A role expiring in less than 7 days is flagged with a warning that names the command to run (`ezcompiler tuf refresh`, or `ezcompiler tuf refresh --role root` for root); an expired role is reported as an error. Read-only.
+
+Exits with code 1 when the tree is not initialized (`metadata/root.json` missing) or unreadable.
+
+```bash
+ezcompiler tuf status
+```
+
+| Option        | Required | Default | Description                    |
+| :------------ | :------- | :------ | :----------------------------- |
+| `--config`    | No       | —       | Config file path (YAML, JSON)  |
+| `--pyproject` | No       | —       | Explicit `pyproject.toml` path |
+
+---
+
+### `tuf remove-latest`
+
+Withdraw the latest version from the local TUF tree and re-sign it. Before changing anything, the command prints a recap — the version withdrawn, the local files removed (archive and patch), the version that becomes the latest — and asks for confirmation. Removing the only version is allowed, with a warning: the republished tree then offers no version at all.
+
+Only the latest version can be withdrawn. The version is recorded in `withdrawn.json` at the root of the TUF repository directory, and a new release must be higher than every withdrawn version. The command then points to the next steps: `ezcompiler compile --required` with a higher version, then `ezcompiler publish update`. It needs the signing keys; it fails when there is nothing to withdraw.
+
+```bash
+ezcompiler tuf remove-latest
+ezcompiler tuf remove-latest --yes
+```
+
+| Option        | Required | Default | Description                    |
+| :------------ | :------- | :------ | :----------------------------- |
+| `--config`    | No       | —       | Config file path (YAML, JSON)  |
+| `--pyproject` | No       | —       | Explicit `pyproject.toml` path |
+| `--yes`, `-y` | No       | off     | Skip the confirmation prompt   |
 
 ---
 
@@ -330,7 +369,7 @@ ezcompiler generate template --type config --mockup
 ezcompiler compile --compiler PyInstaller
 
 # Initialize TUF signing keys (one-time)
-ezcompiler keys init
+ezcompiler tuf init
 
 # Publish the TUF update tree, then the release
 ezcompiler publish update
