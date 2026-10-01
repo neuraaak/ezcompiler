@@ -1128,7 +1128,7 @@ def upload_command(
         printer.error(
             f"`ezcompiler upload` ne publie pas sur {rel_dest} : une release "
             "de plateforme demande confirmation. Utiliser "
-            "`ezcompiler publish release`."
+            "`ezcompiler publish update` puis `ezcompiler publish release`."
         )
         sys.exit(1)
 

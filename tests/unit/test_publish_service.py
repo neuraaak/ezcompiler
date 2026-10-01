@@ -9,7 +9,12 @@ import pytest
 
 from ezcompiler import CompilerConfig
 from ezcompiler.services.publish_service import PublishService
-from ezcompiler.shared.exceptions import PublishError, PublisherTypeError, ReleaseError
+from ezcompiler.shared.exceptions import (
+    PublishError,
+    PublisherTypeError,
+    ReleaseError,
+    UploadError,
+)
 
 
 def _make_config(tmp_path: Path, **kwargs: Any) -> CompilerConfig:
@@ -82,6 +87,13 @@ def test_should_route_github_to_the_publisher(tmp_path) -> None:
     assert fake.publish.call_args.kwargs["tag"] == "v1.0.0"
 
 
+def _built_release_dir(tmp_path: Path) -> Path:
+    release = tmp_path / "release"
+    release.mkdir(exist_ok=True)
+    (release / "App.zip").write_bytes(b"x")
+    return release
+
+
 def test_should_route_disk_to_the_uploader_unchanged(tmp_path) -> None:
     cfg = _make_config(
         tmp_path, release_destination="disk", release_endpoint=str(tmp_path / "out")
@@ -95,7 +107,7 @@ def test_should_route_disk_to_the_uploader_unchanged(tmp_path) -> None:
         ) as upload,
         patch(
             "ezcompiler.services.publish_service.PipelineService.assemble_release_dir",
-            return_value=tmp_path / "release",
+            return_value=_built_release_dir(tmp_path),
         ),
     ):
         url = PublishService.publish_release(
@@ -120,7 +132,7 @@ def test_should_preserve_the_release_subdir_on_the_file_path(tmp_path) -> None:
         ) as upload,
         patch(
             "ezcompiler.services.publish_service.PipelineService.assemble_release_dir",
-            return_value=tmp_path / "release",
+            return_value=_built_release_dir(tmp_path),
         ),
     ):
         PublishService.publish_release(cfg, [asset], tag="v1.0.0", title="T")
@@ -292,3 +304,26 @@ def test_same_version_compares_meaning_not_spelling() -> None:
     assert not PublishService.same_version("1.2.3", "1.2.4")
     assert PublishService.same_version("not-pep440", "not-pep440")
     assert not PublishService.same_version("not-pep440", "other")
+
+
+def test_should_refuse_to_upload_an_empty_release_dir(tmp_path) -> None:
+    """Rien de construit : échouer plutôt que transférer un dossier vide."""
+    cfg = _make_config(
+        tmp_path, release_destination="disk", release_endpoint=str(tmp_path / "out")
+    )
+    empty = tmp_path / "release"
+    empty.mkdir()
+
+    with (
+        patch(
+            "ezcompiler.services.publish_service.UploaderService.upload_release_zip"
+        ) as upload,
+        patch(
+            "ezcompiler.services.publish_service.PipelineService.assemble_release_dir",
+            return_value=empty,
+        ),
+        pytest.raises(UploadError, match="Aucun artefact"),
+    ):
+        PublishService.publish_release(cfg, [], tag="v1.0.0", title="T")
+
+    upload.assert_not_called()

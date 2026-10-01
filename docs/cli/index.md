@@ -204,7 +204,7 @@ The command fails before the recap when no signed tree exists in the TUF reposit
 Publish the installer `setup.exe` (when `installer.enabled`) and the ZIP. The path depends on `release_destination`:
 
 - **`github`** — creates a GitHub Release through the [`gh` CLI](https://cli.github.com/), with the artifacts attached; the ZIP is attached under its versioned name, `<Project>-<version>.zip`. `release_endpoint` is the `owner/repo`; when empty, `gh` infers the repository from the current git remote, and the recap says so. `--destination` is rejected on this path. When `installer.enabled` is true, a missing `setup.exe` stops the command instead of publishing an incomplete release. Requires `gh` on the `PATH` and an authenticated session (`gh auth login`, or `GH_TOKEN` in the environment). No credential goes through the configuration or the command line. Every check (`gh` installed and authenticated, existing tag, artifacts, notes file) runs before the recap; the release is never overwritten — an existing tag stops the command.
-- **`disk`, `server`, `r2`** — copies the release directory to `<release_endpoint>/release/`, as `ezcompiler upload` did (the ZIP keeps its unversioned name, and whatever artifacts exist are copied), without a recap or confirmation prompt. `--tag`, `--title`, `--notes`, `--notes-file`, `--draft` and `--prerelease` do not apply there; the command warns when they are given.
+- **`disk`, `server`, `r2`** — copies the release directory to `<release_endpoint>/release/`, as `ezcompiler upload` did (the ZIP keeps its unversioned name, and whatever artifacts exist are copied), without a recap or confirmation prompt. `--tag`, `--title`, `--notes`, `--notes-file`, `--draft` and `--prerelease` do not apply there; the command warns when they are given. It fails when no artifact was built.
 
 `gitlab` is not supported yet: selecting it fails with an explicit error.
 
@@ -238,7 +238,10 @@ ezcompiler publish release --yes --notes-file CHANGELOG.md
 
 A non-interactive shortcut: it runs `publish update --yes` when `tuf_enabled` is true, then `publish release --yes`, passing its options through. If the TUF tree fails to publish, the release is not attempted. It refuses a platform release destination (`github`, `gitlab`) and points to `publish release`, so a GitHub release is never created without a confirmation prompt.
 
-Unlike the old implementation, an `r2` TUF tree no longer skips a `disk` release: both are published.
+Two behaviours changed from the old implementation:
+
+- an `r2` TUF tree no longer skips a `disk` release: both are published;
+- with `tuf_enabled` false, the build goes through `publish release`: the release directory (ZIP + installer) lands in `<release_endpoint>/release/` with the release backend, instead of the bare ZIP in `repo_endpoint` with the repo backend. It fails when nothing was built, instead of publishing an empty directory.
 
 ```bash
 ezcompiler upload --config ezcompiler.yaml

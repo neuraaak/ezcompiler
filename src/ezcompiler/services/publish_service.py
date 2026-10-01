@@ -34,7 +34,7 @@ from packaging.version import InvalidVersion, Version
 from .._types import PublisherPort
 from ..adapters import PublisherFactory
 from ..shared._compiler_config import _OWNER_REPO_RE
-from ..shared.exceptions import PublishError, ReleaseError
+from ..shared.exceptions import PublishError, ReleaseError, UploadError
 from .pipeline_service import PipelineService
 from .uploader_service import UploaderService
 
@@ -229,7 +229,7 @@ class PublishService:
 
         Raises:
             PublishError: If platform publication fails.
-            UploadError: If the file transfer fails.
+            UploadError: If the file transfer fails, or nothing was built.
         """
         if publisher is None:
             publisher = PublishService.resolve_publisher(config, release_destination)
@@ -242,6 +242,13 @@ class PublishService:
             rel_dest = release_destination or config.release_destination
             logger.info("Uploading release assets (%s)", rel_dest)
             release_root = PipelineService.assemble_release_dir(config)
+            # assemble_release_dir ne copie que ce qui existe : sans build,
+            # on transférerait un dossier vide en annonçant un succès.
+            if not any(release_root.iterdir()):
+                raise UploadError(
+                    f"Aucun artefact à publier dans {release_root} "
+                    "(zip ou installeur) : lancer la compilation d'abord."
+                )
             UploaderService.upload_release_zip(
                 config, release_root, rel_dest, destination, upload_config
             )
