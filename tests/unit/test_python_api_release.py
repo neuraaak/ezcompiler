@@ -120,6 +120,29 @@ def test_run_pipeline_preflight_raises_before_compile_when_keys_missing(
     assert compile_called == [], "compile_project must NOT be called before pre-flight"
 
 
+def test_run_pipeline_preflight_refuses_a_withdrawn_version_before_compile(
+    monkeypatch, tmp_path: Path
+) -> None:
+    from ezcompiler.services.tuf_service import TufService
+    from ezcompiler.shared.exceptions import ReleaseError
+
+    cfg = _make_cfg(tmp_path, tuf_enabled=True)
+    (tmp_path / "keystore").mkdir()
+    (tmp_path / "keystore" / "root").write_text("k", encoding="utf-8")
+    (tmp_path / "repo").mkdir()
+    TufService.record_withdrawn(tmp_path / "repo", "2.0.0")
+    compile_called: list = []
+    monkeypatch.setattr(
+        "ezcompiler.interfaces.python_api.PipelineService.compile_project",
+        lambda *_a, **_kw: compile_called.append(True),
+    )
+
+    with pytest.raises(ReleaseError, match="retirée"):
+        EzCompiler(cfg).run_pipeline()
+
+    assert compile_called == [], "compile_project must NOT run for a withdrawn version"
+
+
 def test_run_pipeline_does_not_upload(monkeypatch, tmp_path: Path) -> None:
     cfg = _make_cfg(tmp_path, tuf_enabled=True)
     (tmp_path / "keystore").mkdir()

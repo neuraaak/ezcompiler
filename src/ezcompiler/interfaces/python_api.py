@@ -737,9 +737,13 @@ class EzCompiler:
                 "s'exécute (tuf_enabled, sans skip_release)."
             )
 
-        # Pre-flight: fail early if release needed but keys absent
+        # Pre-flight: fail early if release needed but keys absent, or if the
+        # version is not above a withdrawn one (before a possibly long compile)
         if should_release:
             self._preflight_release(TufService.keys_dir(self._config))
+            TufService.ensure_releasable(
+                TufService.repo_dir(self._config), self._config.version
+            )
 
         # Build stages
         stages: list[StageConfig] = cast(
