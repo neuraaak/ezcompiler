@@ -75,7 +75,9 @@ ask for confirmation (`--yes` skips it); a release to `disk|server|r2` is
 copied without a prompt, as before. This is pinned by `test_run_pipeline_does_not_upload`, and
 the deprecation message of `release(publish=True)` names that sequence.
 `EzCompiler.upload()` and `ezcompiler upload` still work but are **deprecated**
-(removal in v5). The publisher/uploader routing (`github` → `PublisherPort`,
+(removal in v5). `ezcompiler upload` delegates to `publish update` (when
+`tuf_enabled`) then `publish release`, both with an implicit `--yes`, and refuses
+a platform release destination (`test_cli_upload.py`). The publisher/uploader routing (`github` → `PublisherPort`,
 `disk|server|r2` → `UploaderPort`) lives in `PublishService` only.
 
 `PipelineService.assemble_release_dir()` builds a flat `dist/release/` directory holding **only the zip and, when enabled, the installer `.exe`** — never TUF metadata (see `test_assemble_release_dir_contains_only_zip`). `PipelineService.stage_versioned_assets()` resolves those same artifacts and copies the zip under its versioned name, which is what the publication path consumes. The working TUF repo (`tuf_repository/`) stays structured for incremental patches and is published separately by `ezcompiler publish update`.

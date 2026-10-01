@@ -1096,11 +1096,9 @@ def upload_command(
 ) -> None:
     """[Déprécié] Utiliser `ezcompiler publish update` / `publish release`.
 
-    Upload l'arbre TUF et le zip installeur vers leur destination.
-
-    Auto-détecte selon release_needed : arbre TUF → <dest>/update/,
-    zip → <dest>/release/. Destination et backends tombent en fallback
-    sur la config si non fournis.
+    Raccourci qui enchaîne `publish update` (si tuf_enabled) puis
+    `publish release`, sans confirmation. Les publications sur plateforme
+    (github) sont refusées : utiliser `publish release`, qui les confirme.
 
     Exemples :
 
@@ -1110,27 +1108,47 @@ def upload_command(
     """
     printer = _get_printer()
     logger = _get_logger()
+    printer.warning(
+        "`ezcompiler upload` est déprécié et sera retiré en v5. "
+        "Utiliser `ezcompiler publish update` puis "
+        "`ezcompiler publish release`."
+    )
     try:
-        printer.warning(
-            "`ezcompiler upload` est déprécié et sera retiré en v5. "
-            "Utiliser `ezcompiler publish update` puis "
-            "`ezcompiler publish release`."
-        )
-        config_obj = ConfigService.build_compiler_config(
+        cfg = ConfigService.build_compiler_config(
             config_path=Path(config) if config else None,
             pyproject_path=Path(pyproject) if pyproject else None,
         )
-        from .python_api import EzCompiler  # noqa: PLC0415
-
-        EzCompiler(config=config_obj).upload(
-            destination=destination,
-            repo_destination=repo_destination,
-            release_destination=release_destination,
-        )
-    except (ConfigurationError, UploadError, ReleaseError) as e:
+    except ConfigurationError as e:
         printer.error(str(e))
         logger.error(str(e))
         sys.exit(1)
+
+    rel_dest = release_destination or cfg.release_destination
+    if rel_dest not in ("disk", "server", "r2"):
+        printer.error(
+            f"`ezcompiler upload` ne publie pas sur {rel_dest} : une release "
+            "de plateforme demande confirmation. Utiliser "
+            "`ezcompiler publish release`."
+        )
+        sys.exit(1)
+
+    # Délègue aux commandes publish avec --yes implicite (spec §8) : upload
+    # reste non interactif. Un échec de l'arbre TUF sort avant la release.
+    ctx = click.get_current_context()
+    common = {"config": config, "pyproject": pyproject, "destination": destination}
+    if cfg.tuf_enabled:
+        ctx.invoke(
+            publish_update_command,
+            repo_destination=repo_destination,
+            yes=True,
+            **common,
+        )
+    ctx.invoke(
+        publish_release_command,
+        release_destination=release_destination,
+        yes=True,
+        **common,
+    )
 
 
 # ///////////////////////////////////////////////////////////////

@@ -236,7 +236,9 @@ ezcompiler publish release --yes --notes-file CHANGELOG.md
 !!! warning "Deprecated"
     `ezcompiler upload` is deprecated and will be removed in v5. Use `ezcompiler publish update` then `ezcompiler publish release`, which ask for confirmation before any irreversible publication (the TUF tree, and GitHub releases). `EzCompiler.upload()` is deprecated likewise.
 
-Upload the TUF tree and/or the release directory (ZIP + installer `setup.exe`) to their destination. Auto-detects the flow from `tuf_enabled`: TUF tree → `<dest>/update/`, release directory → `<dest>/release/`. Destination and backends fall back to the config when not provided.
+A non-interactive shortcut: it runs `publish update --yes` when `tuf_enabled` is true, then `publish release --yes`, passing its options through. If the TUF tree fails to publish, the release is not attempted. It refuses a platform release destination (`github`, `gitlab`) and points to `publish release`, so a GitHub release is never created without a confirmation prompt.
+
+Unlike the old implementation, an `r2` TUF tree no longer skips a `disk` release: both are published.
 
 ```bash
 ezcompiler upload --config ezcompiler.yaml
@@ -248,7 +250,7 @@ ezcompiler upload --config ezcompiler.yaml
 | `--pyproject`           | No       | —       | Explicit `pyproject.toml` path                                               |
 | `--repo-destination`    | No       | —       | Backend for the TUF tree: `disk`, `server`, `r2` (overrides config)          |
 | `--release-destination` | No       | —       | Backend for the release directory: `disk`, `server`, `r2` (overrides config) |
-| `--destination`         | No       | —       | Common override applied to both `repo` and `release` destinations            |
+| `--destination`         | No       | —       | Passed to both `publish update` and `publish release`                        |
 
 ---
 
