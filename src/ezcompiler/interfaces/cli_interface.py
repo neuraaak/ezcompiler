@@ -19,9 +19,10 @@ from __future__ import annotations
 # ///////////////////////////////////////////////////////////////
 # Standard library imports
 import json
+import math
 import sys
 import tomllib
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -1827,11 +1828,13 @@ def tuf_status(config: str | None, pyproject: str | None) -> None:
     now = datetime.now(UTC)
     for role, expires in status.expirations.items():
         refresh = "ezcompiler tuf refresh" + (" --role root" if role == "root" else "")
-        days = (expires - now).days
+        # Arrondi au jour supérieur : un rôle signé pour 7 jours affiche
+        # « 7 j » juste après la signature, sans avertissement.
+        days = math.ceil((expires - now).total_seconds() / 86400)
         line = f"   {role:<10} {expires:%Y-%m-%d}   ({days} j)"
         if expires <= now:
             printer.error(f"{line}   expiré : lancer `{refresh}`")
-        elif days < _EXPIRY_WARN_DAYS:
+        elif timedelta(days=days) < timedelta(days=_EXPIRY_WARN_DAYS):
             printer.warning(f"{line}   expire bientôt : lancer `{refresh}`")
         else:
             printer.info(line)

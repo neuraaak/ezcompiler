@@ -95,6 +95,37 @@ def test_status_should_warn_when_a_role_expires_soon(tmp_path: Path) -> None:
     assert "ezcompiler tuf refresh" in _flat(result.output)
 
 
+def test_status_should_round_days_up_and_not_warn_at_seven_days(
+    tmp_path: Path,
+) -> None:
+    almost_week = datetime.now(UTC) + timedelta(days=7) - timedelta(minutes=1)
+    st = _status(tmp_path)
+    st = _status(tmp_path, expirations={**st.expirations, "targets": almost_week})
+
+    result = _run(tmp_path, st, "status")
+
+    assert result.exit_code == 0
+    assert "(7 j)" in result.output
+    assert "expire bientôt" not in result.output
+
+
+def test_status_should_not_warn_on_a_freshly_signed_default_tree(
+    make_tuf_tree, tmp_path: Path
+) -> None:
+    """Défauts tufup : targets et snapshot expirent à 7 jours."""
+    make_tuf_tree(["1.0.0"])
+    with patch(
+        f"{_CLI}.ConfigService.build_compiler_config", return_value=_cfg(tmp_path)
+    ):
+        result = CliRunner().invoke(main, ["tuf", "status"])
+
+    assert result.exit_code == 0, result.output
+    for role in ("targets", "snapshot"):
+        line = next(ln for ln in result.output.splitlines() if f" {role} " in ln)
+        assert "(7 j)" in line, line
+        assert "expire bientôt" not in line, line
+
+
 def test_status_should_flag_an_expired_root_with_its_refresh_command(
     tmp_path: Path,
 ) -> None:
