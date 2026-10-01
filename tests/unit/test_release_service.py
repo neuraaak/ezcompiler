@@ -9,7 +9,9 @@ from ezcompiler.services.release_service import ReleaseService
 
 
 class _FakeReleaser:
-    def release(self, bundle_dir, app_name, version, repo_dir, *, patch=True) -> Path:
+    def release(
+        self, bundle_dir, app_name, version, repo_dir, *, patch=True, required=False
+    ) -> Path:
         out = repo_dir / "repository"
         out.mkdir(parents=True, exist_ok=True)
         return out
@@ -72,7 +74,9 @@ def test_release_with_publish_delegates_to_uploader(
 
 
 class _FakeReleaserWithInit:
-    def release(self, bundle_dir, app_name, version, repo_dir, *, patch=True) -> Path:
+    def release(
+        self, bundle_dir, app_name, version, repo_dir, *, patch=True, required=False
+    ) -> Path:
         return repo_dir / "repository"
 
     def init_keys(self, app_name: str, repo_dir: Path, keys_dir: Path) -> bool:
@@ -83,7 +87,9 @@ class _FakeReleaserWithInit:
 
 
 class _FakeReleaserInitAlreadyPresent:
-    def release(self, bundle_dir, app_name, version, repo_dir, *, patch=True) -> Path:
+    def release(
+        self, bundle_dir, app_name, version, repo_dir, *, patch=True, required=False
+    ) -> Path:
         return repo_dir / "repository"
 
     def init_keys(self, app_name: str, repo_dir: Path, keys_dir: Path) -> bool:
@@ -135,3 +141,58 @@ def test_publish_requires_destination(monkeypatch, tmp_path: Path) -> None:
             publish=True,
             upload_type="server",
         )
+
+
+class _RecordingReleaser:
+    def __init__(self) -> None:
+        self.calls: list[dict[str, Any]] = []
+
+    def release(
+        self, bundle_dir, app_name, version, repo_dir, *, patch=True, required=False
+    ) -> Path:
+        self.calls.append({"version": version, "required": required})
+        return repo_dir
+
+    def get_releaser_name(self) -> str:
+        return "recording"
+
+
+def test_release_should_refuse_a_withdrawn_version_before_signing(
+    monkeypatch, tmp_path: Path
+) -> None:
+    from ezcompiler.services.tuf_service import TufService
+    from ezcompiler.shared.exceptions import ReleaseError
+
+    releaser = _RecordingReleaser()
+    monkeypatch.setattr(
+        "ezcompiler.services.release_service.ReleaserFactory.create_releaser",
+        lambda *_a, **_k: releaser,
+    )
+    repo_dir = tmp_path / "repo"
+    repo_dir.mkdir()
+    TufService.record_withdrawn(repo_dir, "1.0.1")
+
+    with pytest.raises(ReleaseError, match="retirée"):
+        ReleaseService.release_and_publish(
+            bundle_dir=tmp_path, app_name="App", version="1.0.1", repo_dir=repo_dir
+        )
+
+    assert releaser.calls == []
+
+
+def test_release_should_forward_required(monkeypatch, tmp_path: Path) -> None:
+    releaser = _RecordingReleaser()
+    monkeypatch.setattr(
+        "ezcompiler.services.release_service.ReleaserFactory.create_releaser",
+        lambda *_a, **_k: releaser,
+    )
+
+    ReleaseService.release_and_publish(
+        bundle_dir=tmp_path,
+        app_name="App",
+        version="1.0.2",
+        repo_dir=tmp_path / "repo",
+        required=True,
+    )
+
+    assert releaser.calls == [{"version": "1.0.2", "required": True}]

@@ -12,7 +12,9 @@ from ezcompiler.shared import CompilerConfig
 class _RepoBuildingReleaser:
     """Writes a realistic repository/ tree and a sibling keystore/ with keys."""
 
-    def release(self, bundle_dir, app_name, version, repo_dir, *, patch=True) -> Path:
+    def release(
+        self, bundle_dir, app_name, version, repo_dir, *, patch=True, required=False
+    ) -> Path:
         repo = repo_dir / "repository"
         (repo / "metadata").mkdir(parents=True, exist_ok=True)
         (repo / "targets").mkdir(parents=True, exist_ok=True)

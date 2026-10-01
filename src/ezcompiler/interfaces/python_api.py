@@ -510,6 +510,7 @@ class EzCompiler:
         bundle_dir: Path,
         *,
         publish: bool = False,
+        required: bool = False,
     ) -> Path:
         """Package a compiled bundle into a signed TUF repository.
 
@@ -523,6 +524,7 @@ class EzCompiler:
                 Deprecated since 4.1.0 (removed in v5): run ``run_pipeline()``
                 then ``ezcompiler publish update`` / ``ezcompiler publish
                 release`` instead.
+            required: Mark this version as mandatory for TUF clients.
 
         Returns:
             Path: The local ``repository/`` tree produced by tufup.
@@ -557,6 +559,7 @@ class EzCompiler:
                 "keys_dir": keys_dir,
                 "expiration_days": self._config.tuf_expiration_days,
             },
+            required=required,
         )
 
     def init_release(self) -> bool:
@@ -685,6 +688,7 @@ class EzCompiler:
         skip_release: bool = False,
         skip_installer: bool = False,
         skip_build: bool = False,
+        required: bool = False,
     ) -> None:
         """
         Run the build pipeline with visual progress tracking.
@@ -703,9 +707,12 @@ class EzCompiler:
             skip_installer: Skip the installer build stage
             skip_build: Skip version generation and compilation, and resume
                 from the existing build in ``output_folder``
+            required: Mark the released version as mandatory (needs the TUF
+                release stage)
 
         Raises:
-            ConfigurationError: If project not initialized
+            ConfigurationError: If project not initialized, or required without
+                a release stage
             CompilationError: If compilation fails, or no existing build is
                 found when ``skip_build`` is set
             VersionError: If version file generation fails
@@ -724,6 +731,12 @@ class EzCompiler:
         should_zip = not skip_zip
         should_release = not skip_release and self._config.tuf_enabled
         should_installer = not skip_installer and self._config.installer.enabled
+
+        if required and not should_release:
+            raise ConfigurationError(
+                "required=True n'a d'effet que si l'étape release TUF "
+                "s'exécute (tuf_enabled, sans skip_release)."
+            )
 
         # Pre-flight: fail early if release needed but keys absent
         if should_release:
@@ -839,6 +852,7 @@ class EzCompiler:
                     repository_path = self._pipeline_service.release_artifact(
                         config=self._config,
                         compilation_result=self._compilation_result,
+                        required=required,
                     )
                     self._logger.info(f"TUF release built: {repository_path}")
                     dlp.complete_layer("release")

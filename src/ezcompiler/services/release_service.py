@@ -22,6 +22,7 @@ from typing import TYPE_CHECKING, Any, Literal, cast
 
 from ..adapters import ReleaserFactory
 from ..shared.exceptions import ReleaseError
+from .tuf_service import TufService
 from .uploader_service import UploaderService
 
 if TYPE_CHECKING:
@@ -53,6 +54,7 @@ class ReleaseService:
         destination: str | None = None,
         releaser_config: dict[str, Any] | None = None,
         upload_config: dict[str, Any] | None = None,
+        required: bool = False,
     ) -> Path:
         """Build the local TUF repo, then optionally publish it.
 
@@ -70,13 +72,15 @@ class ReleaseService:
             destination: Upload destination path or URL. Required when publish=True.
             releaser_config: Extra config forwarded to the releaser adapter.
             upload_config: Extra config forwarded to the uploader adapter.
+            required: Mark the version as mandatory for clients.
 
         Returns:
             Path: The local ``repository/`` tree path.
 
         Raises:
             ValueError: When publish=True but upload_type or destination is missing.
-            ReleaseError: When release packaging or publishing fails.
+            ReleaseError: When the version is not above a withdrawn version, or
+                when release packaging or publishing fails.
         """
         if pull_before and upload_type and destination:
             UploaderService.download(
@@ -86,6 +90,9 @@ class ReleaseService:
                 upload_config=upload_config,
             )
 
+        # Après le pull : withdrawn.json voyage avec l'arbre distant.
+        TufService.ensure_releasable(repo_dir, version)
+
         releaser: ReleaserPort = ReleaserFactory.create_releaser(
             release_type, releaser_config
         )
@@ -94,6 +101,7 @@ class ReleaseService:
             app_name=app_name,
             version=version,
             repo_dir=repo_dir,
+            required=required,
         )
 
         if not publish:

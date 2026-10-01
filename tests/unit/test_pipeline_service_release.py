@@ -237,3 +237,22 @@ def test_should_raise_when_an_enabled_installer_is_missing(tmp_path: Path) -> No
 
     with pytest.raises(ReleaseError, match="App-1.2.3-setup.exe"):
         PipelineService.stage_versioned_assets(cfg)
+
+
+def test_release_artifact_should_forward_required(
+    monkeypatch, cfg: CompilerConfig
+) -> None:
+    captured: dict = {}
+
+    def _fake_release(**kwargs) -> Path:
+        captured.update(kwargs)
+        return Path("repo")
+
+    monkeypatch.setattr(
+        "ezcompiler.services.pipeline_service.ReleaseService.release_and_publish",
+        staticmethod(_fake_release),
+    )
+
+    PipelineService.release_artifact(cfg, compilation_result=None, required=True)
+
+    assert captured["required"] is True

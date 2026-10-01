@@ -363,6 +363,8 @@ class PipelineService:
     def release_artifact(
         config: CompilerConfig,
         compilation_result: CompilationResult | None,  # noqa: ARG004
+        *,
+        required: bool = False,
     ) -> Path:
         """Build le repo TUF local depuis output_folder. Ne publie jamais."""
         repo_dir = config.tuf_repo_dir or (config.output_folder / "repo")
@@ -377,6 +379,7 @@ class PipelineService:
                 "keys_dir": keys_dir,
                 "expiration_days": config.tuf_expiration_days,
             },
+            required=required,
         )
 
     @staticmethod

@@ -204,3 +204,27 @@ def test_run_pipeline_skip_release_bypasses_release_stage(
     ez.run_pipeline(skip_release=True, skip_zip=True)
 
     assert release_calls == []
+
+
+def test_release_should_forward_required(monkeypatch, tmp_path: Path) -> None:
+    captured: dict = {}
+    monkeypatch.setattr(
+        "ezcompiler.interfaces.python_api.ReleaseService.release_and_publish",
+        staticmethod(lambda **kw: captured.update(kw) or tmp_path),
+    )
+    compiler = EzCompiler(config=_make_cfg(tmp_path, tuf_enabled=True))
+
+    compiler.release(tmp_path, required=True)
+
+    assert captured["required"] is True
+
+
+@pytest.mark.parametrize("skip_release", [True, False])
+def test_run_pipeline_should_refuse_required_without_release_stage(
+    tmp_path: Path, skip_release: bool
+) -> None:
+    from ezcompiler.shared.exceptions import ConfigurationError
+
+    cfg = _make_cfg(tmp_path, tuf_enabled=skip_release)
+    with pytest.raises(ConfigurationError, match="required"):
+        EzCompiler(config=cfg).run_pipeline(skip_release=skip_release, required=True)
