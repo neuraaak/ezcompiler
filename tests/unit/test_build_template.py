@@ -99,16 +99,29 @@ def test_generated_build_script_passes_pipeline_values(
 
     assert "console=False," in rendered
     assert 'compiler="Nuitka",' in rendered
-    assert "__REPO_NEEDED__ = True" in rendered
-    assert 'REPO_PATH = "D:/repo"' in rendered
 
 
-def test_generated_build_script_marks_repo_unneeded_without_endpoint(
+def test_generated_build_script_does_not_upload(
     loader: TemplateLoader, tmp_path: Path
 ) -> None:
-    rendered = loader.process_setup_template("py", _config(tmp_path))
+    """Publication is a deliberate CLI step: the build script never uploads,
+    even when an endpoint is configured."""
+    config = _config(tmp_path, upload={"repo_endpoint": "D:/updates"})
+    rendered = loader.process_setup_template("py", config)
 
-    assert "__REPO_NEEDED__ = False" in rendered
+    assert "compiler.upload(" not in rendered
+    assert "__REPO_NEEDED__" not in rendered
+    assert "REPO_PATH" not in rendered
+
+
+def test_generated_build_script_points_to_the_publish_commands(
+    loader: TemplateLoader, tmp_path: Path
+) -> None:
+    config = _config(tmp_path, upload={"repo_endpoint": "D:/updates"})
+    rendered = loader.process_setup_template("py", config)
+
+    assert "ezcompiler publish update" in rendered
+    assert "ezcompiler publish release" in rendered
 
 
 @pytest.mark.parametrize("value", [r"C:\Users\dev\main.py", 'na"me', "accentué.py"])

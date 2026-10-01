@@ -8,7 +8,7 @@ Build script for #PROJECT_NAME_RAW#.
 
 Drives EzCompiler through the build pipeline: version file, compilation,
 optional ZIP archive, optional Windows installer, optional TUF release.
-Upload is a separate, explicit step after the pipeline.
+Publication is a separate, explicit CLI step: see `ezcompiler publish`.
 """
 
 from __future__ import annotations
@@ -31,14 +31,12 @@ from ezplog import Ezpl
 
 __VERSION__ = #VERSION#
 __ZIP_NEEDED__ = #ZIP_NEEDED#
-__REPO_NEEDED__ = #REPO_NEEDED#
 
 APP_PATH = (
     Path(sys._MEIPASS)
     if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS")
     else Path(sys.argv[0]).parent
 )
-REPO_PATH = #REPO_PATH#
 
 # ///////////////////////////////////////////////////////////////
 # VARIABLES
@@ -119,9 +117,14 @@ try:
         skip_zip=not __ZIP_NEEDED__,
     )
 
-    ## => UPLOAD (explicit step, separate from the build pipeline)
-    if __REPO_NEEDED__:
-        compiler.upload(destination=REPO_PATH)
+    ## => PUBLICATION
+    ## La publication est un acte délibéré, hors de ce script. Les deux
+    ## commandes demandent confirmation avant d'agir :
+    ##     ezcompiler publish update     # arbre de mise à jour TUF
+    ##     ezcompiler publish release    # installeur + zip
+    compiler.printer.info("Build terminé. Pour publier :")
+    compiler.printer.info("  ezcompiler publish update")
+    compiler.printer.info("  ezcompiler publish release")
 
 except Exception as e:
     compiler.printer.error(e)
