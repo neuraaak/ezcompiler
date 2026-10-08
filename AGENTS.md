@@ -48,13 +48,13 @@ _types.py     ← type aliases + the five @runtime_checkable Protocol ports
 
 Five structural contracts that decouple services from concrete adapters:
 
-| Port            | Key methods                                                                                                  |
-| --------------- | ------------------------------------------------------------------------------------------------------------ |
-| `CompilerPort`  | `compile()`, `get_compiler_name()`, `zip_needed`, `config`                                                   |
-| `UploaderPort`  | `upload(source_path, destination)`, `get_uploader_name()`                                                    |
+| Port            | Key methods                                                                                                                                                    |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CompilerPort`  | `compile()`, `get_compiler_name()`, `zip_needed`, `config`                                                                                                     |
+| `UploaderPort`  | `upload(source_path, destination)`, `get_uploader_name()`                                                                                                      |
 | `ReleaserPort`  | `release(bundle_dir, app_name, version, repo_dir, *, patch, required)`, `init_keys(...)`, `remove_latest(app_name, repo_dir, keys_dir)`, `get_releaser_name()` |
-| `InstallerPort` | `build(bundle_dir, app_name, version, output_dir, *, company_name, icon, main_file)`, `get_installer_name()` |
-| `PublisherPort` | `exists(tag)`, `publish(assets, *, tag, title, notes, prerelease, draft)`, `get_publisher_name()`             |
+| `InstallerPort` | `build(bundle_dir, app_name, version, output_dir, *, company_name, icon, main_file)`, `get_installer_name()`                                                   |
+| `PublisherPort` | `exists(tag)`, `publish(assets, *, tag, title, notes, prerelease, draft)`, `get_publisher_name()`                                                              |
 
 `TufService` reads the local TUF tree without tufup (`status()` returns a
 `TufStatus` of `TufVersion` entries and role expirations, from `metadata/*.json`),
@@ -165,7 +165,7 @@ before proceeding.
 - **ruff** rules: `E W F I B C4 UP S T20 ARG PIE SIM`, line length 88,
   double quotes. See `[tool.ruff]` for per-file ignores.
 - **Coverage:** branch coverage, `--cov-fail-under=70` (audit target is 80%;
-  measured at 81.48% over 938 tests as of 2026-10-01). See the exclusions note
+  measured at 82.57% over 972 tests as of 2026-10-08). See the exclusions note
   below before assuming a module is omitted.
 - **Test markers** available: `slow`, `integration`, `unit`, `cli`, `compiler`,
   `uploader`, `robustness`, `requires_iscc` (needs a real `ISCC.exe` /
@@ -223,10 +223,11 @@ URLs). Update docs when changing public behavior or the API surface.
 - Match the surrounding code's style, comment density, and idioms.
 - Review existing similar code before introducing new patterns.
 - Known technical-debt items are no longer tracked as in-code markers (the
-  former `[AUDIT Px]` TODOs are gone). **The standing backlog is one item:**
-  raising branch coverage from ~79% toward the 80% audit target — the cheapest
-  honest route is extracting a mockable subprocess seam in `_nuitka_compiler.py`
-  and `_pyinstaller_compiler.py`, as `_cx_freeze_compiler.py` already does.
+  former `[AUDIT Px]` TODOs are gone). **The standing backlog is empty:** branch
+  coverage reached the 80% audit target on 2026-10-08 (82.57%). Extracting a
+  mockable subprocess seam in `_nuitka_compiler.py` and `_pyinstaller_compiler.py`,
+  as `_cx_freeze_compiler.py` already does, remains the cheapest way to raise it
+  further, but it is no longer required to clear the target.
 - **Two former backlog items are settled; do not reopen them.**
     - *"Migrate the `Base*` ABCs to `Protocol` ports"* — **won't do, the premise
       is wrong.** The two serve different jobs and are meant to coexist: the
