@@ -5,7 +5,7 @@
 [![PyPI status](https://img.shields.io/pypi/status/ezcompiler?style=flat&logo=pypi&logoColor=white)](https://pypi.org/project/ezcompiler/)
 [![License](https://img.shields.io/badge/license-MIT-green?style=flat&logo=github&logoColor=white)](https://github.com/neuraaak/ezcompiler/blob/main/LICENSE)
 [![CI](https://img.shields.io/github/actions/workflow/status/neuraaak/ezcompiler/01-ci.yml?style=flat&label=ci&logo=githubactions&logoColor=white)](https://github.com/neuraaak/ezcompiler/actions/workflows/01-ci.yml)
-[![Docs](https://img.shields.io/badge/docs-Github%20Pages-blue?style=flat&logo=materialformkdocs&logoColor=white)](https://neuraaak.github.io/ezcompiler/)
+[![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-blue?style=flat&logo=materialformkdocs&logoColor=white)](https://neuraaak.github.io/ezcompiler/)
 [![uv](https://img.shields.io/badge/package%20manager-uv-DE5FE9?style=flat&logo=uv&logoColor=white)](https://github.com/astral-sh/uv)
 [![linter](https://img.shields.io/badge/linter-ruff-D7FF64?style=flat&logo=ruff&logoColor=white)](https://github.com/astral-sh/ruff)
 [![type checker](https://img.shields.io/badge/type%20checker-ty-261230?style=flat&logo=astral&logoColor=white)](https://github.com/astral-sh/ty)
@@ -19,10 +19,10 @@
 
 ```bash
 # With uv (recommended)
-uv pip install git+https://github.com/neuraaak/ezcompiler.git
+uv add ezcompiler
 
 # With pip
-pip install git+https://github.com/neuraaak/ezcompiler.git
+pip install ezcompiler
 ```
 
 Or from source:
@@ -33,6 +33,13 @@ cd ezcompiler
 
 uv pip install -e .   # uv
 pip install -e .      # pip
+```
+
+The unreleased `main` branch can also be installed directly:
+
+```bash
+uv pip install git+https://github.com/neuraaak/ezcompiler.git
+pip install git+https://github.com/neuraaak/ezcompiler.git
 ```
 
 ## 🚀 Quick Start
@@ -67,7 +74,7 @@ ezcompiler publish release --release-destination disk --destination ./releases
 ## 🎯 Key Features
 
 - **✅ Multi-Compiler Support**: Cx_Freeze, PyInstaller, and Nuitka with unified interface
-- **✅ Automatic File Generation**: Version files, setup.py, and configuration from templates
+- **✅ Automatic File Generation**: Version files, `build.py` scripts, and configuration from templates
 - **✅ Template System**: Flexible file generation based on customizable templates
 - **✅ Packaging**: Automatic ZIP archive creation for distribution
 - **✅ Publication**: `ezcompiler publish` to local disk, HTTP/HTTPS servers, R2 or GitHub Releases, with a recap and confirmation before irreversible steps
@@ -87,7 +94,7 @@ Complete documentation is available at **[neuraaak.github.io/ezcompiler](https:/
 
 ## 🧪 Testing
 
-Comprehensive test suite with 504 test cases covering unit, integration, and robustness scenarios (~63% coverage).
+Comprehensive test suite with 972 test cases covering unit, integration, and robustness scenarios (82.57% branch coverage, CI gate at 70%).
 
 ```bash
 # Install dev dependencies
@@ -201,8 +208,8 @@ EzCompiler is designed for production use with comprehensive error handling:
 ## 💻 CLI Usage
 
 ```bash
-# Interactive project initialization
-ezcompiler init
+# Create a YAML configuration file
+ezcompiler init yaml
 
 # Generate configuration
 ezcompiler generate config \
@@ -210,11 +217,11 @@ ezcompiler generate config \
   --version "1.0.0" \
   --main-file "main.py"
 
-# Generate setup.py
-ezcompiler generate setup --config ezcompiler.yaml
+# Generate build.py
+ezcompiler generate build --config ezcompiler.yaml
 
-# Generate version file
-ezcompiler generate version --config ezcompiler.yaml
+# Generate a version file
+ezcompiler generate template --type version
 
 # Generate templates
 ezcompiler generate template --type config --mockup
@@ -282,7 +289,7 @@ ezcompiler/
 │   ├── compiler_config.py
 │   └── compilation_result.py
 ├── utils/               # Utility functions
-└── assets/templates/    # Template files (config, setup, version)
+└── assets/templates/    # Template files (build, config, installer, updater, version)
 ```
 
 `assets/` is a dedicated resource layer for non-executable project artifacts
@@ -305,7 +312,7 @@ through template loaders and remains isolated from business orchestration logic.
 
 ### Development Tools
 
-- Generate setup.py files for PyPI distribution
+- Generate `build.py` pipeline scripts for repeatable builds
 - Create Windows version information files
 - Automate build workflows
 
@@ -321,7 +328,7 @@ through template loaders and remains isolated from business orchestration logic.
 2. Create a feature branch (`git checkout -b feat/ma-feature`)
 3. Commit your changes
 4. Submit a Pull Request for internal review
-5. Review is handled via CODEOWNERS
+5. Review is handled through pull requests
 
 ## ⭐ Support
 
@@ -337,7 +344,6 @@ MIT License – See [LICENSE](LICENSE) file for details.
 
 Maintained by **Neuraaak**.
 
-- **Code owners**: see [CODEOWNERS](.github/CODEOWNERS)
 - **Contact**: <floriansalort@gmail.com>
 
 ## 🔗 Links

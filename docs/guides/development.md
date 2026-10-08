@@ -4,7 +4,7 @@ Set up a local development workflow for implementing and validating changes in E
 
 ## 🔧 Prerequisites
 
-- Python 3.11+
+- Python 3.13+
 - Git
 - A local clone of the repository
 

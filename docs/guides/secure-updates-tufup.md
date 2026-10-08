@@ -1,4 +1,4 @@
-# Secure Updates with tufup
+# How to set up secure updates with tufup
 
 This guide explains how to integrate **tufup** (Trust Updates for Python) into your ezcompiler build pipeline to produce signed, TUF-compliant update repositories for your compiled applications.
 
@@ -6,7 +6,7 @@ This guide explains how to integrate **tufup** (Trust Updates for Python) into y
 
 ---
 
-## Prerequisites
+## 🔧 Prerequisites
 
 Install the optional extra:
 
@@ -18,7 +18,7 @@ tufup requires Python ≥ 3.13 and depends on `python-tuf` and `cryptography`.
 
 ---
 
-## Step 1 — Initialize signing keys (one-time admin operation)
+## 📝 Step 1 — Initialize signing keys (one-time admin operation)
 
 > **Important.** Key initialization is a deliberate, offline step. Keys are **never** generated automatically during a build.
 
@@ -46,7 +46,7 @@ This creates:
 
 ---
 
-## Step 2 — Configure `CompilerConfig`
+## 📝 Step 2 — Configure `CompilerConfig`
 
 ```python
 from pathlib import Path
@@ -81,7 +81,7 @@ config = CompilerConfig(
 
 ---
 
-## Step 3 — Compile, then release
+## 📝 Step 3 — Compile, then release
 
 ```python
 compiler = EzCompiler(config)
@@ -100,14 +100,14 @@ print(f"Signed repository written to: {repository_path}")
 
 ---
 
-## Step 4 — Build via the pipeline, then publish
+## 📝 Step 4 — Build via the pipeline, then publish
 
-The build pipeline runs the stages `compile → zip → release`. When `tuf_enabled`
+The build pipeline runs the stages `version → compile → zip → installer → release`. When `tuf_enabled`
 is set, `run_pipeline()` builds the signed TUF tree locally — it does **not**
 transfer anything. Publication is a separate, explicit CLI step:
 
 ```python
-compiler.run_pipeline(console=False)   # compile → zip → release (local only)
+compiler.run_pipeline(console=False)   # version → compile → zip → installer → release (local only)
 ```
 
 ```bash
@@ -142,72 +142,7 @@ see the [CLI reference](../cli/index.md#publish-release).
 
 ---
 
-## Metadata expiration (irregularly-updated projects)
-
-TUF metadata carries an expiration date **per role**. tufup's defaults are short
-for the online roles — `root=365`, `targets=7`, `snapshot=7`, `timestamp=1` (days).
-Once `timestamp`/`snapshot` expire, clients refuse to trust the repository **even
-if no new version was published**. For a project you release irregularly, that
-silently breaks updates between releases.
-
-Two native tufup mechanisms address this:
-
-**1. Longer lifetimes via config.** Set `tuf_expiration_days` to raise the per-role
-lifetime (unset roles fall back to tufup defaults). It is applied on `tuf init`
-and every release:
-
-```python
-config = CompilerConfig(
-    ...,
-    tuf_enabled=True,
-    tuf_expiration_days={"timestamp": 30, "snapshot": 30, "targets": 90},
-)
-```
-
-**2. Keep-alive re-sign.** Re-sign the metadata to push the expiration forward
-without cutting a new release — run this periodically (e.g. a scheduled job):
-
-```bash
-ezcompiler tuf refresh                          # targets/snapshot/timestamp
-ezcompiler tuf refresh --role timestamp --days 60
-```
-
-```python
-compiler.refresh_release_expiration(days=60)
-```
-
-Both require the signing keys (`tuf init`). After a refresh, re-run
-`ezcompiler publish update` so the freshly-signed metadata reaches the clients.
-
----
-
-## Withdraw a broken version
-
-When the latest published version turns out to be broken, withdraw it from the signed tree, then ship a mandatory fix:
-
-```bash
-ezcompiler tuf remove-latest           # withdraw 1.2.3 from the local tree, re-sign
-ezcompiler publish update              # republish the tree without 1.2.3
-# set `version` to 1.2.4 in the config before building
-ezcompiler compile --required          # build 1.2.4, mandatory
-ezcompiler publish update              # clients on 1.2.3 move to 1.2.4
-```
-
-Bump `version` in the config first: a build that keeps 1.2.3 is refused, because a new release must be above every withdrawn version.
-
-`ezcompiler tuf status` shows the versions, their flags, the role expirations and the withdrawn versions before and after.
-
-Clients never downgrade: withdrawing stops the version from reaching clients that do not have it yet; clients that installed it leave it only through a higher version, which `--required` makes mandatory.
-
-The first release after a withdrawal ships **without a patch**: tufup would build it from the latest archive left in the tree (1.2.2), which clients on the withdrawn version do not have. Clients on 1.2.3 therefore download the full archive of 1.2.4; patches resume from the next release.
-
-Only the latest version can be withdrawn. The archive and patch stay on the remote storage, unusable because no signed metadata references them.
-
-`withdrawn.json` at the repository root records withdrawn versions; ezcompiler refuses to release a version that is not above them. It is published with the tree and ignored by clients. The rule also applies from the Python API (`EzCompiler.release(..., required=True)`, `run_pipeline(..., required=True)`).
-
----
-
-## Step 5: Generate client updater files
+## 📝 Step 5 — Generate client updater files
 
 Once the TUF repository is initialized and the config contains a valid `repo_public_url`, generate the client-side bootstrap files:
 
@@ -258,7 +193,7 @@ ezcompiler updater generate --output-dir src/updater
 
 ---
 
-## Step 6 — Wire the updater into your app
+## 📝 Step 6 — Wire the updater into your app
 
 Call `update.main()` at the very top of your app's entry point. It checks the
 repository once, and if a newer version is available it downloads and applies it,
@@ -307,7 +242,76 @@ files are swapped, matching the existing macOS behavior.
 
 ---
 
-## Error handling
+## ⚙️ Variations
+
+The steps above cover the regular release loop. The cases below apply only under the stated condition.
+
+### Metadata expiration on irregularly-updated projects
+
+TUF metadata carries an expiration date **per role**. tufup's defaults are short
+for the online roles — `root=365`, `targets=7`, `snapshot=7`, `timestamp=1` (days).
+Once `timestamp`/`snapshot` expire, clients refuse to trust the repository **even
+if no new version was published**. For a project you release irregularly, that
+silently breaks updates between releases.
+
+Two native tufup mechanisms address this:
+
+#### 1. Longer lifetimes via config
+
+Set `tuf_expiration_days` to raise the per-role
+lifetime (unset roles fall back to tufup defaults). It is applied on `tuf init`
+and every release:
+
+```python
+config = CompilerConfig(
+    ...,
+    tuf_enabled=True,
+    tuf_expiration_days={"timestamp": 30, "snapshot": 30, "targets": 90},
+)
+```
+
+#### 2. Keep-alive re-sign
+
+Re-sign the metadata to push the expiration forward
+without cutting a new release — run this periodically (e.g. a scheduled job):
+
+```bash
+ezcompiler tuf refresh                          # targets/snapshot/timestamp
+ezcompiler tuf refresh --role timestamp --days 60
+```
+
+```python
+compiler.refresh_release_expiration(days=60)
+```
+
+Both require the signing keys (`tuf init`). After a refresh, re-run
+`ezcompiler publish update` so the freshly-signed metadata reaches the clients.
+
+### Withdraw a broken version
+
+When the latest published version turns out to be broken, withdraw it from the signed tree, then ship a mandatory fix:
+
+```bash
+ezcompiler tuf remove-latest           # withdraw 1.2.3 from the local tree, re-sign
+ezcompiler publish update              # republish the tree without 1.2.3
+# set `version` to 1.2.4 in the config before building
+ezcompiler compile --required          # build 1.2.4, mandatory
+ezcompiler publish update              # clients on 1.2.3 move to 1.2.4
+```
+
+Bump `version` in the config first: a build that keeps 1.2.3 is refused, because a new release must be above every withdrawn version.
+
+`ezcompiler tuf status` shows the versions, their flags, the role expirations and the withdrawn versions before and after.
+
+Clients never downgrade: withdrawing stops the version from reaching clients that do not have it yet; clients that installed it leave it only through a higher version, which `--required` makes mandatory.
+
+The first release after a withdrawal ships **without a patch**: tufup would build it from the latest archive left in the tree (1.2.2), which clients on the withdrawn version do not have. Clients on 1.2.3 therefore download the full archive of 1.2.4; patches resume from the next release.
+
+Only the latest version can be withdrawn. The archive and patch stay on the remote storage, unusable because no signed metadata references them.
+
+`withdrawn.json` at the repository root records withdrawn versions; ezcompiler refuses to release a version that is not above them. It is published with the tree and ignored by clients. The rule also applies from the Python API (`EzCompiler.release(..., required=True)`, `run_pipeline(..., required=True)`).
+
+### Error handling
 
 | Exception                | Raised when                                  |
 | ------------------------ | -------------------------------------------- |
@@ -333,7 +337,13 @@ except ReleaseError as e:
 
 ---
 
-## Going further
+## ✅ Result
+
+Your build produces a signed TUF tree that `ezcompiler publish update` transfers to `repo_public_url`, and your compiled application ships a client that polls that tree, downloads a newer version and applies it. `ezcompiler tuf status` lists the published versions, the role expirations and any withdrawn version.
+
+---
+
+## ➡️ Going further
 
 The generated client covers the common check-download-apply loop. For advanced
 scenarios — custom pre-release channels, patch (delta) updates, or bespoke

@@ -9,7 +9,7 @@ This page explains the design rationale and layout of EzCompiler's release pipel
 The build pipeline stages execute in a fixed order:
 
 ```text
-compile → zip → installer → release
+version → compile → zip → installer → release
 ```
 
 `installer` runs when `installer.enabled=True`, producing a Windows `setup.exe` via Inno Setup — see the [Windows Installer](../guides/windows-installer.md) guide. By default, its `.iss` script is ephemeral: it is written in a temporary directory and removed after a successful ISCC invocation, rather than left in `installer.output_dir`. A failed invocation retains it for diagnosis. Generate and adopt a script through `installer.iss_path` when a persistent, editable file is needed. `release` always runs after: the signed TUF tree is built locally from the output. `run_pipeline()` stops here — it never transfers anything. Publishing is a **separate, explicit step** (`ezcompiler publish update` / `ezcompiler publish release`), which keeps a partial or unsigned tree from ever being published.
@@ -22,11 +22,11 @@ The pipeline produces and signs **locally**; the CLI **publishes**. Nothing irre
 
 The two publications are not equivalent, which is why they are two commands rather than one:
 
-|                     | `publish update` (TUF tree)                                                                                                 | `publish release` (installer + ZIP)                  |
-| :------------------ | :-------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------- |
-| Reversibility       | **None** — metadata versions are monotonic and clients refuse a lower version (anti-rollback). You supersede, never revert. | Yes — a file in a folder or bucket, overwritable.    |
-| Consumer            | Installed clients that **update on their own**, with no human action.                                                       | Manual download.                                     |
-| Effect of a bad push | Existing installations migrate by themselves.                                                                              | Nothing until someone downloads it.                  |
+|                      | `publish update` (TUF tree)                                                                                                 | `publish release` (installer + ZIP)               |
+| :------------------- | :-------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------ |
+| Reversibility        | **None** — metadata versions are monotonic and clients refuse a lower version (anti-rollback). You supersede, never revert. | Yes — a file in a folder or bucket, overwritable. |
+| Consumer             | Installed clients that **update on their own**, with no human action.                                                       | Manual download.                                  |
+| Effect of a bad push | Existing installations migrate by themselves.                                                                               | Nothing until someone downloads it.               |
 
 The confirmation lives in the CLI only. A Python method must never read stdin, so the Python publication paths (`EzCompiler.upload()`, `release(publish=True)`) cannot offer that guard: they are deprecated and will be removed in v5.
 

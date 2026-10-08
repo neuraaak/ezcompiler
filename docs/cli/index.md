@@ -13,41 +13,51 @@ ezcompiler [OPTIONS] COMMAND [ARGS]...
 | Option      | Short | Description               |
 | :---------- | :---- | :------------------------ |
 | `--version` |       | Show the version and exit |
-| `--help`    |       | Show help and exit        |
-| `--verbose` |       | Enable verbose output     |
-| `--quiet`   |       | Suppress non-error output |
+| `--help`    | `-h`  | Show help and exit        |
 
 ## 📋 Commands
 
-| Command             | Description                                                             |
-| :------------------ | :---------------------------------------------------------------------- |
-| `init`              | Initialize a new project interactively                                  |
-| `compile`           | Compile the project (version → compile → zip)                           |
-| `generate config`   | Generate a configuration file                                           |
-| `generate build`    | Generate a `build.py` script from a configuration file                  |
-| `generate iss`      | Generate an editable Inno Setup script from the configuration           |
-| `generate version`  | Generate a Windows version information file                             |
-| `generate template` | Generate a template file with optional mockup data                      |
-| `publish update`    | Publish the signed TUF update tree (asks for confirmation)              |
-| `publish release`   | Publish the installer and ZIP (GitHub: recap + confirmation)            |
-| `tuf init`          | Initialize TUF signing keys and repository skeleton                     |
-| `tuf refresh`       | Re-sign TUF metadata to extend expiration without a new release         |
-| `tuf status`        | Show the local TUF tree: versions, flags, expirations, withdrawn versions |
-| `tuf remove-latest` | Withdraw the latest version from the local tree                         |
-| `upload`            | **Deprecated** — use `publish update` then `publish release`            |
-| `updater generate`  | Generate client updater files (`update.py`, `settings.py`, `root.json`) |
+| Command             | Description                                                                   |
+| :------------------ | :---------------------------------------------------------------------------- |
+| `init`              | Create a configuration file in the given format (`yaml`, `json`, `pyproject`) |
+| `compile`           | Compile the project (version → compile → zip)                                 |
+| `generate config`   | Generate a configuration file                                                 |
+| `generate build`    | Generate a `build.py` script from a configuration file                        |
+| `generate iss`      | Generate an editable Inno Setup script from the configuration                 |
+| `generate template` | Generate a template file with optional mockup data                            |
+| `publish update`    | Publish the signed TUF update tree (asks for confirmation)                    |
+| `publish release`   | Publish the installer and ZIP (GitHub: recap + confirmation)                  |
+| `tuf init`          | Initialize TUF signing keys and repository skeleton                           |
+| `tuf refresh`       | Re-sign TUF metadata to extend expiration without a new release               |
+| `tuf status`        | Show the local TUF tree: versions, flags, expirations, withdrawn versions     |
+| `tuf remove-latest` | Withdraw the latest version from the local tree                               |
+| `upload`            | **Deprecated** — use `publish update` then `publish release`                  |
+| `updater generate`  | Generate client updater files (`update.py`, `settings.py`, `root.json`)       |
 
 ---
 
 ### `init`
 
-Initialize a new EzCompiler project with interactive prompts.
+Initialize a new EzCompiler project with a `FORMAT_TYPE` configuration file.
 
 ```bash
-ezcompiler init
+ezcompiler init [OPTIONS] {yaml|json|pyproject}
 ```
 
-Guides through: project name, main script, output directory, compiler selection, dependencies, and files to include.
+`FORMAT_TYPE` is a mandatory argument and must be one of `yaml`, `json` or
+`pyproject`. It is the only positional argument, and `-o/--output` is the only
+option.
+
+| Argument / option | Required | Default           | Description                                          |
+| :---------------- | :------- | :---------------- | :--------------------------------------------------- |
+| `FORMAT_TYPE`     | Yes      | —                 | Configuration format: `yaml`, `json` or `pyproject`  |
+| `-o`, `--output`  | No       | current directory | Output **directory** for the generated configuration |
+
+```bash
+ezcompiler init yaml
+ezcompiler init json -o ./configs
+ezcompiler init pyproject -o ../my-project
+```
 
 ---
 
@@ -59,18 +69,18 @@ Compile the project. Auto-discovers configuration from `pyproject.toml`, `ezcomp
 ezcompiler compile --compiler PyInstaller --no-console
 ```
 
-| Option                       | Required | Default | Description                                                               |
-| :--------------------------- | :------- | :------ | :------------------------------------------------------------------------ |
-| `--config`                   | No       | —       | Config file path (YAML, JSON)                                             |
-| `--pyproject`                | No       | —       | Explicit `pyproject.toml` path                                            |
-| `--compiler`                 | No       | —       | Compiler to use: `Cx_Freeze`, `PyInstaller`, `Nuitka` (overrides config)  |
-| `--console` / `--no-console` | No       | —       | Show console window (overrides config)                                    |
-| `--output-folder`            | No       | —       | Output folder (overrides config)                                          |
-| `--debug`                    | No       | `False` | Enable debug mode                                                         |
-| `--no-zip`                   | No       | `False` | Skip ZIP archive creation                                                 |
-| `--skip-installer`           | No       | `False` | Skip the Inno Setup installer stage even if the installer is enabled      |
-| `--skip-release`             | No       | `False` | Skip the TUF release stage even if `tuf_enabled=True`                     |
-| `--skip-build`               | No       | `False` | Skip version + compile; resume from the existing build in `output_folder` |
+| Option                       | Required | Default | Description                                                                                                          |
+| :--------------------------- | :------- | :------ | :------------------------------------------------------------------------------------------------------------------- |
+| `--config`                   | No       | —       | Config file path (YAML, JSON)                                                                                        |
+| `--pyproject`                | No       | —       | Explicit `pyproject.toml` path                                                                                       |
+| `--compiler`                 | No       | —       | Compiler to use: `Cx_Freeze`, `PyInstaller`, `Nuitka` (overrides config)                                             |
+| `--console` / `--no-console` | No       | —       | Show console window (overrides config)                                                                               |
+| `--output-folder`            | No       | —       | Output folder (overrides config)                                                                                     |
+| `--debug`                    | No       | `False` | Enable debug mode                                                                                                    |
+| `--no-zip`                   | No       | `False` | Skip ZIP archive creation                                                                                            |
+| `--skip-installer`           | No       | `False` | Skip the Inno Setup installer stage even if the installer is enabled                                                 |
+| `--skip-release`             | No       | `False` | Skip the TUF release stage even if `tuf_enabled=True`                                                                |
+| `--skip-build`               | No       | `False` | Skip version + compile; resume from the existing build in `output_folder`                                            |
 | `--required`                 | No       | `False` | Mark this version as mandatory for TUF clients. Requires the TUF release stage (`tuf_enabled`, no `--skip-release`). |
 
 !!! note "Pipeline stages"
@@ -86,18 +96,46 @@ ezcompiler compile --compiler PyInstaller --no-console
 Create a configuration file.
 
 ```bash
-ezcompiler generate config --project-name "MyApp" --main-file "main.py"
+ezcompiler generate config -n myproject
+ezcompiler generate config --from-pyproject pyproject.toml --format json
+ezcompiler generate config --from-pyproject pyproject.toml -I
 ```
 
-| Option                | Required | Default             | Description                                              |
-| :-------------------- | :------- | :------------------ | :------------------------------------------------------- |
-| `--project-name`      | Yes      | —                   | Project name                                             |
-| `--main-file`         | Yes      | —                   | Main Python file                                         |
-| `--version`           | No       | `"1.0.0"`           | Project version                                          |
-| `--output`            | No       | `"ezcompiler.yaml"` | Output file path                                         |
-| `--format`            | No       | `yaml`              | Output format (`yaml`, `json`, or `pyproject`)           |
-| `--installer-enabled` | No       | `False`             | Enable the Inno Setup installer build stage              |
-| `--repo-public-url`   | No       | —                   | Public base URL for the TUF repo (required for `r2`/TUF) |
+Sources are merged with the following priority (highest first): CLI options >
+`pyproject.toml` > interactive prompts > defaults. No option is required.
+
+| Option                  | Short   | Default | Description                                                 |
+| :---------------------- | :------ | :------ | :---------------------------------------------------------- |
+| `--from-pyproject`      | `-fp`   | —       | Extract base values from a `pyproject.toml` file            |
+| `--interactive`         | `-I`    | off     | Prompt interactively for missing values                     |
+| `--format`              | `-fmt`  | `yaml`  | Output format: `yaml`, `json`, `pyproject`                  |
+| `--version`             | `-v`    | —       | Project version                                             |
+| `--project-name`        | `-n`    | —       | Project name                                                |
+| `--project-description` | `-d`    | —       | Project description                                         |
+| `--company-name`        | `-c`    | —       | Company name                                                |
+| `--author`              | `-a`    | —       | Project author                                              |
+| `--main-file`           | `-m`    | —       | Main file                                                   |
+| `--icon`                | `-i`    | —       | Path to icon file                                           |
+| `--version-file`        | `-vf`   | —       | Version file name                                           |
+| `--output-folder`       | `-o`    | —       | Output folder for compilation                               |
+| `--include-files`       | `-f`    | —       | Files to include (repeatable)                               |
+| `--include-folders`     | `-fd`   | —       | Folders to include (repeatable)                             |
+| `--packages`            | `-p`    | —       | Packages to include (repeatable)                            |
+| `--includes`            | `-inc`  | —       | Modules to include (repeatable)                             |
+| `--excludes`            | `-exc`  | —       | Modules to exclude (repeatable)                             |
+| `--console`             | `-con`  | `True`  | Show console window                                         |
+| `--compiler`            | `-comp` | —       | Compiler: `Cx_Freeze`, `PyInstaller`, `Nuitka`              |
+| `--tuf-enabled`         | `-te`   | `False` | Enable TUF secure release                                   |
+| `--installer-enabled`   | `-ie`   | `False` | Enable the Inno Setup installer build stage                 |
+| `--repo-destination`    | `-rd`   | —       | TUF repo upload backend: `disk`, `server`, `r2`             |
+| `--release-destination` | `-rld`  | —       | Zip/installer upload backend: `disk`, `server`, `r2`        |
+| `--repo-endpoint`       | `-re`   | —       | Upload endpoint for the TUF repo (path, URL, bucket/prefix) |
+| `--release-endpoint`    | `-rle`  | —       | Upload endpoint for the release zip (path or URL)           |
+| `--repo-public-url`     | `-rpu`  | —       | Public base URL for the TUF repo (required for `r2`/TUF)    |
+| `--optimize`            | `-opt`  | `True`  | Optimize compilation                                        |
+| `--strip`               | `-s`    | `False` | Strip symbols                                               |
+| `--debug`               | `-dbg`  | `False` | Debug mode                                                  |
+| `--output`              | `-out`  | `.`     | Output **directory** for generated files                    |
 
 ---
 
@@ -143,41 +181,49 @@ ezcompiler generate build --config ezcompiler.yaml
 ezcompiler generate build --from-pyproject pyproject.toml --output scripts
 ```
 
-| Option     | Required | Default | Description                                  |
-| :--------- | :------- | :------ | :------------------------------------------- |
-| `--config` | No       | —       | Path to configuration file (YAML or JSON)    |
-| `--output` | No       | `"."`   | Output **directory**; the file is `build.py` |
+Sources are merged with the following priority (highest first): CLI options >
+config file > `pyproject.toml` > interactive prompts > defaults. No option is
+required.
 
----
-
-### `generate version`
-
-Generate a Windows version information file.
-
-```bash
-ezcompiler generate version --config ezcompiler.yaml
-```
-
-| Option     | Required | Default         | Description                |
-| :--------- | :------- | :-------------- | :------------------------- |
-| `--config` | Yes      | —               | Path to configuration file |
-| `--output` | No       | `"version.txt"` | Output file path           |
+| Option                  | Short  | Default | Description                                      |
+| :---------------------- | :----- | :------ | :----------------------------------------------- |
+| `--config`              | `-c`   | —       | Configuration file (YAML or JSON)                |
+| `--from-pyproject`      | `-fp`  | —       | Extract base values from a `pyproject.toml` file |
+| `--interactive`         | `-I`   | off     | Prompt interactively for missing values          |
+| `--version`             | `-v`   | —       | Project version                                  |
+| `--project-name`        | `-n`   | —       | Project name                                     |
+| `--project-description` | `-d`   | —       | Project description                              |
+| `--company-name`        | `-cn`  | —       | Company name                                     |
+| `--author`              | `-a`   | —       | Project author                                   |
+| `--main-file`           | `-m`   | —       | Main file                                        |
+| `--icon`                | `-i`   | —       | Path to icon file                                |
+| `--version-file`        | `-vf`  | —       | Version file name                                |
+| `--output-folder`       | `-o`   | —       | Output folder for compilation                    |
+| `--include-files`       | `-f`   | —       | Files to include (repeatable)                    |
+| `--include-folders`     | `-fd`  | —       | Folders to include (repeatable)                  |
+| `--packages`            | `-p`   | —       | Packages to include (repeatable)                 |
+| `--includes`            | `-inc` | —       | Modules to include (repeatable)                  |
+| `--excludes`            | `-exc` | —       | Modules to exclude (repeatable)                  |
+| `--output`              | `-out` | `.`     | Output **directory**; the file is `build.py`     |
 
 ---
 
 ### `generate template`
 
-Generate a template file with optional mockup data.
+Generate a raw template file, with either placeholders or mockup values.
 
 ```bash
 ezcompiler generate template --type config --mockup
+ezcompiler generate template --type version --output dist
 ```
 
-| Option     | Required | Description                                    |
-| :--------- | :------- | :--------------------------------------------- |
-| `--type`   | Yes      | Template type: `config`, `setup`, or `version` |
-| `--mockup` | No       | Include sample data                            |
-| `--output` | No       | Output file path                               |
+| Option       | Short | Required | Default                      | Description                                                                   |
+| :----------- | :---- | :------- | :--------------------------- | :---------------------------------------------------------------------------- |
+| `--type`     | `-t`  | Yes      | —                            | Template type: `config`, `build` or `version`                                 |
+| `--format`   | `-f`  | No       | derived from type            | Template format (`yaml`/`json` for config, `py` for build, `txt` for version) |
+| `--output`   | `-o`  | No       | `.`                          | Output **directory**                                                          |
+| `--filename` | `-N`  | No       | derived from type and format | Filename to write                                                             |
+| `--mockup`   | `-m`  | No       | off                          | Generate mockup values instead of placeholders                                |
 
 ### `publish update`
 
@@ -218,19 +264,19 @@ ezcompiler publish release
 ezcompiler publish release --yes --notes-file CHANGELOG.md
 ```
 
-| Option                              | Required | Default                      | Description                                                       |
-| :---------------------------------- | :------- | :--------------------------- | :---------------------------------------------------------------- |
-| `--config`                          | No       | —                            | Config file path (YAML, JSON)                                     |
-| `--pyproject`                       | No       | —                            | Explicit `pyproject.toml` path                                    |
-| `--release-destination`             | No       | —                            | `disk`, `server`, `r2`, `github`, `gitlab` (overrides config)     |
-| `--destination`                     | No       | —                            | Destination override (file backends)                              |
-| `--tag`                             | No       | `v<version>`                 | Release tag                                                       |
-| `--title`                           | No       | `<project> v<version>`       | Release title                                                     |
-| `--notes`                           | No       | generated                    | Literal release body (exclusive with `--notes-file`)              |
-| `--notes-file`                      | No       | —                            | File holding the release body (exclusive with `--notes`)          |
-| `--prerelease` / `--no-prerelease`  | No       | derived from the version     | Force the pre-release flag (`1.2.0rc1` is a pre-release)          |
-| `--draft`                           | No       | off                          | Create the release unpublished                                    |
-| `--yes`, `-y`                       | No       | off                          | Skip the confirmation prompt                                      |
+| Option                             | Required | Default                  | Description                                                   |
+| :--------------------------------- | :------- | :----------------------- | :------------------------------------------------------------ |
+| `--config`                         | No       | —                        | Config file path (YAML, JSON)                                 |
+| `--pyproject`                      | No       | —                        | Explicit `pyproject.toml` path                                |
+| `--release-destination`            | No       | —                        | `disk`, `server`, `r2`, `github`, `gitlab` (overrides config) |
+| `--destination`                    | No       | —                        | Destination override (file backends)                          |
+| `--tag`                            | No       | `v<version>`             | Release tag                                                   |
+| `--title`                          | No       | `<project> v<version>`   | Release title                                                 |
+| `--notes`                          | No       | generated                | Literal release body (exclusive with `--notes-file`)          |
+| `--notes-file`                     | No       | —                        | File holding the release body (exclusive with `--notes`)      |
+| `--prerelease` / `--no-prerelease` | No       | derived from the version | Force the pre-release flag (`1.2.0rc1` is a pre-release)      |
+| `--draft`                          | No       | off                      | Create the release unpublished                                |
+| `--yes`, `-y`                      | No       | off                      | Skip the confirmation prompt                                  |
 
 ---
 
@@ -338,11 +384,11 @@ Generate the client updater files (`update.py`, `settings.py`) and copy `root.js
 ezcompiler updater generate
 ```
 
-| Option         | Required | Default | Description                                     |
-| :------------- | :------- | :------ | :---------------------------------------------- |
-| `--config`     | No       | —       | Path to configuration file                      |
-| `--output-dir` | No       | —       | Output directory for generated files            |
-| `--no-patch`   | No       | —       | Skip patching the config with `repo_public_url` |
+| Option         | Required | Default | Description                                       |
+| :------------- | :------- | :------ | :------------------------------------------------ |
+| `--config`     | No       | —       | Path to configuration file                        |
+| `--output-dir` | No       | —       | Output directory for generated files              |
+| `--no-patch`   | No       | —       | Do not add the generated files to `include_files` |
 
 ---
 
@@ -352,17 +398,17 @@ ezcompiler updater generate
 # Show version
 ezcompiler --version
 
-# Initialize project interactively
-ezcompiler init
+# Initialize a project with a YAML configuration
+ezcompiler init yaml
 
 # Generate a YAML configuration
-ezcompiler generate config --project-name "MyApp" --main-file "main.py" --version "2.0.0"
+ezcompiler generate config -n "MyApp" -m "main.py" -v "2.0.0"
 
 # Generate build.py
 ezcompiler generate build --config ezcompiler.yaml
 
-# Generate version information file
-ezcompiler generate version --config ezcompiler.yaml --output version_info.txt
+# Generate a version information file
+ezcompiler generate template --type version
 
 # Generate config template with sample data
 ezcompiler generate template --type config --mockup

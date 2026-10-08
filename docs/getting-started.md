@@ -4,7 +4,7 @@ Build a working EzCompiler setup and compile your first project in a few minutes
 
 ## 🔧 Prerequisites
 
-- Python >= 3.11
+- Python >= 3.13
 - One compilation backend: `cx-freeze`, `pyinstaller`, or `nuitka`
 - PyYAML >= 6.0
 

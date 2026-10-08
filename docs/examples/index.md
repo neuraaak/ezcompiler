@@ -241,9 +241,9 @@ for path in generated_files:
 from ezcompiler.services import TemplateService
 
 template_service = TemplateService()
-config_content = template_service.process_template(
-    template_name="config.yaml",
-    variables={"PROJECT_NAME": "MyApp", "VERSION": "1.0.0", "MAIN_FILE": "main.py"},
+config_content = template_service.process_config_template(
+    format_type="yaml",
+    config={"project_name": "MyApp", "version": "1.0.0", "main_file": "main.py"},
 )
 
 with open("ezcompiler.yaml", "w") as f:
