@@ -17,6 +17,16 @@ on:
       - "uv.lock"
       - ".github/workflows/04-docs.yml"
   workflow_dispatch:
+    inputs:
+      tag_action:
+        description: "create = deploy + move `latest` (pushes) | skip = deploy `dev` | preview = build only"
+        required: true
+        type: choice
+        default: preview
+        options:
+          - preview
+          - skip
+          - create
   workflow_call:
     inputs:
       version:
@@ -51,7 +61,7 @@ jobs:
         with:
           enable-cache: true
 
-      - run: uv sync --frozen --extra docs --extra test
+      - run: uv sync --frozen --group docs --group test
 
       - name: Generate coverage report
         run: uv run --frozen pytest --cov=src/ezcompiler --cov-report=html --cov-report=xml -q
@@ -93,9 +103,12 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      # create / manual dispatch → publish the versioned release + move `latest`.
+      # create → publish the versioned release + move `latest`. Keyed on the
+      # INPUT only: an `event_name == 'workflow_dispatch'` escape hatch would
+      # push `latest` and `set-default` from an arbitrary ref, so a manual
+      # dispatch defaults to `preview` and must opt in explicitly.
       - name: Deploy release docs (create)
-        if: inputs.tag_action == 'create' || github.event_name == 'workflow_dispatch'
+        if: inputs.tag_action == 'create'
         env:
           DOCS_VERSION: ${{ steps.docs_version.outputs.version }}
         run: |

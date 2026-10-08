@@ -1,12 +1,24 @@
 name: 03 · Publish to PyPI
 
-# Build + package on every mode; upload to PyPI only on `create` (a real
-# release) or a manual dispatch. Gating is keyed on the `tag_action` INPUT, not
-# on github.event_name: in a reusable workflow the event is inherited from the
-# caller (`push`), so an `event_name == 'workflow_call'` check never matches.
+# Build + package on every mode; upload to PyPI only when `tag_action` is
+# `create` (a real release). Gating is keyed on the `tag_action` INPUT, never on
+# github.event_name: in a reusable workflow the event is inherited from the
+# caller (`push`), so an `event_name == 'workflow_call'` check never matches —
+# and an `event_name == 'workflow_dispatch'` escape hatch would let a manual run
+# from an arbitrary ref fire the irreversible PyPI upload. A manual dispatch
+# therefore defaults to `preview` and must opt in explicitly.
 
 on:
   workflow_dispatch:
+    inputs:
+      tag_action:
+        description: "create = publish to PyPI (irreversible) | preview = build only"
+        required: true
+        type: choice
+        default: preview
+        options:
+          - preview
+          - create
   workflow_call:
     inputs:
       version:
@@ -57,7 +69,7 @@ jobs:
         with:
           enable-cache: true
 
-      - run: uv sync --frozen --extra dev
+      - run: uv sync --frozen --group dev
 
       - name: Enforce import contracts
         run: PYTHONPATH=src uv run --frozen lint-imports
@@ -98,7 +110,7 @@ jobs:
   publish:
     name: Publish to PyPI (OIDC)
     needs: validate
-    if: inputs.tag_action == 'create' || github.event_name == 'workflow_dispatch'
+    if: inputs.tag_action == 'create'
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -113,7 +125,7 @@ jobs:
           name: dist
           path: dist/
 
-      - uses: pypa/gh-action-pypi-publish@v1.14.0
+      - uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b # v1.14.0
         with:
           verbose: true
           # Attestations disabled: when called as a reusable workflow from
