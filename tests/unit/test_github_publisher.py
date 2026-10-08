@@ -134,7 +134,7 @@ def test_should_reject_an_empty_asset_list() -> None:
     pub = GitHubPublisher()
     with (
         patch.object(pub, "_check_auth"),
-        pytest.raises(PublishError, match="[Aa]ucun"),
+        pytest.raises(PublishError, match="[Nn]o asset"),
     ):
         pub.publish([], tag="v1.0.0", title="T")
 
@@ -143,7 +143,7 @@ def test_should_reject_a_missing_asset(tmp_path: Path) -> None:
     pub = GitHubPublisher()
     with (
         patch.object(pub, "_check_auth"),
-        pytest.raises(PublishError, match="introuvable"),
+        pytest.raises(PublishError, match="not found"),
     ):
         pub.publish([tmp_path / "absent.zip"], tag="v1.0.0", title="T")
 
@@ -197,7 +197,7 @@ def test_should_validate_assets_before_checking_auth(tmp_path: Path) -> None:
     pub = GitHubPublisher()
     with (
         patch.object(pub, "_check_auth") as auth,
-        pytest.raises(PublishError, match="introuvable"),
+        pytest.raises(PublishError, match="not found"),
     ):
         pub.publish([tmp_path / "absent.zip"], tag="v1.0.0", title="T")
     auth.assert_not_called()
@@ -227,3 +227,26 @@ def test_exists_should_reject_a_tag_gh_would_read_as_an_option() -> None:
     ):
         pub.exists("-x")
     run.assert_not_called()
+
+
+@pytest.mark.parametrize("name", ["-x.zip", "--repo"])
+def test_should_reject_an_asset_path_gh_would_read_as_an_option(name: str) -> None:
+    pub = GitHubPublisher()
+    with (
+        patch.object(pub, "_check_auth"),
+        patch.object(pub, "_run_cli") as run,
+        pytest.raises(PublishError, match="Invalid asset path"),
+    ):
+        pub.publish([Path(name)], tag="v1.0.0", title="T")
+    run.assert_not_called()
+
+
+def test_should_close_the_option_list_before_the_assets(tmp_path: Path) -> None:
+    asset = tmp_path / "a.zip"
+    asset.write_bytes(b"x")
+    pub = GitHubPublisher()
+    with patch.object(pub, "_check_auth"), patch.object(pub, "_run_cli") as run:
+        run.return_value = subprocess.CompletedProcess([], 0, "https://url", "")
+        pub.publish([asset], tag="v1.0.0", title="T")
+    args = run.call_args.args[0]
+    assert args[-2:] == ["--", str(asset)]

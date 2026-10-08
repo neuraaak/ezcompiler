@@ -28,15 +28,15 @@ from .base_publisher import BasePublisher
 # CONSTANTS
 # ///////////////////////////////////////////////////////////////
 
-# Fragments par lesquels `gh release view` signale une absence, par
+# Fragments through which `gh release view` reports an absence, by
 # opposition a un echec d'authentification, de reseau ou de permission.
-# Distinguer les deux est critique : traiter un 401 comme une absence
-# ferait publier par-dessus une release existante.
-# Seul "release not found" est retenu : un "HTTP 404" ou un depot introuvable
-# n'atteste pas l'absence de la release.
+# Telling the two apart is critical: treating a 401 as an absence
+# would publish over an existing release.
+# Only "release not found" is kept: an "HTTP 404" or an unreachable repo
+# does not attest that the release is absent.
 _RELEASE_NOT_FOUND = "release not found"
 
-# Le statut HTTP est le seul fragment de stderr recopie dans l'erreur : stderr
+# The HTTP status is the only stderr fragment copied into the error: stderr
 # peut porter un secret (voir BasePublisher._run_cli).
 _HTTP_STATUS = re.compile(r"\bHTTP (\d{3})\b")
 
@@ -95,9 +95,9 @@ class GitHubPublisher(BasePublisher):
         http = _HTTP_STATUS.search(stderr)
         status = f", HTTP {http.group(1)}" if http else ""
         raise PublishError(
-            f"Impossible de déterminer si la release '{tag}' existe "
+            f"Cannot determine whether release '{tag}' exists "
             f"(code {result.returncode}{status}). "
-            "Publication interrompue pour ne pas écraser une release existante."
+            "Publication aborted so an existing release is not overwritten."
         )
 
     def publish(
@@ -142,7 +142,9 @@ class GitHubPublisher(BasePublisher):
             args.append("--prerelease")
         if draft:
             args.append("--draft")
-        args += [str(asset) for asset in assets]
+        # `--` closes the option list: an asset named `-x.zip` can no longer
+        # be read as a flag by gh (symmetric with _validate_tag).
+        args += ["--", *(str(asset) for asset in assets)]
 
         result = self._run_cli(args)
         return result.stdout.strip()
@@ -179,18 +181,23 @@ class GitHubPublisher(BasePublisher):
     @staticmethod
     def _validate_assets(assets: list[Path]) -> None:
         """
-        Ensure every asset exists before contacting the platform.
+        Ensure every asset exists and is not option-like.
 
         Raises:
-            PublishError: If the list is empty or a file is missing.
+            PublishError: If the list is empty, a path starts with ``-`` (gh
+                would read it as a flag), or a file is missing.
         """
         if not assets:
+            raise PublishError("No asset to publish. Run `ezcompiler compile` first.")
+        option_like = [str(a) for a in assets if str(a).startswith("-")]
+        if option_like:
             raise PublishError(
-                "Aucun asset à publier. Lancer d'abord `ezcompiler compile`."
+                f"Invalid asset path: {', '.join(option_like)} — gh would "
+                "read it as an option. Use an absolute path."
             )
         missing = [str(a) for a in assets if not a.is_file()]
         if missing:
             raise PublishError(
-                f"Asset introuvable : {', '.join(missing)}. "
-                "Lancer d'abord `ezcompiler compile`."
+                f"Asset not found: {', '.join(missing)}. "
+                "Run `ezcompiler compile` first."
             )
