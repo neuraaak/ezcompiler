@@ -93,6 +93,9 @@ class ServerUploader(BaseUploader):
             config: Optional configuration dictionary with server settings
         """
         default_config = UploaderUtils.get_default_server_config()
+        UploaderUtils.reject_unknown_config_keys(
+            config, default_config, uploader="server"
+        )
 
         if config:
             default_config.update(config)
@@ -199,7 +202,7 @@ class ServerUploader(BaseUploader):
         Raises:
             UploadError: On any non-404 error response.
         """
-        response = requests.get(  # nosec B113 - timeout fourni et validé > 0 dans _validate_config
+        response = requests.get(  # nosec B113 - timeout supplied and validated > 0 in _validate_config
             url,
             headers=self._prepare_headers(),
             auth=self._prepare_auth(),
@@ -273,7 +276,7 @@ class ServerUploader(BaseUploader):
             headers = self._prepare_headers()
             auth = self._prepare_auth()
 
-            response = requests.get(  # nosec B113 - timeout fourni et validé > 0 dans _validate_config
+            response = requests.get(  # nosec B113 - timeout supplied and validated > 0 in _validate_config
                 test_url,
                 headers=headers,
                 auth=auth,
@@ -310,7 +313,7 @@ class ServerUploader(BaseUploader):
             files = {"file": (source_path.name, file, "application/octet-stream")}
             data = {"destination": destination}
 
-            response = requests.post(  # nosec B113 - timeout fourni et validé > 0 dans _validate_config
+            response = requests.post(  # nosec B113 - timeout supplied and validated > 0 in _validate_config
                 upload_url,
                 files=files,
                 data=data,
@@ -323,8 +326,11 @@ class ServerUploader(BaseUploader):
             )
 
         if not response.ok:
+            # Never response.text: a misconfigured or hostile endpoint
+            # would echo the received headers, hence Authorization, into the logs.
             raise UploadError(
-                f"Server returned error {response.status_code}: {response.text}"
+                f"Server returned error {response.status_code} "
+                f"({response.reason}) for {source_path.name}."
             )
 
     def _build_upload_url(self, _destination: str) -> str:

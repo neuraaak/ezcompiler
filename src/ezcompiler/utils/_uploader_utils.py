@@ -19,6 +19,7 @@ from __future__ import annotations
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
 # Standard library imports
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
 
@@ -154,6 +155,39 @@ class UploaderUtils:
     # ////////////////////////////////////////////////
 
     @staticmethod
+    def reject_unknown_config_keys(
+        config: dict[str, Any] | None,
+        allowed: Iterable[str],
+        *,
+        uploader: str,
+    ) -> None:
+        """
+        Refuse an upload configuration carrying an unrecognized key.
+
+        A typo in ``[tool.ezcompiler.upload]`` would otherwise be swallowed and
+        leave the intended option at its default — nothing would distinguish
+        "not configured" from "misconfigured" (a misspelled ``cert`` silently
+        disables mTLS).
+
+        Args:
+            config: Caller-supplied configuration, if any.
+            allowed: Recognized keys for this uploader.
+            uploader: Uploader name, for the error message.
+
+        Raises:
+            ServerConfigError: If ``config`` holds a key outside ``allowed``.
+        """
+        if not config:
+            return
+        unknown = sorted(set(config) - set(allowed))
+        if unknown:
+            raise ServerConfigError(
+                f"Unknown configuration key for the {uploader} uploader: "
+                f"{', '.join(unknown)}. Accepted keys: "
+                f"{', '.join(sorted(allowed))}."
+            )
+
+    @staticmethod
     def get_default_disk_config() -> dict[str, Any]:
         """
         Get default configuration for disk uploader.
@@ -188,7 +222,7 @@ class UploaderUtils:
         return {
             "server_url": "",
             "username": "",
-            "password": "",  # nosec B105 - placeholder vide, pas un secret en dur
+            "password": "",  # nosec B105 - empty placeholder, not a hardcoded secret
             "api_key": "",
             "timeout": 30,
             "verify_ssl": True,

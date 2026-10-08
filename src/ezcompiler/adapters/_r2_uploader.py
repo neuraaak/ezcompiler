@@ -21,6 +21,7 @@ from typing import Any
 
 # Local imports
 from ..shared.exceptions import UploadError
+from ..utils._uploader_utils import UploaderUtils
 from .base_uploader import BaseUploader
 
 # ///////////////////////////////////////////////////////////////
@@ -48,6 +49,7 @@ class R2Uploader(BaseUploader):
         Args:
             config: Configuration dictionary (requires ``bucket``).
         """
+        UploaderUtils.reject_unknown_config_keys(config, ("bucket",), uploader="r2")
         super().__init__(config or {})
         self._bucket = self._config["bucket"]
         self._endpoint = self._resolve_endpoint()
@@ -87,7 +89,7 @@ class R2Uploader(BaseUploader):
                 return
 
             files = sorted(p for p in source_path.rglob("*") if p.is_file())
-            # targets/zip d'abord, metadata en dernier (cohérence TUF)
+            # targets/zip first, metadata last (TUF consistency)
             files.sort(key=lambda p: "metadata/" in p.as_posix())
             for file_path in files:
                 rel = file_path.relative_to(source_path).as_posix()
