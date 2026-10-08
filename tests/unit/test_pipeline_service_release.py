@@ -89,7 +89,9 @@ def test_assemble_release_dir_contains_only_zip(tmp_path: Path) -> None:
     assert not (release / "targets").exists()
 
 
-def test_assemble_release_dir_without_zip_file_is_empty(tmp_path: Path) -> None:
+def test_should_refuse_to_assemble_a_release_dir_when_nothing_was_built(
+    tmp_path: Path,
+) -> None:
     main = tmp_path / "main.py"
     main.write_text("# m", encoding="utf-8")
     cfg = CompilerConfig(
@@ -100,12 +102,11 @@ def test_assemble_release_dir_without_zip_file_is_empty(tmp_path: Path) -> None:
         output_folder=tmp_path / "dist",
     )
     cfg.output_folder.mkdir(parents=True, exist_ok=True)
-    # zip file n'existe pas → dossier release vide
 
-    release = PipelineService.assemble_release_dir(cfg)
-
-    assert release.is_dir()
-    assert list(release.iterdir()) == []
+    # Ni zip ni installeur : les deux chemins de publication refusent
+    # now, instead of transferring an empty directory as a success.
+    with pytest.raises(ReleaseError, match="No publishable artifact"):
+        PipelineService.assemble_release_dir(cfg)
 
 
 def test_release_artifact_calls_release_and_publish_with_publish_false(
