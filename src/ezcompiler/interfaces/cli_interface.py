@@ -326,7 +326,7 @@ def config(
     \b
     Examples:
         ezcompiler generate config -n myproject
-        ezcompiler generate config --from-pyproject pyproject.toml --fmt json
+        ezcompiler generate config --from-pyproject pyproject.toml --format json
         ezcompiler generate config --from-pyproject pyproject.toml -I
     """
 
