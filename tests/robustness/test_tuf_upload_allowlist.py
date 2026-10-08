@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import shutil
 from pathlib import Path
 from typing import Any
 
@@ -8,7 +9,7 @@ import pytest
 from ezcompiler.services.publish_service import PublishService
 from ezcompiler.services.uploader_service import UploaderService
 from ezcompiler.shared import CompilerConfig
-from ezcompiler.shared.exceptions import UploadError
+from ezcompiler.shared.exceptions import ConfigurationError, UploadError
 
 
 def _cfg(tmp_path: Path, repo_dir: Path, **kwargs: Any) -> CompilerConfig:
@@ -48,7 +49,7 @@ def test_publish_update_should_never_upload_the_default_keystore(
     key_bytes = {p.read_bytes() for p in keys_dir.iterdir() if p.is_file()}
     leaked = [f for f in published if (remote / "update" / f).read_bytes() in key_bytes]
     assert leaked == [], f"private key leaked: {leaked}"
-    # Même disposition distante pour les fichiers publics.
+    # Same remote layout for the public files.
     expected = {
         f
         for f in _files(repo_dir)
@@ -107,3 +108,41 @@ def test_upload_tuf_repo_should_refuse_a_tree_without_metadata(
     with pytest.raises(UploadError, match="metadata"):
         UploaderService.upload_tuf_repo(cfg, repo_dir, "disk", None, None)
     assert calls == []
+
+
+@pytest.mark.robustness
+@pytest.mark.parametrize("public_dir", ["metadata", "targets"])
+def test_should_refuse_the_config_when_tuf_keys_dir_is_inside_the_published_tree(
+    tmp_path: Path, public_dir: str
+) -> None:
+    """A keystore under metadata/ or targets/ would be published: refused upfront."""
+    repo_dir = tmp_path / "repo"
+    with pytest.raises(ConfigurationError, match="tuf_keys_dir"):
+        _cfg(
+            tmp_path,
+            repo_dir,
+            tuf_keys_dir=repo_dir / public_dir / "keystore",
+            repo_destination="disk",
+            repo_endpoint="remote",
+        )
+
+
+@pytest.mark.robustness
+def test_should_exclude_the_keystore_from_staging_when_it_sits_under_targets(
+    make_tuf_tree,
+) -> None:
+    """Defense in depth: staging filters the keystore whatever its position,
+    even when the config validation was bypassed."""
+    repo_dir, keys_dir = make_tuf_tree(["1.0.0"], keys_in_repo=True)
+    planted = repo_dir / "targets" / "keystore"
+    shutil.copytree(keys_dir, planted)
+    key_bytes = {p.read_bytes() for p in planted.iterdir() if p.is_file()}
+    assert key_bytes, "no key material planted"
+
+    with UploaderService.staged_tuf_tree(repo_dir, keys_dir=planted) as staged:
+        files = _files(staged)
+        leaked = [f for f in files if (staged / f).read_bytes() in key_bytes]
+
+    assert not [f for f in files if "keystore" in f]
+    assert leaked == [], f"private key leaked: {leaked}"
+    assert "metadata/root.json" in files

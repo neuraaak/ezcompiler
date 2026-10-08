@@ -79,6 +79,8 @@ def test_release_dir_contains_no_private_key(tmp_path: Path) -> None:
         output_folder=tmp_path / "dist",
     )
     cfg.output_folder.mkdir(parents=True)
+    # Un artefact au moins est requis : sans lui l'assemblage refuse.
+    Path(cfg.zip_file_path).write_bytes(b"zip")
 
     release = PipelineService.assemble_release_dir(cfg)
 
