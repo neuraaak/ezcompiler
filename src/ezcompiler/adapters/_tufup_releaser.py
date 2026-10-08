@@ -119,9 +119,9 @@ class TufupReleaser(BaseReleaser):
     # ////////////////////////////////////////////////
 
     def init_keys(self, app_name: str, repo_dir: Path, keys_dir: Path) -> bool:
-        """Initialise clés + squelette repo TUF. Idempotent.
+        """Initialize keys and the TUF repo skeleton. Idempotent.
 
-        Returns True si l'init a été effectuée, False si déjà présente (skip).
+        Returns True if the init ran, False if it was already present (skip).
         """
         try:
             keys_dir.mkdir(parents=True, exist_ok=True)
@@ -290,12 +290,18 @@ class TufupReleaser(BaseReleaser):
                 expiration_days=self._config.get("expiration_days"),
             )
             repository._load_keys_and_roles(create_keys=False)
-            assert repository.roles is not None  # noqa: S101
+            if repository.roles is None:
+                # Under python -O an assert would vanish and the error
+                # deviendrait un AttributeError en pleine signature.
+                raise ReleaseError(
+                    f"Unreadable TUF roles in {repo_dir}: missing or "
+                    "arbre incomplet. Relancer `ezcompiler tuf init`."
+                )
             latest = repository.roles.get_latest_archive()
             if latest is None:
-                raise ReleaseError(f"Aucune version à retirer dans {repo_dir}.")
-            # TargetMeta.version est normalisée (1.0.1rc1) : on renvoie la
-            # chaîne du nom d'archive (1.0.1-rc.1), celle de la config.
+                raise ReleaseError(f"No version to withdraw in {repo_dir}.")
+            # TargetMeta.version is normalized (1.0.1rc1): return the
+            # archive-name spelling (1.0.1-rc.1), the one the config uses.
             name = Path(latest.target_path_str).name
             version = name[len(app_name) + 1 : -len(".tar.gz")]
             repository.remove_latest_bundle()

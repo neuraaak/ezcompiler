@@ -128,7 +128,12 @@ class UpdaterService:
 
     @staticmethod
     def _copy_root_json(config: CompilerConfig, output_dir: Path) -> Path:
-        assert config.tuf_repo_dir is not None  # guaranteed by _validate
+        if config.tuf_repo_dir is None:
+            # Guaranteed by _validate; an assert would vanish under
+            # python -O and the clear error would become an opaque TypeError.
+            raise UpdaterConfigError(
+                "tuf_repo_dir is required to copy root.json into the updater."
+            )
         src = config.tuf_repo_dir / "metadata" / _ROOT_JSON
         dst = output_dir / _ROOT_JSON
         try:
