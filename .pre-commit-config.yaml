@@ -6,7 +6,8 @@
 #   2. ruff check      — lint with auto-fix
 #   3. ty check        — type checking
 #   4. lint-imports    — layer dependency contracts
-#   5. update_version  — sync version.py ← pyproject.toml
+#   5. bandit          — security scan of src/ezcompiler
+#   6. update_version  — sync version.py ← pyproject.toml
 #
 # Setup (run once per clone):
 #   uv sync
@@ -67,7 +68,7 @@ repos:
         types: [python]
 
       # ///////////////////////////////////////////////////////////////
-      # LOCAL HOOKS — ty, import-linter, version sync  (steps 3–5)
+      # LOCAL HOOKS — ty, import-linter, bandit, version sync  (steps 3–6)
       # ///////////////////////////////////////////////////////////////
 
       # Step 3 — type check
@@ -86,7 +87,15 @@ repos:
         pass_filenames: false
         always_run: true
 
-      # Step 5 — keep version.py in sync with pyproject.toml
+      # Step 5 — SAST gate on the package source
+      - id: bandit
+        name: "Bandit — security scan"
+        language: system
+        entry: uv run --no-sync bandit -r src/ezcompiler -ll -q
+        files: ^src/ezcompiler/.*\.py$
+        pass_filenames: false
+
+      # Step 6 — keep version.py in sync with pyproject.toml
       - id: sync-version
         name: "Sync version.py ← pyproject.toml"
         language: system
