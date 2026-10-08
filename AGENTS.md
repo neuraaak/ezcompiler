@@ -90,7 +90,17 @@ the deprecation message of `release(publish=True)` names that sequence.
 `tuf_enabled`) then `publish release`, both with an implicit `--yes`, and refuses
 a platform release destination (`test_cli_upload.py`). The publisher/uploader
 routing (`github` → `PublisherPort`, `disk|server|r2` → `UploaderPort`) lives in
-`PublishService` only. The file path refuses an empty `release/` directory.
+`PublishService` only: `interfaces/` never holds a `PublisherPort`. The CLI calls
+`PublishService.preflight_release()`, which runs every local check (CLI present
+and authenticated, tag free, artifacts staged) and returns a `ReleasePreflight`
+value object to display; `publish_release()` then resolves the publisher itself
+and takes no `publisher` argument. The same capability is exposed on the Python
+API: `EzCompiler.publish_update()`, `preflight_release()` and
+`publish_release()` (the confirmation prompt stays CLI-only). Both publication
+branches resolve their artifacts through
+`PipelineService.resolve_publishable_assets()`, so an enabled-but-missing
+installer, or nothing built at all, fails for **every** destination instead of
+being published silently on `disk|server|r2`.
 
 `PipelineService.assemble_release_dir()` builds a flat `dist/release/` directory holding **only the zip and, when enabled, the installer `.exe`** — never TUF metadata (see `test_assemble_release_dir_contains_only_zip`). `PipelineService.stage_versioned_assets()` resolves those same artifacts and copies the zip under its versioned name, which is what the publication path consumes. The working TUF repo (`tuf_repository/`) stays structured for incremental patches and is published separately by `ezcompiler publish update`.
 
@@ -102,7 +112,13 @@ into kwargs, pops the per-compiler sections (`[tool.ezcompiler.pyinstaller]`
 etc., only the selected one is applied), and turns the `installer` block into an
 `InstallerConfig` sub-object rather than flattening it. A new config block
 **must** be handled there or `CompilerConfig.__init__()` raises an
-unexpected-keyword error.
+unexpected-keyword error. The flattening is **strict**: `SECTION_SCHEMA` declares
+the keys each section accepts, and `_flatten_sections()` refuses a key placed in
+the wrong section (naming the right one) or declared both at the root and in a
+section — the merge order no longer decides which value wins. A new key must be
+added to `SECTION_SCHEMA` as well as to the dataclass. Removed keys are listed
+once in `REMOVED_KEYS`, and `tuf_keys_dir` is refused when it resolves inside
+`<tuf_repo_dir>/metadata` or `/targets`, which are published.
 
 **Import contracts are enforced in CI by import-linter** (`[tool.importlinter]`
 in `pyproject.toml`). The layer flow is strictly:
@@ -152,21 +168,40 @@ before proceeding.
 
 ## Toolchain
 
-| Task          | Command                                                                  |
-| ------------- | ------------------------------------------------------------------------ |
-| Install (dev) | `uv sync --extra dev --extra docs --extra test --extra tufup --extra r2` |
-| Lint          | `ruff check .`                                                           |
-| Format        | `ruff format .` (check: `ruff format --check .`)                         |
-| Type check    | `ty check src/ezcompiler/` (the gate; pyright serves the IDE)            |
-| Import rules  | `PYTHONPATH=src lint-imports`                                            |
-| Security      | `bandit -r src/ezcompiler`                                               |
-| Tests         | `pytest`                                                                 |
+| Task          | Command                                                          |
+| ------------- | ---------------------------------------------------------------- |
+| Install (dev) | `uv sync --all-extras --group dev --group docs` (PEP 735 groups) |
+| Lint          | `ruff check .`                                                   |
+| Format        | `ruff format .` (check: `ruff format --check .`)                 |
+| Type check    | `ty check src/ezcompiler/` (the gate; pyright serves the IDE)    |
+| Import rules  | `PYTHONPATH=src lint-imports`                                    |
+| Security      | `bandit -r src/ezcompiler -ll` + `pip-audit` (both CI gates)     |
+| Tests         | `pytest` (CI adds `--cov=src/ezcompiler --cov-fail-under=70`)    |
 
 - **ruff** rules: `E W F I B C4 UP S T20 ARG PIE SIM`, line length 88,
   double quotes. See `[tool.ruff]` for per-file ignores.
-- **Coverage:** branch coverage, `--cov-fail-under=70` (audit target is 80%;
-  measured at 82.57% over 972 tests as of 2026-10-08). See the exclusions note
-  below before assuming a module is omitted.
+- **Coverage:** branch coverage, audit target 80% — measured at 82.85% over 999
+  tests as of 2026-10-08. The `--cov-fail-under=70` gate lives in the CI command,
+  **not** in `addopts`: a partial local run (one file, a `-k` filter, a marker)
+  must not exit 1. See the exclusions note below before assuming a module is
+  omitted.
+- **Dev tooling is in `[dependency-groups]`** (PEP 735), not in
+  `[project.optional-dependencies]`: `pip install ezcompiler[dev]` is no longer
+  valid and only the product extras (`cx-freeze`, `pyinstaller`, `nuitka`,
+  `all-compilers`, `tufup`, `r2`) are published. Use `--group dev|test|docs`.
+- **CI** runs the test matrix on `ubuntu-24.04` **and** `windows-latest` with
+  `--all-extras`, and sets `EZCOMPILER_REQUIRE_EXTRAS=1` so a missing optional
+  extra fails the collection instead of skipping the TUF/R2 tests silently.
+  `bandit` and `pip-audit` run in a dedicated `security` job, and `bandit` is
+  also a pre-commit hook. One `pip-audit` ignore is documented in the workflow:
+  `GHSA-qp9x-wp8f-qgjj` (python-tuf 4.0.0) cannot be fixed here because
+  tufup 0.10.0 pins `tuf==4.0.*`; drop the ignore when tufup relaxes that bound.
+- **`T201`, `S101` and `S603` are no longer ignored globally** in `[tool.ruff]`,
+  and `B101` is no longer skipped by bandit — the AGENTS.md rules "never
+  `print()` in library code" and "no invariant `assert` in production" are
+  enforceable again. Exemptions live in `per-file-ignores` (`tests/**`,
+  `examples/**`, `.scripts/**`, `src/ezcompiler/interfaces/**`) or in a targeted
+  `# noqa` on the subprocess call concerned.
 - **Test markers** available: `slow`, `integration`, `unit`, `cli`, `compiler`,
   `uploader`, `robustness`, `requires_iscc` (needs a real `ISCC.exe` /
   Inno Setup 6 on the machine), `requires_gh` (needs a real, authenticated

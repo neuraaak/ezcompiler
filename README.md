@@ -94,11 +94,11 @@ Complete documentation is available at **[neuraaak.github.io/ezcompiler](https:/
 
 ## 🧪 Testing
 
-Comprehensive test suite with 972 test cases covering unit, integration, and robustness scenarios (82.57% branch coverage, CI gate at 70%).
+Comprehensive test suite with 999 test cases covering unit, integration, and robustness scenarios (82.85% branch coverage, CI gate at 70%).
 
 ```bash
 # Install dev dependencies
-pip install -e ".[dev]"
+uv sync --all-extras --group dev
 
 # Run all tests
 pytest tests/
@@ -120,7 +120,7 @@ For contributors and developers:
 
 ```bash
 # Install in development mode with all dependencies
-pip install -e ".[dev]"
+uv sync --all-extras --group dev
 
 # Run tests
 pytest tests/
