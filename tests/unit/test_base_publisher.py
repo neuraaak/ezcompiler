@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 import pytest
 
-from ezcompiler.adapters.base_publisher import BasePublisher
+from ezcompiler.adapters.base_publisher import CLI_TIMEOUT_SECONDS, BasePublisher
 from ezcompiler.shared.exceptions import PublishAuthError, PublishCliError
 
 
@@ -181,3 +181,28 @@ def test_preflight_checks_auth() -> None:
     with patch.object(pub, "_check_auth") as auth:
         pub.preflight()
     auth.assert_called_once()
+
+
+def test_should_pass_a_bounded_timeout_when_running_the_cli() -> None:
+    with (
+        patch("shutil.which", return_value="C:\bin\faketool.exe"),
+        patch("subprocess.run") as run,
+    ):
+        run.return_value = subprocess.CompletedProcess([], 0, "", "")
+        _Fake()._run_cli(["release", "create"])
+    assert run.call_args.kwargs["timeout"] == CLI_TIMEOUT_SECONDS
+    assert CLI_TIMEOUT_SECONDS > 0
+
+
+def test_should_raise_publish_cli_error_when_the_cli_times_out() -> None:
+    expired = subprocess.TimeoutExpired(
+        cmd=["faketool", "release", "create"], timeout=1, output="", stderr="token=abc"
+    )
+    with (
+        patch("shutil.which", return_value="C:\bin\faketool.exe"),
+        patch("subprocess.run", side_effect=expired),
+        pytest.raises(PublishCliError) as exc,
+    ):
+        _Fake()._run_cli(["release", "create"], timeout=1)
+    assert "token=abc" not in str(exc.value)
+    assert "faketool" in str(exc.value)

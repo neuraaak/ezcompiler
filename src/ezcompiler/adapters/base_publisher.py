@@ -21,6 +21,15 @@ from typing import Any
 from ..shared.exceptions import PublishAuthError, PublishCliError
 
 # ///////////////////////////////////////////////////////////////
+# CONSTANTS
+# ///////////////////////////////////////////////////////////////
+
+# Ceiling for each external CLI call. A `gh release create` uploading an
+# installer behind a corporate proxy that stalls would otherwise hang the
+# process indefinitely, with no output at all (capture_output=True).
+CLI_TIMEOUT_SECONDS = 300
+
+# ///////////////////////////////////////////////////////////////
 # CLASSES
 # ///////////////////////////////////////////////////////////////
 
@@ -74,7 +83,7 @@ class BasePublisher(ABC):
         exe = shutil.which(self._cli_name)
         if exe is None:
             raise PublishCliError(
-                f"'{self._cli_name}' introuvable dans le PATH. "
+                f"'{self._cli_name}' not found in PATH. "
                 f"Installer depuis {self._install_hint}, "
                 f"puis lancer `{self._cli_name} auth login`."
             )
@@ -85,19 +94,33 @@ class BasePublisher(ABC):
         result = self._run_cli(["auth", "status"], check=False)
         if result.returncode != 0:
             raise PublishAuthError(
-                f"'{self._cli_name}' n'est pas authentifié. "
-                f"Lancer `{self._cli_name} auth login`, ou exporter le token "
-                "dans l'environnement."
+                f"'{self._cli_name}' is not authenticated. "
+                f"Run `{self._cli_name} auth login`, or export the token "
+                "into the environment."
             )
 
     def _run_cli(
-        self, args: list[str], *, check: bool = True
+        self,
+        args: list[str],
+        *,
+        check: bool = True,
+        timeout: float = CLI_TIMEOUT_SECONDS,
     ) -> subprocess.CompletedProcess[str]:
         """Run a CLI command without a shell and capture its output.
 
         CLI stderr is retained in the returned result for callers using
         ``check=False``. It is never copied into an exception, because the
         external CLI can print credentials from outside this process.
+
+        Args:
+            args: Argument vector appended to the resolved CLI binary.
+            check: Raise ``PublishCliError`` on a non-zero return code.
+            timeout: Hard ceiling in seconds; expiry is reported as a
+                publication error rather than hanging the process.
+
+        Raises:
+            PublishCliError: If the CLI cannot be executed, exceeds
+                ``timeout``, or (with ``check=True``) returns non-zero.
         """
         exe = self._resolve_cli()
         # Argument vector is passed directly; no shell interprets asset names.
@@ -108,13 +131,20 @@ class BasePublisher(ABC):
                 text=True,
                 check=False,
                 shell=False,
+                timeout=timeout,
             )
+        except subprocess.TimeoutExpired:
+            raise PublishCliError(
+                f"`{self._cli_name}` did not answer within {timeout:g} s and was "
+                "interrupted. Check the network or the proxy, then review "
+                "the state of the release before retrying."
+            ) from None
         except OSError:
             raise PublishCliError(
-                f"'{self._cli_name}' n'a pas pu être exécuté."
+                f"'{self._cli_name}' could not be executed."
             ) from None
         if check and result.returncode != 0:
             raise PublishCliError(
-                f"`{self._cli_name}` a échoué (code {result.returncode})."
+                f"`{self._cli_name}` failed (code {result.returncode})."
             )
         return result
