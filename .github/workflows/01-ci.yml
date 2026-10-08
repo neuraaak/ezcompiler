@@ -40,7 +40,7 @@ jobs:
       - uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
           enable-cache: true
-      - run: uv sync --frozen --extra dev
+      - run: uv sync --frozen --group dev
       - run: uv run --frozen ruff check .
       - run: uv run --frozen ruff format --check .
 
@@ -56,31 +56,68 @@ jobs:
       - uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
           enable-cache: true
-      - run: uv sync --frozen --all-extras
+      - run: uv sync --frozen --all-extras --group dev
       - run: uv run --frozen ty check src/ezcompiler/
       - run: PYTHONPATH=src uv run --frozen lint-imports
 
-  test:
-    name: Tests (Python ${{ matrix.python }})
-    needs: [lint, type-check]
+  security:
+    name: Security (bandit + pip-audit)
+    needs: [install-deps]
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@9f698171ed81b15d1823a05fc7211befd50c8ae0 # v6.0.3
+      - uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        with:
+          enable-cache: true
+      - run: uv sync --frozen --all-extras --group dev
+      # SAST of the package's own code: the gate documented in AGENTS.md.
+      - run: uv run --frozen bandit -r src/ezcompiler -ll
+      # CVEs in the locked dependencies: this package signs TUF releases,
+      # so a CVE in tufup/cryptography/boto3 hits the chain itself.
+      #
+      # GHSA-qp9x-wp8f-qgjj (python-tuf 4.0.0, fixed in 7.0.0) is ignored:
+      # tufup 0.10.0 pins `tuf==4.0.*`, so the upgrade is not ours to make.
+      # The impact is limited to the updater client on Windows and assumes a
+      # repository whose delegations differ only by case — which this project
+      # does not generate (a single `targets` role).
+      # Exit condition: drop this ignore as soon as tufup relaxes its bound
+      # on tuf.
+      - run: uv run --frozen pip-audit --ignore-vuln GHSA-qp9x-wp8f-qgjj
+
+  test:
+    name: Tests (${{ matrix.os }}, Python ${{ matrix.python }})
+    needs: [lint, type-check]
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 25
     permissions:
       contents: read
     strategy:
       fail-fast: false
       matrix:
+        # Windows is the product's target OS (AGENTS.md): path, argv-quoting
+        # and file-locking regressions only show up there. Ubuntu stays the
+        # reference matrix for coverage.
+        os: [ubuntu-24.04, windows-latest]
         python: ["3.13"]
+    env:
+      # Without the extras, the TUF/R2 tests would be skipped silently:
+      # the guard in tests/conftest.py turns the omission into a failure.
+      EZCOMPILER_REQUIRE_EXTRAS: "1"
     steps:
       - uses: actions/checkout@9f698171ed81b15d1823a05fc7211befd50c8ae0 # v6.0.3
       - uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
           python-version: ${{ matrix.python }}
           enable-cache: true
-      - run: uv sync --frozen --extra dev
-      - run: uv run --frozen pytest
+      - run: uv sync --frozen --all-extras --group dev
+      # The coverage threshold lives here, not in addopts: a partial local
+      # run must not exit with code 1.
+      - run: uv run --frozen pytest --cov=src/ezcompiler --cov-fail-under=70
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        if: matrix.python == '3.13' && always()
+        if: matrix.os == 'ubuntu-24.04' && matrix.python == '3.13' && always()
         with:
           name: coverage-report
           path: |
