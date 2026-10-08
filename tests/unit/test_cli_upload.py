@@ -54,7 +54,7 @@ def _invoke(cfg: CompilerConfig, rec: _Recorder, *args: str):
         patch(f"{_CLI}.PublishService.publish_update", side_effect=rec.update),
         patch(f"{_CLI}.PublishService.publish_release", side_effect=rec.release),
     ):
-        # Aucune entrée fournie : un prompt de confirmation ferait échouer.
+        # No input supplied: a confirmation prompt would make this fail.
         return CliRunner().invoke(main, ["upload", *args])
 
 
@@ -94,7 +94,7 @@ def test_upload_should_forward_overrides_to_both_publications(tmp_path: Path) ->
 
 
 def test_upload_should_publish_r2_tree_and_disk_release_both(tmp_path: Path) -> None:
-    """L'ancienne règle qui sautait la release en r2 + disk disparaît."""
+    """The old rule that skipped the release on r2 + disk is gone."""
     rec = _Recorder()
     result = _invoke(_cfg(tmp_path), rec, "-rd", "r2", "-rld", "disk")
 
@@ -145,7 +145,7 @@ def test_upload_command_should_announce_its_deprecation(tmp_path: Path) -> None:
 
 def test_upload_command_help_says_deprecated() -> None:
     result = CliRunner().invoke(main, ["upload", "--help"])
-    assert "Déprécié" in result.output
+    assert "Deprecated" in result.output
 
 
 def test_upload_should_forward_config_and_pyproject_to_both_commands(
@@ -181,7 +181,7 @@ def test_upload_should_exit_1_on_a_configuration_error() -> None:
     with (
         patch(
             f"{_CLI}.ConfigService.build_compiler_config",
-            side_effect=ConfigurationError("cassé"),
+            side_effect=ConfigurationError("broken"),
         ),
         patch(f"{_CLI}.PublishService.publish_update", side_effect=rec.update),
         patch(f"{_CLI}.PublishService.publish_release", side_effect=rec.release),
@@ -190,7 +190,7 @@ def test_upload_should_exit_1_on_a_configuration_error() -> None:
 
     assert result.exit_code == 1
     assert rec.calls == []
-    assert "cassé" in result.output
+    assert "broken" in result.output
 
 
 def test_upload_should_not_publish_release_when_the_tuf_tree_is_missing(
@@ -216,5 +216,5 @@ def test_upload_refusal_should_name_both_publish_commands(tmp_path: Path) -> Non
     result = _invoke(cfg, _Recorder())
 
     flat = " ".join(result.output.split())
-    refusal = flat[flat.index("ne publie pas") :]
+    refusal = flat[flat.index("does not publish to") :]
     assert "ezcompiler publish update" in refusal

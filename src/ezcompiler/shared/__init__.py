@@ -20,6 +20,7 @@ from __future__ import annotations
 from ._compilation_result import CompilationResult
 from ._compiler_config import COMPILER_SECTION_KEYS, CompilerConfig
 from ._installer_config import InstallerConfig
+from ._release_preflight import ReleasePreflight
 from ._tuf_status import TufStatus, TufVersion
 from .exceptions import (
     CompilationError,
@@ -54,6 +55,8 @@ __all__ = [
     "CompilerConfig",
     "COMPILER_SECTION_KEYS",
     "InstallerConfig",
+    # Publication
+    "ReleasePreflight",
     # TUF status
     "TufStatus",
     "TufVersion",

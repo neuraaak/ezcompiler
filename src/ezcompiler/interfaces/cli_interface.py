@@ -46,7 +46,6 @@ from .._version import __version__
 from ..services import (
     ConfigService,
     InstallerService,
-    PipelineService,
     PublishService,
     ReleaseService,
     TemplateService,
@@ -964,7 +963,7 @@ def template_raw(
     "--required",
     is_flag=True,
     default=False,
-    help="Marquer la version produite comme obligatoire pour les clients TUF",
+    help="Mark the produced version as mandatory for TUF clients",
 )
 def compile_project(
     config: str | None,
@@ -1037,8 +1036,8 @@ def compile_project(
     # Validate --required flag
     if required and (skip_release or not config_obj.tuf_enabled):
         raise click.UsageError(
-            "--required n'a d'effet que si l'étape release TUF s'exécute "
-            "(tuf_enabled, sans --skip-release)."
+            "--required only has an effect when the TUF release step runs "
+            "(tuf_enabled, without --skip-release)."
         )
 
     # Delegate to the shared pipeline so installer and TUF release stages run
@@ -1090,7 +1089,7 @@ def compile_project(
     "repo_destination",
     type=click.Choice(["disk", "server", "r2"]),
     default=None,
-    help="Backend pour l'arbre TUF (overrides config)",
+    help="Backend for the TUF tree (overrides config)",
 )
 @click.option(
     "--release-destination",
@@ -1098,14 +1097,14 @@ def compile_project(
     "release_destination",
     type=click.Choice(["disk", "server", "r2"]),
     default=None,
-    help="Backend pour le zip installeur (overrides config)",
+    help="Backend for the installer zip (overrides config)",
 )
 @click.option(
     "--destination",
     "-d",
     "destination",
     default=None,
-    help="Destination commune (override pour repo et release)",
+    help="Shared destination (override for repo and release)",
 )
 def upload_command(
     config: str | None,
@@ -1114,13 +1113,13 @@ def upload_command(
     release_destination: ReleaseDestination | None,
     destination: str | None,
 ) -> None:
-    """[Déprécié] Utiliser `ezcompiler publish update` / `publish release`.
+    """[Deprecated] Use `ezcompiler publish update` / `publish release`.
 
-    Raccourci qui enchaîne `publish update` (si tuf_enabled) puis
-    `publish release`, sans confirmation. Les publications sur plateforme
-    (github) sont refusées : utiliser `publish release`, qui les confirme.
+    Shortcut chaining `publish update` (when tuf_enabled) then
+    `publish release`, without confirmation. Platform publications
+    (github) are refused: use `publish release`, which confirms them.
 
-    Exemples :
+    Examples:
 
         ezcompiler upload --config ezcompiler.yaml
 
@@ -1129,8 +1128,8 @@ def upload_command(
     printer = _get_printer()
     logger = _get_logger()
     printer.warning(
-        "`ezcompiler upload` est déprécié et sera retiré en v5. "
-        "Utiliser `ezcompiler publish update` puis "
+        "`ezcompiler upload` is deprecated and will be removed in v5. "
+        "Use `ezcompiler publish update` then "
         "`ezcompiler publish release`."
     )
     try:
@@ -1146,14 +1145,15 @@ def upload_command(
     rel_dest = release_destination or cfg.release_destination
     if rel_dest not in ("disk", "server", "r2"):
         printer.error(
-            f"`ezcompiler upload` ne publie pas sur {rel_dest} : une release "
-            "de plateforme demande confirmation. Utiliser "
-            "`ezcompiler publish update` puis `ezcompiler publish release`."
+            f"`ezcompiler upload` does not publish to {rel_dest}: a platform "
+            "release requires confirmation. Use "
+            "`ezcompiler publish update` then `ezcompiler publish release`."
         )
         sys.exit(1)
 
-    # Délègue aux commandes publish avec --yes implicite (spec §8) : upload
-    # reste non interactif. Un échec de l'arbre TUF sort avant la release.
+    # Delegates to the publish commands with an implicit --yes (spec §8):
+    # upload stays non-interactive. A TUF tree failure exits before the
+    # release.
     ctx = click.get_current_context()
     common = {"config": config, "pyproject": pyproject, "destination": destination}
     if cfg.tuf_enabled:
@@ -1177,7 +1177,7 @@ def upload_command(
 
 
 def _force_utf8_stdout() -> None:
-    """Évite les UnicodeEncodeError sur une console Windows cp1252."""
+    """Avoid UnicodeEncodeError on a Windows cp1252 console."""
     for stream in (sys.stdout, sys.stderr):
         reconfigure = getattr(stream, "reconfigure", None)
         if reconfigure is not None:
@@ -1190,19 +1190,19 @@ def _read_notes_file(path: Path) -> str:
         return path.read_text(encoding="utf-8")
     except UnicodeDecodeError as e:
         raise click.BadParameter(
-            f"{path} n'est pas encodé en UTF-8 ({e.reason}).",
+            f"{path} is not UTF-8 encoded ({e.reason}).",
             param_hint="--notes-file",
         ) from None
 
 
 def _format_size(num_bytes: int) -> str:
-    """Formate une taille en octets de façon lisible."""
+    """Format a byte size in a readable form."""
     size = float(num_bytes)
-    for unit in ("o", "Ko", "Mo", "Go"):
-        if size < 1024 or unit == "Go":
+    for unit in ("B", "KB", "MB", "GB"):
+        if size < 1024 or unit == "GB":
             return f"{size:.1f} {unit}"
         size /= 1024
-    return f"{size:.1f} Go"
+    return f"{size:.1f} GB"
 
 
 def _describe_update_target(
@@ -1210,7 +1210,7 @@ def _describe_update_target(
 ) -> str:
     """Where ``publish update`` will land, mirroring UploaderService."""
     if repo_dest == "r2":
-        return f"r2://{cfg.repo_endpoint} (bucket/préfixe)"
+        return f"r2://{cfg.repo_endpoint} (bucket/prefix)"
     base = destination or cfg.resolved_repo_destination or ""
     if repo_dest == "server":
         return base.rstrip("/") + "/update/"
@@ -1219,10 +1219,10 @@ def _describe_update_target(
 
 @main.group()
 def publish() -> None:
-    """Publier l'arbre de mise à jour TUF ou une release.
+    """Publish the TUF update tree or a release.
 
-    Séparée du pipeline de build : la publication est un acte délibéré,
-    irréversible, et demande confirmation (sauf --yes).
+    Kept apart from the build pipeline: publication is a deliberate,
+    irreversible act, and asks for confirmation (unless --yes).
     """
 
 
@@ -1242,27 +1242,27 @@ def publish() -> None:
     "release_destination",
     type=click.Choice(["disk", "server", "r2", "github", "gitlab"]),
     default=None,
-    help="Backend de publication (overrides config)",
+    help="Publication backend (overrides config)",
 )
 @click.option("--destination", "-d", default=None, help="Destination (override config)")
-@click.option("--tag", default=None, help="Tag de la release (défaut : v<version>)")
-@click.option("--title", default=None, help="Titre (défaut : <projet> v<version>)")
-@click.option("--notes", default=None, help="Corps de la release (littéral)")
+@click.option("--tag", default=None, help="Release tag (default: v<version>)")
+@click.option("--title", default=None, help="Title (default: <project> v<version>)")
+@click.option("--notes", default=None, help="Release body (literal)")
 @click.option(
     "--notes-file",
     "notes_file",
     type=click.Path(exists=True, dir_okay=False, path_type=Path),
     default=None,
-    help="Fichier contenant le corps de la release",
+    help="File holding the release body",
 )
 @click.option(
     "--prerelease/--no-prerelease",
     "prerelease",
     default=None,
-    help="Force l'étiquette pré-release (défaut : déduite de la version)",
+    help="Force the pre-release label (default: inferred from the version)",
 )
-@click.option("--draft", is_flag=True, help="Créer la release non publiée")
-@click.option("--yes", "-y", is_flag=True, help="Ne pas demander de confirmation")
+@click.option("--draft", is_flag=True, help="Create the release unpublished")
+@click.option("--yes", "-y", is_flag=True, help="Do not ask for confirmation")
 def publish_release_command(
     config: str | None,
     pyproject: str | None,
@@ -1276,12 +1276,12 @@ def publish_release_command(
     draft: bool,
     yes: bool,
 ) -> None:
-    """Publier l'installeur et le zip comme release.
+    """Publish the installer and the zip as a release.
 
-    Sur github, crée une Release attachant les artefacts. Sur disk, server
-    ou r2, copie les fichiers vers la destination configurée.
+    On github, creates a Release attaching the artifacts. On disk, server
+    or r2, copies the files to the configured destination.
 
-    Exemples :
+    Examples:
 
         ezcompiler publish release
 
@@ -1304,12 +1304,16 @@ def publish_release_command(
         resolved_title = title or f"{cfg.project_name} v{cfg.version}"
         is_pre = is_prerelease(cfg.version) if prerelease is None else prerelease
 
-        publisher = PublishService.resolve_publisher(cfg, release_destination)
+        # Routing and the port lifecycle live in PublishService: the CLI
+        # only shows the recap and asks for confirmation.
+        preflight = PublishService.preflight_release(
+            cfg, tag=resolved_tag, release_destination=release_destination
+        )
 
-        # Chemin fichiers (disk/server/r2) : comportement historique, sans
-        # confirmation — rien n'est irréversible côté clients. Les assets sont
-        # réassemblés dans release/ par le service, comme avant.
-        if publisher is None:
+        # File path (disk/server/r2): historical behavior, without
+        # confirmation — nothing is irreversible on the client side. The
+        # assets are reassembled into release/ by the service, as before.
+        if not preflight.is_platform:
             ignored = [
                 flag
                 for flag, given in (
@@ -1324,7 +1328,7 @@ def publish_release_command(
             ]
             if ignored:
                 printer.warning(
-                    f"Ignoré(s) hors plateforme de release : {', '.join(ignored)}."
+                    f"Ignored outside a platform release: {', '.join(ignored)}."
                 )
             PublishService.publish_release(
                 cfg,
@@ -1334,50 +1338,42 @@ def publish_release_command(
                 destination=destination,
                 release_destination=release_destination,
             )
-            printer.success("Assets de release transférés")
+            printer.success("Release assets transferred")
             logger.info("Release assets uploaded")
             return
 
         if destination:
             raise click.UsageError(
-                "--destination ne s'applique pas à une publication sur "
-                "plateforme : le dépôt vient de release_endpoint (owner/repo)."
+                "--destination does not apply to a platform publication: "
+                "the repository comes from release_endpoint (owner/repo)."
             )
 
-        # Toutes les vérifications passent AVANT le récapitulatif : quand
-        # l'opérateur confirme, il ne reste qu'un risque réseau.
+        # Every check runs BEFORE the recap: once the operator confirms,
+        # only a network risk is left.
         body = _read_notes_file(notes_file) if notes_file else notes
-        publisher.preflight()
-        if publisher.exists(resolved_tag):
-            printer.error(
-                f"La release {resolved_tag} existe déjà. "
-                "Supprime-la ou change de version."
-            )
-            sys.exit(1)
-
-        assets = PipelineService.stage_versioned_assets(cfg)
+        assets = list(preflight.assets)
 
         printer.info("─" * 60)
-        printer.info(f"Release à publier via {publisher.get_publisher_name()}")
+        printer.info(f"Release to publish via {preflight.publisher_name}")
         printer.info(
-            f"   Dépôt      : {cfg.release_endpoint or '(déduit du remote git courant)'}"
+            f"   Repository : {preflight.repo or '(inferred from the current git remote)'}"
         )
         printer.info(f"   Tag        : {resolved_tag}")
-        printer.info(f"   Titre      : {resolved_title}")
-        printer.info(f"   Pré-release: {'oui' if is_pre else 'non'}")
-        printer.info(f"   Brouillon  : {'oui' if draft else 'non'}")
+        printer.info(f"   Title      : {resolved_title}")
+        printer.info(f"   Pre-release: {'yes' if is_pre else 'no'}")
+        printer.info(f"   Draft      : {'yes' if draft else 'no'}")
         printer.info(
-            f"   Notes      : {'fournies' if body else 'générées automatiquement'}"
+            f"   Notes      : {'provided' if body else 'generated automatically'}"
         )
-        printer.info("   Artefacts  :")
+        printer.info("   Artifacts  :")
         for asset in assets:
             printer.info(
                 f"     - {asset.name}   ({_format_size(asset.stat().st_size)})"
             )
         printer.info("─" * 60)
 
-        if not yes and not click.confirm("Publier cette release ?", default=False):
-            printer.info("Annulé.")
+        if not yes and not click.confirm("Publish this release?", default=False):
+            printer.info("Cancelled.")
             sys.exit(1)
 
         url = PublishService.publish_release(
@@ -1389,9 +1385,8 @@ def publish_release_command(
             prerelease=is_pre,
             draft=draft,
             release_destination=release_destination,
-            publisher=publisher,
         )
-        printer.success(f"Release {resolved_tag} publiée : {url}")
+        printer.success(f"Release {resolved_tag} published: {url}")
         logger.info("Release %s published: %s", resolved_tag, url)
 
     except (ConfigurationError, PublishError, UploadError, ReleaseError) as e:
@@ -1416,10 +1411,10 @@ def publish_release_command(
     "repo_destination",
     type=click.Choice(["disk", "server", "r2"]),
     default=None,
-    help="Backend pour l'arbre TUF (overrides config)",
+    help="Backend for the TUF tree (overrides config)",
 )
 @click.option("--destination", "-d", default=None, help="Destination (override config)")
-@click.option("--yes", "-y", is_flag=True, help="Ne pas demander de confirmation")
+@click.option("--yes", "-y", is_flag=True, help="Do not ask for confirmation")
 def publish_update_command(
     config: str | None,
     pyproject: str | None,
@@ -1427,13 +1422,13 @@ def publish_update_command(
     destination: str | None,
     yes: bool,
 ) -> None:
-    """Publier l'arbre de mise à jour TUF.
+    """Publish the TUF update tree.
 
-    C'est la plus irréversible des deux publications : les versions de
-    métadonnées TUF sont monotones et les clients auto-updatent sans
-    action humaine. On ne dépublie pas, on republie plus haut.
+    The more irreversible of the two publications: TUF metadata versions
+    are monotonic and clients auto-update with no human action. You do
+    not unpublish, you republish higher.
 
-    Exemples :
+    Examples:
 
         ezcompiler publish update
 
@@ -1450,67 +1445,67 @@ def publish_update_command(
         )
 
         repo_dir = TufService.repo_dir(cfg)
-        # Lit la version dans l'arbre signé lui-même : c'est elle que les
-        # clients recevront, pas forcément celle de la config.
+        # Read the version from the signed tree itself: that is the one
+        # clients will receive, not necessarily the config one.
         withdrawn = TufService.withdrawn_versions(repo_dir)
         tree_version = TufService.read_tree_version(cfg, allow_empty=bool(withdrawn))
         config_withdrawn = any(
             TufService.same_version(cfg.version, w) for w in withdrawn
         )
-        shown = tree_version or "aucune (toutes retirées)"
+        shown = tree_version or "none (all withdrawn)"
 
         repo_dest = repo_destination or cfg.repo_destination
         if repo_dest == "r2" and destination:
             printer.warning(
-                "--destination est ignoré avec r2 : la cible vient de "
-                "repo_endpoint (bucket/préfixe)."
+                "--destination is ignored with r2: the target comes from "
+                "repo_endpoint (bucket/prefix)."
             )
         target = _describe_update_target(cfg, repo_dest, destination)
         file_count = sum(1 for f in repo_dir.rglob("*") if f.is_file())
 
         printer.info("─" * 60)
-        printer.info("Arbre de mise à jour TUF à publier")
+        printer.info("TUF update tree to publish")
         printer.info(f"   Backend    : {repo_dest}")
         printer.info(f"   Destination: {target}")
         printer.info(f"   Version    : {shown}")
-        printer.info(f"   Fichiers   : {file_count}")
+        printer.info(f"   Files      : {file_count}")
         printer.info("─" * 60)
         if config_withdrawn:
             printer.warning(
-                f"{cfg.version} a été retirée : l'arbre republié propose "
-                f"{shown}, pour que {cfg.version} n'atteigne plus de nouveaux "
-                f"clients. Les clients déjà en {cfg.version} y restent jusqu'à "
-                "une version supérieure."
+                f"{cfg.version} was withdrawn: the republished tree offers "
+                f"{shown}, so that {cfg.version} no longer reaches new "
+                f"clients. Clients already on {cfg.version} stay there until "
+                "a higher version."
             )
         else:
             if tree_version is not None and not TufService.same_version(
                 tree_version, cfg.version
             ):
                 printer.warning(
-                    f"La configuration annonce {cfg.version}, mais l'arbre signé "
-                    f"porte {tree_version} : c'est {tree_version} qui sera publiée. "
-                    "Relancer le pipeline si ce n'est pas voulu."
+                    f"The config announces {cfg.version}, but the signed tree "
+                    f"carries {tree_version}: {tree_version} is what will be "
+                    "published. Run the pipeline again if that is not intended."
                 )
             if tree_version is None:
                 printer.warning(
-                    "L'arbre republié ne propose plus aucune version : les "
-                    "clients installés restent sur leur version actuelle."
+                    "The republished tree no longer offers any version: "
+                    "installed clients stay on their current version."
                 )
             else:
                 printer.warning(
-                    f"Les clients installés passeront en {shown} automatiquement. "
-                    "Cette publication ne peut pas être annulée, seulement "
-                    "remplacée par une version supérieure."
+                    f"Installed clients will move to {shown} automatically. "
+                    "This publication cannot be undone, only replaced by a "
+                    "higher version."
                 )
 
-        if not yes and not click.confirm("Publier cet arbre ?", default=False):
-            printer.info("Annulé.")
+        if not yes and not click.confirm("Publish this tree?", default=False):
+            printer.info("Cancelled.")
             sys.exit(1)
 
         PublishService.publish_update(
             cfg, destination=destination, repo_destination=repo_destination
         )
-        printer.success(f"Arbre TUF publié ({repo_dest})")
+        printer.success(f"TUF tree published ({repo_dest})")
         logger.info("TUF update tree published (%s)", repo_dest)
 
     except (ConfigurationError, UploadError, ReleaseError) as e:
@@ -1670,10 +1665,10 @@ def init(
 
 @main.group()
 def tuf() -> None:
-    """Arbre de mise à jour TUF local : clés, état, retrait de version.
+    """Local TUF update tree: keys, status, version withdrawal.
 
-    Ces commandes ne modifient que l'arbre local ; `ezcompiler publish
-    update` le publie.
+    These commands only change the local tree; `ezcompiler publish
+    update` publishes it.
     """
 
 
@@ -1795,11 +1790,11 @@ _EXPIRY_WARN_DAYS = 7
     help="Explicit pyproject.toml path",
 )
 def tuf_status(config: str | None, pyproject: str | None) -> None:
-    """Afficher l'état de l'arbre TUF local (lecture seule).
+    """Show the state of the local TUF tree (read-only).
 
-    Versions signées, drapeaux, expirations des rôles et versions retirées.
+    Signed versions, flags, role expirations and withdrawn versions.
 
-    Exemple :
+    Example:
 
         ezcompiler tuf status
     """
@@ -1817,13 +1812,13 @@ def tuf_status(config: str | None, pyproject: str | None) -> None:
         logger.error(str(e))
         sys.exit(1)
 
-    printer.info(f"Arbre TUF : {status.repo_dir}")
-    printer.info("Versions (de la plus récente à la plus ancienne)")
+    printer.info(f"TUF tree: {status.repo_dir}")
+    printer.info("Versions (newest to oldest)")
     if not status.versions:
-        printer.info("   (aucune)")
+        printer.info("   (none)")
     for v in status.versions:
         flags = [
-            f for f, on in (("obligatoire", v.required), ("patch", v.has_patch)) if on
+            f for f, on in (("mandatory", v.required), ("patch", v.has_patch)) if on
         ]
         printer.info(f"   {v.version:<12} {'  '.join(flags)}".rstrip())
 
@@ -1831,18 +1826,18 @@ def tuf_status(config: str | None, pyproject: str | None) -> None:
     now = datetime.now(UTC)
     for role, expires in status.expirations.items():
         refresh = "ezcompiler tuf refresh" + (" --role root" if role == "root" else "")
-        # Arrondi au jour supérieur : un rôle signé pour 7 jours affiche
-        # « 7 j » juste après la signature, sans avertissement.
+        # Rounded up to the next day: a role signed for 7 days shows
+        # "7 d" right after signing, with no warning.
         days = math.ceil((expires - now).total_seconds() / 86400)
-        line = f"   {role:<10} {expires:%Y-%m-%d}   ({days} j)"
+        line = f"   {role:<10} {expires:%Y-%m-%d}   ({days} d)"
         if expires <= now:
-            printer.error(f"{line}   expiré : lancer `{refresh}`")
+            printer.error(f"{line}   expired: run `{refresh}`")
         elif timedelta(days=days) < timedelta(days=_EXPIRY_WARN_DAYS):
-            printer.warning(f"{line}   expire bientôt : lancer `{refresh}`")
+            printer.warning(f"{line}   expiring soon: run `{refresh}`")
         else:
             printer.info(line)
 
-    printer.info("Versions retirées : " + (", ".join(status.withdrawn) or "aucune"))
+    printer.info("Withdrawn versions: " + (", ".join(status.withdrawn) or "none"))
 
 
 @tuf.command("remove-latest")
@@ -1855,15 +1850,15 @@ def tuf_status(config: str | None, pyproject: str | None) -> None:
     type=click.Path(exists=True),
     help="Explicit pyproject.toml path",
 )
-@click.option("--yes", "-y", is_flag=True, help="Ne pas demander de confirmation")
+@click.option("--yes", "-y", is_flag=True, help="Do not ask for confirmation")
 def tuf_remove_latest(config: str | None, pyproject: str | None, yes: bool) -> None:
-    """Retirer la dernière version de l'arbre TUF local et le re-signer.
+    """Withdraw the latest version from the local TUF tree and re-sign it.
 
-    Les clients qui n'ont pas encore cette version ne la recevront plus une
-    fois l'arbre republié (`ezcompiler publish update`). Ceux qui l'ont déjà
-    n'en sortiront que par une version supérieure.
+    Clients that do not have this version yet will no longer receive it
+    once the tree is republished (`ezcompiler publish update`). Those that
+    already have it will only leave it for a higher version.
 
-    Exemples :
+    Examples:
 
         ezcompiler tuf remove-latest
 
@@ -1880,12 +1875,12 @@ def tuf_remove_latest(config: str | None, pyproject: str | None, yes: bool) -> N
         keys_dir = TufService.keys_dir(cfg)
         if not keys_dir.is_dir():
             raise SigningKeyError(
-                f"Clés de signature introuvables : {keys_dir}. "
-                "Lancer `ezcompiler tuf init` ou corriger tuf_keys_dir."
+                f"Signing keys not found: {keys_dir}. "
+                "Run `ezcompiler tuf init` or fix tuf_keys_dir."
             )
         status = TufService.status(cfg)
         if not status.versions:
-            raise ReleaseError(f"Aucune version à retirer dans {status.repo_dir}.")
+            raise ReleaseError(f"No version to withdraw in {status.repo_dir}.")
 
         latest = status.versions[0]
         previous = status.versions[1].version if len(status.versions) > 1 else None
@@ -1894,29 +1889,29 @@ def tuf_remove_latest(config: str | None, pyproject: str | None, yes: bool) -> N
             files.append(f"{cfg.project_name}-{latest.version}.patch")
 
         printer.info("─" * 60)
-        printer.info(f"Version retirée : {latest.version}")
-        printer.info(f"Fichiers supprimés en local : {', '.join(files)}")
-        printer.info(f"Nouvelle dernière version : {previous or 'aucune'}")
+        printer.info(f"Version withdrawn: {latest.version}")
+        printer.info(f"Files deleted locally: {', '.join(files)}")
+        printer.info(f"New latest version: {previous or 'none'}")
         printer.info("─" * 60)
         if previous is None:
             printer.warning(
-                "C'est la seule version de l'arbre : une fois republié, il ne "
-                "proposera plus aucune version."
+                "This is the only version in the tree: once republished, it "
+                "will offer no version at all."
             )
         printer.warning(
-            f"Les clients qui ont déjà installé {latest.version} y restent : "
-            "seule une version supérieure les en sortira."
+            f"Clients that already installed {latest.version} stay there: "
+            "only a higher version will move them off it."
         )
 
-        if not yes and not click.confirm("Retirer cette version ?", default=False):
-            printer.info("Annulé.")
+        if not yes and not click.confirm("Withdraw this version?", default=False):
+            printer.info("Cancelled.")
             sys.exit(1)
 
         removed = TufService.remove_latest(cfg)
-        printer.success(f"Version {removed} retirée de l'arbre local, re-signé.")
+        printer.success(f"Version {removed} withdrawn from the local tree, re-signed.")
         printer.info(
-            "Suite : `ezcompiler compile --required` avec une version "
-            f"> {removed}, puis `ezcompiler publish update`."
+            "Next: `ezcompiler compile --required` with a version "
+            f"> {removed}, then `ezcompiler publish update`."
         )
         logger.info("TUF version %s withdrawn locally", removed)
 
@@ -1935,8 +1930,8 @@ def _deprecated_alias(target: click.Command, old: str, new: str) -> click.Comman
 
     def callback(**kwargs: Any) -> None:
         _get_printer().warning(
-            f"`ezcompiler {old}` est déprécié et sera retiré en v5. "
-            f"Utiliser `ezcompiler {new}`."
+            f"`ezcompiler {old}` is deprecated and will be removed in v5. "
+            f"Use `ezcompiler {new}`."
         )
         click.get_current_context().invoke(target, **kwargs)
 
@@ -1944,13 +1939,13 @@ def _deprecated_alias(target: click.Command, old: str, new: str) -> click.Comman
         name=target.name,
         params=list(target.params),
         callback=callback,
-        help=f"[Déprécié] Alias de `ezcompiler {new}`.",
+        help=f"[Deprecated] Alias of `ezcompiler {new}`.",
     )
 
 
 @main.group(hidden=True)
 def release() -> None:
-    """[Déprécié] Utiliser `ezcompiler tuf` à la place."""
+    """[Deprecated] Use `ezcompiler tuf` instead."""
 
 
 release.add_command(_deprecated_alias(tuf_init, "release init", "tuf init"))

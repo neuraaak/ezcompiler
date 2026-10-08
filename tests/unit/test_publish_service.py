@@ -215,30 +215,32 @@ def test_should_refuse_an_empty_asset_list_on_the_platform_path(
     fake = MagicMock()
     with (
         patch.object(PublishService, "resolve_publisher", return_value=fake),
-        pytest.raises(PublishError, match="[Aa]ucun"),
+        pytest.raises(PublishError, match="[Nn]o asset"),
     ):
         PublishService.publish_release(cfg, [], tag="v1.0.0", title="T")
     fake.publish.assert_not_called()
 
 
-def test_should_publish_with_the_publisher_given_by_the_caller(
+def test_should_resolve_the_publisher_itself_when_publishing(
     tmp_path: Path,
 ) -> None:
+    """Routing lives in the service: no more port injected by the caller
+    (la CLI passe par preflight_release et ne manipule aucun PublisherPort)."""
     cfg = _make_config(tmp_path, release_destination="github")
     asset = tmp_path / "a.zip"
     asset.write_bytes(b"x")
-    given = MagicMock()
-    given.publish.return_value = "u"
-    with patch.object(PublishService, "resolve_publisher") as resolve:
-        PublishService.publish_release(
-            cfg, [asset], tag="v1.0.0", title="T", publisher=given
-        )
-    resolve.assert_not_called()
-    given.publish.assert_called_once()
+    resolved = MagicMock()
+    resolved.publish.return_value = "u"
+    with patch.object(
+        PublishService, "resolve_publisher", return_value=resolved
+    ) as resolve:
+        PublishService.publish_release(cfg, [asset], tag="v1.0.0", title="T")
+    resolve.assert_called_once()
+    resolved.publish.assert_called_once()
 
 
 def test_should_refuse_to_upload_an_empty_release_dir(tmp_path) -> None:
-    """Rien de construit : échouer plutôt que transférer un dossier vide."""
+    """Nothing built: fail rather than transfer an empty directory."""
     cfg = _make_config(
         tmp_path, release_destination="disk", release_endpoint=str(tmp_path / "out")
     )
@@ -253,8 +255,71 @@ def test_should_refuse_to_upload_an_empty_release_dir(tmp_path) -> None:
             "ezcompiler.services.publish_service.PipelineService.assemble_release_dir",
             return_value=empty,
         ),
-        pytest.raises(UploadError, match="Aucun artefact"),
+        pytest.raises(UploadError, match="No artifact"),
     ):
         PublishService.publish_release(cfg, [], tag="v1.0.0", title="T")
 
     upload.assert_not_called()
+
+
+def test_should_return_a_recap_without_a_port_when_preflighting_a_platform(
+    tmp_path: Path,
+) -> None:
+    cfg = _make_config(
+        tmp_path, release_destination="github", release_endpoint="owner/repo"
+    )
+    asset = tmp_path / "App-1.0.0.zip"
+    asset.write_bytes(b"x")
+    publisher = MagicMock()
+    publisher.exists.return_value = False
+    publisher.get_publisher_name.return_value = "GitHub Releases (gh)"
+
+    with (
+        patch.object(PublishService, "resolve_publisher", return_value=publisher),
+        patch(
+            "ezcompiler.services.publish_service.PipelineService.stage_versioned_assets",
+            return_value=[asset],
+        ),
+    ):
+        recap = PublishService.preflight_release(cfg, tag="v1.0.0")
+
+    assert recap.is_platform is True
+    assert recap.publisher_name == "GitHub Releases (gh)"
+    assert recap.repo == "owner/repo"
+    assert recap.assets == (asset,)
+    publisher.preflight.assert_called_once()
+
+
+def test_should_report_a_file_destination_as_non_platform_when_preflighting(
+    tmp_path: Path,
+) -> None:
+    cfg = _make_config(
+        tmp_path, release_destination="disk", release_endpoint=str(tmp_path / "out")
+    )
+
+    recap = PublishService.preflight_release(cfg, tag="v1.0.0")
+
+    assert recap.is_platform is False
+    assert recap.destination == "disk"
+    assert recap.assets == ()
+
+
+def test_should_refuse_an_existing_tag_when_preflighting(tmp_path: Path) -> None:
+    cfg = _make_config(tmp_path, release_destination="github")
+    publisher = MagicMock()
+    publisher.exists.return_value = True
+
+    with (
+        patch.object(PublishService, "resolve_publisher", return_value=publisher),
+        pytest.raises(PublishError, match="already exists"),
+    ):
+        PublishService.preflight_release(cfg, tag="v1.0.0")
+
+
+def test_should_not_expose_a_publisher_port_to_the_cli_layer() -> None:
+    """ARCH-001: the CLI no longer resolves the publisher nor drives the port."""
+    source = Path("src/ezcompiler/interfaces/cli_interface.py").read_text(
+        encoding="utf-8"
+    )
+    assert "resolve_publisher" not in source
+    assert "PublisherPort" not in source

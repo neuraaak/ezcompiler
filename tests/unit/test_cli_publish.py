@@ -55,7 +55,10 @@ def _patches(cfg, staged, publisher):
             return_value=cfg,
         ),
         patch(
-            "ezcompiler.interfaces.cli_interface.PipelineService.stage_versioned_assets",
+            # Asset staging moved into
+            # PublishService.preflight_release: the CLI no longer resolves
+            # the artifacts itself.
+            "ezcompiler.services.publish_service.PipelineService.stage_versioned_assets",
             return_value=staged,
         ),
         patch(
@@ -109,7 +112,7 @@ def test_should_refuse_an_existing_tag_before_prompting(tmp_path, staged):
         result = CliRunner().invoke(main, ["publish", "release"])
     assert result.exit_code == 1
     publisher.publish.assert_not_called()
-    assert "existe" in result.output.lower()
+    assert "already exists" in result.output.lower()
 
 
 def test_should_show_the_recap_with_tag_title_and_sizes(tmp_path, staged):
@@ -121,7 +124,7 @@ def test_should_show_the_recap_with_tag_title_and_sizes(tmp_path, staged):
         result = CliRunner().invoke(main, ["publish", "release"], input="n\n")
     assert "v1.2.3" in result.output
     assert "App-1.2.3.zip" in result.output
-    assert "Ko" in result.output or "ko" in result.output
+    assert "KB" in result.output or "kb" in result.output
 
 
 def test_should_derive_prerelease_from_the_version(tmp_path, staged):
@@ -292,7 +295,7 @@ def test_should_report_a_missing_login_before_the_recap(tmp_path, staged):
     cfg = _make_config(tmp_path, release_destination="github", version="1.2.3")
     publisher = MagicMock()
     publisher.preflight.side_effect = PublishAuthError(
-        "'gh' n'est pas authentifié. Lancer `gh auth login`."
+        "'gh' is not authenticated. Run `gh auth login`."
     )
     p1, p2, p3 = _patches(cfg, staged, publisher)
     with p1, p2, p3:
@@ -306,7 +309,7 @@ def test_should_report_a_missing_login_before_the_recap(tmp_path, staged):
 def test_should_stop_when_existence_cannot_be_determined(tmp_path, staged):
     cfg = _make_config(tmp_path, release_destination="github", version="1.2.3")
     publisher = MagicMock()
-    publisher.exists.side_effect = PublishError("Impossible de déterminer")
+    publisher.exists.side_effect = PublishError("Cannot determine")
     p1, p2, p3 = _patches(cfg, staged, publisher)
     with p1, p2, p3:
         result = CliRunner().invoke(main, ["publish", "release", "--yes"])
@@ -328,7 +331,7 @@ def test_should_stop_when_artifacts_are_missing(tmp_path):
             return_value=publisher,
         ),
         patch(
-            "ezcompiler.interfaces.cli_interface.PipelineService.stage_versioned_assets",
+            "ezcompiler.services.publish_service.PipelineService.stage_versioned_assets",
             side_effect=ReleaseError("Installeur introuvable"),
         ),
     ):
@@ -373,7 +376,7 @@ def test_should_name_the_repository_even_when_inferred(tmp_path, staged):
     p1, p2, p3 = _patches(cfg, staged, publisher)
     with p1, p2, p3:
         result = CliRunner().invoke(main, ["publish", "release"], input="n\n")
-    assert "remote git" in result.output
+    assert "git remote" in result.output
 
 
 def test_should_reject_a_non_utf8_notes_file(tmp_path, staged):
@@ -381,6 +384,8 @@ def test_should_reject_a_non_utf8_notes_file(tmp_path, staged):
     notes = tmp_path / "n.md"
     notes.write_bytes("Notes".encode("utf-16"))
     publisher = MagicMock()
+    # The preflight (free tag) now runs before the notes are read.
+    publisher.exists.return_value = False
     p1, p2, p3 = _patches(cfg, staged, publisher)
     with p1, p2, p3:
         result = CliRunner().invoke(
@@ -521,11 +526,11 @@ def test_update_should_warn_that_destination_is_ignored_with_r2(tmp_path):
         result = CliRunner().invoke(
             main, ["publish", "update", "-d", "ailleurs"], input="n\n"
         )
-    assert "ignoré avec r2" in result.output
+    assert "ignored with r2" in result.output
 
 
 # ------------------------------------------------
-# publish update après un retrait
+# publish update after a withdrawal
 # ------------------------------------------------
 
 
@@ -561,10 +566,10 @@ def test_update_should_explain_a_withdrawal_instead_of_a_mismatch(tmp_path):
 
     out = " ".join(result.output.split())
     assert result.exit_code == 0, result.output
-    assert "1.0.1 a été retirée" in out
-    assert "n'atteigne plus de nouveaux clients" in out
+    assert "1.0.1 was withdrawn" in out
+    assert "no longer reaches new clients" in out
     assert "Relancer le pipeline" not in out
-    assert "déjà en 1.0.1 y restent" in out
+    assert "already on 1.0.1 stay there" in out
     publish.assert_called_once()
 
 
@@ -581,7 +586,7 @@ def test_update_should_publish_an_emptied_tree_after_withdrawal(tmp_path):
 
     out = " ".join(result.output.split())
     assert result.exit_code == 0, result.output
-    assert "aucune (toutes retirées)" in out
+    assert "none (all withdrawn)" in out
     publish.assert_called_once()
 
 
@@ -596,7 +601,7 @@ def test_update_should_still_refuse_an_empty_tree_without_withdrawal(tmp_path):
     result, publish = _invoke_update(cfg)
 
     assert result.exit_code == 1
-    assert "ne référence aucune archive" in " ".join(result.output.split())
+    assert "references no archive" in " ".join(result.output.split())
     publish.assert_not_called()
 
 
@@ -613,6 +618,6 @@ def test_update_should_say_no_version_is_offered_when_the_tree_is_emptied(tmp_pa
 
     out = " ".join(result.output.split())
     assert result.exit_code == 0, result.output
-    assert "ne propose plus aucune version" in out
+    assert "no longer offers any version" in out
     assert "passeront en" not in out
     publish.assert_called_once()
