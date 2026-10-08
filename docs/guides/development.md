@@ -15,7 +15,7 @@ Set up a local development workflow for implementing and validating changes in E
 === "uv workflow"
 
     ```bash
-    uv sync --extra dev --extra docs --extra test
+    uv sync --all-extras --group dev --group docs
     ```
 
 === "pip editable install"
