@@ -51,7 +51,7 @@ def test_withdraw_then_ship_a_required_fix(make_tuf_tree, tmp_path: Path) -> Non
         result = CliRunner().invoke(main, ["tuf", "remove-latest", "--yes"])
     assert result.exit_code == 0, result.output
 
-    with pytest.raises(ReleaseError, match="retirée"):
+    with pytest.raises(ReleaseError, match="withdrawn"):
         _release(tmp_path, "1.0.1")
 
     _release(tmp_path, "1.0.2", required=True)
@@ -76,7 +76,7 @@ def _targets(tmp_path: Path) -> dict:
 def test_first_release_after_a_withdrawal_should_ship_the_full_archive_only(
     make_tuf_tree, tmp_path: Path
 ) -> None:
-    """Un client en 1.0.1 (retirée) ne peut pas appliquer un patch 1.0.0→1.0.2."""
+    """A client on 1.0.1 (withdrawn) cannot apply a 1.0.0->1.0.2 patch."""
     make_tuf_tree(["1.0.0", "1.0.1"])
     assert "App-1.0.1.patch" in _targets(tmp_path)  # release normale : patch
     main_file = tmp_path / "main.py"
@@ -99,6 +99,6 @@ def test_first_release_after_a_withdrawal_should_ship_the_full_archive_only(
     assert "App-1.0.2.patch" not in targets
     assert not (tmp_path / "repo" / "targets" / "App-1.0.2.patch").exists()
 
-    # Une fois la version retirée dépassée, les patchs reprennent.
+    # Once the withdrawn version is left behind, patches resume.
     _release(tmp_path, "1.0.3")
     assert "App-1.0.3.patch" in _targets(tmp_path)

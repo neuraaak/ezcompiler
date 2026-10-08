@@ -192,9 +192,9 @@ class ReleaserPort(Protocol):
         ...
 
     def init_keys(self, app_name: str, repo_dir: Path, keys_dir: Path) -> bool:
-        """Initialise clés TUF + squelette repo. Idempotent.
+        """Initialize TUF keys and the repo skeleton. Idempotent.
 
-        Returns True si init effectuée, False si clés déjà présentes (skip).
+        Returns True if the init ran, False if the keys were already present (skip).
         Raises ReleaseError / SigningKeyError on failure.
         """
         ...

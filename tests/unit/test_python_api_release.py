@@ -137,7 +137,7 @@ def test_run_pipeline_preflight_refuses_a_withdrawn_version_before_compile(
         lambda *_a, **_kw: compile_called.append(True),
     )
 
-    with pytest.raises(ReleaseError, match="retirée"):
+    with pytest.raises(ReleaseError, match="withdrawn"):
         EzCompiler(cfg).run_pipeline()
 
     assert compile_called == [], "compile_project must NOT run for a withdrawn version"

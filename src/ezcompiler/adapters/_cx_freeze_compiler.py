@@ -249,7 +249,7 @@ with warnings.catch_warnings():
                 f.write(self._SETUP_SCRIPT)
 
             # Run cx_Freeze in subprocess with captured output
-            result = subprocess.run(  # noqa: S603  # nosec B603 - args en liste, entrées contrôlées (config dev), pas de shell
+            result = subprocess.run(  # noqa: S603  # nosec B603 - args as a list, controlled inputs (dev config), no shell
                 [sys.executable, str(script_file), str(config_file)],
                 check=False,
                 capture_output=True,

@@ -163,7 +163,7 @@ def test_release_init_still_works_and_warns() -> None:
     ):
         result = CliRunner().invoke(main, ["release", "init"])
     assert "ezcompiler tuf init" in result.output
-    assert "déprécié" in result.output or "deprecie" in result.output.lower()
+    assert "deprecated" in result.output.lower()
 
 
 def test_release_init_alias_forwards_config(monkeypatch, tmp_path: Path) -> None:

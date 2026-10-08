@@ -27,10 +27,10 @@ from ..shared.exceptions import BundleBuildError
 # ///////////////////////////////////////////////////////////////
 
 
-# Le contrat structurel (Port) est défini par ``types.ReleaserPort`` (Protocol).
-# Cette classe reste une base abstraite concrète : elle conforme au Port et
-# factorise le comportement partagé (validation de bundle_dir).
-# Les frontières (factory, service) sont typées via le Port, pas via cette base.
+# The structural contract (Port) is defined by ``types.ReleaserPort`` (Protocol).
+# This class stays a concrete abstract base: it conforms to the Port and
+# factors out the shared behavior (bundle_dir validation).
+# The boundaries (factory, service) are typed through the Port, not this base.
 class BaseReleaser(ABC):
     """Abstract base class for secure-release packagers."""
 
@@ -60,9 +60,9 @@ class BaseReleaser(ABC):
 
     @abstractmethod
     def init_keys(self, app_name: str, repo_dir: Path, keys_dir: Path) -> bool:
-        """Initialise clés + squelette repo TUF. Idempotent.
+        """Initialize TUF keys and the repo skeleton. Idempotent.
 
-        Returns True si init effectuée, False si déjà présente (skip).
+        Returns True if the init ran, False if it was already present (skip).
         Raises ReleaseError / SigningKeyError on failure.
         """
 

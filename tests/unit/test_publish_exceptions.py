@@ -19,4 +19,4 @@ def test_publish_subclasses_derive_from_publish_error() -> None:
 
 
 def test_publish_error_carries_its_message() -> None:
-    assert "gh introuvable" in str(PublishCliError("gh introuvable"))
+    assert "gh not found" in str(PublishCliError("gh not found"))

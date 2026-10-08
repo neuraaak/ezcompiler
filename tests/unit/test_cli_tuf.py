@@ -79,9 +79,9 @@ def test_status_should_show_versions_flags_and_withdrawals(tmp_path: Path) -> No
 
     out = _flat(result.output)
     assert result.exit_code == 0, result.output
-    assert "1.0.2 obligatoire patch" in out
+    assert "1.0.2 mandatory patch" in out
     assert out.index("1.0.2") < out.index("1.0.0")
-    assert "Versions retirées : 1.0.1" in out
+    assert "Withdrawn versions: 1.0.1" in out
 
 
 def test_status_should_warn_when_a_role_expires_soon(tmp_path: Path) -> None:
@@ -92,7 +92,7 @@ def test_status_should_warn_when_a_role_expires_soon(tmp_path: Path) -> None:
     result = _run(tmp_path, st, "status")
 
     assert result.exit_code == 0
-    assert "expire bientôt" in result.output
+    assert "expiring soon" in result.output
     assert "ezcompiler tuf refresh" in _flat(result.output)
 
 
@@ -106,14 +106,14 @@ def test_status_should_round_days_up_and_not_warn_at_seven_days(
     result = _run(tmp_path, st, "status")
 
     assert result.exit_code == 0
-    assert "(7 j)" in result.output
-    assert "expire bientôt" not in result.output
+    assert "(7 d)" in result.output
+    assert "expiring soon" not in result.output
 
 
 def test_status_should_not_warn_on_a_freshly_signed_default_tree(
     make_tuf_tree, tmp_path: Path
 ) -> None:
-    """Défauts tufup : targets et snapshot expirent à 7 jours."""
+    """tufup defaults: targets and snapshot expire after 7 days."""
     make_tuf_tree(["1.0.0"])
     with patch(
         f"{_CLI}.ConfigService.build_compiler_config", return_value=_cfg(tmp_path)
@@ -123,8 +123,8 @@ def test_status_should_not_warn_on_a_freshly_signed_default_tree(
     assert result.exit_code == 0, result.output
     for role in ("targets", "snapshot"):
         line = next(ln for ln in result.output.splitlines() if f" {role} " in ln)
-        assert "(7 j)" in line, line
-        assert "expire bientôt" not in line, line
+        assert "(7 d)" in line, line
+        assert "expiring soon" not in line, line
 
 
 def test_status_should_flag_an_expired_root_with_its_refresh_command(
@@ -137,7 +137,7 @@ def test_status_should_flag_an_expired_root_with_its_refresh_command(
     result = _run(tmp_path, st, "status")
 
     assert result.exit_code == 0
-    assert "expiré" in result.output
+    assert "expired" in result.output
     assert "ezcompiler tuf refresh --role root" in _flat(result.output)
 
 
@@ -145,15 +145,15 @@ def test_status_should_say_when_no_version_remains(tmp_path: Path) -> None:
     result = _run(tmp_path, _status(tmp_path, versions=(), withdrawn=()), "status")
 
     out = _flat(result.output)
-    assert "(aucune)" in out
-    assert "Versions retirées : aucune" in out
+    assert "(none)" in out
+    assert "Withdrawn versions: none" in out
 
 
 def test_status_should_exit_1_on_an_uninitialized_tree(tmp_path: Path) -> None:
-    result = _run(tmp_path, ReleaseError("Aucun arbre TUF initialisé"), "status")
+    result = _run(tmp_path, ReleaseError("No TUF tree initialized"), "status")
 
     assert result.exit_code == 1
-    assert "Aucun arbre TUF initialisé" in result.output
+    assert "No TUF tree initialized" in result.output
 
 
 # remove-latest -------------------------------------------------------
@@ -191,10 +191,10 @@ def test_remove_latest_should_show_recap_and_ask(tmp_path: Path) -> None:
 
     out = _flat(result.output)
     assert result.exit_code == 0, result.output
-    assert "Version retirée : 1.0.2" in out
+    assert "Version withdrawn: 1.0.2" in out
     assert "App-1.0.2.tar.gz" in out and "App-1.0.2.patch" in out
-    assert "Nouvelle dernière version : 1.0.0" in out
-    assert "Retirer cette version ?" in out
+    assert "New latest version: 1.0.0" in out
+    assert "Withdraw this version?" in out
     assert removed == ["called"]
     assert "ezcompiler compile --required" in out
     assert "ezcompiler publish update" in out
@@ -211,7 +211,7 @@ def test_remove_latest_should_skip_prompt_with_yes(tmp_path: Path) -> None:
     result, removed = _remove(tmp_path, "--yes")
 
     assert result.exit_code == 0, result.output
-    assert "Retirer cette version ?" not in result.output
+    assert "Withdraw this version?" not in result.output
     assert removed == ["called"]
 
 
@@ -222,15 +222,15 @@ def test_remove_latest_should_warn_when_removing_the_only_version(
     result, _ = _remove(tmp_path, "--yes", status=only)
 
     out = _flat(result.output)
-    assert "Nouvelle dernière version : aucune" in out
-    assert "ne proposera plus aucune version" in out
+    assert "New latest version: none" in out
+    assert "will offer no version at all" in out
 
 
 def test_remove_latest_should_fail_before_recap_without_keys(tmp_path: Path) -> None:
     result, removed = _remove(tmp_path, "--yes", keys=False)
 
     assert result.exit_code == 1
-    assert "Version retirée" not in result.output
+    assert "Version withdrawn" not in result.output
     assert removed == []
 
 
@@ -238,7 +238,7 @@ def test_remove_latest_should_fail_when_tree_is_empty(tmp_path: Path) -> None:
     result, removed = _remove(tmp_path, "--yes", status=_status(tmp_path, versions=()))
 
     assert result.exit_code == 1
-    assert "Aucune version à retirer" in result.output
+    assert "No version to withdraw" in result.output
     assert removed == []
 
 

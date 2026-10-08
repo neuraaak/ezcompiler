@@ -29,10 +29,10 @@ from ..shared import CompilerConfig
 # ///////////////////////////////////////////////////////////////
 
 
-# Le contrat structurel (Port) est défini par ``types.CompilerPort`` (Protocol).
-# Cette classe reste une base abstraite *concrète* : elle conforme au Port et
-# factorise le comportement partagé (config, validation, parsing d'erreurs).
-# Les frontières (factory, CompilationResult) sont typées via le Port, pas via cette base.
+# The structural contract (Port) is defined by ``types.CompilerPort`` (Protocol).
+# This class stays a *concrete* abstract base: it conforms to the Port and
+# factors out the shared behavior (config, validation, error parsing).
+# The boundaries (factory, CompilationResult) are typed through the Port, not this base.
 class BaseCompiler(ABC):
     """
     Abstract base class for project compilers.
@@ -131,7 +131,7 @@ class BaseCompiler(ABC):
             >>> compiler = PyInstallerCompiler(config)
             >>> name = compiler.get_compiler_name()
             >>> print(name)
-            'PyInstaller (Empaquetée)'
+            'PyInstaller (Packaged)'
         """
 
     # ////////////////////////////////////////////////

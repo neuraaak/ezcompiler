@@ -53,7 +53,7 @@ def test_upload_release_pushes_tuf_to_update_and_zip_to_release(
         release_destination="disk",
         release_endpoint=str(tmp_path / "remote"),
     )
-    # Créer le zip pour que assemble_release_dir le copie
+    # Create the zip so assemble_release_dir copies it
     (tmp_path / "repo" / "metadata").mkdir(parents=True)
     (tmp_path / "repo" / "metadata" / "root.json").write_text("{}", encoding="utf-8")
     zip_path = tmp_path / "MyApp.zip"
@@ -80,7 +80,7 @@ def test_upload_release_pushes_tuf_to_update_and_zip_to_release(
     # 1er appel : arbre TUF vers update/
     repo_call = upload_calls[0]
     assert repo_call["upload_type"] == "disk"
-    # Copie filtrée de l'arbre TUF, même disposition.
+    # Filtered copy of the TUF tree, same layout.
     assert repo_call["files"] == {"metadata/root.json"}
     assert repo_call["destination"].endswith("/update") or repo_call[
         "destination"

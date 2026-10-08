@@ -82,14 +82,14 @@ class PyInstallerCompiler(BaseCompiler):
         Get the name of this compiler.
 
         Returns:
-            str: Display name "PyInstaller (Empaquetée)"
+            str: Display name "PyInstaller (Packaged)"
 
         Example:
             >>> compiler = PyInstallerCompiler(config)
             >>> print(compiler.get_compiler_name())
-            'PyInstaller (Empaquetée)'
+            'PyInstaller (Packaged)'
         """
-        return "PyInstaller (Empaquetée)"
+        return "PyInstaller (Packaged)"
 
     def compile(self, console: bool = True) -> None:
         """
@@ -192,7 +192,7 @@ class PyInstallerCompiler(BaseCompiler):
                         cmd.append(f"--{key}={value}")
 
             # Run PyInstaller in subprocess with captured output
-            result = subprocess.run(  # noqa: S603  # nosec B603 - args en liste, entrées contrôlées (config dev), pas de shell
+            result = subprocess.run(  # noqa: S603  # nosec B603 - args as a list, controlled inputs (dev config), no shell
                 cmd,
                 check=False,
                 capture_output=True,

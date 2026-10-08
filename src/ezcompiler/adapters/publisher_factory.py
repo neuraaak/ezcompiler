@@ -27,8 +27,8 @@ from ._github_publisher import GitHubPublisher
 # CONSTANTS
 # ///////////////////////////////////////////////////////////////
 
-# GitLab est volontairement absent : les flags `glab` ne sont pas verifies
-# de premiere main. Mieux vaut un refus explicite qu'un adaptateur devine.
+# GitLab is deliberately absent: the `glab` flags are not verified
+# first-hand. An explicit refusal beats an adapter that guesses.
 _SUPPORTED: tuple[str, ...] = ("github",)
 
 # ///////////////////////////////////////////////////////////////
@@ -74,14 +74,14 @@ class PublisherFactory:
 
         if publish_type == "gitlab":
             raise PublisherTypeError(
-                "La publication 'gitlab' n'est pas encore implémentée. "
+                "'gitlab' publication is not implemented yet. "
                 "Utiliser release_destination='github', ou une destination "
                 "de fichiers ('disk', 'server', 'r2')."
             )
 
         raise PublisherTypeError(
-            f"Plateforme de publication non supportée : '{publish_type}'. "
-            f"Supportées : {', '.join(_SUPPORTED)}."
+            f"Unsupported publication platform: '{publish_type}'. "
+            f"Supported: {', '.join(_SUPPORTED)}."
         )
 
     @staticmethod

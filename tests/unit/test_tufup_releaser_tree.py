@@ -85,7 +85,7 @@ def test_remove_latest_should_allow_removing_the_only_version(
 def test_remove_latest_should_fail_when_nothing_to_remove(make_tuf_tree) -> None:
     repo_dir, keys_dir = make_tuf_tree([])
 
-    with pytest.raises(ReleaseError, match="Aucune version à retirer"):
+    with pytest.raises(ReleaseError, match="No version to withdraw"):
         TufupReleaser({"keys_dir": keys_dir}).remove_latest("App", repo_dir, keys_dir)
 
 

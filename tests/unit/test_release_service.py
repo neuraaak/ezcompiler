@@ -77,7 +77,7 @@ def test_release_with_publish_delegates_to_uploader(
     assert len(uploads) == 1
     assert uploads[0]["upload_type"] == "server"
     assert uploads[0]["destination"] == "https://updates.example.com"
-    # Copie filtrée (jamais l'arbre brut), même disposition.
+    # Filtered copy (never the raw tree), same layout.
     assert uploads[0]["source_path"] != tmp_path / "repo" / "repository"
     assert uploads[0]["files"] == {"metadata/root.json"}
 
@@ -181,7 +181,7 @@ def test_release_should_refuse_a_withdrawn_version_before_signing(
     repo_dir.mkdir()
     TufService.record_withdrawn(repo_dir, "1.0.1")
 
-    with pytest.raises(ReleaseError, match="retirée"):
+    with pytest.raises(ReleaseError, match="withdrawn"):
         ReleaseService.release_and_publish(
             bundle_dir=tmp_path, app_name="App", version="1.0.1", repo_dir=repo_dir
         )

@@ -21,7 +21,7 @@ import re
 # CONSTANTS
 # ///////////////////////////////////////////////////////////////
 
-# Marqueurs de pre-release en tant que composants, pas comme sous-chaînes.
+# Pre-release markers as components, not as substrings.
 _PRERELEASE_RE = re.compile(
     r"(?<![a-z])(?:alpha|beta|rc|dev|a\d+|b\d+)(?![a-z])", re.IGNORECASE
 )
