@@ -73,7 +73,7 @@ def test_ensure_releasable_should_refuse_a_version_not_above_withdrawn(
 ) -> None:
     TufService.record_withdrawn(tmp_path, "1.0.1")
 
-    with pytest.raises(ReleaseError, match="1.0.1 a été retirée"):
+    with pytest.raises(ReleaseError, match="1.0.1 was withdrawn"):
         TufService.ensure_releasable(tmp_path, version)
 
 
@@ -82,7 +82,7 @@ def test_ensure_releasable_should_compare_by_pep440_meaning(tmp_path: Path) -> N
 
     with pytest.raises(ReleaseError):
         TufService.ensure_releasable(tmp_path, "1.2.3rc1")
-    TufService.ensure_releasable(tmp_path, "1.2.3")  # supérieure : acceptée
+    TufService.ensure_releasable(tmp_path, "1.2.3")  # higher: accepted
 
 
 def test_ensure_releasable_should_accept_a_higher_version(tmp_path: Path) -> None:
@@ -138,12 +138,12 @@ def test_remove_latest_should_not_record_on_failure(
 def test_remove_latest_should_not_touch_the_tree_when_withdrawn_json_is_malformed(
     make_tuf_tree, tmp_path: Path
 ) -> None:
-    """Sinon la version disparaît sans être enregistrée : garde-fou désactivé."""
+    """Otherwise the version vanishes unrecorded: the guard is disabled."""
     make_tuf_tree(["1.0.0", "1.0.1"])
     cfg = _cfg(tmp_path)
-    (tmp_path / "repo" / "withdrawn.json").write_text("{cassé", encoding="utf-8")
+    (tmp_path / "repo" / "withdrawn.json").write_text("{broken", encoding="utf-8")
 
-    with pytest.raises(ReleaseError, match="illisible"):
+    with pytest.raises(ReleaseError, match="[Uu]nreadable"):
         TufService.remove_latest(cfg)
 
     assert TufService.read_tree_version(cfg) == "1.0.1"
@@ -157,7 +157,7 @@ def test_record_withdrawn_should_name_the_version_when_the_write_fails(
     before = (tmp_path / "withdrawn.json").read_text("utf-8")
 
     def _fail(*_a: Any) -> None:
-        raise PermissionError("accès refusé")
+        raise PermissionError("access denied")
 
     monkeypatch.setattr("ezcompiler.services.tuf_service.os.replace", _fail)
 
@@ -221,7 +221,7 @@ def _write_meta(tmp_path: Path, *, expires: str, targets: Any) -> None:
 
 
 def test_status_should_read_a_naive_expiry_as_utc(tmp_path: Path) -> None:
-    """Fichier édité à la main sans « Z » : pas de datetime naïf."""
+    """File hand-edited without a "Z": no naive datetime."""
     _write_meta(tmp_path, expires="2030-01-01T00:00:00", targets={})
 
     status = TufService.status(_cfg(tmp_path))
@@ -238,7 +238,7 @@ def test_status_should_read_a_naive_expiry_as_utc(tmp_path: Path) -> None:
 def test_status_should_refuse_malformed_targets(tmp_path: Path, targets: Any) -> None:
     _write_meta(tmp_path, expires="2030-01-01T00:00:00Z", targets=targets)
 
-    with pytest.raises(ReleaseError, match="illisible"):
+    with pytest.raises(ReleaseError, match="[Uu]nreadable"):
         TufService.status(_cfg(tmp_path))
 
 
@@ -302,7 +302,7 @@ def test_tree_version_rejects_unreadable_metadata(tmp_path: Path) -> None:
     meta = tmp_path / "repo" / "metadata"
     meta.mkdir(parents=True)
     (meta / "targets.json").write_text("{pas du json", encoding="utf-8")
-    with pytest.raises(ReleaseError, match="illisible"):
+    with pytest.raises(ReleaseError, match="[Uu]nreadable"):
         TufService.read_tree_version(cfg)
 
 
@@ -333,7 +333,7 @@ def test_read_tree_version_should_return_none_for_an_emptied_tree_when_allowed(
     TufService.remove_latest(cfg)
 
     assert TufService.read_tree_version(cfg, allow_empty=True) is None
-    with pytest.raises(ReleaseError, match="aucune archive"):
+    with pytest.raises(ReleaseError, match="references no archive"):
         TufService.read_tree_version(cfg)
 
 
@@ -366,3 +366,45 @@ def test_needs_full_archive_when_a_withdrawn_version_is_above_the_tree(
 
 def test_needs_full_archive_should_be_false_without_metadata(tmp_path: Path) -> None:
     assert TufService.needs_full_archive(tmp_path / "repo", "App") is False
+
+
+def test_should_back_up_the_signed_tree_when_removing_the_latest_version(
+    make_tuf_tree, tmp_path: Path
+) -> None:
+    make_tuf_tree(["1.0.0", "1.0.1"])
+    cfg = _cfg(tmp_path)
+
+    removed = TufService.remove_latest(cfg)
+
+    assert removed == "1.0.1"
+    backups = sorted((tmp_path / "repo" / ".backup").iterdir())
+    assert len(backups) == 1
+    assert (backups[0] / "targets" / "App-1.0.1.tar.gz").exists()
+    assert (backups[0] / "metadata" / "root.json").exists()
+
+
+def test_should_restore_the_tree_when_the_releaser_fails_mid_removal(
+    make_tuf_tree, monkeypatch, tmp_path: Path
+) -> None:
+    """Otherwise the tree stays half-mutated and the withdrawal unrecorded."""
+    make_tuf_tree(["1.0.0", "1.0.1"])
+    cfg = _cfg(tmp_path)
+    repo_dir = tmp_path / "repo"
+    before = (repo_dir / "metadata" / "targets.json").read_bytes()
+
+    def _boom(**_kwargs: Any) -> str:
+        # Mutate the tree as `remove_latest_bundle()` would, then fail
+        # avant la resignature (`publish_changes()`).
+        (repo_dir / "targets" / "App-1.0.1.tar.gz").unlink()
+        raise ReleaseError("publish_changes failed")
+
+    monkeypatch.setattr(
+        "ezcompiler.adapters._tufup_releaser.TufupReleaser.remove_latest", _boom
+    )
+
+    with pytest.raises(ReleaseError, match="restored"):
+        TufService.remove_latest(cfg)
+
+    assert (repo_dir / "targets" / "App-1.0.1.tar.gz").exists()
+    assert (repo_dir / "metadata" / "targets.json").read_bytes() == before
+    assert TufService.withdrawn_versions(repo_dir) == []

@@ -22,6 +22,7 @@ import json
 import logging
 import os
 import re
+import shutil
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, overload
@@ -33,6 +34,7 @@ from packaging.version import InvalidVersion, Version
 from .._types import ReleaserPort
 from ..adapters import ReleaserFactory
 from ..shared import TufStatus, TufVersion
+from ..shared._constants import TUF_PUBLIC_DIRS
 from ..shared.exceptions import ReleaseError
 
 if TYPE_CHECKING:
@@ -43,6 +45,8 @@ if TYPE_CHECKING:
 # ///////////////////////////////////////////////////////////////
 
 WITHDRAWN_FILE = "withdrawn.json"
+# Timestamped backups of the signed tree, taken before any withdrawal.
+BACKUP_DIR = ".backup"
 TUF_ROLES = ("root", "targets", "snapshot", "timestamp")
 
 logger = logging.getLogger(__name__)
@@ -88,12 +92,12 @@ class TufService:
             doc = json.loads(path.read_text(encoding="utf-8"))
             entries = doc["withdrawn"]
             if not isinstance(entries, list):
-                raise TypeError("'withdrawn' n'est pas une liste")
+                raise TypeError("'withdrawn' is not a list")
             versions = [entry["version"] for entry in entries]
             if not all(isinstance(v, str) for v in versions):
-                raise TypeError("version non textuelle")
+                raise TypeError("non-string version")
         except (OSError, ValueError, KeyError, TypeError) as e:
-            raise ReleaseError(f"{path} illisible : {e}") from e
+            raise ReleaseError(f"{path} is unreadable: {e}") from e
         return versions
 
     @staticmethod
@@ -125,9 +129,9 @@ class TufService:
         except OSError as e:
             tmp.unlink(missing_ok=True)
             raise ReleaseError(
-                f"Impossible d'enregistrer le retrait de {version} dans {path} : "
-                f"{e}. Ajouter {version} à la main dans ce fichier avant toute "
-                "nouvelle release."
+                f"Cannot record the withdrawal of {version} in {path}: "
+                f"{e}. Add {version} to that file by hand before any "
+                "new release."
             ) from e
 
     @staticmethod
@@ -153,10 +157,10 @@ class TufService:
         for withdrawn in TufService.withdrawn_versions(repo_dir):
             if TufService._not_above(version, withdrawn):
                 raise ReleaseError(
-                    f"La version {withdrawn} a été retirée de l'arbre TUF : les "
-                    "clients qui l'ont installée n'accepteront qu'une version "
-                    f"supérieure. Utiliser une version > {withdrawn} "
-                    f"(demandée : {version})."
+                    f"Version {withdrawn} was withdrawn from the TUF tree: "
+                    "clients that installed it will only accept a higher "
+                    f"version. Use a version > {withdrawn} "
+                    f"(requested: {version})."
                 )
 
     @staticmethod
@@ -174,30 +178,116 @@ class TufService:
     def remove_latest(config: CompilerConfig, *, release_type: str = "tufup") -> str:
         """Remove the latest version from the local tree and record it.
 
+        The signed tree (``metadata/``, ``targets/`` and ``withdrawn.json``) is
+        copied to a timestamped backup directory first, and the withdrawal is
+        recorded **before** the irreversible mutation: a releaser failure
+        (missing key, read-only keystore, expired role) can therefore never
+        leave a half-mutated tree with the withdrawal unrecorded. On failure the
+        three are restored from the backup, whose path is named in the error.
+
         Returns:
             str: The removed version.
 
         Raises:
-            ReleaseError: If ``withdrawn.json`` is malformed (nothing is
-                removed) or cannot be written (the message names the version).
-            ReleaseError / SigningKeyError: From the releaser; nothing is
-                recorded when the removal fails.
+            ReleaseError: If ``withdrawn.json`` is malformed or cannot be
+                written, if the tree holds no version, or if the backup cannot
+                be taken (nothing is removed in any of those cases).
+            ReleaseError / SigningKeyError: From the releaser; the tree and the
+                register are rolled back to their pre-removal state.
         """
         repo_dir = TufService.repo_dir(config)
         keys_dir = TufService.keys_dir(config)
-        # Valide withdrawn.json AVANT le retrait irréversible : un fichier
-        # illisible ferait disparaître la version sans l'enregistrer.
+        # Validate withdrawn.json BEFORE the irreversible withdrawal: an
+        # unreadable file would drop the version without recording it.
         TufService.withdrawn_versions(repo_dir)
+
+        predicted = TufService.latest_tree_version(repo_dir, config.project_name)
+        if predicted is None:
+            raise ReleaseError(f"No version to withdraw in {repo_dir}.")
+
+        backup = TufService._backup_tree(repo_dir)
         releaser: ReleaserPort = ReleaserFactory.create_releaser(
             release_type,
             {"keys_dir": keys_dir, "expiration_days": config.tuf_expiration_days},
         )
-        removed = releaser.remove_latest(
-            app_name=config.project_name, repo_dir=repo_dir, keys_dir=keys_dir
-        )
-        TufService.record_withdrawn(repo_dir, removed)
-        logger.info("TUF version withdrawn: %s", removed)
+        TufService.record_withdrawn(repo_dir, predicted)
+        try:
+            removed = releaser.remove_latest(
+                app_name=config.project_name, repo_dir=repo_dir, keys_dir=keys_dir
+            )
+        except Exception as exc:
+            restored = TufService._restore_tree(repo_dir, backup)
+            detail = (
+                f"tree and register restored from {backup}"
+                if restored
+                else f"RESTORE FAILED: restore by hand from {backup}"
+            )
+            raise ReleaseError(
+                f"Withdrawal of {predicted} failed ({exc}) — {detail}."
+            ) from exc
+        if not TufService.same_version(removed, predicted):
+            # Unlikely divergence: also record the version actually
+            # withdrawn so the guard covers both spellings.
+            logger.warning(
+                "TUF removal mismatch: tree announced %s, releaser removed %s",
+                predicted,
+                removed,
+            )
+            TufService.record_withdrawn(repo_dir, removed)
+        logger.info("TUF version withdrawn: %s (sauvegarde : %s)", removed, backup)
         return removed
+
+    @staticmethod
+    def _backup_tree(repo_dir: Path) -> Path:
+        """Copy the signed tree and the register to a timestamped directory.
+
+        Returns:
+            Path: The backup directory, under ``<repo_dir>/.backup``.
+
+        Raises:
+            ReleaseError: If the copy fails — nothing must be removed without
+                a restorable snapshot.
+        """
+        stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+        backup = repo_dir / BACKUP_DIR / f"remove-latest-{stamp}"
+        try:
+            backup.mkdir(parents=True, exist_ok=True)
+            for name in TUF_PUBLIC_DIRS:
+                source = repo_dir / name
+                if source.is_dir():
+                    shutil.copytree(source, backup / name, dirs_exist_ok=True)
+            register = repo_dir / WITHDRAWN_FILE
+            if register.is_file():
+                shutil.copy2(register, backup / WITHDRAWN_FILE)
+        except OSError as e:
+            raise ReleaseError(
+                f"Cannot back up the TUF tree into {backup}: {e}. "
+                "No withdrawal was performed."
+            ) from e
+        return backup
+
+    @staticmethod
+    def _restore_tree(repo_dir: Path, backup: Path) -> bool:
+        """Put ``metadata/``, ``targets/`` and the register back from ``backup``.
+
+        Returns:
+            bool: True when the restore succeeded; the caller names the backup
+                directory in its error message when it did not.
+        """
+        try:
+            for name in TUF_PUBLIC_DIRS:
+                source = backup / name
+                if source.is_dir():
+                    shutil.rmtree(repo_dir / name, ignore_errors=True)
+                    shutil.copytree(source, repo_dir / name)
+            register = backup / WITHDRAWN_FILE
+            if register.is_file():
+                shutil.copy2(register, repo_dir / WITHDRAWN_FILE)
+            else:
+                (repo_dir / WITHDRAWN_FILE).unlink(missing_ok=True)
+        except OSError:
+            return False
+        return True
 
     # ////////////////////////////////////////////////
     # STATUS
@@ -215,8 +305,8 @@ class TufService:
         meta_dir = repo_dir / "metadata"
         if not (meta_dir / "root.json").is_file():
             raise ReleaseError(
-                f"Aucun arbre TUF initialisé dans {repo_dir} "
-                "(metadata/root.json absent). Lancer `ezcompiler tuf init`."
+                f"No TUF tree initialized in {repo_dir} "
+                "(metadata/root.json missing). Run `ezcompiler tuf init`."
             )
 
         signed = {role: TufService._read_signed(meta_dir, role) for role in TUF_ROLES}
@@ -227,12 +317,10 @@ class TufService:
             }
             targets = signed["targets"].get("targets", {})
             if not isinstance(targets, dict):
-                raise TypeError("'targets' n'est pas un objet")
+                raise TypeError("'targets' is not an object")
             versions = TufService._versions(config.project_name, targets)
         except (KeyError, ValueError, AttributeError, TypeError) as e:
-            raise ReleaseError(
-                f"Métadonnées TUF illisibles dans {meta_dir} : {e}"
-            ) from e
+            raise ReleaseError(f"Unreadable TUF metadata in {meta_dir}: {e}") from e
 
         return TufStatus(
             repo_dir=repo_dir,
@@ -255,9 +343,9 @@ class TufService:
         try:
             signed = json.loads(path.read_text(encoding="utf-8"))["signed"]
         except (OSError, ValueError, KeyError, TypeError) as e:
-            raise ReleaseError(f"{path} illisible : {e}") from e
+            raise ReleaseError(f"{path} is unreadable: {e}") from e
         if not isinstance(signed, dict):
-            raise ReleaseError(f"{path} illisible : 'signed' n'est pas un objet")
+            raise ReleaseError(f"{path} is unreadable: 'signed' is not an object")
         return signed
 
     @staticmethod
@@ -276,7 +364,7 @@ class TufService:
             except InvalidVersion:
                 continue
             if not isinstance(info, dict):
-                raise TypeError(f"entrée {name!r} n'est pas un objet")
+                raise TypeError(f"entry {name!r} is not an object")
             custom = info.get("custom") or {}
             required = bool((custom.get("tufup") or {}).get("required", False))
             found.append((parsed, TufVersion(raw, required, raw in patched)))
@@ -311,8 +399,8 @@ class TufService:
 
         Args:
             config: Current configuration (repo dir and project name).
-            allow_empty: True après le retrait de la seule version : l'arbre
-                vide est publiable, ``None`` est alors renvoyé.
+            allow_empty: True after the only version was withdrawn: the
+                empty tree is publishable and ``None`` is then returned.
 
         Returns:
             str | None: Highest version among the ``<app>-<version>`` targets,
@@ -326,15 +414,15 @@ class TufService:
         targets_meta = repo_dir / "metadata" / "targets.json"
         if not targets_meta.is_file():
             raise ReleaseError(
-                f"Aucun arbre TUF signé dans {repo_dir} "
-                f"({targets_meta.name} absent). "
-                "Lancer d'abord le pipeline de build (`ezcompiler compile`)."
+                f"No signed TUF tree in {repo_dir} "
+                f"({targets_meta.name} missing). "
+                "Run the build pipeline first (`ezcompiler compile`)."
             )
         latest = TufService.latest_tree_version(repo_dir, config.project_name)
         if latest is None and not allow_empty:
             raise ReleaseError(
-                f"{targets_meta} ne référence aucune archive de "
-                f"{config.project_name}. Lancer d'abord le pipeline de build."
+                f"{targets_meta} references no archive of "
+                f"{config.project_name}. Run the build pipeline first."
             )
         return latest
 
@@ -356,11 +444,11 @@ class TufService:
             doc = json.loads(targets_meta.read_text(encoding="utf-8"))
             names = doc["signed"]["targets"]
         except (OSError, ValueError, KeyError, TypeError) as e:
-            raise ReleaseError(f"{targets_meta} illisible : {e}") from e
+            raise ReleaseError(f"{targets_meta} is unreadable: {e}") from e
 
         pattern = re.compile(rf"^{re.escape(app_name)}-(.+)\.tar\.gz$")
-        # tufup nomme l'archive avec la chaîne brute de la config : on la
-        # renvoie telle quelle (1.2.3-rc.1, pas sa forme normalisée 1.2.3rc1).
+        # tufup names the archive with the raw config string: return it as
+        # is (1.2.3-rc.1, not its normalized form 1.2.3rc1).
         versions: list[tuple[Version, str]] = []
         for name in names:
             match = pattern.match(name)
