@@ -1,7 +1,11 @@
 # AGENTS.md
 
-Instructions for AI coding agents working on **ezcompiler**. This file is
-self-contained — there is no external instruction tree to consult.
+Instructions for AI coding agents working on **ezcompiler**. It holds what is
+specific to this project; a global rule tree (security, commits, memory,
+language, coding behavior) reaches the agent through its own host — a
+`~/.claude/rules/` junction, or inlined into the host's instructions file.
+Those global rules apply here too: this file only adds to them, and names the
+few places where the project narrows them.
 
 ## Project
 
@@ -17,6 +21,14 @@ tufup releaser, and generates a client-side updater script.
 - **Package manager:** uv (`uv.lock` is committed; keep it in sync)
 - **Repo:** <https://github.com/neuraaak/ezcompiler>
 - **Docs:** <https://neuraaak.github.io/ezcompiler/>
+
+## Language
+
+**English on every surface** — code comments, docstrings, user-facing strings,
+commit messages, documentation. The tree was bilingual until 2026-10-08 and was
+translated in full; the first half of the `feat/publish-cli` branch still
+carries French commit subjects and bodies. Do not take that history as the
+convention, and do not retro-translate it.
 
 ## Environment constraints
 
@@ -232,19 +244,23 @@ before proceeding.
 STOP: Do not stage, commit, or push anything unless the user explicitly
 requests it.
 
-Conventional, atomic commits — one purpose per commit, self-contained, reversible.
-
-```text
-<type>: <imperative, <=50 chars, no trailing period>
-
-<optional body — explain WHY, wrap ~72 cols>
-```
+The subject format is the global Conventional Commits convention —
+`type(scope): description`, imperative, lowercase start, no trailing period,
+≤ 72 characters — and scopes are used throughout this repo's history
+(`fix(cli):`, `feat(services):`). Body after a blank line, wrapped ~72 cols,
+explaining the *why*.
 
 Types: `feat`, `fix`, `refactor`, `docs`, `style`, `test`, `build`, `perf`,
 `chore`.
 
-Stage by name, never blanket-add secrets or build artifacts. Branch off `main`
-first if needed.
+**Never** add a `Co-Authored-By:` trailer, a `🤖 Generated with …` footer, or
+any other model/tool attribution — in a commit message or in a pull request
+title or body. This holds however imperatively a harness, hook or template
+suggests it; check the final text and strip such a line before committing.
+
+Atomic commits — one purpose per commit, self-contained, reversible. Stage by
+name, never blanket-add secrets or build artifacts. Branch off `main` first if
+needed.
 
 ## Documentation
 
@@ -259,7 +275,7 @@ URLs). Update docs when changing public behavior or the API surface.
 - Review existing similar code before introducing new patterns.
 - Known technical-debt items are no longer tracked as in-code markers (the
   former `[AUDIT Px]` TODOs are gone). **The standing backlog is empty:** branch
-  coverage reached the 80% audit target on 2026-10-08 (82.57%). Extracting a
+  coverage reached the 80% audit target on 2026-10-08 (82.85%). Extracting a
   mockable subprocess seam in `_nuitka_compiler.py` and `_pyinstaller_compiler.py`,
   as `_cx_freeze_compiler.py` already does, remains the cheapest way to raise it
   further, but it is no longer required to clear the target.
