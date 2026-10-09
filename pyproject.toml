@@ -107,6 +107,9 @@ dev = [
     # Tests (single source of truth, no duplication)
     { include-group = "test" },
 
+    # Documentation (single source of truth, no duplication)
+    { include-group = "docs" },
+
     # Development tools
     "ruff>=0.1.0",
     "ty>=0.0.13",
