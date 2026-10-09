@@ -63,15 +63,15 @@ type RepoDestination = Literal["disk", "server", "r2"]
 
 Valid values: "disk", "server", "r2"
 
-Used by: CompilerConfig.repo_destination, EzCompiler.upload().
+Used by: CompilerConfig.repo_destination, `ezcompiler publish update`.
 """
 
-type ReleaseDestination = Literal["disk", "server", "r2"]
-"""Type alias for the release zip upload backend.
+type ReleaseDestination = Literal["disk", "server", "r2", "github", "gitlab"]
+"""Type alias for the release asset destination or publication platform.
 
-Valid values: "disk", "server", "r2"
+Valid values: "disk", "server", "r2", "github", "gitlab"
 
-Used by: CompilerConfig.release_destination, EzCompiler.upload().
+Used by: CompilerConfig.release_destination, `ezcompiler publish release`.
 """
 
 type ReleaseTarget = Literal["tufup"]
@@ -180,8 +180,11 @@ class ReleaserPort(Protocol):
         repo_dir: Path,
         *,
         patch: bool = True,
+        required: bool = False,
     ) -> Path:
         """Build and sign the local TUF repository for ``bundle_dir``.
+
+        ``required`` marks the version as mandatory for clients (tufup ``required``).
 
         Returns the path to the produced ``repository/`` tree.
         Raises ReleaseError on failure.
@@ -189,9 +192,9 @@ class ReleaserPort(Protocol):
         ...
 
     def init_keys(self, app_name: str, repo_dir: Path, keys_dir: Path) -> bool:
-        """Initialise clés TUF + squelette repo. Idempotent.
+        """Initialize TUF keys and the repo skeleton. Idempotent.
 
-        Returns True si init effectuée, False si clés déjà présentes (skip).
+        Returns True if the init ran, False if the keys were already present (skip).
         Raises ReleaseError / SigningKeyError on failure.
         """
         ...
@@ -212,8 +215,46 @@ class ReleaserPort(Protocol):
         """
         ...
 
+    def remove_latest(self, app_name: str, repo_dir: Path, keys_dir: Path) -> str:
+        """Remove the latest archive (and its patch), then re-sign.
+
+        Returns the removed version as spelled in the archive name.
+        Raises ReleaseError / SigningKeyError on failure.
+        """
+        ...
+
     def get_releaser_name(self) -> str:
         """Human-readable releaser name."""
+        ...
+
+
+@runtime_checkable
+class PublisherPort(Protocol):
+    """Structural contract for an addressable release publisher (Port)."""
+
+    def preflight(self) -> None:
+        """Raise unless the platform CLI is installed and authenticated."""
+        ...
+
+    def exists(self, tag: str) -> bool:
+        """Whether a release already exists for ``tag``."""
+        ...
+
+    def publish(
+        self,
+        assets: list[Path],
+        *,
+        tag: str,
+        title: str,
+        notes: str | None = None,
+        prerelease: bool = False,
+        draft: bool = False,
+    ) -> str:
+        """Create a release with ``assets`` and return its URL."""
+        ...
+
+    def get_publisher_name(self) -> str:
+        """Human-readable publisher name."""
         ...
 
 
@@ -267,5 +308,6 @@ __all__ = [
     "CompilerPort",
     "UploaderPort",
     "ReleaserPort",
+    "PublisherPort",
     "InstallerPort",
 ]

@@ -10,17 +10,20 @@ from ezcompiler.shared import CompilerConfig
 
 
 class _RepoBuildingReleaser:
-    """Writes a realistic repository/ tree and a sibling keystore/ with keys."""
+    """Writes tufup's real layout: metadata/ and targets/ directly under
+    repo_dir, next to the default keystore (repo_dir/keystore)."""
 
-    def release(self, bundle_dir, app_name, version, repo_dir, *, patch=True) -> Path:
-        repo = repo_dir / "repository"
-        (repo / "metadata").mkdir(parents=True, exist_ok=True)
-        (repo / "targets").mkdir(parents=True, exist_ok=True)
-        (repo / "metadata" / "root.json").write_text("{}", encoding="utf-8")
+    def release(
+        self, bundle_dir, app_name, version, repo_dir, *, patch=True, required=False
+    ) -> Path:
+        (repo_dir / "metadata").mkdir(parents=True, exist_ok=True)
+        (repo_dir / "targets").mkdir(parents=True, exist_ok=True)
+        (repo_dir / "metadata" / "root.json").write_text("{}", encoding="utf-8")
+        (repo_dir / "targets" / f"{app_name}-{version}.tar.gz").write_bytes(b"a")
         keystore = repo_dir / "keystore"
         keystore.mkdir(parents=True, exist_ok=True)
         (keystore / "root").write_text("PRIVATE-KEY", encoding="utf-8")
-        return repo
+        return repo_dir
 
     def get_releaser_name(self) -> str:
         return "fake"
@@ -32,10 +35,20 @@ def test_published_tree_contains_no_private_key(monkeypatch, tmp_path: Path) -> 
         "ezcompiler.services.release_service.ReleaserFactory.create_releaser",
         lambda *_a, **_k: _RepoBuildingReleaser(),
     )
-    captured: dict = {}
+    published: dict[str, str] = {}
+
+    def _capture(**kwargs) -> None:
+        # La source est une copie temporaire : on la lit pendant l'upload.
+        root: Path = kwargs["source_path"]
+        for p in root.rglob("*"):
+            if p.is_file():
+                published[p.relative_to(root).as_posix()] = p.read_text(
+                    encoding="utf-8", errors="ignore"
+                )
+
     monkeypatch.setattr(
         "ezcompiler.services.release_service.UploaderService.upload",
-        lambda **kwargs: captured.update(kwargs),
+        _capture,
         raising=False,
     )
 
@@ -49,14 +62,8 @@ def test_published_tree_contains_no_private_key(monkeypatch, tmp_path: Path) -> 
         destination=str(tmp_path / "remote"),
     )
 
-    published_root: Path = captured["source_path"]
-    assert published_root.name == "repository"
-    leaked = [
-        p
-        for p in published_root.rglob("*")
-        if p.is_file()
-        and "PRIVATE-KEY" in p.read_text(encoding="utf-8", errors="ignore")
-    ]
+    assert set(published) == {"metadata/root.json", "targets/MyApp-1.0.0.tar.gz"}
+    leaked = [name for name, text in published.items() if "PRIVATE-KEY" in text]
     assert leaked == [], f"private key leaked into published tree: {leaked}"
 
 
@@ -72,6 +79,8 @@ def test_release_dir_contains_no_private_key(tmp_path: Path) -> None:
         output_folder=tmp_path / "dist",
     )
     cfg.output_folder.mkdir(parents=True)
+    # Un artefact au moins est requis : sans lui l'assemblage refuse.
+    Path(cfg.zip_file_path).write_bytes(b"zip")
 
     release = PipelineService.assemble_release_dir(cfg)
 

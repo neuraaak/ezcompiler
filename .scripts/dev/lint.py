@@ -187,6 +187,44 @@ class CodeQualityChecker:
             )
             return True
 
+    def run_bandit(self) -> bool:
+        """Run bandit, the project SAST gate, on the package source.
+
+        Returns:
+            bool: True if no issue of medium severity or above was found
+        """
+        command = ["bandit", "-r", "src/ezcompiler", "-ll", "-q"]
+
+        if self.verbose:
+            self.console.print("[cyan]Running bandit...[/cyan]")
+            self.console.print(f"  [dim]Command: {' '.join(command)}[/dim]")
+
+        try:
+            result = subprocess.run(  # noqa: S603
+                command,
+                check=True,
+                capture_output=not self.verbose,
+                text=True,
+                cwd=self.project_root,
+            )
+        except subprocess.CalledProcessError as e:
+            self.console.print("[red]❌ ERROR:[/red] bandit found security issues:")
+            if e.stdout:
+                self.console.print(f"[dim]STDOUT:[/dim]\n{e.stdout}")
+            return False
+        except FileNotFoundError:
+            self.console.print(
+                "[yellow]⚠[/yellow]  bandit not found — skipping (install with: uv sync --group dev)"
+            )
+            return True
+        else:
+            if self.verbose and result.stdout:
+                self.console.print(result.stdout)
+            self.console.print(
+                "[green]✓[/green] [green]SUCCESS:[/green] bandit completed successfully"
+            )
+            return True
+
     def run_ty(self) -> bool:
         """Run ty type checker.
 
@@ -302,12 +340,14 @@ class CodeQualityChecker:
         self.console.print(f"[bold]Scanning directories:[/bold] {dirs_text}")
         self.console.print()
 
-        # Order matters: format first, then lint, then types, then architecture contracts
+        # Order matters: format first, then lint, then types, then architecture
+        # contracts, then the security scan
         checks = [
             ("Ruff Format", self.run_ruff_format, "🎨"),
             ("Ruff", self.run_ruff, "🔍"),
             ("Ty", self.run_ty, "🔎"),
             ("Import Linter", self.run_import_linter, "🏗️"),
+            ("Bandit", self.run_bandit, "🔒"),
         ]
 
         all_passed = True

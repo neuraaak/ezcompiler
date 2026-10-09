@@ -14,8 +14,8 @@ from __future__ import annotations
 from ..utils._base import EzCompilerError
 
 
-# Note : `UploadError` est défini une seule fois (services/_service_exceptions.py) ;
-# les exceptions uploader granulaires (utils/_uploader_exceptions.py) en héritent.
+# Note: `UploadError` is defined once (services/_service_exceptions.py);
+# the granular uploader exceptions (utils/_uploader_exceptions.py) inherit from it.
 # Il n'y a donc plus de doublon `UploadError` entre les deux sous-arbres.
 class EzCompilerServiceError(EzCompilerError):
     """Base exception for all EzCompiler services errors."""

@@ -38,12 +38,14 @@ from ezplog.lib_mode import get_logger, get_printer
 from ..services import (
     CompilerService,
     PipelineService,
+    PublishService,
     ReleaseService,
     TemplateService,
+    TufService,
     UpdaterService,
     UploaderService,
 )
-from ..shared import CompilationResult, CompilerConfig
+from ..shared import CompilationResult, CompilerConfig, ReleasePreflight
 from ..shared.exceptions import (
     CompilationError,
     ConfigurationError,
@@ -55,6 +57,7 @@ from ..shared.exceptions import (
     VersionError,
     ZipError,
 )
+from ..utils import is_prerelease
 
 # ///////////////////////////////////////////////////////////////
 # CONSTANTS
@@ -88,7 +91,6 @@ class EzCompiler:
         >>> compiler = EzCompiler(config)
         >>> compiler.compile_project()
         >>> compiler.zip_compiled_project()
-        >>> compiler.upload()
     """
 
     # ////////////////////////////////////////////////
@@ -426,34 +428,49 @@ class EzCompiler:
         release_destination: ReleaseDestination | None = None,
         upload_config: dict[str, Any] | None = None,
     ) -> None:
-        """Upload le repo TUF et/ou le zip installeur selon la config.
+        """Upload the TUF repo and/or the installer zip, as the config says.
 
-        Quand ``release_needed`` est True, effectue deux uploads séquentiels :
-        1. arbre TUF → ``<dest>/update/``
-        2. zip installeur → ``<dest>/release/`` (ignoré si repo_destination="r2")
+        Deprecated:
+            Deprecated since 4.1.0, removed in v5. Use ``publish_update()``
+            then ``publish_release()``, or the CLI (``ezcompiler publish
+            update`` then ``ezcompiler publish release``), which asks for
+            confirmation before any irreversible publication.
 
-        Sinon, uploade l'artefact compilé (comportement inchangé).
+        When ``release_needed`` is True, performs two sequential uploads:
+        1. TUF tree -> ``<dest>/update/``
+        2. installer zip -> ``<dest>/release/`` (skipped if repo_destination="r2")
+
+        Otherwise, uploads the compiled artifact (unchanged behavior).
 
         Args:
-            destination: Override commun pour les deux destinations.
-            repo_destination: Override de ``config.repo_destination``.
-            release_destination: Override de ``config.release_destination``.
-            upload_config: Options supplémentaires passées aux uploaders.
+            destination: Shared override for both destinations.
+            repo_destination: Override for ``config.repo_destination``.
+            release_destination: Override for ``config.release_destination``.
+            upload_config: Extra options passed to the uploaders.
 
         Raises:
-            ConfigurationError: Si le projet n'est pas initialisé.
-            UploadError: Si un upload échoue.
+            ConfigurationError: If the project is not initialized.
+            UploadError: If an upload fails.
         """
         if not self._config:
             raise ConfigurationError(_MSG_NOT_INITIALIZED)
+
+        import warnings  # noqa: PLC0415
+
+        warnings.warn(
+            "EzCompiler.upload() is deprecated and will be removed in v5. "
+            "Use `publish_update()` then `publish_release()` (or the CLI: "
+            "`ezcompiler publish update` then `ezcompiler publish release`, "
+            "which asks for confirmation before any irreversible publication).",
+            DeprecationWarning,
+            stacklevel=2,
+        )
 
         repo_dest = repo_destination or self._config.repo_destination
 
         try:
             if self._config.tuf_enabled:
-                repo_dir = self._config.tuf_repo_dir or (
-                    self._config.output_folder / "repo"
-                )
+                repo_dir = TufService.repo_dir(self._config)
                 rel_dest = release_destination or self._config.release_destination
                 release_root = (
                     None
@@ -490,11 +507,145 @@ class EzCompiler:
             self._logger.error(f"Upload failed: {e}")
             raise UploadError(f"Upload failed: {e}") from e
 
+    def publish_update(
+        self,
+        destination: str | None = None,
+        repo_destination: RepoDestination | None = None,
+        upload_config: dict[str, Any] | None = None,
+    ) -> None:
+        """Publish the signed TUF tree to the update backend.
+
+        Python counterpart of ``ezcompiler publish update``. Only the public
+        part of the tree is transferred; the interactive confirmation stays
+        specific to the CLI, a programmatic call being explicit by nature.
+
+        Args:
+            destination: Override for the resolved update destination.
+            repo_destination: Override for ``config.repo_destination``.
+            upload_config: Extra options passed to the uploader.
+
+        Raises:
+            ConfigurationError: If the project is not initialized.
+            UploadError: If the transfer fails.
+        """
+        if not self._config:
+            raise ConfigurationError(_MSG_NOT_INITIALIZED)
+
+        PublishService.publish_update(
+            self._config,
+            destination=destination,
+            repo_destination=repo_destination,
+            upload_config=upload_config,
+        )
+        self._logger.info("TUF update tree published")
+
+    def preflight_release(
+        self,
+        *,
+        tag: str | None = None,
+        release_destination: ReleaseDestination | None = None,
+    ) -> ReleasePreflight:
+        """Run the pre-publication checks and return the recap.
+
+        Args:
+            tag: Target tag (default: ``v<version>``).
+            release_destination: Override for ``config.release_destination``.
+
+        Returns:
+            ReleasePreflight: What the publication would do, once every local
+                check has passed.
+
+        Raises:
+            ConfigurationError: If the project is not initialized.
+            PublishError: If the platform CLI is missing, not authenticated,
+                or if the tag already exists.
+            ReleaseError: If an enabled installer is missing, or if nothing
+                was built.
+        """
+        if not self._config:
+            raise ConfigurationError(_MSG_NOT_INITIALIZED)
+
+        return PublishService.preflight_release(
+            self._config,
+            tag=tag or f"v{self._config.version}",
+            release_destination=release_destination,
+        )
+
+    def publish_release(
+        self,
+        *,
+        tag: str | None = None,
+        title: str | None = None,
+        notes: str | None = None,
+        prerelease: bool | None = None,
+        draft: bool = False,
+        destination: str | None = None,
+        release_destination: ReleaseDestination | None = None,
+        upload_config: dict[str, Any] | None = None,
+    ) -> str | None:
+        """Publish the installer and the zip as a release.
+
+        Python counterpart of ``ezcompiler publish release``. On a platform
+        (``github``), creates the release and attaches the artifacts; on a
+        file destination (``disk``/``server``/``r2``), copies the artifacts.
+        The operation is irreversible on the platform side: call
+        ``preflight_release()`` first to present a recap.
+
+        Args:
+            tag: Release tag (default: ``v<version>``).
+            title: Title (default: ``<project> v<version>``).
+            notes: Release body; ``None`` asks for generated notes.
+            prerelease: Force the pre-release label (default: inferred from
+                the version).
+            draft: Create the release unpublished.
+            destination: Override for the resolved file destination.
+            release_destination: Override for ``config.release_destination``.
+            upload_config: Extra options passed to the uploader.
+
+        Returns:
+            str | None: The release URL on the platform path, ``None`` on the
+                file path.
+
+        Raises:
+            ConfigurationError: If the project is not initialized.
+            PublishError: If publishing to the platform fails.
+            UploadError: If the file transfer fails.
+            ReleaseError: If an enabled installer is missing, or if nothing
+                was built.
+        """
+        if not self._config:
+            raise ConfigurationError(_MSG_NOT_INITIALIZED)
+
+        resolved_tag = tag or f"v{self._config.version}"
+        preflight = PublishService.preflight_release(
+            self._config, tag=resolved_tag, release_destination=release_destination
+        )
+        assets = list(preflight.assets)
+        url = PublishService.publish_release(
+            self._config,
+            assets,
+            tag=resolved_tag,
+            title=title or f"{self._config.project_name} v{self._config.version}",
+            notes=notes,
+            prerelease=(
+                is_prerelease(self._config.version)
+                if prerelease is None
+                else prerelease
+            ),
+            draft=draft,
+            destination=destination,
+            release_destination=release_destination,
+            upload_config=upload_config,
+        )
+        self._logger.info("Release %s published: %s", resolved_tag, url)
+        return url
+
     def release(
         self,
         bundle_dir: Path,
         *,
         publish: bool = False,
+        required: bool = False,
     ) -> Path:
         """Package a compiled bundle into a signed TUF repository.
 
@@ -505,6 +656,10 @@ class EzCompiler:
         Args:
             bundle_dir: Directory containing the compiled application artifacts.
             publish: When True, upload the repository/ tree to ``update_repo_url``.
+                Deprecated since 4.1.0 (removed in v5): run ``run_pipeline()``
+                then ``ezcompiler publish update`` / ``ezcompiler publish
+                release`` instead.
+            required: Mark this version as mandatory for TUF clients.
 
         Returns:
             Path: The local ``repository/`` tree produced by tufup.
@@ -519,13 +674,14 @@ class EzCompiler:
             import warnings  # noqa: PLC0415
 
             warnings.warn(
-                "release(publish=True) est déprécié : enchaîner run_pipeline() "
-                "puis upload(). run_pipeline() ne fait pas le transfert distant.",
+                "release(publish=True) is deprecated: run run_pipeline() "
+                "then `ezcompiler publish update` / `ezcompiler publish "
+                "release`. run_pipeline() performs no remote transfer.",
                 DeprecationWarning,
                 stacklevel=2,
             )
-        repo_dir = self._config.tuf_repo_dir or (self._config.output_folder / "repo")
-        keys_dir = self._config.tuf_keys_dir or (repo_dir / "keystore")
+        repo_dir = TufService.repo_dir(self._config)
+        keys_dir = TufService.keys_dir(self._config)
         return ReleaseService.release_and_publish(
             bundle_dir=bundle_dir,
             app_name=self._config.project_name,
@@ -538,15 +694,17 @@ class EzCompiler:
                 "keys_dir": keys_dir,
                 "expiration_days": self._config.tuf_expiration_days,
             },
+            required=required,
         )
 
     def init_release(self) -> bool:
-        """Initialise les clés/repo TUF depuis la config courante.
+        """Initialize the TUF keys/repo from the current config.
 
-        Action explicite — jamais appelée par run_pipeline().
+        Explicit action - never called by run_pipeline().
 
         Returns:
-            bool: True si init effectuée, False si clés déjà présentes (skip).
+            bool: True if the init ran, False if the keys were already present
+                (skip).
 
         Raises:
             ConfigurationError: If project not initialized.
@@ -554,8 +712,8 @@ class EzCompiler:
         """
         if not self._config:
             raise ConfigurationError(_MSG_NOT_INITIALIZED)
-        repo_dir = self._config.tuf_repo_dir or (self._config.output_folder / "repo")
-        keys_dir = self._config.tuf_keys_dir or (repo_dir / "keystore")
+        repo_dir = TufService.repo_dir(self._config)
+        keys_dir = TufService.keys_dir(self._config)
         return ReleaseService.init_release(
             app_name=self._config.project_name,
             repo_dir=repo_dir,
@@ -593,8 +751,8 @@ class EzCompiler:
         """
         if not self._config:
             raise ConfigurationError(_MSG_NOT_INITIALIZED)
-        repo_dir = self._config.tuf_repo_dir or (self._config.output_folder / "repo")
-        keys_dir = self._config.tuf_keys_dir or (repo_dir / "keystore")
+        repo_dir = TufService.repo_dir(self._config)
+        keys_dir = TufService.keys_dir(self._config)
         repo = ReleaseService.refresh_expiration(
             app_name=self._config.project_name,
             repo_dir=repo_dir,
@@ -666,14 +824,16 @@ class EzCompiler:
         skip_release: bool = False,
         skip_installer: bool = False,
         skip_build: bool = False,
+        required: bool = False,
     ) -> None:
         """
         Run the build pipeline with visual progress tracking.
 
         Executes version generation, compilation, optional ZIP creation,
         optional installer build and optional TUF release in sequence with a
-        DynamicLayeredProgress display. Upload is no longer part of the
-        pipeline — call ``upload()`` explicitly afterwards.
+        DynamicLayeredProgress display. Publication is not part of the
+        pipeline — run ``ezcompiler publish update`` / ``ezcompiler publish
+        release`` afterwards.
 
         Args:
             console: Whether to show console window (default: True)
@@ -683,9 +843,12 @@ class EzCompiler:
             skip_installer: Skip the installer build stage
             skip_build: Skip version generation and compilation, and resume
                 from the existing build in ``output_folder``
+            required: Mark the released version as mandatory (needs the TUF
+                release stage)
 
         Raises:
-            ConfigurationError: If project not initialized
+            ConfigurationError: If project not initialized, or required without
+                a release stage
             CompilationError: If compilation fails, or no existing build is
                 found when ``skip_build`` is set
             VersionError: If version file generation fails
@@ -696,7 +859,6 @@ class EzCompiler:
         Example:
             >>> compiler = EzCompiler(config)
             >>> compiler.run_pipeline(console=False)
-            >>> compiler.upload()
         """
         if not self._config:
             raise ConfigurationError(_MSG_NOT_INITIALIZED)
@@ -706,13 +868,19 @@ class EzCompiler:
         should_release = not skip_release and self._config.tuf_enabled
         should_installer = not skip_installer and self._config.installer.enabled
 
-        # Pre-flight: fail early if release needed but keys absent
-        if should_release:
-            repo_dir = self._config.tuf_repo_dir or (
-                self._config.output_folder / "repo"
+        if required and not should_release:
+            raise ConfigurationError(
+                "required=True only has an effect when the TUF release step "
+                "runs (tuf_enabled, without skip_release)."
             )
-            keys_dir = self._config.tuf_keys_dir or (repo_dir / "keystore")
-            self._preflight_release(keys_dir)
+
+        # Pre-flight: fail early if release needed but keys absent, or if the
+        # version is not above a withdrawn one (before a possibly long compile)
+        if should_release:
+            self._preflight_release(TufService.keys_dir(self._config))
+            TufService.ensure_releasable(
+                TufService.repo_dir(self._config), self._config.version
+            )
 
         # Build stages
         stages: list[StageConfig] = cast(
@@ -820,6 +988,7 @@ class EzCompiler:
                     repository_path = self._pipeline_service.release_artifact(
                         config=self._config,
                         compilation_result=self._compilation_result,
+                        required=required,
                     )
                     self._logger.info(f"TUF release built: {repository_path}")
                     dlp.complete_layer("release")
@@ -860,7 +1029,7 @@ class EzCompiler:
         if not keys_dir.is_dir() or not any(keys_dir.iterdir()):
             raise SigningKeyError(
                 f"Signing keys not found in {keys_dir}. "
-                "Run `ezcompiler release init` first."
+                "Run `ezcompiler tuf init` first."
             )
 
     def _zip_progress_callback(self, filename: str, progress: int) -> None:

@@ -371,16 +371,14 @@ class TemplateProcessor:
             includes = config.get("includes", [])
             excludes = config.get("excludes", ["debugpy", "test", "unittest"])
 
-            # Pipeline and upload values. A config dict may arrive flat or
+            # Pipeline values. A config dict may arrive flat or
             # with its TOML/YAML sections still nested, depending on the
             # source, so read both shapes. Left unsubstituted, these
             # placeholders make the generated script invalid Python: a bare
             # ``#TOKEN#`` is a comment, so the assignment loses its value.
             compilation = config.get("compilation", {})
-            upload = config.get("upload", {})
             console = config.get("console", compilation.get("console", True))
             compiler = config.get("compiler", compilation.get("compiler", ""))
-            repo_endpoint = config.get("repo_endpoint", upload.get("repo_endpoint", ""))
 
             # Replace placeholders
             # Same rule as the config templates: string values arrive as
@@ -390,8 +388,6 @@ class TemplateProcessor:
                 "#CONSOLE#": bool(console),
                 "#COMPILER#": json.dumps(str(compiler)),
                 "#ZIP_NEEDED#": bool(config.get("zip_needed", True)),
-                "#REPO_NEEDED#": bool(repo_endpoint),
-                "#REPO_PATH#": json.dumps(str(repo_endpoint)),
                 "#VERSION#": json.dumps(str(version)),
                 "#PROJECT_NAME_RAW#": project_name,
                 "#PROJECT_NAME#": json.dumps(str(project_name)),

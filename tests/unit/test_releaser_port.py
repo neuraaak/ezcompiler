@@ -14,6 +14,7 @@ class _Conforming:
         repo_dir: Path,
         *,
         patch: bool = True,
+        required: bool = False,
     ) -> Path:
         return repo_dir
 
@@ -30,6 +31,9 @@ class _Conforming:
         days: int | None = None,
     ) -> Path:
         return repo_dir
+
+    def remove_latest(self, app_name: str, repo_dir: Path, keys_dir: Path) -> str:
+        return "1.0.0"
 
     def get_releaser_name(self) -> str:
         return "fake"

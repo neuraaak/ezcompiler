@@ -25,6 +25,7 @@ from ._config_utils import ConfigUtils
 from ._file_utils import FileUtils
 from ._template_utils import TemplateProcessor
 from ._uploader_utils import UploaderUtils
+from ._version_utils import is_prerelease
 from ._zip_utils import ZipUtils
 
 # ///////////////////////////////////////////////////////////////
@@ -39,6 +40,7 @@ __all__ = [
     "UploaderUtils",
     "TemplateProcessor",
     "ZipUtils",
+    "is_prerelease",
     # Validators package
     "validators",
 ]

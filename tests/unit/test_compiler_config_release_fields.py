@@ -143,6 +143,54 @@ def test_release_destination_disk_allows_empty_release_endpoint(
     assert cfg.release_endpoint == ""
 
 
+def test_should_accept_github_release_destination_without_endpoint(
+    main_file: Path,
+) -> None:
+    cfg = _base(main_file, release_destination="github", release_endpoint="")
+    assert cfg.release_destination == "github"
+
+
+def test_should_accept_owner_repo_endpoint_for_github(main_file: Path) -> None:
+    cfg = _base(
+        main_file,
+        release_destination="github",
+        release_endpoint="neuraaak/ezcompiler",
+    )
+    assert cfg.release_endpoint == "neuraaak/ezcompiler"
+
+
+def test_should_accept_gitlab_release_destination_without_endpoint(
+    main_file: Path,
+) -> None:
+    cfg = _base(main_file, release_destination="gitlab", release_endpoint="")
+    assert cfg.release_destination == "gitlab"
+
+
+def test_should_accept_owner_repo_endpoint_for_gitlab(main_file: Path) -> None:
+    cfg = _base(
+        main_file,
+        release_destination="gitlab",
+        release_endpoint="group/project",
+    )
+    assert cfg.release_endpoint == "group/project"
+
+
+def test_should_reject_full_url_endpoint_for_github(main_file: Path) -> None:
+    with pytest.raises(ConfigurationError, match="owner/repo"):
+        _base(
+            main_file,
+            release_destination="github",
+            release_endpoint="https://github.com/neuraaak/ezcompiler",
+        )
+
+
+def test_should_still_require_endpoint_for_server_release_destination(
+    main_file: Path,
+) -> None:
+    with pytest.raises(ConfigurationError, match="release_endpoint"):
+        _base(main_file, release_destination="server", release_endpoint="")
+
+
 # ── destination values unchanged ───────────────────────────────────────────────
 
 
@@ -255,3 +303,45 @@ def test_from_dict_raises_on_removed_release_keys(
 def test_from_dict_raises_on_upload_structure(main_file: Path) -> None:
     with pytest.raises(ConfigurationError, match="upload_structure"):
         CompilerConfig.from_dict(_raw(main_file, structure="disk"))
+
+
+def test_should_reject_a_key_placed_outside_its_section(main_file: Path) -> None:
+    """`[compilation] release_destination` used to be accepted silently."""
+    raw = _raw(main_file)
+    raw["compilation"] = {"compiler": "PyInstaller", "release_destination": "github"}
+    with pytest.raises(ConfigurationError, match="section 'upload'"):
+        CompilerConfig.from_dict(raw)
+
+
+def test_should_reject_debug_declared_in_two_sections(main_file: Path) -> None:
+    """`[advanced] debug=false` used to override `[compilation] debug=true`
+    without a word: `debug` belongs to `advanced` only, and the offending
+    section is named."""
+    raw = _raw(main_file)
+    raw["compilation"] = {"debug": True}
+    raw["advanced"] = {"debug": False}
+    with pytest.raises(ConfigurationError, match="section 'advanced'"):
+        CompilerConfig.from_dict(raw)
+
+
+def test_should_reject_a_key_defined_at_the_root_and_in_a_section(
+    main_file: Path,
+) -> None:
+    raw = _raw(main_file)
+    raw["debug"] = True
+    raw["advanced"] = {"debug": False}
+    with pytest.raises(ConfigurationError, match="defined twice"):
+        CompilerConfig.from_dict(raw)
+
+
+def test_should_accept_each_key_in_its_own_section(main_file: Path) -> None:
+    raw = _raw(main_file)
+    raw["compilation"] = {"compiler": "PyInstaller", "console": True}
+    raw["advanced"] = {"debug": True}
+    raw["release"] = {"tuf_enabled": False}
+
+    config = CompilerConfig.from_dict(raw)
+
+    assert config.compiler == "PyInstaller"
+    assert config.debug is True
+    assert config.tuf_enabled is False

@@ -63,13 +63,13 @@ class VersionError(TemplateServiceError):
 class UploaderServiceError(EzCompilerServiceError):
     """Base exception for uploader service operations.
 
-    Conservé pour compatibilité ; `UploadError` est désormais l'unique classe
-    canonique importée depuis utils/_uploader_exceptions.py (sous EzCompilerError).
+    Kept for compatibility; `UploadError` is now the single canonical
+    class imported from utils/_uploader_exceptions.py (under EzCompilerError).
     """
 
 
-# UploadError est ré-exporté ici (importé ci-dessus) pour préserver l'API publique
-# `from ..shared.exceptions import UploadError` sans dupliquer la classe.
+# UploadError is re-exported here (imported above) to preserve the public API
+# `from ..shared.exceptions import UploadError` without duplicating the class.
 __all__ = [
     "CompilerServiceError",
     "CompilationError",

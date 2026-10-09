@@ -31,7 +31,7 @@ def _compilers_available(monkeypatch) -> None:
 
     Stub the availability probe: these tests exercise use_existing_build, not
     the install state of the optional compiler extras (absent in the docs CI
-    job, which syncs only [test]).
+    job, which syncs only the `test` group).
     """
     monkeypatch.setattr(
         CompilerFactory,

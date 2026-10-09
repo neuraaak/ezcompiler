@@ -26,9 +26,11 @@ from typing import Any, Literal, cast
 # Local imports
 from ..shared import CompilationResult, CompilerConfig
 from ..shared._installer_config import InstallerConfig
+from ..shared.exceptions import ReleaseError
 from .compiler_service import CompilerService
 from .installer_service import InstallerService
 from .release_service import ReleaseService
+from .tuf_service import TufService
 from .uploader_service import UploaderService
 
 # ///////////////////////////////////////////////////////////////
@@ -255,53 +257,149 @@ class PipelineService:
         )
 
     @staticmethod
-    def assemble_release_dir(config: CompilerConfig) -> Path:
-        """Assemble le dossier release contenant le zip et l'installeur.
+    def resolve_publishable_assets(
+        config: CompilerConfig,
+    ) -> tuple[Path | None, Path | None]:
+        """Resolve the publishable artifacts, with the same contract everywhere.
 
-        Layout (nettoyé à chaque run)::
-
-            release/
-            ├── <App>.zip                     (si le fichier existe)
-            └── <App>-<version>-setup.exe      (si installer.enabled=True)
-
-        L'arbre TUF (metadata/ + targets/) reste dans tufup_repo_dir et est
-        poussé directement vers le backend d'update par upload().
+        Both publication paths (platform and files) rely on this resolution:
+        an enabled but missing installer fails whatever the destination,
+        instead of being published silently to disk/server/r2.
 
         Args:
-            config: Configuration (fournit output_folder et zip_file_path).
+            config: Configuration (supplies installer, zip_file_path, paths).
 
         Returns:
-            Path: Le dossier ``release/`` assemblé.
+            tuple: ``(installer, zip)``, each element being ``None`` when it
+                is not expected (installer disabled) or absent (single-file
+                compilation without a zip).
+
+        Raises:
+            ReleaseError: If the enabled installer is missing, or if no
+                publishable artifact exists.
         """
+        installer_exe = PipelineService._installer_exe_path(config)
+        if installer_exe is not None and not installer_exe.is_file():
+            # Installer enabled but missing: failed installer build or a
+            # misaligned version. Publishing without it would be an
+            # incomplete release, irreversible on the platform side.
+            raise ReleaseError(
+                f"Installer not found: {installer_exe} "
+                "(installer.enabled = true). "
+                "Run the build pipeline again before publishing."
+            )
+
+        zip_path = Path(config.zip_file_path)
+        zip_asset = zip_path if zip_path.is_file() else None
+
+        if installer_exe is None and zip_asset is None:
+            raise ReleaseError(
+                "No publishable artifact in "
+                f"{config.output_folder.parent}. "
+                "Run `ezcompiler compile` first."
+            )
+        return installer_exe, zip_asset
+
+    @staticmethod
+    def assemble_release_dir(config: CompilerConfig) -> Path:
+        """Assemble the release directory holding the zip and the installer.
+
+        Layout (cleaned on every run)::
+
+            release/
+            ├── <App>.zip                     (if the file exists)
+            └── <App>-<version>-setup.exe      (if installer.enabled=True)
+
+        The TUF tree (metadata/ + targets/) stays in tufup_repo_dir and is
+        pushed straight to the update backend by upload().
+
+        Artifact resolution is shared by both publication paths (see
+        ``resolve_publishable_assets``): an enabled but missing installer
+        fails here too.
+
+        Args:
+            config: Configuration (supplies output_folder and zip_file_path).
+
+        Returns:
+            Path: The assembled ``release/`` directory.
+        """
+        installer_exe, zip_path = PipelineService.resolve_publishable_assets(config)
+
         release_dir = config.output_folder.parent / "release"
         if release_dir.exists():
             shutil.rmtree(release_dir)
         release_dir.mkdir(parents=True)
 
-        zip_path = Path(config.zip_file_path)
-        if zip_path.is_file():
+        if zip_path is not None:
             shutil.copy2(zip_path, release_dir / zip_path.name)
-
-        if config.installer.enabled:
-            installer_dir = config.installer.output_dir or (
-                config.output_folder.parent / "installer"
-            )
-            installer_exe = (
-                installer_dir / f"{config.project_name}-{config.version}-setup.exe"
-            )
-            if installer_exe.is_file():
-                shutil.copy2(installer_exe, release_dir / installer_exe.name)
+        if installer_exe is not None:
+            shutil.copy2(installer_exe, release_dir / installer_exe.name)
 
         return release_dir
+
+    @staticmethod
+    def stage_versioned_assets(config: CompilerConfig) -> list[Path]:
+        """Resolve the publishable artifacts and version the zip name.
+
+        ``config.zip_file_path`` is ``dist/<Project>.zip`` — without a version.
+        Publishing that name as is would produce assets indistinguishable
+        between two releases, so the zip is copied to
+        ``<Project>-<version>.zip``. The copy is idempotent: running the
+        method again changes nothing.
+
+        A project without an installer (``installer.enabled = False``) is a
+        legitimate case: the list then holds the zip alone. An enabled but
+        missing installer, however, is an error. The zip stays optional: a
+        single-file compilation does not produce one.
+
+        Versioned copies accumulate in ``dist/`` (one per version); they are
+        never cleaned up automatically.
+
+        Args:
+            config: Configuration (supplies project_name, version, paths).
+
+        Returns:
+            list[Path]: The existing assets — installer first, then zip.
+
+        Raises:
+            ReleaseError: If the enabled installer is missing, or if no
+                publishable artifact exists.
+        """
+        installer_exe, zip_path = PipelineService.resolve_publishable_assets(config)
+
+        assets: list[Path] = []
+        if installer_exe is not None:
+            assets.append(installer_exe)
+        if zip_path is not None:
+            versioned = zip_path.with_name(
+                f"{config.project_name}-{config.version}{zip_path.suffix}"
+            )
+            if versioned != zip_path:
+                shutil.copy2(zip_path, versioned)
+            assets.append(versioned)
+
+        return assets
+
+    @staticmethod
+    def _installer_exe_path(config: CompilerConfig) -> Path | None:
+        """Expected installer path, or None when the installer is disabled."""
+        if not config.installer.enabled:
+            return None
+        installer_dir = config.installer.output_dir or (
+            config.output_folder.parent / "installer"
+        )
+        return installer_dir / f"{config.project_name}-{config.version}-setup.exe"
 
     @staticmethod
     def release_artifact(
         config: CompilerConfig,
         compilation_result: CompilationResult | None,  # noqa: ARG004
+        *,
+        required: bool = False,
     ) -> Path:
-        """Build le repo TUF local depuis output_folder. Ne publie jamais."""
-        repo_dir = config.tuf_repo_dir or (config.output_folder / "repo")
-        keys_dir = config.tuf_keys_dir or (repo_dir / "keystore")
+        """Build the local TUF repo from output_folder. Never publishes."""
+        repo_dir = TufService.repo_dir(config)
+        keys_dir = TufService.keys_dir(config)
         return ReleaseService.release_and_publish(
             bundle_dir=config.output_folder,
             app_name=config.project_name,
@@ -312,6 +410,7 @@ class PipelineService:
                 "keys_dir": keys_dir,
                 "expiration_days": config.tuf_expiration_days,
             },
+            required=required,
         )
 
     @staticmethod

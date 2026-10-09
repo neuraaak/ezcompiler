@@ -114,10 +114,33 @@ def test_run_pipeline_preflight_raises_before_compile_when_keys_missing(
         lambda *_a, **_kw: compile_called.append(True),
     )
 
-    with pytest.raises(SigningKeyError, match="ezcompiler release init"):
+    with pytest.raises(SigningKeyError, match="ezcompiler tuf init"):
         EzCompiler(cfg).run_pipeline()
 
     assert compile_called == [], "compile_project must NOT be called before pre-flight"
+
+
+def test_run_pipeline_preflight_refuses_a_withdrawn_version_before_compile(
+    monkeypatch, tmp_path: Path
+) -> None:
+    from ezcompiler.services.tuf_service import TufService
+    from ezcompiler.shared.exceptions import ReleaseError
+
+    cfg = _make_cfg(tmp_path, tuf_enabled=True)
+    (tmp_path / "keystore").mkdir()
+    (tmp_path / "keystore" / "root").write_text("k", encoding="utf-8")
+    (tmp_path / "repo").mkdir()
+    TufService.record_withdrawn(tmp_path / "repo", "2.0.0")
+    compile_called: list = []
+    monkeypatch.setattr(
+        "ezcompiler.interfaces.python_api.PipelineService.compile_project",
+        lambda *_a, **_kw: compile_called.append(True),
+    )
+
+    with pytest.raises(ReleaseError, match="withdrawn"):
+        EzCompiler(cfg).run_pipeline()
+
+    assert compile_called == [], "compile_project must NOT run for a withdrawn version"
 
 
 def test_run_pipeline_does_not_upload(monkeypatch, tmp_path: Path) -> None:
@@ -170,9 +193,11 @@ def test_release_publish_true_warns(monkeypatch, tmp_path: Path) -> None:
     assert deprecations
     # The message must point at the real replacement: run_pipeline() does not
     # upload (see test_run_pipeline_does_not_upload above), so it cannot be
-    # advertised as handling the transfer on its own.
+    # advertised as handling the transfer on its own. upload() is itself
+    # deprecated, so the CLI publish commands are the replacement.
     message = str(deprecations[0].message)
-    assert "upload()" in message
+    assert "run_pipeline()" in message
+    assert "ezcompiler publish" in message
     assert "stage upload" not in message
 
 
@@ -202,3 +227,27 @@ def test_run_pipeline_skip_release_bypasses_release_stage(
     ez.run_pipeline(skip_release=True, skip_zip=True)
 
     assert release_calls == []
+
+
+def test_release_should_forward_required(monkeypatch, tmp_path: Path) -> None:
+    captured: dict = {}
+    monkeypatch.setattr(
+        "ezcompiler.interfaces.python_api.ReleaseService.release_and_publish",
+        staticmethod(lambda **kw: captured.update(kw) or tmp_path),
+    )
+    compiler = EzCompiler(config=_make_cfg(tmp_path, tuf_enabled=True))
+
+    compiler.release(tmp_path, required=True)
+
+    assert captured["required"] is True
+
+
+@pytest.mark.parametrize("skip_release", [True, False])
+def test_run_pipeline_should_refuse_required_without_release_stage(
+    tmp_path: Path, skip_release: bool
+) -> None:
+    from ezcompiler.shared.exceptions import ConfigurationError
+
+    cfg = _make_cfg(tmp_path, tuf_enabled=skip_release)
+    with pytest.raises(ConfigurationError, match="required"):
+        EzCompiler(config=cfg).run_pipeline(skip_release=skip_release, required=True)

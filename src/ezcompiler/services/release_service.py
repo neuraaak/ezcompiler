@@ -22,6 +22,7 @@ from typing import TYPE_CHECKING, Any, Literal, cast
 
 from ..adapters import ReleaserFactory
 from ..shared.exceptions import ReleaseError
+from .tuf_service import TufService
 from .uploader_service import UploaderService
 
 if TYPE_CHECKING:
@@ -53,6 +54,7 @@ class ReleaseService:
         destination: str | None = None,
         releaser_config: dict[str, Any] | None = None,
         upload_config: dict[str, Any] | None = None,
+        required: bool = False,
     ) -> Path:
         """Build the local TUF repo, then optionally publish it.
 
@@ -70,13 +72,15 @@ class ReleaseService:
             destination: Upload destination path or URL. Required when publish=True.
             releaser_config: Extra config forwarded to the releaser adapter.
             upload_config: Extra config forwarded to the uploader adapter.
+            required: Mark the version as mandatory for clients.
 
         Returns:
             Path: The local ``repository/`` tree path.
 
         Raises:
             ValueError: When publish=True but upload_type or destination is missing.
-            ReleaseError: When release packaging or publishing fails.
+            ReleaseError: When the version is not above a withdrawn version, or
+                when release packaging or publishing fails.
         """
         if pull_before and upload_type and destination:
             UploaderService.download(
@@ -86,6 +90,12 @@ class ReleaseService:
                 upload_config=upload_config,
             )
 
+        # After the pull: withdrawn.json travels with the remote tree.
+        TufService.ensure_releasable(repo_dir, version)
+        # First release after a withdrawal: full archive only, a patch
+        # would start from an archive the withdrawn clients do not have.
+        patch = not TufService.needs_full_archive(repo_dir, app_name)
+
         releaser: ReleaserPort = ReleaserFactory.create_releaser(
             release_type, releaser_config
         )
@@ -94,6 +104,8 @@ class ReleaseService:
             app_name=app_name,
             version=version,
             repo_dir=repo_dir,
+            patch=patch,
+            required=required,
         )
 
         if not publish:
@@ -103,12 +115,16 @@ class ReleaseService:
             raise ValueError("publish=True requires both upload_type and destination")
 
         try:
-            UploaderService.upload(
-                source_path=repository_path,
-                upload_type=cast(Literal["disk", "server", "r2"], upload_type),
-                destination=destination,
-                upload_config=upload_config,
-            )
+            # Never the raw tree: the default keystore lives under repo_dir.
+            with UploaderService.staged_tuf_tree(
+                repository_path, keys_dir=(releaser_config or {}).get("keys_dir")
+            ) as staged:
+                UploaderService.upload(
+                    source_path=staged,
+                    upload_type=cast(Literal["disk", "server", "r2"], upload_type),
+                    destination=destination,
+                    upload_config=upload_config,
+                )
         except Exception as exc:
             raise ReleaseError(f"Publishing release repository failed: {exc}") from exc
 
@@ -123,9 +139,9 @@ class ReleaseService:
         release_type: str = "tufup",
         releaser_config: dict[str, Any] | None = None,
     ) -> bool:
-        """Crée le releaser via la factory et délègue à init_keys.
+        """Create the releaser through the factory and delegate to init_keys.
 
-        Returns True si init effectuée, False si déjà présente (skip).
+        Returns True if the init ran, False if it was already present (skip).
         """
         releaser: ReleaserPort = ReleaserFactory.create_releaser(
             release_type, releaser_config
@@ -145,11 +161,11 @@ class ReleaseService:
         release_type: str = "tufup",
         releaser_config: dict[str, Any] | None = None,
     ) -> Path:
-        """Re-signe les metadata pour repousser l'expiration sans nouvelle release.
+        """Re-sign the metadata to push back expiration without a new release.
 
-        Keep-alive natif tufup pour les projets mis à jour irrégulièrement.
+        Native tufup keep-alive for projects updated irregularly.
 
-        Returns le dossier du repo TUF local.
+        Returns the local TUF repo directory.
         """
         releaser: ReleaserPort = ReleaserFactory.create_releaser(
             release_type, releaser_config

@@ -264,8 +264,9 @@ The pipeline produces `<project_name>-<version>-setup.exe` in
 `installer.output_dir`, or `output_folder.parent / "installer"` by default.
 A custom script must use the current output directory and that filename;
 otherwise the adapter raises `InstallerBuildError` even if ISCC exits successfully.
-When TUF is enabled, the explicit `upload()` step also includes the installer in
-the release directory alongside the ZIP; see [Release pipeline](../concepts/about-release-pipeline.md).
+`ezcompiler publish release` publishes the installer alongside the ZIP, and refuses
+to publish when `installer.enabled` is true but the `.exe` is missing on the GitHub
+path; see [Release pipeline](../concepts/about-release-pipeline.md).
 
 | Exception              | Raised when                                                                                                                                                                   |
 | :--------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

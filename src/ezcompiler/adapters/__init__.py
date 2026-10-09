@@ -24,6 +24,7 @@ from .base_releaser import BaseReleaser
 from .base_uploader import BaseUploader
 from .compiler_factory import CompilerFactory
 from .installer_factory import InstallerFactory
+from .publisher_factory import PublisherFactory
 from .releaser_factory import ReleaserFactory
 from .uploader_factory import UploaderFactory
 
@@ -40,6 +41,7 @@ __all__ = [
     "BaseReleaser",
     "CompilerFactory",
     "InstallerFactory",
+    "PublisherFactory",
     "UploaderFactory",
     "ReleaserFactory",
 ]

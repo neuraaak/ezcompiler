@@ -4,7 +4,7 @@ Set up a local development workflow for implementing and validating changes in E
 
 ## 🔧 Prerequisites
 
-- Python 3.11+
+- Python 3.13+
 - Git
 - A local clone of the repository
 
@@ -15,7 +15,7 @@ Set up a local development workflow for implementing and validating changes in E
 === "uv workflow"
 
     ```bash
-    uv sync --extra dev --extra docs --extra test
+    uv sync --all-extras --group dev --group docs
     ```
 
 === "pip editable install"

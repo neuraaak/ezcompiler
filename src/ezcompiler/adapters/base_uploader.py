@@ -31,10 +31,10 @@ from ..shared.exceptions import UploadError
 # ///////////////////////////////////////////////////////////////
 
 
-# Le contrat structurel (Port) est défini par ``types.UploaderPort`` (Protocol).
-# Cette classe reste une base abstraite *concrète* : elle conforme au Port et
-# factorise le comportement partagé (validation de config et de source path).
-# Les frontières (factory, service) sont typées via le Port, pas via cette base.
+# The structural contract (Port) is defined by ``types.UploaderPort`` (Protocol).
+# This class stays a *concrete* abstract base: it conforms to the Port and
+# factors out the shared behavior (config and source path validation).
+# The boundaries (factory, service) are typed through the Port, not this base.
 class BaseUploader(ABC):
     """
     Abstract base class for uploaders.

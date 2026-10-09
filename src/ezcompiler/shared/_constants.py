@@ -18,3 +18,7 @@ UPDATE_SUBDIR = "update"
 
 # Subdirectory holding the distributable installer zip.
 RELEASE_SUBDIR = "release"
+
+# Directories of the TUF repository that are published. Everything else
+# (notably the default keystore, <repo>/keystore) never leaves the machine.
+TUF_PUBLIC_DIRS = ("metadata", "targets")

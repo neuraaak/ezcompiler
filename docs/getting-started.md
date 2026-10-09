@@ -4,7 +4,7 @@ Build a working EzCompiler setup and compile your first project in a few minutes
 
 ## 🔧 Prerequisites
 
-- Python >= 3.11
+- Python >= 3.13
 - One compilation backend: `cx-freeze`, `pyinstaller`, or `nuitka`
 - PyYAML >= 6.0
 
@@ -60,31 +60,38 @@ config = CompilerConfig(
 
 1. Path to the main Python entry point of your project.
 
-### 4. Compile and run the full pipeline
+### 4. Compile and package
 
 ```python
 ezcompiler = EzCompiler(config)
 
 ezcompiler.compile_project(compiler="PyInstaller")  # (1)!
 ezcompiler.zip_compiled_project()                   # (2)!
-ezcompiler.upload(                                  # (3)!
-    destination="./releases",
-    structure="disk",
-)
 ```
 
 1. Compiles the project to the `output_folder`.
 2. Creates a ZIP archive of the compiled output.
-3. Copies the archive to a local release directory.
 
 ??? tip "✅ Success check"
     After `compile_project()` you should see the compiled output in `dist/`.
     After `zip_compiled_project()` a `.zip` archive appears alongside it.
 
+### 5. Publish
+
+Publication is a deliberate step of the CLI, never of the Python API:
+
+```bash
+# Publication is a separate CLI step: it reads your ezcompiler.yaml / pyproject.toml
+ezcompiler publish release --release-destination disk --destination ./releases
+```
+
+The command copies the archive to `./releases/release/`. To publish a GitHub
+Release instead, see [`publish release`](cli/index.md#publish-release).
+
 ## ✅ What you built
 
-You now have a compiled, archived, and distributed Python project.
-EzCompiler orchestrated all three steps — compile, package, upload — through a single typed API.
+You now have a compiled, archived, and published Python project.
+EzCompiler compiled and packaged it through a typed API, then published it through the CLI.
 
 ## ➡️ Next steps
 

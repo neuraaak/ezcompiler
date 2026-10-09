@@ -13,6 +13,8 @@ packaging, and distribution.
 
 from __future__ import annotations
 
+import re
+
 # ///////////////////////////////////////////////////////////////
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
@@ -22,6 +24,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 # Local imports
+from ._constants import TUF_PUBLIC_DIRS
 from ._installer_config import InstallerConfig, raise_on_legacy_installer_keys
 from .exceptions import ConfigurationError
 
@@ -40,6 +43,50 @@ COMPILER_SECTION_KEYS: dict[str, str] = {
     "Cx_Freeze": "cx_freeze",
     "Nuitka": "nuitka",
 }
+
+# Keys accepted by each nested config section. The flattening of from_dict()
+# validates against this schema: without it, any field is accepted in any
+# section and a key present in two sections is resolved by the merge order.
+# 'installer' is not listed here — it stays a sub-object (InstallerConfig).
+SECTION_SCHEMA: dict[str, frozenset[str]] = {
+    "compilation": frozenset({"console", "compiler"}),
+    "upload": frozenset(
+        {
+            "repo_destination",
+            "release_destination",
+            "repo_endpoint",
+            "release_endpoint",
+            "repo_public_url",
+        }
+    ),
+    "advanced": frozenset({"debug"}),
+    "release": frozenset(
+        {"tuf_enabled", "tuf_repo_dir", "tuf_keys_dir", "tuf_expiration_days"}
+    ),
+}
+
+# Keys removed by past migrations, with the message that names the
+# replacement. Checked both inside a section (during the strict flattening)
+# and at the top level, so the diagnostic is the same wherever the key sits.
+REMOVED_KEYS: dict[str, str] = {
+    "repo_path": "'repo_path' was removed. Use 'upload.repo_endpoint'.",
+    "server_url": "'server_url' was removed. Use 'upload.repo_endpoint' or 'upload.release_endpoint'.",
+    "update_repo_url": "'update_repo_url' was removed. Use 'upload.repo_endpoint'.",
+    "r2_bucket": "'r2_bucket' was removed. Use 'upload.repo_endpoint' in \"bucket/prefix\" form.",
+    "r2_remote_prefix": "'r2_remote_prefix' was removed. See 'upload.repo_endpoint' (\"bucket/prefix\" form).",
+    "release_needed": "'release_needed' was renamed to 'tuf_enabled'.",
+    "release_type": "'release_type' was removed. tufup is the only release backend.",
+    "repo_needed": "'repo_needed' was removed. Use 'release.tuf_enabled'.",
+    "structure": "'upload.structure' / 'upload_structure' was removed. "
+    "Use 'upload.repo_destination' and 'upload.release_destination'.",
+    "upload_structure": "'upload.structure' / 'upload_structure' was removed. "
+    "Use 'upload.repo_destination' and 'upload.release_destination'.",
+    "zip_needed": "'zip_needed' was removed. The zip is always produced when "
+    "tuf_enabled=True. In the release-less flow, the zip depends on the "
+    "compilation result.",
+}
+
+_OWNER_REPO_RE = re.compile(r"[A-Za-z0-9._-]+/[A-Za-z0-9._-]+")
 
 # ///////////////////////////////////////////////////////////////
 # CLASSES
@@ -73,9 +120,10 @@ class CompilerConfig:
         console: Show console window in compiled app (default: True)
         compiler: Compiler to use - "" (unset -> prompt), "Cx_Freeze", "PyInstaller", "Nuitka"
         repo_destination: TUF repo upload backend - "disk" | "server" | "r2"
-        release_destination: Zip installer upload backend - "disk" | "server"
+        release_destination: Release asset destination - disk, server, r2,
+            github, or gitlab
         repo_endpoint: Endpoint for TUF repo upload (path, URL, or "bucket/prefix")
-        release_endpoint: Endpoint for zip installer upload (path or URL)
+        release_endpoint: Release endpoint (path, URL, bucket/prefix, or owner/repo)
         optimize: Optimize code (default: True)
         strip: Strip debug info (default: False)
         debug: Enable debug mode (default: False)
@@ -265,6 +313,36 @@ class CompilerConfig:
         if isinstance(self.tuf_keys_dir, str):
             self.tuf_keys_dir = Path(self.tuf_keys_dir)
 
+        self._validate_tuf_keys_location()
+
+    def _validate_tuf_keys_location(self) -> None:
+        """
+        Refuse a private keystore placed inside the published part of the tree.
+
+        Only ``metadata/`` and ``targets/`` of the TUF repository are uploaded,
+        so a ``tuf_keys_dir`` sitting under one of them would publish the
+        private signing keys.
+
+        Raises:
+            ConfigurationError: If ``tuf_keys_dir`` resolves inside
+                ``<tuf_repo_dir>/metadata`` or ``<tuf_repo_dir>/targets``.
+        """
+        if self.tuf_keys_dir is None:
+            return
+
+        repo_dir = self.tuf_repo_dir or (Path(self.output_folder) / "repo")
+        keys = Path(self.tuf_keys_dir).expanduser().resolve()
+        for public in TUF_PUBLIC_DIRS:
+            forbidden = (Path(repo_dir).expanduser() / public).resolve()
+            if keys == forbidden or forbidden in keys.parents:
+                raise ConfigurationError(
+                    f"tuf_keys_dir invalide : {self.tuf_keys_dir} se trouve sous "
+                    f"{forbidden}, which is published with the TUF tree — the "
+                    "private signing keys would leave the machine. Move the "
+                    "keystore outside metadata/ and targets/ (default "
+                    "<tuf_repo_dir>/keystore)."
+                )
+
     def _validate_compiler_option(self) -> None:
         """
         Validate compiler option.
@@ -283,11 +361,11 @@ class CompilerConfig:
 
     def _validate_destinations(self) -> None:
         """
-        Validate upload destination backends and require endpoints for non-disk targets.
+        Validate upload and publication destinations and their endpoints.
 
-        The TUF repository may be uploaded to disk, server or r2; the release
-        zip only to disk or server. Any other value is rejected.
-        Non-disk destinations require the matching endpoint to be non-empty.
+        The TUF repository may be uploaded to disk, server or r2. Release assets
+        may also be published to github or gitlab. Server and r2 destinations
+        require an endpoint; publication destinations may infer the repository.
 
         Raises:
             ConfigurationError: If a destination is not supported or endpoint is missing
@@ -299,7 +377,7 @@ class CompilerConfig:
                 f"Must be one of {valid_repo}"
             )
 
-        valid_release = ["disk", "server", "r2"]
+        valid_release = ["disk", "server", "r2", "github", "gitlab"]
         if self.release_destination not in valid_release:
             raise ConfigurationError(
                 f"Invalid release_destination: {self.release_destination}. "
@@ -312,7 +390,18 @@ class CompilerConfig:
                 "For 'server': provide a URL. For 'r2': provide 'bucket/prefix'."
             )
 
-        if self.release_destination != "disk" and not self.release_endpoint:
+        if self.release_destination in ("github", "gitlab"):
+            if self.release_endpoint and not _OWNER_REPO_RE.fullmatch(
+                self.release_endpoint
+            ):
+                raise ConfigurationError(
+                    f"Invalid release_endpoint for "
+                    f"release_destination='{self.release_destination}': "
+                    f"'{self.release_endpoint}'. Expected the "
+                    f'"owner/repo" form (no URL, no protocol), or empty to '
+                    f"let the CLI infer the repository from the git remote."
+                )
+        elif self.release_destination != "disk" and not self.release_endpoint:
             raise ConfigurationError(
                 f"release_endpoint is required when release_destination='{self.release_destination}'. "
                 "For 'server': provide a URL. For 'r2': provide 'bucket/prefix'."
@@ -383,12 +472,12 @@ class CompilerConfig:
 
     @property
     def resolved_repo_destination(self) -> str | None:
-        """Destination résolue pour l'arbre TUF."""
+        """Resolved destination for the TUF tree."""
         return self.repo_endpoint or None
 
     @property
     def resolved_release_destination(self) -> str | None:
-        """Destination résolue pour le zip installeur."""
+        """Resolved destination for the installer zip."""
         return self.release_endpoint or None
 
     # ////////////////////////////////////////////////
@@ -463,6 +552,61 @@ class CompilerConfig:
         return result
 
     @classmethod
+    def _flatten_sections(cls, config: dict[str, Any]) -> None:
+        """
+        Flatten the nested config sections in place, strictly.
+
+        Two silent behaviours are removed here: a key accepted in a section it
+        does not belong to, and a key defined in two sections where the order
+        of the merges decided the winner (``[advanced] debug=false`` used to
+        beat ``[compilation] debug=true`` without a word).
+
+        Args:
+            config: Mutable config mapping; sections are popped and their keys
+                promoted to the top level.
+
+        Raises:
+            ConfigurationError: If a key sits in the wrong section, or is
+                defined both at the top level and in a section, or in two
+                sections at once.
+        """
+        owner: dict[str, str] = {
+            key: "racine" for key in config if key not in SECTION_SCHEMA
+        }
+        for section, allowed in SECTION_SCHEMA.items():
+            values = config.pop(section, {})
+            if not values:
+                continue
+            if not isinstance(values, dict):
+                raise ConfigurationError(
+                    f"Section '{section}' must be a table, not a "
+                    f"{type(values).__name__}."
+                )
+            for key, value in values.items():
+                expected = next(
+                    (s for s, keys in SECTION_SCHEMA.items() if key in keys), None
+                )
+                if key in REMOVED_KEYS:
+                    raise ConfigurationError(REMOVED_KEYS[key])
+                if key not in allowed:
+                    hint = (
+                        f" That key belongs to section '{expected}'."
+                        if expected
+                        else ""
+                    )
+                    raise ConfigurationError(
+                        f"Invalid key '{key}' in section '{section}'.{hint}"
+                    )
+                if key in owner:
+                    raise ConfigurationError(
+                        f"Key '{key}' defined twice: in '{owner[key]}' and "
+                        f"in '{section}'. Declare it only once — the merge "
+                        "order must not decide which value wins."
+                    )
+                owner[key] = section
+                config[key] = value
+
+    @classmethod
     def from_dict(cls, config_dict: dict[str, Any]) -> CompilerConfig:
         """
         Create configuration from dictionary.
@@ -505,38 +649,27 @@ class CompilerConfig:
         # replaced by per-compiler sections.
         if "compiler_options" in config_copy:
             raise ConfigurationError(
-                "'compiler_options' a été supprimé. Utiliser une section par "
-                "compilateur : [tool.ezcompiler.pyinstaller], "
+                "'compiler_options' was removed. Use a per-compiler "
+                "section: [tool.ezcompiler.pyinstaller], "
                 "[tool.ezcompiler.cx_freeze] ou [tool.ezcompiler.nuitka]."
             )
 
-        # 'optimize'/'strip' ont quitté 'advanced' pour les sections par compilateur.
+        # 'optimize'/'strip' left 'advanced' for the per-compiler sections.
         advanced = config_copy.get("advanced", {})
         if "optimize" in advanced or "strip" in advanced:
             raise ConfigurationError(
-                "'advanced.optimize' / 'advanced.strip' déplacés vers la section "
-                "du compilateur ([tool.ezcompiler.<pyinstaller|cx_freeze|nuitka>])."
+                "'advanced.optimize' / 'advanced.strip' moved to the compiler "
+                "section ([tool.ezcompiler.<pyinstaller|cx_freeze|nuitka>])."
             )
 
         # Legacy flat installer keys (pre-4.0.0) — same pattern as the
         # compiler_options / advanced.optimize removals.
         raise_on_legacy_installer_keys(config_copy)
 
-        # Flatten nested structures
-        compilation = config_copy.get("compilation", {})
-        upload = config_copy.get("upload", {})
-        release = config_copy.get("release", {})
-
-        config_copy.update(compilation)
-        config_copy.update(upload)
-        config_copy.update(advanced)
-        config_copy.update(release)
-
-        # Remove nested keys
-        config_copy.pop("compilation", None)
-        config_copy.pop("upload", None)
-        config_copy.pop("advanced", None)
-        config_copy.pop("release", None)
+        # Flatten the nested sections. Each key is checked against the schema
+        # of its own section, and a key defined twice is an error instead of
+        # being resolved silently by the order of the merges.
+        cls._flatten_sections(config_copy)
 
         installer_section = config_copy.pop("installer", {})
         if isinstance(installer_section, InstallerConfig):
@@ -557,47 +690,16 @@ class CompilerConfig:
             config_copy["strip"] = selected_section.pop("strip")
         config_copy["compiler_options"] = selected_section
 
-        # 'auto' supprimé : plus de compilateur par défaut implicite.
+        # 'auto' was removed: no implicit default compiler any more.
         if config_copy.get("compiler") == "auto":
             raise ConfigurationError(
-                "compiler='auto' a été supprimé. Indiquer explicitement "
-                "'Cx_Freeze', 'PyInstaller' ou 'Nuitka', ou laisser le champ "
-                "vide pour choisir interactivement au moment de la compilation."
+                "compiler='auto' was removed. State explicitly "
+                "'Cx_Freeze', 'PyInstaller' or 'Nuitka', or leave the field "
+                "empty to choose interactively at compile time."
             )
 
-        # "upload.structure" / "upload_structure" supprimés (breaking).
-        if "structure" in config_copy or "upload_structure" in config_copy:
-            raise ConfigurationError(
-                "'upload.structure' / 'upload_structure' a été supprimé. "
-                "Utiliser 'upload.repo_destination' et 'upload.release_destination'."
-            )
-
-        if "zip_needed" in config_copy:
-            raise ConfigurationError(
-                "'zip_needed' a été supprimé. Le zip est toujours produit quand "
-                "tuf_enabled=True. Pour le flux sans release, le zip dépend du "
-                "résultat de compilation."
-            )
-
-        # Migration errors for removed upload fields.
-        _removed_upload = {
-            "repo_path": "'repo_path' supprimé. Utiliser 'upload.repo_endpoint'.",
-            "server_url": "'server_url' supprimé. Utiliser 'upload.repo_endpoint' ou 'upload.release_endpoint'.",
-            "update_repo_url": "'update_repo_url' supprimé. Utiliser 'upload.repo_endpoint'.",
-            "r2_bucket": "'r2_bucket' supprimé. Utiliser 'upload.repo_endpoint' au format \"bucket/prefix\".",
-            "r2_remote_prefix": "'r2_remote_prefix' supprimé. Voir 'upload.repo_endpoint' (format \"bucket/prefix\").",
-        }
-        for key, msg in _removed_upload.items():
-            if key in config_copy:
-                raise ConfigurationError(msg)
-
-        # Migration errors for removed release fields.
-        _removed_release = {
-            "release_needed": "'release_needed' renommé en 'tuf_enabled'.",
-            "release_type": "'release_type' supprimé. tufup est l'unique backend de release.",
-            "repo_needed": "'repo_needed' supprimé. Utiliser 'release.tuf_enabled'.",
-        }
-        for key, msg in _removed_release.items():
+        # Migration errors for removed upload/release fields.
+        for key, msg in REMOVED_KEYS.items():
             if key in config_copy:
                 raise ConfigurationError(msg)
 

@@ -1,7 +1,11 @@
 # AGENTS.md
 
-Instructions for AI coding agents working on **ezcompiler**. This file is
-self-contained — there is no external instruction tree to consult.
+Instructions for AI coding agents working on **ezcompiler**. It holds what is
+specific to this project; a global rule tree (security, commits, memory,
+language, coding behavior) reaches the agent through its own host — a
+`~/.claude/rules/` junction, or inlined into the host's instructions file.
+Those global rules apply here too: this file only adds to them, and names the
+few places where the project narrows them.
 
 ## Project
 
@@ -17,6 +21,14 @@ tufup releaser, and generates a client-side updater script.
 - **Package manager:** uv (`uv.lock` is committed; keep it in sync)
 - **Repo:** <https://github.com/neuraaak/ezcompiler>
 - **Docs:** <https://neuraaak.github.io/ezcompiler/>
+
+## Language
+
+**English on every surface** — code comments, docstrings, user-facing strings,
+commit messages, documentation. The tree was bilingual until 2026-10-08 and was
+translated in full; the first half of the `feat/publish-cli` branch still
+carries French commit subjects and bodies. Do not take that history as the
+convention, and do not retro-translate it.
 
 ## Environment constraints
 
@@ -34,26 +46,38 @@ tufup releaser, and generates a client-side updater script.
 interfaces/   ← entry points: CLI (click) + Python API (EzCompiler facade)
 services/     ← business orchestration (CompilerService, PipelineService,
                 ConfigService, TemplateService, UploaderService, ReleaseService,
-                InstallerService, UpdaterService)
+                InstallerService, UpdaterService, PublishService, TufService)
 adapters/     ← concrete compilers, uploaders, releaser & installer behind
                 ports, + factories
 shared/       ← domain models (CompilerConfig, InstallerConfig,
                 CompilationResult) + exceptions/
 utils/        ← technical helpers + validators/
 assets/       ← templates and static resources (no upward deps)
-_types.py     ← type aliases + the four @runtime_checkable Protocol ports
+_types.py     ← type aliases + the five @runtime_checkable Protocol ports
 ```
 
 ### Ports (`_types.py`)
 
-Four structural contracts that decouple services from concrete adapters:
+Five structural contracts that decouple services from concrete adapters:
 
-| Port            | Key methods                                                                                                  |
-| --------------- | ------------------------------------------------------------------------------------------------------------ |
-| `CompilerPort`  | `compile()`, `get_compiler_name()`, `zip_needed`, `config`                                                   |
-| `UploaderPort`  | `upload(source_path, destination)`, `get_uploader_name()`                                                    |
-| `ReleaserPort`  | `release(bundle_dir, app_name, version, repo_dir)`, `init_keys(...)`, `get_releaser_name()`                  |
-| `InstallerPort` | `build(bundle_dir, app_name, version, output_dir, *, company_name, icon, main_file)`, `get_installer_name()` |
+| Port            | Key methods                                                                                                                                                    |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CompilerPort`  | `compile()`, `get_compiler_name()`, `zip_needed`, `config`                                                                                                     |
+| `UploaderPort`  | `upload(source_path, destination)`, `get_uploader_name()`                                                                                                      |
+| `ReleaserPort`  | `release(bundle_dir, app_name, version, repo_dir, *, patch, required)`, `init_keys(...)`, `remove_latest(app_name, repo_dir, keys_dir)`, `get_releaser_name()` |
+| `InstallerPort` | `build(bundle_dir, app_name, version, output_dir, *, company_name, icon, main_file)`, `get_installer_name()`                                                   |
+| `PublisherPort` | `exists(tag)`, `publish(assets, *, tag, title, notes, prerelease, draft)`, `get_publisher_name()`                                                              |
+
+`TufService` reads the local TUF tree without tufup (`status()` returns a
+`TufStatus` of `TufVersion` entries and role expirations, from `metadata/*.json`),
+owns `<tuf_repo_dir>/withdrawn.json` (`withdrawn_versions`, `record_withdrawn`,
+`remove_latest` via `ReleaserPort.remove_latest`) and holds the shared tree
+helpers `read_tree_version` / `same_version`. `ReleaseService` calls
+`TufService.ensure_releasable()` before any release: a version not strictly
+above every withdrawn version raises `ReleaseError`, from the CLI and the Python
+API alike. The `ezcompiler tuf` group (`init`, `refresh`, `status`,
+`remove-latest`) only prints and confirms; `release init` / `release refresh`
+remain as hidden deprecated aliases.
 
 Concrete implementations live in `adapters/` with a `_` prefix (`_cx_freeze_compiler.py`, `_disk_uploader.py`, `_tufup_releaser.py`, `_innosetup_installer.py`). Always go through the factories — never instantiate adapters directly.
 
@@ -66,12 +90,31 @@ one conditional (`PipelineService.build_stages()`):
 version → compile → zip → installer → release
 ```
 
-**`upload` is not a pipeline stage.** `run_pipeline()` stops after building the
-local TUF tree; the caller invokes `upload()` explicitly afterwards. This is
-pinned by `test_run_pipeline_does_not_upload`, and the deprecation message of
-`release(publish=True)` names that sequence.
+**Publication is not a pipeline stage.** `run_pipeline()` stops after building
+the local TUF tree; publication is a separate, deliberate CLI step:
+`ezcompiler publish update` (TUF tree) and `ezcompiler publish release`
+(installer + zip). `publish update` and a `github` release show a recap and
+ask for confirmation (`--yes` skips it); a release to `disk|server|r2` is
+copied without a prompt, as before. This is pinned by `test_run_pipeline_does_not_upload`, and
+the deprecation message of `release(publish=True)` names that sequence.
+`EzCompiler.upload()` and `ezcompiler upload` still work but are **deprecated**
+(removal in v5). `ezcompiler upload` delegates to `publish update` (when
+`tuf_enabled`) then `publish release`, both with an implicit `--yes`, and refuses
+a platform release destination (`test_cli_upload.py`). The publisher/uploader
+routing (`github` → `PublisherPort`, `disk|server|r2` → `UploaderPort`) lives in
+`PublishService` only: `interfaces/` never holds a `PublisherPort`. The CLI calls
+`PublishService.preflight_release()`, which runs every local check (CLI present
+and authenticated, tag free, artifacts staged) and returns a `ReleasePreflight`
+value object to display; `publish_release()` then resolves the publisher itself
+and takes no `publisher` argument. The same capability is exposed on the Python
+API: `EzCompiler.publish_update()`, `preflight_release()` and
+`publish_release()` (the confirmation prompt stays CLI-only). Both publication
+branches resolve their artifacts through
+`PipelineService.resolve_publishable_assets()`, so an enabled-but-missing
+installer, or nothing built at all, fails for **every** destination instead of
+being published silently on `disk|server|r2`.
 
-When both release and upload are active, `PipelineService.assemble_release_dir()` builds a **flat** `dist/release/` directory (signed TUF `metadata/*` + `targets/*` plus the unsigned zip asset, no sub-folders — GitHub-release style), then uploads it as a single `upload()` call. The working TUF repo (`tuf_repository/`) stays structured for incremental patches; only the published folder is flattened. `EzCompiler.release(publish=True)` is **deprecated** — use `run_pipeline()` then `upload()`.
+`PipelineService.assemble_release_dir()` builds a flat `dist/release/` directory holding **only the zip and, when enabled, the installer `.exe`** — never TUF metadata (see `test_assemble_release_dir_contains_only_zip`). `PipelineService.stage_versioned_assets()` resolves those same artifacts and copies the zip under its versioned name, which is what the publication path consumes. The working TUF repo (`tuf_repository/`) stays structured for incremental patches and is published separately by `ezcompiler publish update`.
 
 Config loading: `ConfigService.build_compiler_config()` only assembles the
 layers and delegates to **`CompilerConfig.from_dict()`**
@@ -81,7 +124,13 @@ into kwargs, pops the per-compiler sections (`[tool.ezcompiler.pyinstaller]`
 etc., only the selected one is applied), and turns the `installer` block into an
 `InstallerConfig` sub-object rather than flattening it. A new config block
 **must** be handled there or `CompilerConfig.__init__()` raises an
-unexpected-keyword error.
+unexpected-keyword error. The flattening is **strict**: `SECTION_SCHEMA` declares
+the keys each section accepts, and `_flatten_sections()` refuses a key placed in
+the wrong section (naming the right one) or declared both at the root and in a
+section — the merge order no longer decides which value wins. A new key must be
+added to `SECTION_SCHEMA` as well as to the dataclass. Removed keys are listed
+once in `REMOVED_KEYS`, and `tuf_keys_dir` is refused when it resolves inside
+`<tuf_repo_dir>/metadata` or `/targets`, which are published.
 
 **Import contracts are enforced in CI by import-linter** (`[tool.importlinter]`
 in `pyproject.toml`). The layer flow is strictly:
@@ -131,24 +180,44 @@ before proceeding.
 
 ## Toolchain
 
-| Task          | Command                                                                  |
-| ------------- | ------------------------------------------------------------------------ |
-| Install (dev) | `uv sync --extra dev --extra docs --extra test --extra tufup --extra r2` |
-| Lint          | `ruff check .`                                                           |
-| Format        | `ruff format .` (check: `ruff format --check .`)                         |
-| Type check    | `ty check src/ezcompiler/` (the gate; pyright serves the IDE)            |
-| Import rules  | `PYTHONPATH=src lint-imports`                                            |
-| Security      | `bandit -r src/ezcompiler`                                               |
-| Tests         | `pytest`                                                                 |
+| Task          | Command                                                          |
+| ------------- | ---------------------------------------------------------------- |
+| Install (dev) | `uv sync --all-extras --group dev --group docs` (PEP 735 groups) |
+| Lint          | `ruff check .`                                                   |
+| Format        | `ruff format .` (check: `ruff format --check .`)                 |
+| Type check    | `ty check src/ezcompiler/` (the gate; pyright serves the IDE)    |
+| Import rules  | `PYTHONPATH=src lint-imports`                                    |
+| Security      | `bandit -r src/ezcompiler -ll` + `pip-audit` (both CI gates)     |
+| Tests         | `pytest` (CI adds `--cov=src/ezcompiler --cov-fail-under=70`)    |
 
 - **ruff** rules: `E W F I B C4 UP S T20 ARG PIE SIM`, line length 88,
   double quotes. See `[tool.ruff]` for per-file ignores.
-- **Coverage:** branch coverage, `--cov-fail-under=70` (audit target is 80%;
-  measured at 79.44% over 728 tests as of 2026-09-30). See the exclusions note
-  below before assuming a module is omitted.
+- **Coverage:** branch coverage, audit target 80% — measured at 82.85% over 999
+  tests as of 2026-10-08. The `--cov-fail-under=70` gate lives in the CI command,
+  **not** in `addopts`: a partial local run (one file, a `-k` filter, a marker)
+  must not exit 1. See the exclusions note below before assuming a module is
+  omitted.
+- **Dev tooling is in `[dependency-groups]`** (PEP 735), not in
+  `[project.optional-dependencies]`: `pip install ezcompiler[dev]` is no longer
+  valid and only the product extras (`cx-freeze`, `pyinstaller`, `nuitka`,
+  `all-compilers`, `tufup`, `r2`) are published. Use `--group dev|test|docs`.
+- **CI** runs the test matrix on `ubuntu-24.04` **and** `windows-latest` with
+  `--all-extras`, and sets `EZCOMPILER_REQUIRE_EXTRAS=1` so a missing optional
+  extra fails the collection instead of skipping the TUF/R2 tests silently.
+  `bandit` and `pip-audit` run in a dedicated `security` job, and `bandit` is
+  also a pre-commit hook. One `pip-audit` ignore is documented in the workflow:
+  `GHSA-qp9x-wp8f-qgjj` (python-tuf 4.0.0) cannot be fixed here because
+  tufup 0.10.0 pins `tuf==4.0.*`; drop the ignore when tufup relaxes that bound.
+- **`T201`, `S101` and `S603` are no longer ignored globally** in `[tool.ruff]`,
+  and `B101` is no longer skipped by bandit — the AGENTS.md rules "never
+  `print()` in library code" and "no invariant `assert` in production" are
+  enforceable again. Exemptions live in `per-file-ignores` (`tests/**`,
+  `examples/**`, `.scripts/**`, `src/ezcompiler/interfaces/**`) or in a targeted
+  `# noqa` on the subprocess call concerned.
 - **Test markers** available: `slow`, `integration`, `unit`, `cli`, `compiler`,
   `uploader`, `robustness`, `requires_iscc` (needs a real `ISCC.exe` /
-  Inno Setup 6 on the machine).
+  Inno Setup 6 on the machine), `requires_gh` (needs a real, authenticated
+  `gh` CLI).
 - **Test runner wrapper** (`tests/run_tests.py`) provides options: `--type
   unit|integration|robustness|all`, `--coverage`, `--fast`, `--parallel`,
   `--marker <name>`, `--verbose`. Use `pytest` directly for a single file or
@@ -175,19 +244,23 @@ before proceeding.
 STOP: Do not stage, commit, or push anything unless the user explicitly
 requests it.
 
-Conventional, atomic commits — one purpose per commit, self-contained, reversible.
-
-```text
-<type>: <imperative, <=50 chars, no trailing period>
-
-<optional body — explain WHY, wrap ~72 cols>
-```
+The subject format is the global Conventional Commits convention —
+`type(scope): description`, imperative, lowercase start, no trailing period,
+≤ 72 characters — and scopes are used throughout this repo's history
+(`fix(cli):`, `feat(services):`). Body after a blank line, wrapped ~72 cols,
+explaining the *why*.
 
 Types: `feat`, `fix`, `refactor`, `docs`, `style`, `test`, `build`, `perf`,
 `chore`.
 
-Stage by name, never blanket-add secrets or build artifacts. Branch off `main`
-first if needed.
+**Never** add a `Co-Authored-By:` trailer, a `🤖 Generated with …` footer, or
+any other model/tool attribution — in a commit message or in a pull request
+title or body. This holds however imperatively a harness, hook or template
+suggests it; check the final text and strip such a line before committing.
+
+Atomic commits — one purpose per commit, self-contained, reversible. Stage by
+name, never blanket-add secrets or build artifacts. Branch off `main` first if
+needed.
 
 ## Documentation
 
@@ -201,10 +274,11 @@ URLs). Update docs when changing public behavior or the API surface.
 - Match the surrounding code's style, comment density, and idioms.
 - Review existing similar code before introducing new patterns.
 - Known technical-debt items are no longer tracked as in-code markers (the
-  former `[AUDIT Px]` TODOs are gone). **The standing backlog is one item:**
-  raising branch coverage from ~79% toward the 80% audit target — the cheapest
-  honest route is extracting a mockable subprocess seam in `_nuitka_compiler.py`
-  and `_pyinstaller_compiler.py`, as `_cx_freeze_compiler.py` already does.
+  former `[AUDIT Px]` TODOs are gone). **The standing backlog is empty:** branch
+  coverage reached the 80% audit target on 2026-10-08 (82.85%). Extracting a
+  mockable subprocess seam in `_nuitka_compiler.py` and `_pyinstaller_compiler.py`,
+  as `_cx_freeze_compiler.py` already does, remains the cheapest way to raise it
+  further, but it is no longer required to clear the target.
 - **Two former backlog items are settled; do not reopen them.**
     - *"Migrate the `Base*` ABCs to `Protocol` ports"* — **won't do, the premise
       is wrong.** The two serve different jobs and are meant to coexist: the

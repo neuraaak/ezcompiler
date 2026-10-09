@@ -17,7 +17,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ezcompiler"
-version = "4.0.1"
+version = "4.1.0"
 description = "Project compilation and distribution framework for Python projects"
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.13"
@@ -76,32 +76,16 @@ all-compilers = [
 ]
 tufup = ["tufup>=0.10,<1.0"]
 r2 = ["boto3>=1.34,<2.0"]
-dev = [
-    # Development tools
-    "ruff>=0.1.0",
-    "ty>=0.0.13",
-    "pyright>=1.1.0",
-    "pre-commit>=3.0.0",
-    "import-linter>=2.0.0",
 
-    # Security
-    "bandit>=1.7.0",
+# ///////////////////////////////////////////////////////////////
+# 🧰 DEPENDENCY GROUPS (PEP 735)
+# Development tooling. Unlike [project.optional-dependencies] above, these
+# are NOT published in the wheel metadata: `pip install ezcompiler[dev]`
+# is no longer a valid command, and the PyPI page only advertises the
+# product extras. Install with `uv sync --group dev`.
+# ///////////////////////////////////////////////////////////////
 
-    # Tests
-    "pytest>=7.0.0",
-    "pytest-cov>=4.0.0",
-    "pytest-mock>=3.10.0",
-    "pytest-xdist>=3.0.0",
-
-    # Compilers (all, for testing)
-    "cx_Freeze>=7.0,<9.0",
-    "PyInstaller>=5.0",
-    "Nuitka>=2.4",
-
-    # Build and distribution
-    "build>=1.0.0",
-    "twine>=4.0.0",
-]
+[dependency-groups]
 test = [
     "pytest>=7.0.0",
     "pytest-cov>=4.0.0",
@@ -118,6 +102,32 @@ docs = [
     "mike>=2.0.0",
     "pymdown-extensions>=10.7",
     "git-cliff>=2.7.0",
+]
+dev = [
+    # Tests (single source of truth, no duplication)
+    { include-group = "test" },
+
+    # Documentation (single source of truth, no duplication)
+    { include-group = "docs" },
+
+    # Development tools
+    "ruff>=0.1.0",
+    "ty>=0.0.13",
+    "pyright>=1.1.0",
+    "pre-commit>=3.0.0",
+
+    # Security
+    "bandit>=1.7.0",
+    "pip-audit>=2.7.0",
+
+    # Compilers (all, for testing)
+    "cx_Freeze>=7.0,<9.0",
+    "PyInstaller>=5.0",
+    "Nuitka>=2.4",
+
+    # Build and distribution
+    "build>=1.0.0",
+    "twine>=4.0.0",
 ]
 
 # ///////////////////////////////////////////////////////////////
@@ -198,19 +208,22 @@ select = [
     "PIE", # flake8-pie
     "SIM", # flake8-simplify
 ]
+# S101 (assert), T201 (print) and S603 (subprocess) are NOT ignored
+# globally: the AGENTS.md rules "never print() in library code" and "no
+# invariant assert in production" must stay enforceable on src/. Legitimate
+# exemptions live in per-file-ignores, or in a one-off `# noqa` on the
+# subprocess call concerned.
 ignore = [
     "E501", # line too long, handled by ruff format
     "B008", # do not perform function calls in argument defaults
-    "S101", # assert_used (for tests)
     "S106", # hardcoded_password_funcarg
-    "T201", # print statements (for init.py and scripts)
-    "S603", # subprocess.run without check=True
 ]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*" = ["S101", "S311", "E501", "ARG002"]
 "examples/**/*" = ["T201", "E501"]
-"src/ezcompiler/cli/**/*" = ["T201", "E501", "S603"]
+".scripts/**/*" = ["T201", "E501"]
+"src/ezcompiler/interfaces/**/*" = ["T201", "E501"]
 
 [tool.ruff.lint.mccabe]
 max-complexity = 10
@@ -312,9 +325,9 @@ reportInconsistentConstructor = true
 
 [tool.importlinter]
 root_packages = ["ezcompiler"]
-# Note: import-linter 2.x ne supporte pas source_paths (feature pending PR #323).
-# Le package doit être installé en mode editable (pip install -e .)
-# ou lancer avec PYTHONPATH=src lint-imports
+# Note: import-linter 2.x does not support source_paths (feature pending PR #323).
+# The package must be installed in editable mode (pip install -e .)
+# or run with PYTHONPATH=src lint-imports
 
 [[tool.importlinter.contracts]]
 name = "layer dependency flow"
@@ -363,7 +376,9 @@ addopts = [
     "--cov-report=term-missing",
     "--cov-report=html",
     "--cov-report=xml",
-    "--cov-fail-under=70",
+    # No --cov-fail-under here: it would make any partial run (one file, a
+    # -k, a marker) exit with code 1. The threshold is carried by the CI
+    # command: `pytest --cov=src/ezcompiler --cov-fail-under=70`.
     "--tb=short",
     "--color=yes",
     "--durations=10",
@@ -378,6 +393,7 @@ markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks tests as integration tests",
     "requires_iscc: needs a real ISCC.exe (Inno Setup 6) on the machine",
+    "requires_gh: needs a real, authenticated gh CLI on the machine",
     "unit: marks tests as unit tests (default)",
     "cli: marks tests related to CLI",
     "compiler: marks tests related to compilers",
@@ -461,4 +477,4 @@ exclude_dirs = [
     "examples",
     "_temp",
 ]
-skips = ["B101", "B601"]
+skips = ["B601"]

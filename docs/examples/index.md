@@ -119,7 +119,7 @@ ezcompiler = EzCompiler(config)
 ezcompiler.compile_project(compiler="Nuitka")
 ```
 
-## 💡 Full pipeline — compile, zip, upload to disk
+## 💡 Full pipeline — compile, zip, publish to disk
 
 ```python
 from ezcompiler import EzCompiler, CompilerConfig
@@ -138,10 +138,16 @@ config = CompilerConfig(
 ezcompiler = EzCompiler(config)
 ezcompiler.compile_project(compiler="PyInstaller")
 ezcompiler.zip_compiled_project()
-ezcompiler.upload(destination="./releases", structure="disk")
 ```
 
-## 💡 Upload to HTTP server
+Then publish with the CLI:
+
+```bash
+# Publication is a separate CLI step: it reads your ezcompiler.yaml / pyproject.toml
+ezcompiler publish release --release-destination disk --destination ./releases
+```
+
+## 💡 Publish to an HTTP server
 
 ```python
 from ezcompiler import EzCompiler, CompilerConfig
@@ -159,11 +165,19 @@ config = CompilerConfig(
 ezcompiler = EzCompiler(config)
 ezcompiler.compile_project(compiler="Cx_Freeze")
 ezcompiler.zip_compiled_project()
-ezcompiler.upload(
-    destination="https://releases.example.com/upload",
-    structure="server",
-    upload_config={"username": "deploy_user", "password": "secure_password"},
-)
+```
+
+```bash
+ezcompiler publish release --release-destination server \
+    --destination https://releases.example.com/upload
+```
+
+Credentials never go on the command line: export them before publishing.
+
+```bash
+export EZCOMPILER_SERVER_USERNAME=deploy_user
+export EZCOMPILER_SERVER_PASSWORD=...        # basic auth
+# or: export EZCOMPILER_SERVER_API_KEY=...   # bearer token
 ```
 
 ## 💡 Error handling
@@ -174,7 +188,6 @@ from ezcompiler.shared.exceptions import (
     CompilationError,
     ConfigurationError,
     FileOperationError,
-    UploadError,
 )
 
 config = CompilerConfig(
@@ -189,15 +202,12 @@ try:
     ezcompiler = EzCompiler(config)
     ezcompiler.compile_project(compiler="PyInstaller")
     ezcompiler.zip_compiled_project()
-    ezcompiler.upload(destination="./releases", structure="disk")
 except ConfigurationError as e:
     raise SystemExit(1) from e
 except CompilationError as e:
     raise SystemExit(2) from e
 except FileOperationError as e:
     raise SystemExit(3) from e
-except UploadError as e:
-    raise SystemExit(4) from e
 ```
 
 ## 💡 Generate client updater files
@@ -231,9 +241,9 @@ for path in generated_files:
 from ezcompiler.services import TemplateService
 
 template_service = TemplateService()
-config_content = template_service.process_template(
-    template_name="config.yaml",
-    variables={"PROJECT_NAME": "MyApp", "VERSION": "1.0.0", "MAIN_FILE": "main.py"},
+config_content = template_service.process_config_template(
+    format_type="yaml",
+    config={"project_name": "MyApp", "version": "1.0.0", "main_file": "main.py"},
 )
 
 with open("ezcompiler.yaml", "w") as f:

@@ -5,7 +5,7 @@
 [![PyPI status](https://img.shields.io/pypi/status/ezcompiler?style=flat&logo=pypi&logoColor=white)](https://pypi.org/project/ezcompiler/)
 [![License](https://img.shields.io/badge/license-MIT-green?style=flat&logo=github&logoColor=white)](https://github.com/neuraaak/ezcompiler/blob/main/LICENSE)
 [![CI](https://img.shields.io/github/actions/workflow/status/neuraaak/ezcompiler/01-ci.yml?style=flat&label=ci&logo=githubactions&logoColor=white)](https://github.com/neuraaak/ezcompiler/actions/workflows/01-ci.yml)
-[![Docs](https://img.shields.io/badge/docs-Github%20Pages-blue?style=flat&logo=materialformkdocs&logoColor=white)](https://neuraaak.github.io/ezcompiler/)
+[![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-blue?style=flat&logo=materialformkdocs&logoColor=white)](https://neuraaak.github.io/ezcompiler/)
 [![uv](https://img.shields.io/badge/package%20manager-uv-DE5FE9?style=flat&logo=uv&logoColor=white)](https://github.com/astral-sh/uv)
 [![linter](https://img.shields.io/badge/linter-ruff-D7FF64?style=flat&logo=ruff&logoColor=white)](https://github.com/astral-sh/ruff)
 [![type checker](https://img.shields.io/badge/type%20checker-ty-261230?style=flat&logo=astral&logoColor=white)](https://github.com/astral-sh/ty)
@@ -43,18 +43,24 @@ config = CompilerConfig(
 ezcompiler = EzCompiler(config)
 ezcompiler.compile_project(compiler="PyInstaller")  # (1)!
 ezcompiler.zip_compiled_project()
-ezcompiler.upload(destination="./releases", structure="disk")
 ```
 
 1. Supported backends: `"PyInstaller"`, `"Cx_Freeze"`, `"Nuitka"`.
+
+Publication is a separate CLI step, never done by the Python API:
+
+```bash
+# Publication is a separate CLI step: it reads your ezcompiler.yaml / pyproject.toml
+ezcompiler publish release --release-destination disk --destination ./releases
+```
 
 ## ✨ Key features
 
 - Multi-backend compilation: Cx_Freeze, PyInstaller, and Nuitka.
 - ZIP packaging with configurable compression.
-- Disk and HTTP server upload backends.
-- Template-based generation for config, setup, and version files.
-- Complete Python 3.11+ type hints throughout the public API.
+- Publication to disk, HTTP servers, R2 or GitHub Releases with `ezcompiler publish`.
+- Template-based generation for config, build, and version files.
+- Complete Python 3.13+ type hints throughout the public API.
 
 ## 📚 Documentation
 
@@ -65,10 +71,12 @@ ezcompiler.upload(destination="./releases", structure="disk")
 | [API Reference](api/index.md)         | Curated API map and auto-generated technical reference. |
 | [CLI Reference](cli/index.md)         | Command and option reference for the CLI.               |
 | [Examples](examples/index.md)         | Copy-paste runnable scenarios.                          |
+| [Concepts](concepts/index.md)         | Design rationale behind the architecture and pipeline.  |
+| [Changelog](changelog.md)             | Released versions and their changes.                    |
 
 ## 📋 Requirements
 
-- Python >= 3.11
+- Python >= 3.13
 - PyYAML >= 6.0
 - cx_Freeze, PyInstaller, or Nuitka (at least one backend)
 

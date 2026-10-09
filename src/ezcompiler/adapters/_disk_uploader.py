@@ -68,6 +68,12 @@ class DiskUploader(BaseUploader):
                 - create_backup (bool): Create backup before overwrite
         """
         default_config = UploaderUtils.get_default_disk_config()
+        UploaderUtils.reject_unknown_config_keys(
+            config,
+            # destination_path is injected by UploaderService.upload().
+            (*default_config, "destination_path"),
+            uploader="disk",
+        )
 
         if config:
             default_config.update(config)

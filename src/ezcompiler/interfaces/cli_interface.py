@@ -19,8 +19,10 @@ from __future__ import annotations
 # ///////////////////////////////////////////////////////////////
 # Standard library imports
 import json
+import math
 import sys
 import tomllib
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -31,6 +33,7 @@ if TYPE_CHECKING:
     from ezplog.lib_mode import _LazyPrinter
 
     from .._types import ReleaseDestination, RepoDestination
+    from ..shared import CompilerConfig
 
 # Third-party imports
 import click
@@ -43,8 +46,10 @@ from .._version import __version__
 from ..services import (
     ConfigService,
     InstallerService,
+    PublishService,
     ReleaseService,
     TemplateService,
+    TufService,
     UpdaterService,
 )
 from ..shared import COMPILER_SECTION_KEYS
@@ -53,6 +58,7 @@ from ..shared.exceptions import (
     ConfigError,
     ConfigurationError,
     InstallerError,
+    PublishError,
     ReleaseError,
     SigningKeyError,
     TemplateError,
@@ -60,6 +66,7 @@ from ..shared.exceptions import (
     VersionError,
     ZipError,
 )
+from ..utils import is_prerelease
 
 # ///////////////////////////////////////////////////////////////
 # MODULE-LEVEL LOGGING (lib_mode — passive proxies)
@@ -318,7 +325,7 @@ def config(
     \b
     Examples:
         ezcompiler generate config -n myproject
-        ezcompiler generate config --from-pyproject pyproject.toml --fmt json
+        ezcompiler generate config --from-pyproject pyproject.toml --format json
         ezcompiler generate config --from-pyproject pyproject.toml -I
     """
 
@@ -952,6 +959,12 @@ def template_raw(
         "build in output_folder (zip, installer, release)"
     ),
 )
+@click.option(
+    "--required",
+    is_flag=True,
+    default=False,
+    help="Mark the produced version as mandatory for TUF clients",
+)
 def compile_project(
     config: str | None,
     pyproject: str | None,
@@ -963,6 +976,7 @@ def compile_project(
     skip_installer: bool,
     skip_release: bool,
     skip_build: bool,
+    required: bool,
 ) -> None:
     """
     Compile the project (full build pipeline).
@@ -972,7 +986,7 @@ def compile_project(
 
     Runs version -> compile -> zip, plus the installer and TUF release
     stages when enabled in the config (installer_enabled / tuf_enabled).
-    Upload is a separate step: run `ezcompiler upload` afterwards.
+    Publication is a separate step: run `ezcompiler publish` afterwards.
     Use --skip-build to resume after a previous compile (zip, installer and
     release run against the existing output_folder).
 
@@ -989,6 +1003,8 @@ def compile_project(
         ezcompiler compile --skip-installer --skip-release
 
         ezcompiler compile --skip-build
+
+        ezcompiler compile --required
     """
     printer = _get_printer()
     logger = _get_logger()
@@ -1017,6 +1033,13 @@ def compile_project(
         logger.error(str(e))
         sys.exit(1)
 
+    # Validate --required flag
+    if required and (skip_release or not config_obj.tuf_enabled):
+        raise click.UsageError(
+            "--required only has an effect when the TUF release step runs "
+            "(tuf_enabled, without --skip-release)."
+        )
+
     # Delegate to the shared pipeline so installer and TUF release stages run
     # when enabled in the config — identical behaviour to EzCompiler.run_pipeline.
     from .python_api import EzCompiler  # noqa: PLC0415
@@ -1029,6 +1052,7 @@ def compile_project(
             skip_installer=skip_installer,
             skip_release=skip_release,
             skip_build=skip_build,
+            required=required,
         )
     except (
         ConfigurationError,
@@ -1065,7 +1089,7 @@ def compile_project(
     "repo_destination",
     type=click.Choice(["disk", "server", "r2"]),
     default=None,
-    help="Backend pour l'arbre TUF (overrides config)",
+    help="Backend for the TUF tree (overrides config)",
 )
 @click.option(
     "--release-destination",
@@ -1073,14 +1097,14 @@ def compile_project(
     "release_destination",
     type=click.Choice(["disk", "server", "r2"]),
     default=None,
-    help="Backend pour le zip installeur (overrides config)",
+    help="Backend for the installer zip (overrides config)",
 )
 @click.option(
     "--destination",
     "-d",
     "destination",
     default=None,
-    help="Destination commune (override pour repo et release)",
+    help="Shared destination (override for repo and release)",
 )
 def upload_command(
     config: str | None,
@@ -1089,13 +1113,13 @@ def upload_command(
     release_destination: ReleaseDestination | None,
     destination: str | None,
 ) -> None:
-    """Upload l'arbre TUF et le zip installeur vers leur destination.
+    """[Deprecated] Use `ezcompiler publish update` / `publish release`.
 
-    Auto-détecte selon release_needed : arbre TUF → <dest>/update/,
-    zip → <dest>/release/. Destination et backends tombent en fallback
-    sur la config si non fournis.
+    Shortcut chaining `publish update` (when tuf_enabled) then
+    `publish release`, without confirmation. Platform publications
+    (github) are refused: use `publish release`, which confirms them.
 
-    Exemples :
+    Examples:
 
         ezcompiler upload --config ezcompiler.yaml
 
@@ -1103,18 +1127,387 @@ def upload_command(
     """
     printer = _get_printer()
     logger = _get_logger()
+    printer.warning(
+        "`ezcompiler upload` is deprecated and will be removed in v5. "
+        "Use `ezcompiler publish update` then "
+        "`ezcompiler publish release`."
+    )
     try:
-        config_obj = ConfigService.build_compiler_config(
+        cfg = ConfigService.build_compiler_config(
             config_path=Path(config) if config else None,
             pyproject_path=Path(pyproject) if pyproject else None,
         )
-        from .python_api import EzCompiler  # noqa: PLC0415
+    except ConfigurationError as e:
+        printer.error(str(e))
+        logger.error(str(e))
+        sys.exit(1)
 
-        EzCompiler(config=config_obj).upload(
-            destination=destination,
+    rel_dest = release_destination or cfg.release_destination
+    if rel_dest not in ("disk", "server", "r2"):
+        printer.error(
+            f"`ezcompiler upload` does not publish to {rel_dest}: a platform "
+            "release requires confirmation. Use "
+            "`ezcompiler publish update` then `ezcompiler publish release`."
+        )
+        sys.exit(1)
+
+    # Delegates to the publish commands with an implicit --yes (spec §8):
+    # upload stays non-interactive. A TUF tree failure exits before the
+    # release.
+    ctx = click.get_current_context()
+    common = {"config": config, "pyproject": pyproject, "destination": destination}
+    if cfg.tuf_enabled:
+        ctx.invoke(
+            publish_update_command,
             repo_destination=repo_destination,
+            yes=True,
+            **common,
+        )
+    ctx.invoke(
+        publish_release_command,
+        release_destination=release_destination,
+        yes=True,
+        **common,
+    )
+
+
+# ///////////////////////////////////////////////////////////////
+# PUBLISH COMMANDS
+# ///////////////////////////////////////////////////////////////
+
+
+def _force_utf8_stdout() -> None:
+    """Avoid UnicodeEncodeError on a Windows cp1252 console."""
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is not None:
+            reconfigure(encoding="utf-8", errors="replace")
+
+
+def _read_notes_file(path: Path) -> str:
+    """Read a release-notes file as UTF-8, or fail as a usage error."""
+    try:
+        return path.read_text(encoding="utf-8")
+    except UnicodeDecodeError as e:
+        raise click.BadParameter(
+            f"{path} is not UTF-8 encoded ({e.reason}).",
+            param_hint="--notes-file",
+        ) from None
+
+
+def _format_size(num_bytes: int) -> str:
+    """Format a byte size in a readable form."""
+    size = float(num_bytes)
+    for unit in ("B", "KB", "MB", "GB"):
+        if size < 1024 or unit == "GB":
+            return f"{size:.1f} {unit}"
+        size /= 1024
+    return f"{size:.1f} GB"
+
+
+def _describe_update_target(
+    cfg: CompilerConfig, repo_dest: str, destination: str | None
+) -> str:
+    """Where ``publish update`` will land, mirroring UploaderService."""
+    if repo_dest == "r2":
+        return f"r2://{cfg.repo_endpoint} (bucket/prefix)"
+    base = destination or cfg.resolved_repo_destination or ""
+    if repo_dest == "server":
+        return base.rstrip("/") + "/update/"
+    return str(Path(base or ".") / "update")
+
+
+@main.group()
+def publish() -> None:
+    """Publish the TUF update tree or a release.
+
+    Kept apart from the build pipeline: publication is a deliberate,
+    irreversible act, and asks for confirmation (unless --yes).
+    """
+
+
+@publish.command("release")
+@click.option(
+    "--config", "-c", type=click.Path(exists=True), help="Config file path (YAML, JSON)"
+)
+@click.option(
+    "--pyproject",
+    "-p",
+    type=click.Path(exists=True),
+    help="Explicit pyproject.toml path",
+)
+@click.option(
+    "--release-destination",
+    "-rld",
+    "release_destination",
+    type=click.Choice(["disk", "server", "r2", "github", "gitlab"]),
+    default=None,
+    help="Publication backend (overrides config)",
+)
+@click.option("--destination", "-d", default=None, help="Destination (override config)")
+@click.option("--tag", default=None, help="Release tag (default: v<version>)")
+@click.option("--title", default=None, help="Title (default: <project> v<version>)")
+@click.option("--notes", default=None, help="Release body (literal)")
+@click.option(
+    "--notes-file",
+    "notes_file",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+    help="File holding the release body",
+)
+@click.option(
+    "--prerelease/--no-prerelease",
+    "prerelease",
+    default=None,
+    help="Force the pre-release label (default: inferred from the version)",
+)
+@click.option("--draft", is_flag=True, help="Create the release unpublished")
+@click.option("--yes", "-y", is_flag=True, help="Do not ask for confirmation")
+def publish_release_command(
+    config: str | None,
+    pyproject: str | None,
+    release_destination: str | None,
+    destination: str | None,
+    tag: str | None,
+    title: str | None,
+    notes: str | None,
+    notes_file: Path | None,
+    prerelease: bool | None,
+    draft: bool,
+    yes: bool,
+) -> None:
+    """Publish the installer and the zip as a release.
+
+    On github, creates a Release attaching the artifacts. On disk, server
+    or r2, copies the files to the configured destination.
+
+    Examples:
+
+        ezcompiler publish release
+
+        ezcompiler publish release --yes --notes-file CHANGELOG.md
+    """
+    _force_utf8_stdout()
+    printer = _get_printer()
+    logger = _get_logger()
+
+    if notes and notes_file:
+        raise click.UsageError("--notes et --notes-file sont mutuellement exclusives.")
+
+    try:
+        cfg = ConfigService.build_compiler_config(
+            config_path=Path(config) if config else None,
+            pyproject_path=Path(pyproject) if pyproject else None,
+        )
+
+        resolved_tag = tag or f"v{cfg.version}"
+        resolved_title = title or f"{cfg.project_name} v{cfg.version}"
+        is_pre = is_prerelease(cfg.version) if prerelease is None else prerelease
+
+        # Routing and the port lifecycle live in PublishService: the CLI
+        # only shows the recap and asks for confirmation.
+        preflight = PublishService.preflight_release(
+            cfg, tag=resolved_tag, release_destination=release_destination
+        )
+
+        # File path (disk/server/r2): historical behavior, without
+        # confirmation — nothing is irreversible on the client side. The
+        # assets are reassembled into release/ by the service, as before.
+        if not preflight.is_platform:
+            ignored = [
+                flag
+                for flag, given in (
+                    ("--tag", tag),
+                    ("--title", title),
+                    ("--notes", notes),
+                    ("--notes-file", notes_file),
+                    ("--draft", draft),
+                    ("--prerelease/--no-prerelease", prerelease is not None),
+                )
+                if given
+            ]
+            if ignored:
+                printer.warning(
+                    f"Ignored outside a platform release: {', '.join(ignored)}."
+                )
+            PublishService.publish_release(
+                cfg,
+                [],
+                tag=resolved_tag,
+                title=resolved_title,
+                destination=destination,
+                release_destination=release_destination,
+            )
+            printer.success("Release assets transferred")
+            logger.info("Release assets uploaded")
+            return
+
+        if destination:
+            raise click.UsageError(
+                "--destination does not apply to a platform publication: "
+                "the repository comes from release_endpoint (owner/repo)."
+            )
+
+        # Every check runs BEFORE the recap: once the operator confirms,
+        # only a network risk is left.
+        body = _read_notes_file(notes_file) if notes_file else notes
+        assets = list(preflight.assets)
+
+        printer.info("─" * 60)
+        printer.info(f"Release to publish via {preflight.publisher_name}")
+        printer.info(
+            f"   Repository : {preflight.repo or '(inferred from the current git remote)'}"
+        )
+        printer.info(f"   Tag        : {resolved_tag}")
+        printer.info(f"   Title      : {resolved_title}")
+        printer.info(f"   Pre-release: {'yes' if is_pre else 'no'}")
+        printer.info(f"   Draft      : {'yes' if draft else 'no'}")
+        printer.info(
+            f"   Notes      : {'provided' if body else 'generated automatically'}"
+        )
+        printer.info("   Artifacts  :")
+        for asset in assets:
+            printer.info(
+                f"     - {asset.name}   ({_format_size(asset.stat().st_size)})"
+            )
+        printer.info("─" * 60)
+
+        if not yes and not click.confirm("Publish this release?", default=False):
+            printer.info("Cancelled.")
+            sys.exit(1)
+
+        url = PublishService.publish_release(
+            cfg,
+            assets,
+            tag=resolved_tag,
+            title=resolved_title,
+            notes=body,
+            prerelease=is_pre,
+            draft=draft,
             release_destination=release_destination,
         )
+        printer.success(f"Release {resolved_tag} published: {url}")
+        logger.info("Release %s published: %s", resolved_tag, url)
+
+    except (ConfigurationError, PublishError, UploadError, ReleaseError) as e:
+        printer.error(str(e))
+        logger.error(str(e))
+        sys.exit(1)
+
+
+@publish.command("update")
+@click.option(
+    "--config", "-c", type=click.Path(exists=True), help="Config file path (YAML, JSON)"
+)
+@click.option(
+    "--pyproject",
+    "-p",
+    type=click.Path(exists=True),
+    help="Explicit pyproject.toml path",
+)
+@click.option(
+    "--repo-destination",
+    "-rd",
+    "repo_destination",
+    type=click.Choice(["disk", "server", "r2"]),
+    default=None,
+    help="Backend for the TUF tree (overrides config)",
+)
+@click.option("--destination", "-d", default=None, help="Destination (override config)")
+@click.option("--yes", "-y", is_flag=True, help="Do not ask for confirmation")
+def publish_update_command(
+    config: str | None,
+    pyproject: str | None,
+    repo_destination: str | None,
+    destination: str | None,
+    yes: bool,
+) -> None:
+    """Publish the TUF update tree.
+
+    The more irreversible of the two publications: TUF metadata versions
+    are monotonic and clients auto-update with no human action. You do
+    not unpublish, you republish higher.
+
+    Examples:
+
+        ezcompiler publish update
+
+        ezcompiler publish update --repo-destination r2 --yes
+    """
+    _force_utf8_stdout()
+    printer = _get_printer()
+    logger = _get_logger()
+
+    try:
+        cfg = ConfigService.build_compiler_config(
+            config_path=Path(config) if config else None,
+            pyproject_path=Path(pyproject) if pyproject else None,
+        )
+
+        repo_dir = TufService.repo_dir(cfg)
+        # Read the version from the signed tree itself: that is the one
+        # clients will receive, not necessarily the config one.
+        withdrawn = TufService.withdrawn_versions(repo_dir)
+        tree_version = TufService.read_tree_version(cfg, allow_empty=bool(withdrawn))
+        config_withdrawn = any(
+            TufService.same_version(cfg.version, w) for w in withdrawn
+        )
+        shown = tree_version or "none (all withdrawn)"
+
+        repo_dest = repo_destination or cfg.repo_destination
+        if repo_dest == "r2" and destination:
+            printer.warning(
+                "--destination is ignored with r2: the target comes from "
+                "repo_endpoint (bucket/prefix)."
+            )
+        target = _describe_update_target(cfg, repo_dest, destination)
+        file_count = sum(1 for f in repo_dir.rglob("*") if f.is_file())
+
+        printer.info("─" * 60)
+        printer.info("TUF update tree to publish")
+        printer.info(f"   Backend    : {repo_dest}")
+        printer.info(f"   Destination: {target}")
+        printer.info(f"   Version    : {shown}")
+        printer.info(f"   Files      : {file_count}")
+        printer.info("─" * 60)
+        if config_withdrawn:
+            printer.warning(
+                f"{cfg.version} was withdrawn: the republished tree offers "
+                f"{shown}, so that {cfg.version} no longer reaches new "
+                f"clients. Clients already on {cfg.version} stay there until "
+                "a higher version."
+            )
+        else:
+            if tree_version is not None and not TufService.same_version(
+                tree_version, cfg.version
+            ):
+                printer.warning(
+                    f"The config announces {cfg.version}, but the signed tree "
+                    f"carries {tree_version}: {tree_version} is what will be "
+                    "published. Run the pipeline again if that is not intended."
+                )
+            if tree_version is None:
+                printer.warning(
+                    "The republished tree no longer offers any version: "
+                    "installed clients stay on their current version."
+                )
+            else:
+                printer.warning(
+                    f"Installed clients will move to {shown} automatically. "
+                    "This publication cannot be undone, only replaced by a "
+                    "higher version."
+                )
+
+        if not yes and not click.confirm("Publish this tree?", default=False):
+            printer.info("Cancelled.")
+            sys.exit(1)
+
+        PublishService.publish_update(
+            cfg, destination=destination, repo_destination=repo_destination
+        )
+        printer.success(f"TUF tree published ({repo_dest})")
+        logger.info("TUF update tree published (%s)", repo_dest)
+
     except (ConfigurationError, UploadError, ReleaseError) as e:
         printer.error(str(e))
         logger.error(str(e))
@@ -1271,19 +1664,25 @@ def init(
 
 
 @main.group()
-def release() -> None:
-    """Secure-release operations (TUF)."""
+def tuf() -> None:
+    """Local TUF update tree: keys, status, version withdrawal.
+
+    These commands only change the local tree; `ezcompiler publish
+    update` publishes it.
+    """
 
 
-@release.command("init")
+@tuf.command("init")
 @click.option(
-    "--config",
-    "config_path",
-    default=None,
-    type=click.Path(exists=True, dir_okay=False, path_type=Path),
-    help="Path to ezcompiler config file (auto-detected if omitted).",
+    "--config", "-c", type=click.Path(exists=True), help="Config file path (YAML, JSON)"
 )
-def release_init(config_path: Path | None) -> None:
+@click.option(
+    "--pyproject",
+    "-p",
+    type=click.Path(exists=True),
+    help="Explicit pyproject.toml path",
+)
+def tuf_init(config: str | None, pyproject: str | None) -> None:
     """Initialise TUF signing keys and repository skeleton.
 
     Run once per project, before the first `ezcompiler compile` with
@@ -1293,15 +1692,12 @@ def release_init(config_path: Path | None) -> None:
     printer = _get_printer()
     logger = _get_logger()
     try:
-        config_service = ConfigService()
-        cfg = config_service.load_config(config_path)
-        from ..shared import CompilerConfig  # noqa: PLC0415
-
-        compiler_config = CompilerConfig.from_dict(cfg)
-        repo_dir = compiler_config.tuf_repo_dir or (
-            compiler_config.output_folder / "repo"
+        compiler_config = ConfigService.build_compiler_config(
+            config_path=Path(config) if config else None,
+            pyproject_path=Path(pyproject) if pyproject else None,
         )
-        keys_dir = compiler_config.tuf_keys_dir or (repo_dir / "keystore")
+        repo_dir = TufService.repo_dir(compiler_config)
+        keys_dir = TufService.keys_dir(compiler_config)
         initialized = ReleaseService.init_release(
             app_name=compiler_config.project_name,
             repo_dir=repo_dir,
@@ -1317,19 +1713,21 @@ def release_init(config_path: Path | None) -> None:
         else:
             printer.info(f"Keys already present in {keys_dir} — skipped.")
             logger.info("TUF keys already present, skipped.")
-    except (ReleaseError, SigningKeyError, ConfigError) as e:
+    except (ReleaseError, SigningKeyError, ConfigError, ConfigurationError) as e:
         printer.error(str(e))
         logger.error(str(e))
         sys.exit(1)
 
 
-@release.command("refresh")
+@tuf.command("refresh")
 @click.option(
-    "--config",
-    "config_path",
-    default=None,
-    type=click.Path(exists=True, dir_okay=False, path_type=Path),
-    help="Path to ezcompiler config file (auto-detected if omitted).",
+    "--config", "-c", type=click.Path(exists=True), help="Config file path (YAML, JSON)"
+)
+@click.option(
+    "--pyproject",
+    "-p",
+    type=click.Path(exists=True),
+    help="Explicit pyproject.toml path",
 )
 @click.option(
     "--role",
@@ -1345,8 +1743,9 @@ def release_init(config_path: Path | None) -> None:
     default=None,
     help="Expiration in days from now (default: config tuf_expiration_days).",
 )
-def release_refresh(
-    config_path: Path | None,
+def tuf_refresh(
+    config: str | None,
+    pyproject: str | None,
     roles: tuple[str, ...],
     days: int | None,
 ) -> None:
@@ -1354,16 +1753,15 @@ def release_refresh(
 
     Native tufup keep-alive for projects updated irregularly: repushes the
     expiration date of the short-lived roles so clients keep trusting the
-    repository between releases. Requires signing keys (`release init`).
+    repository between releases. Requires signing keys (`tuf init`).
     """
     printer = _get_printer()
     logger = _get_logger()
     try:
-        config_service = ConfigService()
-        cfg = config_service.load_config(config_path)
-        from ..shared import CompilerConfig  # noqa: PLC0415
-
-        compiler_config = CompilerConfig.from_dict(cfg)
+        compiler_config = ConfigService.build_compiler_config(
+            config_path=Path(config) if config else None,
+            pyproject_path=Path(pyproject) if pyproject else None,
+        )
         from .python_api import EzCompiler  # noqa: PLC0415
 
         repo = EzCompiler(config=compiler_config).refresh_release_expiration(
@@ -1376,6 +1774,182 @@ def release_refresh(
         printer.error(str(e))
         logger.error(str(e))
         sys.exit(1)
+
+
+_EXPIRY_WARN_DAYS = 7
+
+
+@tuf.command("status")
+@click.option(
+    "--config", "-c", type=click.Path(exists=True), help="Config file path (YAML, JSON)"
+)
+@click.option(
+    "--pyproject",
+    "-p",
+    type=click.Path(exists=True),
+    help="Explicit pyproject.toml path",
+)
+def tuf_status(config: str | None, pyproject: str | None) -> None:
+    """Show the state of the local TUF tree (read-only).
+
+    Signed versions, flags, role expirations and withdrawn versions.
+
+    Example:
+
+        ezcompiler tuf status
+    """
+    _force_utf8_stdout()
+    printer = _get_printer()
+    logger = _get_logger()
+    try:
+        cfg = ConfigService.build_compiler_config(
+            config_path=Path(config) if config else None,
+            pyproject_path=Path(pyproject) if pyproject else None,
+        )
+        status = TufService.status(cfg)
+    except (ConfigurationError, ReleaseError) as e:
+        printer.error(str(e))
+        logger.error(str(e))
+        sys.exit(1)
+
+    printer.info(f"TUF tree: {status.repo_dir}")
+    printer.info("Versions (newest to oldest)")
+    if not status.versions:
+        printer.info("   (none)")
+    for v in status.versions:
+        flags = [
+            f for f, on in (("mandatory", v.required), ("patch", v.has_patch)) if on
+        ]
+        printer.info(f"   {v.version:<12} {'  '.join(flags)}".rstrip())
+
+    printer.info("Expirations")
+    now = datetime.now(UTC)
+    for role, expires in status.expirations.items():
+        refresh = "ezcompiler tuf refresh" + (" --role root" if role == "root" else "")
+        # Rounded up to the next day: a role signed for 7 days shows
+        # "7 d" right after signing, with no warning.
+        days = math.ceil((expires - now).total_seconds() / 86400)
+        line = f"   {role:<10} {expires:%Y-%m-%d}   ({days} d)"
+        if expires <= now:
+            printer.error(f"{line}   expired: run `{refresh}`")
+        elif timedelta(days=days) < timedelta(days=_EXPIRY_WARN_DAYS):
+            printer.warning(f"{line}   expiring soon: run `{refresh}`")
+        else:
+            printer.info(line)
+
+    printer.info("Withdrawn versions: " + (", ".join(status.withdrawn) or "none"))
+
+
+@tuf.command("remove-latest")
+@click.option(
+    "--config", "-c", type=click.Path(exists=True), help="Config file path (YAML, JSON)"
+)
+@click.option(
+    "--pyproject",
+    "-p",
+    type=click.Path(exists=True),
+    help="Explicit pyproject.toml path",
+)
+@click.option("--yes", "-y", is_flag=True, help="Do not ask for confirmation")
+def tuf_remove_latest(config: str | None, pyproject: str | None, yes: bool) -> None:
+    """Withdraw the latest version from the local TUF tree and re-sign it.
+
+    Clients that do not have this version yet will no longer receive it
+    once the tree is republished (`ezcompiler publish update`). Those that
+    already have it will only leave it for a higher version.
+
+    Examples:
+
+        ezcompiler tuf remove-latest
+
+        ezcompiler tuf remove-latest --yes
+    """
+    _force_utf8_stdout()
+    printer = _get_printer()
+    logger = _get_logger()
+    try:
+        cfg = ConfigService.build_compiler_config(
+            config_path=Path(config) if config else None,
+            pyproject_path=Path(pyproject) if pyproject else None,
+        )
+        keys_dir = TufService.keys_dir(cfg)
+        if not keys_dir.is_dir():
+            raise SigningKeyError(
+                f"Signing keys not found: {keys_dir}. "
+                "Run `ezcompiler tuf init` or fix tuf_keys_dir."
+            )
+        status = TufService.status(cfg)
+        if not status.versions:
+            raise ReleaseError(f"No version to withdraw in {status.repo_dir}.")
+
+        latest = status.versions[0]
+        previous = status.versions[1].version if len(status.versions) > 1 else None
+        files = [f"{cfg.project_name}-{latest.version}.tar.gz"]
+        if latest.has_patch:
+            files.append(f"{cfg.project_name}-{latest.version}.patch")
+
+        printer.info("─" * 60)
+        printer.info(f"Version withdrawn: {latest.version}")
+        printer.info(f"Files deleted locally: {', '.join(files)}")
+        printer.info(f"New latest version: {previous or 'none'}")
+        printer.info("─" * 60)
+        if previous is None:
+            printer.warning(
+                "This is the only version in the tree: once republished, it "
+                "will offer no version at all."
+            )
+        printer.warning(
+            f"Clients that already installed {latest.version} stay there: "
+            "only a higher version will move them off it."
+        )
+
+        if not yes and not click.confirm("Withdraw this version?", default=False):
+            printer.info("Cancelled.")
+            sys.exit(1)
+
+        removed = TufService.remove_latest(cfg)
+        printer.success(f"Version {removed} withdrawn from the local tree, re-signed.")
+        printer.info(
+            "Next: `ezcompiler compile --required` with a version "
+            f"> {removed}, then `ezcompiler publish update`."
+        )
+        logger.info("TUF version %s withdrawn locally", removed)
+
+    except (ConfigurationError, ReleaseError, SigningKeyError) as e:
+        printer.error(str(e))
+        logger.error(str(e))
+        sys.exit(1)
+
+
+def _deprecated_alias(target: click.Command, old: str, new: str) -> click.Command:
+    """Build a hidden-group alias of ``target`` that warns before delegating.
+
+    The alias copies the target's parameters, so every option given to the
+    old spelling reaches the new command unchanged.
+    """
+
+    def callback(**kwargs: Any) -> None:
+        _get_printer().warning(
+            f"`ezcompiler {old}` is deprecated and will be removed in v5. "
+            f"Use `ezcompiler {new}`."
+        )
+        click.get_current_context().invoke(target, **kwargs)
+
+    return click.Command(
+        name=target.name,
+        params=list(target.params),
+        callback=callback,
+        help=f"[Deprecated] Alias of `ezcompiler {new}`.",
+    )
+
+
+@main.group(hidden=True)
+def release() -> None:
+    """[Deprecated] Use `ezcompiler tuf` instead."""
+
+
+release.add_command(_deprecated_alias(tuf_init, "release init", "tuf init"))
+release.add_command(_deprecated_alias(tuf_refresh, "release refresh", "tuf refresh"))
 
 
 @main.group()

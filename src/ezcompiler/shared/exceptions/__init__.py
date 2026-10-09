@@ -31,6 +31,10 @@ from .services import (
     CompilationError,
     CompilerServiceError,
     ConfigurationError,
+    PublishAuthError,
+    PublishCliError,
+    PublishError,
+    PublisherTypeError,
     ReleaseError,
     TemplateError,
     TemplateServiceError,
@@ -111,6 +115,11 @@ __all__ = [
     "BundleBuildError",
     "SigningKeyError",
     "ReleaseConfigError",
+    # Publish exceptions
+    "PublishError",
+    "PublisherTypeError",
+    "PublishCliError",
+    "PublishAuthError",
     # Installer exceptions
     "InstallerError",
     "InstallerTypeError",

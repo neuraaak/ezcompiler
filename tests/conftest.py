@@ -16,12 +16,47 @@ from __future__ import annotations
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
 # Standard library imports
+import importlib.util
+import os
 import tempfile
 from collections.abc import Generator
 from pathlib import Path
 
 # Third-party imports
 import pytest
+
+# ///////////////////////////////////////////////////////////////
+# OPTIONAL EXTRAS GUARD
+# ///////////////////////////////////////////////////////////////
+
+# Packages brought in by the optional extras, and the extra providing them.
+OPTIONAL_EXTRA_MODULES = {"tufup": "tufup", "boto3": "r2"}
+
+# Environment variable set by CI: a missing extra must then fail
+# collection, instead of silently disabling the tests.
+REQUIRE_EXTRAS_ENV = "EZCOMPILER_REQUIRE_EXTRAS"
+
+
+def _extras_are_required() -> bool:
+    return os.environ.get(REQUIRE_EXTRAS_ENV, "") == "1"
+
+
+def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
+    """Fail loudly when the CI requires the optional extras but misses one."""
+    if not _extras_are_required():
+        return
+    missing = [
+        f"{module} (extra '{extra}')"
+        for module, extra in OPTIONAL_EXTRA_MODULES.items()
+        if importlib.util.find_spec(module) is None
+    ]
+    if missing:
+        raise pytest.UsageError(
+            f"{REQUIRE_EXTRAS_ENV}=1 mais les paquets suivants sont absents : "
+            f"{', '.join(missing)}. Lancer `uv sync --all-extras --group dev` : sans eux les "
+            "tests TUF/R2 seraient skipped en silence."
+        )
+
 
 # ///////////////////////////////////////////////////////////////
 # FIXTURES - TEMPORARY RESOURCES
@@ -72,3 +107,45 @@ def temp_file(temp_dir: Path) -> Path:
         ...     assert temp_file.exists()
     """
     return temp_dir / "temp_file"
+
+
+# ///////////////////////////////////////////////////////////////
+# FIXTURES - REAL TUF TREE
+# ///////////////////////////////////////////////////////////////
+
+
+@pytest.fixture
+def make_tuf_tree(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    """Build a real, signed tufup repository under ``tmp_path``.
+
+    tufup writes ``.tufup-repo-config`` in the current directory during
+    init, so the test runs from ``tmp_path``.
+    """
+    if _extras_are_required() and importlib.util.find_spec("tufup") is None:
+        pytest.fail(f"tufup absent alors que {REQUIRE_EXTRAS_ENV}=1")
+    pytest.importorskip("tufup")
+    monkeypatch.chdir(tmp_path)
+    from ezcompiler.adapters._tufup_releaser import TufupReleaser  # noqa: PLC0415
+
+    def _make(
+        versions: list[str],
+        *,
+        app: str = "App",
+        required: tuple[str, ...] = (),
+        keys_in_repo: bool = False,
+    ) -> tuple[Path, Path]:
+        repo_dir = tmp_path / "repo"
+        # keys_in_repo: ezcompiler's default location (repo/keystore).
+        keys_dir = repo_dir / "keystore" if keys_in_repo else tmp_path / "keystore"
+        releaser = TufupReleaser({"keys_dir": keys_dir})
+        releaser.init_keys(app, repo_dir, keys_dir)
+        for version in versions:
+            bundle = tmp_path / f"bundle-{version}"
+            bundle.mkdir()
+            (bundle / "app.exe").write_bytes(version.encode() * 1000)
+            releaser.release(
+                bundle, app, version, repo_dir, required=version in required
+            )
+        return repo_dir, keys_dir
+
+    return _make

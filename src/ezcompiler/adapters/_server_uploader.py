@@ -20,6 +20,7 @@ from __future__ import annotations
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
 # Standard library imports
+import os
 from pathlib import Path
 from typing import Any
 
@@ -31,6 +32,17 @@ from .._version import __version__
 from ..shared.exceptions import UploadError
 from ..utils import UploaderUtils
 from .base_uploader import BaseUploader
+
+# ///////////////////////////////////////////////////////////////
+# CONSTANTS
+# ///////////////////////////////////////////////////////////////
+
+# Explicit config wins; the environment fills empty credentials only.
+_CREDENTIAL_ENV_VARS: dict[str, str] = {
+    "username": "EZCOMPILER_SERVER_USERNAME",
+    "password": "EZCOMPILER_SERVER_PASSWORD",  # nosec B105 - env var name
+    "api_key": "EZCOMPILER_SERVER_API_KEY",
+}
 
 # ///////////////////////////////////////////////////////////////
 # CLASSES
@@ -49,6 +61,10 @@ class ServerUploader(BaseUploader):
         username (str): Username for basic authentication (default: "")
         password (str): Password for basic authentication (default: "")
         api_key (str): API key for bearer token authentication (default: "")
+            Empty ``username``, ``password`` and ``api_key`` fall back to the
+            ``EZCOMPILER_SERVER_USERNAME``, ``EZCOMPILER_SERVER_PASSWORD`` and
+            ``EZCOMPILER_SERVER_API_KEY`` environment variables, so the CLI
+            never needs a credential on its command line.
         timeout (int|float): Request timeout in seconds (default: 30)
         verify_ssl (bool): Verify SSL certificates (default: True)
         chunk_size (int): Chunk size for uploads (default: 8192)
@@ -77,9 +93,16 @@ class ServerUploader(BaseUploader):
             config: Optional configuration dictionary with server settings
         """
         default_config = UploaderUtils.get_default_server_config()
+        UploaderUtils.reject_unknown_config_keys(
+            config, default_config, uploader="server"
+        )
 
         if config:
             default_config.update(config)
+
+        for key, env_var in _CREDENTIAL_ENV_VARS.items():
+            if not default_config.get(key):
+                default_config[key] = os.environ.get(env_var, "")
 
         super().__init__(default_config)
 
@@ -179,7 +202,7 @@ class ServerUploader(BaseUploader):
         Raises:
             UploadError: On any non-404 error response.
         """
-        response = requests.get(  # nosec B113 - timeout fourni et validé > 0 dans _validate_config
+        response = requests.get(  # nosec B113 - timeout supplied and validated > 0 in _validate_config
             url,
             headers=self._prepare_headers(),
             auth=self._prepare_auth(),
@@ -253,7 +276,7 @@ class ServerUploader(BaseUploader):
             headers = self._prepare_headers()
             auth = self._prepare_auth()
 
-            response = requests.get(  # nosec B113 - timeout fourni et validé > 0 dans _validate_config
+            response = requests.get(  # nosec B113 - timeout supplied and validated > 0 in _validate_config
                 test_url,
                 headers=headers,
                 auth=auth,
@@ -290,7 +313,7 @@ class ServerUploader(BaseUploader):
             files = {"file": (source_path.name, file, "application/octet-stream")}
             data = {"destination": destination}
 
-            response = requests.post(  # nosec B113 - timeout fourni et validé > 0 dans _validate_config
+            response = requests.post(  # nosec B113 - timeout supplied and validated > 0 in _validate_config
                 upload_url,
                 files=files,
                 data=data,
@@ -303,8 +326,11 @@ class ServerUploader(BaseUploader):
             )
 
         if not response.ok:
+            # Never response.text: a misconfigured or hostile endpoint
+            # would echo the received headers, hence Authorization, into the logs.
             raise UploadError(
-                f"Server returned error {response.status_code}: {response.text}"
+                f"Server returned error {response.status_code} "
+                f"({response.reason}) for {source_path.name}."
             )
 
     def _build_upload_url(self, _destination: str) -> str:

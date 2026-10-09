@@ -18,14 +18,19 @@ from __future__ import annotations
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
 # Standard library imports
+import shutil
+import tempfile
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 
 # Local imports
 from ..adapters import UploaderFactory
-from ..shared._constants import RELEASE_SUBDIR, UPDATE_SUBDIR
+from ..shared._constants import RELEASE_SUBDIR, TUF_PUBLIC_DIRS, UPDATE_SUBDIR
 from ..shared.exceptions import UploadError
 from ..utils.validators import validate_upload_structure
+from .tuf_service import WITHDRAWN_FILE, TufService
 
 if TYPE_CHECKING:
     from .._types import UploaderPort
@@ -36,6 +41,13 @@ if TYPE_CHECKING:
 # ///////////////////////////////////////////////////////////////
 
 UploadType = Literal["disk", "server", "r2"]
+
+# ///////////////////////////////////////////////////////////////
+# CONSTANTS
+# ///////////////////////////////////////////////////////////////
+
+# Default keystore name, excluded from staging whatever its position.
+DEFAULT_KEYSTORE_DIRNAME = "keystore"
 
 # ///////////////////////////////////////////////////////////////
 # CLASSES
@@ -95,13 +107,14 @@ class UploaderService:
             if not validate_upload_structure(upload_type):
                 raise UploadError(f"Invalid upload type: {upload_type}")
 
-            # Prepare uploader configuration
-            config = upload_config or {}
+            # Copy: the caller's dict is reused for the following uploads,
+            # an in-place mutation would contaminate the next backend.
+            config = dict(upload_config or {})
             if upload_type == "disk":
                 config["destination_path"] = destination
             elif upload_type == "server":
                 config["server_url"] = destination
-            # r2: bucket vient de upload_config, destination = préfixe objet
+            # r2: bucket comes from upload_config, destination = object prefix
 
             # Create uploader and perform upload
             uploader: UploaderPort = UploaderFactory.create_uploader(
@@ -151,86 +164,178 @@ class UploaderService:
         release_destination: str | None = None,
         upload_config: dict[str, Any] | None = None,
     ) -> None:
-        """Double upload séquentiel : arbre TUF puis zip installeur.
+        """Sequential double upload: TUF tree then installer zip.
 
-        Étape 1 — upload arbre TUF vers ``<dest>/update/`` (ou préfixe R2).
-        Étape 2 — upload zip installeur vers ``<dest>/release/`` (ignoré si R2).
+        Step 1 — upload the TUF tree to ``<dest>/update/`` (or the R2 prefix).
+        Step 2 — upload the installer zip to ``<dest>/release/`` (skipped on R2).
 
-        Note: Le double-upload n'est pas atomique. Si l'upload du zip échoue,
-        le repo TUF est déjà en ligne. En cas d'échec, ré-exécuter upload()
-        pour reprendre.
+        Note: The double upload is not atomic. If the zip upload fails, the
+        TUF repo is already online. On failure, run upload() again to
+        resume.
 
         Args:
-            config: CompilerConfig contenant les destinations et options R2.
-            repo_dir: Répertoire local du repo TUF.
-            release_root: Répertoire local du zip installeur (None si R2).
-            destination: Override commun pour les deux destinations.
-            repo_destination: Override de ``config.repo_destination``.
-            release_destination: Override de ``config.release_destination``.
-            upload_config: Options supplémentaires passées aux uploaders.
+            config: CompilerConfig holding the destinations and R2 options.
+            repo_dir: Local directory of the TUF repo.
+            release_root: Local directory of the installer zip (None on R2).
+            destination: Shared override for both destinations.
+            repo_destination: Override for ``config.repo_destination``.
+            release_destination: Override for ``config.release_destination``.
+            upload_config: Extra options passed to the uploaders.
 
         Raises:
-            UploadError: Si un upload échoue.
+            UploadError: If an upload fails.
         """
         repo_dest = repo_destination or config.repo_destination
         rel_dest = release_destination or config.release_destination
 
-        UploaderService._upload_tuf_repo(
+        UploaderService.upload_tuf_repo(
             config, repo_dir, repo_dest, destination, upload_config
         )
 
         if release_root is not None:
-            UploaderService._upload_release_zip(
+            UploaderService.upload_release_zip(
                 config, release_root, rel_dest, destination, upload_config
             )
 
     @staticmethod
-    def _upload_tuf_repo(
+    def upload_tuf_repo(
         config: CompilerConfig,
         repo_dir: Path,
         repo_dest: str,
         destination: str | None,
         upload_config: dict[str, Any] | None,
     ) -> None:
-        """Upload l'arbre TUF vers la destination configurée."""
+        """Upload the public part of the TUF tree to the configured destination.
+
+        Only ``metadata/``, ``targets/`` and ``withdrawn.json`` are published,
+        from a temporary copy (see ``staged_tuf_tree``): the private keys
+        stored under ``repo_dir`` are never transferred.
+        """
         try:
-            if repo_dest == "r2":
-                endpoint = config.repo_endpoint
-                bucket, _, prefix = endpoint.partition("/")
-                UploaderService.upload(
-                    source_path=repo_dir,
-                    upload_type="r2",
-                    destination=prefix,
-                    upload_config={"bucket": bucket},
-                )
-            elif repo_dest == "server":
-                base = destination or config.resolved_repo_destination or ""
-                UploaderService.upload(
-                    source_path=repo_dir,
-                    upload_type="server",
-                    destination=base.rstrip("/") + f"/{UPDATE_SUBDIR}",
-                    upload_config=upload_config,
-                )
-            else:  # disk (default)
-                base = destination or config.resolved_repo_destination or ""
-                UploaderService.upload(
-                    source_path=repo_dir,
-                    upload_type="disk",
-                    destination=str(Path(base) / UPDATE_SUBDIR),
-                    upload_config=upload_config,
+            with UploaderService.staged_tuf_tree(
+                repo_dir, keys_dir=TufService.keys_dir(config)
+            ) as staged:
+                UploaderService._upload_tuf_tree(
+                    config, staged, repo_dest, destination, upload_config
                 )
         except UploadError as e:
             raise UploadError(f"TUF repo upload failed: {e}") from e
 
     @staticmethod
-    def _upload_release_zip(
+    @contextmanager
+    def staged_tuf_tree(
+        repo_dir: Path, *, keys_dir: Path | None = None
+    ) -> Iterator[Path]:
+        """Copy the public files of the TUF tree into a temporary directory.
+
+        The layout is preserved (``metadata/``, ``targets/``,
+        ``withdrawn.json`` at the root); the directory is removed on exit.
+        The keystore is always excluded from the copy, even when it sits
+        under ``metadata/`` or ``targets/``.
+
+        Args:
+            repo_dir: Root of the local TUF tree.
+            keys_dir: Private keystore to exclude, on top of any directory
+                named ``keystore``.
+
+        Raises:
+            UploadError: If ``repo_dir/metadata`` is missing (publishing an
+                empty tree would overwrite the remote channel) or if the copy
+                fails.
+        """
+        if not (repo_dir / "metadata").is_dir():
+            raise UploadError(
+                f"TUF tree missing: {repo_dir / 'metadata'} not found. "
+                "Run `ezcompiler tuf init` first, then the build."
+            )
+        with tempfile.TemporaryDirectory(prefix="ezcompiler-tuf-") as tmp:
+            staging = Path(tmp)
+            try:
+                ignore = UploaderService._ignore_private_keys(keys_dir)
+                for name in TUF_PUBLIC_DIRS:
+                    if (repo_dir / name).is_dir():
+                        shutil.copytree(repo_dir / name, staging / name, ignore=ignore)
+                withdrawn = repo_dir / WITHDRAWN_FILE
+                if withdrawn.is_file():
+                    shutil.copy2(withdrawn, staging / WITHDRAWN_FILE)
+            except OSError as e:
+                raise UploadError(f"Copie de l'arbre TUF impossible : {e}") from e
+            yield staging
+
+    @staticmethod
+    def _ignore_private_keys(
+        keys_dir: Path | None,
+    ) -> Callable[[str, list[str]], set[str]]:
+        """Build the ``ignore`` filter for ``shutil.copytree``.
+
+        Args:
+            keys_dir: Configured private keystore, when known.
+
+        Returns:
+            Callable: Filter excluding the configured keystore as well as any
+                directory named ``keystore``.
+        """
+        resolved = keys_dir.expanduser().resolve() if keys_dir else None
+
+        def ignore(src: str, names: list[str]) -> set[str]:
+            excluded: set[str] = set()
+            for name in names:
+                if name == DEFAULT_KEYSTORE_DIRNAME:
+                    excluded.add(name)
+                    continue
+                if resolved is None:
+                    continue
+                candidate = (Path(src) / name).resolve()
+                if candidate == resolved or resolved in candidate.parents:
+                    excluded.add(name)
+            return excluded
+
+        return ignore
+
+    @staticmethod
+    def _upload_tuf_tree(
+        config: CompilerConfig,
+        staged_dir: Path,
+        repo_dest: str,
+        destination: str | None,
+        upload_config: dict[str, Any] | None,
+    ) -> None:
+        """Route an already-filtered TUF tree to the configured backend."""
+        if repo_dest == "r2":
+            endpoint = config.repo_endpoint
+            bucket, _, prefix = endpoint.partition("/")
+            UploaderService.upload(
+                source_path=staged_dir,
+                upload_type="r2",
+                destination=prefix,
+                upload_config={"bucket": bucket},
+            )
+        elif repo_dest == "server":
+            base = destination or config.resolved_repo_destination or ""
+            UploaderService.upload(
+                source_path=staged_dir,
+                upload_type="server",
+                destination=base.rstrip("/") + f"/{UPDATE_SUBDIR}",
+                upload_config=upload_config,
+            )
+        else:  # disk (default)
+            base = destination or config.resolved_repo_destination or ""
+            UploaderService.upload(
+                source_path=staged_dir,
+                upload_type="disk",
+                destination=str(Path(base) / UPDATE_SUBDIR),
+                upload_config=upload_config,
+            )
+
+    @staticmethod
+    def upload_release_zip(
         config: CompilerConfig,
         release_root: Path,
         rel_dest: str,
         destination: str | None,
         upload_config: dict[str, Any] | None,
     ) -> None:
-        """Upload le zip installeur vers la destination configurée."""
+        """Upload the installer zip to the configured destination."""
         try:
             if rel_dest == "r2":
                 endpoint = config.release_endpoint

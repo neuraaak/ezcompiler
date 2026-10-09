@@ -165,7 +165,9 @@ class NuitkaCompiler(BaseCompiler):
                         cmd.append(f"--{key}={value}")
 
             # Run Nuitka
-            result = subprocess.run(cmd, check=False, capture_output=True, text=True)  # noqa: S603  # nosec B603 - args en liste, entrées contrôlées (config dev), pas de shell
+            result = subprocess.run(  # noqa: S603  # nosec B603 - args as a list, controlled inputs (dev config), no shell
+                cmd, check=False, capture_output=True, text=True
+            )
             if result.returncode != 0:
                 raw_output = result.stderr or result.stdout
                 error_detail = self._extract_error_summary(raw_output)

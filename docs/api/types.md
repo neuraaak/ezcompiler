@@ -14,7 +14,7 @@ Import them when you want to annotate your own code that calls EzCompiler APIs,
 or when building extensions on top of the framework.
 
 ```python
-from ezcompiler import FilePath, CompilerName, UploadTarget, IncludeFiles, JsonMap
+from ezcompiler import FilePath, CompilerName, ReleaseDestination, IncludeFiles, JsonMap
 ```
 
 They can also be imported from the submodule directly:
@@ -72,21 +72,38 @@ def build(compiler: CompilerName) -> None:
     EzCompiler(config).compile_project(compiler=compiler)
 ```
 
-### UploadTarget
+## Publication types
+
+### RepoDestination
 
 ```python
-UploadTarget: TypeAlias = str
+type RepoDestination = Literal["disk", "server", "r2"]
 ```
 
-Narrows the `structure` parameter of upload operations.
+Backend that receives the TUF update tree (`repo_destination`, `ezcompiler publish update`).
 
-Valid values: `"disk"`, `"server"`
+### ReleaseDestination
 
 ```python
-from ezcompiler import UploadTarget
+type ReleaseDestination = Literal["disk", "server", "r2", "github", "gitlab"]
+```
 
-def upload(target: UploadTarget, destination: str) -> None:
-    ...
+Destination of the release assets (`release_destination`, `ezcompiler publish release`).
+`github` creates a GitHub Release through the `gh` CLI; `gitlab` is reserved and
+rejected for now.
+
+```python
+from ezcompiler import CompilerConfig, ReleaseDestination
+
+def make_config(destination: ReleaseDestination) -> CompilerConfig:
+    return CompilerConfig(
+        version="1.0.0",
+        project_name="MyApp",
+        main_file="main.py",
+        include_files={"files": [], "folders": []},
+        output_folder="dist",
+        release_destination=destination,
+    )
 ```
 
 ---
@@ -151,6 +168,7 @@ raw: JsonMap = {"version": "1.0.0", "project_name": "MyApp"}
       members:
         - FilePath
         - CompilerName
-        - UploadTarget
+        - RepoDestination
+        - ReleaseDestination
         - IncludeFiles
         - JsonMap

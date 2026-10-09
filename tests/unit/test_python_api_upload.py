@@ -27,6 +27,21 @@ def _cfg(tmp_path: Path, **kwargs: Any) -> CompilerConfig:
     )
 
 
+def _upload_recorder(calls: list[dict]):
+    """Enregistre chaque upload avec les fichiers de la source (copie temporaire)."""
+
+    def _record(**kw: Any) -> None:
+        src = Path(kw["source_path"])
+        files = (
+            {p.relative_to(src).as_posix() for p in src.rglob("*") if p.is_file()}
+            if src.is_dir()
+            else set()
+        )
+        calls.append({**kw, "files": files})
+
+    return staticmethod(_record)
+
+
 def test_upload_release_pushes_tuf_to_update_and_zip_to_release(
     monkeypatch, tmp_path: Path
 ) -> None:
@@ -38,7 +53,9 @@ def test_upload_release_pushes_tuf_to_update_and_zip_to_release(
         release_destination="disk",
         release_endpoint=str(tmp_path / "remote"),
     )
-    # Créer le zip pour que assemble_release_dir le copie
+    # Create the zip so assemble_release_dir copies it
+    (tmp_path / "repo" / "metadata").mkdir(parents=True)
+    (tmp_path / "repo" / "metadata" / "root.json").write_text("{}", encoding="utf-8")
     zip_path = tmp_path / "MyApp.zip"
     zip_path.write_bytes(b"zip")
     release_root = tmp_path / "dist" / "release"
@@ -52,7 +69,7 @@ def test_upload_release_pushes_tuf_to_update_and_zip_to_release(
     upload_calls: list[dict] = []
     monkeypatch.setattr(
         "ezcompiler.interfaces.python_api.UploaderService.upload",
-        staticmethod(lambda **kw: upload_calls.append(kw)),
+        _upload_recorder(upload_calls),
     )
 
     ez = EzCompiler(cfg)
@@ -63,7 +80,8 @@ def test_upload_release_pushes_tuf_to_update_and_zip_to_release(
     # 1er appel : arbre TUF vers update/
     repo_call = upload_calls[0]
     assert repo_call["upload_type"] == "disk"
-    assert str(repo_call["source_path"]) == str(cfg.tuf_repo_dir)
+    # Filtered copy of the TUF tree, same layout.
+    assert repo_call["files"] == {"metadata/root.json"}
     assert repo_call["destination"].endswith("/update") or repo_call[
         "destination"
     ].endswith("\\update")
@@ -84,6 +102,7 @@ def test_upload_release_r2_only_uploads_tuf(monkeypatch, tmp_path: Path) -> None
         repo_endpoint="my-bucket/chan",
         repo_public_url="https://pub.r2.example.com",
     )
+    (tmp_path / "repo" / "metadata").mkdir(parents=True)
     upload_calls: list[dict] = []
     monkeypatch.setattr(
         "ezcompiler.interfaces.python_api.UploaderService.upload",
@@ -141,4 +160,43 @@ def test_upload_raises_when_not_initialized() -> None:
     ez = EzCompiler.__new__(EzCompiler)
     ez._config = None
     with pytest.raises(ConfigurationError):
+        ez.upload()
+
+
+def test_upload_should_warn_that_it_is_deprecated(monkeypatch, tmp_path: Path) -> None:
+    cfg = _cfg(tmp_path, tuf_enabled=False, repo_destination="disk")
+    monkeypatch.setattr(
+        "ezcompiler.interfaces.python_api.PipelineService.upload_artifact",
+        lambda *_a, **_kw: None,
+    )
+    ez = EzCompiler(cfg)
+    ez._printer = MagicMock()
+    with pytest.warns(DeprecationWarning, match="ezcompiler publish"):
+        ez.upload()
+
+
+def test_upload_should_remain_non_interactive(monkeypatch, tmp_path: Path) -> None:
+    """Une methode Python ne doit jamais interroger stdin."""
+
+    def _boom(*_args: Any, **_kwargs: Any) -> str:
+        raise AssertionError("upload() ne doit pas lire stdin")
+
+    class _NoStdin:
+        """click.confirm lit stdin sans passer par builtins.input."""
+
+        def read(self, *_args: Any) -> str:
+            raise AssertionError("upload() ne doit pas lire stdin")
+
+        readline = read
+
+    monkeypatch.setattr("builtins.input", _boom)
+    monkeypatch.setattr("sys.stdin", _NoStdin())
+    cfg = _cfg(tmp_path, tuf_enabled=False, repo_destination="disk")
+    monkeypatch.setattr(
+        "ezcompiler.interfaces.python_api.PipelineService.upload_artifact",
+        lambda *_a, **_kw: None,
+    )
+    ez = EzCompiler(cfg)
+    ez._printer = MagicMock()
+    with pytest.warns(DeprecationWarning):
         ez.upload()

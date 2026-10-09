@@ -5,6 +5,7 @@
 # Les sous-dossiers ont leurs propres .gitignore pour les exclusions spécifiques
 .superpowers/
 .docs-audit/
+.senior-review/
 
 # =============================================================================
 # PYTHON - FICHIERS DE BASE (COMMUNS)
@@ -266,4 +267,3 @@ temp_projects/
 # Configuration locale utilisateur
 local_config/
 user_settings/
-.senior-review/

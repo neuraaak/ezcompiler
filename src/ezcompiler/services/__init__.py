@@ -27,8 +27,10 @@ from .compiler_service import CompilerService
 from .config_service import ConfigService
 from .installer_service import InstallerService
 from .pipeline_service import PipelineService
+from .publish_service import PublishService
 from .release_service import ReleaseService
 from .template_service import TemplateService
+from .tuf_service import TufService
 from .updater_service import UpdaterService
 from .uploader_service import UploaderService
 
@@ -43,8 +45,10 @@ __all__ = [
     "ConfigService",
     "InstallerService",
     "PipelineService",
+    "PublishService",
     "ReleaseService",
     "TemplateService",
+    "TufService",
     "UpdaterService",
     "UploaderService",
     # Result types

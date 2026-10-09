@@ -154,7 +154,8 @@ class InnoSetupInstaller(BaseInstaller):
         # No try/finally around this call: the temporary .iss must survive
         # any failure (including a timeout) so it can still be inspected —
         # only the success path below removes it.
-        result = subprocess.run(
+        # Argument vector built internally, no shell, with a timeout.
+        result = subprocess.run(  # noqa: S603  # nosec B603
             argv,
             capture_output=True,
             check=False,

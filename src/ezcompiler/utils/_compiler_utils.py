@@ -54,9 +54,10 @@ class CompilerUtils:
     # VALIDATION METHODS
     # ////////////////////////////////////////////////
 
-    # Revalidation volontaire (défense en profondeur) : CompilerConfig est une dataclass
-    # mutable, donc l'état validé par __post_init__ peut avoir changé entre la construction
-    # et l'appel à compile(). Ce contrôle est rejoué juste avant la compilation — ce n'est
+    # Deliberate revalidation (defense in depth): CompilerConfig is a mutable
+    # dataclass, so the state validated by __post_init__ may have changed between
+    # construction and the call to compile(). This check is replayed right before
+    # the compilation — it is not
     # pas une duplication morte mais un garde-fou au point d'usage.
     @staticmethod
     def validate_compiler_config(config: CompilerConfig) -> None:
