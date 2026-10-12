@@ -53,18 +53,20 @@ The cascade passes typed `with:` inputs only and relies on **OIDC**
 
 ## Local equivalents
 
+Every CI step runs a **poe task** from `[tool.poe.tasks]`, so the local
+command and the CI command are the same string:
+
 ```bash
 # 01-ci quality gate
-uv run ruff check .
-uv run ruff format --check .
-uv run ty check src/ezcompiler/
-PYTHONPATH=src uv run lint-imports
-uv run pytest
+uv run poe check            # format-check → lint → typecheck → imports → test-ci
+uv run poe security         # bandit + pip-audit
 
 # 03-publish build
-uv build
+uv run poe build
 uv run twine check dist/*
 
 # 04-docs build
+uv run poe docs-coverage
+uv run poe graph
 uv run mike deploy <version> latest   # add --push to deploy
 ```

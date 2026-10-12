@@ -72,10 +72,10 @@ jobs:
       - run: uv sync --frozen --group dev
 
       - name: Enforce import contracts
-        run: PYTHONPATH=src uv run --frozen lint-imports
+        run: uv run --frozen poe imports
 
       - name: Build package
-        run: uv build
+        run: uv run --frozen poe build
 
       - name: Check package
         run: uv run --frozen twine check dist/*

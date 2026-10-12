@@ -64,15 +64,15 @@ jobs:
       - run: uv sync --frozen --group docs --group test
 
       - name: Generate coverage report
-        run: uv run --frozen pytest --cov=src/ezcompiler --cov-report=html --cov-report=xml -q
+        run: uv run --frozen poe docs-coverage
 
       - name: Enforce import contracts
-        run: PYTHONPATH=src uv run --frozen lint-imports
+        run: uv run --frozen poe imports
 
       - name: Generate architecture graph
         run: |
           if [ -f ".scripts/dev/generate_architecture_graph.py" ]; then
-            uv run --frozen python .scripts/dev/generate_architecture_graph.py
+            uv run --frozen poe graph
           fi
 
       - name: Generate changelog

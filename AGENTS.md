@@ -180,15 +180,35 @@ before proceeding.
 
 ## Toolchain
 
-| Task          | Command                                                          |
-| ------------- | ---------------------------------------------------------------- |
-| Install (dev) | `uv sync --all-extras --group dev --group docs` (PEP 735 groups) |
-| Lint          | `ruff check .`                                                   |
-| Format        | `ruff format .` (check: `ruff format --check .`)                 |
-| Type check    | `ty check src/ezcompiler/` (the gate; pyright serves the IDE)    |
-| Import rules  | `PYTHONPATH=src lint-imports`                                    |
-| Security      | `bandit -r src/ezcompiler -ll` + `pip-audit` (both CI gates)     |
-| Tests         | `pytest` (CI adds `--cov=src/ezcompiler --cov-fail-under=70`)    |
+Every task below is a **poethepoet** task in `[tool.poe.tasks]`, run as
+`uv run poe <task>` — and **the CI workflows call those same tasks**: `01-ci`
+runs `poe lint|format-check|typecheck|imports|security|test-ci`, `03-publish`
+runs `poe imports|build`, `04-docs` runs `poe docs-coverage|imports|graph`.
+The task definition is therefore the single source of truth for a gate's
+flags: change `pyproject.toml`, not the workflow. Run the poe task rather than
+the raw command — it carries the exact CI flags (and `PYTHONPATH=src` for
+import-linter, which the raw `lint-imports` needs). `uv run poe check` chains
+the full local gate: `format-check → lint → typecheck → imports → test-ci`.
+
+`poethepoet` sits in the `dev` group **and** in `docs`: the `04-docs` job syncs
+only `docs` + `test` (it must not pull the compilers), so the task runner has to
+be reachable from there.
+
+| Task          | poe task                  | Command                                                          |
+| ------------- | ------------------------- | ---------------------------------------------------------------- |
+| Install (dev) | —                         | `uv sync --all-extras --group dev --group docs` (PEP 735 groups) |
+| Lint          | `lint` / `lint-fix`       | `ruff check .`                                                   |
+| Format        | `format` / `format-check` | `ruff format .` (check: `ruff format --check .`)                 |
+| Type check    | `typecheck`               | `ty check src/ezcompiler/` (the gate; pyright serves the IDE)    |
+| Import rules  | `imports`                 | `PYTHONPATH=src lint-imports`                                    |
+| Security      | `security`                | `bandit -r src/ezcompiler -ll` + `pip-audit` (both CI gates)     |
+| Tests         | `test` / `test-ci`        | `pytest` (CI adds `--cov=src/ezcompiler --cov-fail-under=70`)    |
+| Fast tests    | `test-fast`               | `pytest -n auto -m 'not slow'`                                   |
+| Unit tests    | `test-unit`               | `pytest -m unit`                                                 |
+| Docs          | `docs` / `docs-build`     | `mkdocs serve` / `mkdocs build --strict`                         |
+| Docs coverage | `docs-coverage`           | `pytest --cov=src/ezcompiler --cov-report=html --cov-report=xml` |
+| Build         | `build`                   | `uv build`                                                       |
+| Full gate     | `check`                   | the five gates above, in order                                   |
 
 - **ruff** rules: `E W F I B C4 UP S T20 ARG PIE SIM`, line length 88,
   double quotes. See `[tool.ruff]` for per-file ignores.

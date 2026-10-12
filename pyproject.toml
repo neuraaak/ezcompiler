@@ -17,7 +17,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ezcompiler"
-version = "4.1.0"
+version = "4.1.1"
 description = "Project compilation and distribution framework for Python projects"
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.13"
@@ -94,7 +94,7 @@ test = [
     "import-linter>=2.0.0",
 ]
 docs = [
-    "mkdocs>=1.6.0",
+    "mkdocs>=1.6.0,<2.0.0",
     "mkdocs-material>=9.5.0",
     "mkdocstrings[python]>=0.27.0",
     "mkdocs-section-index>=0.3.0",
@@ -102,6 +102,11 @@ docs = [
     "mike>=2.0.0",
     "pymdown-extensions>=10.7",
     "git-cliff>=2.7.0",
+    "grimp>=2.3.0",
+
+    # Task runner: 04-docs runs `poe docs-coverage|imports|graph` and syncs
+    # only `docs` + `test`, so poethepoet must be reachable from this group.
+    "poethepoet>=0.32",
 ]
 dev = [
     # Tests (single source of truth, no duplication)
@@ -115,6 +120,9 @@ dev = [
     "ty>=0.0.13",
     "pyright>=1.1.0",
     "pre-commit>=3.0.0",
+
+    # Task runner
+    "poethepoet>=0.32",
 
     # Security
     "bandit>=1.7.0",
@@ -148,6 +156,47 @@ PyPI = "https://pypi.org/project/ezcompiler/"
 
 [project.scripts]
 ezcompiler = "ezcompiler.interfaces.cli_interface:main"
+
+# ///////////////////////////////////////////////////////////////
+# ⚡ POE TASKS
+# Developer commands: run with `uv run poe <task>`
+# ///////////////////////////////////////////////////////////////
+
+[tool.poe.tasks]
+lint = "ruff check ."
+lint-fix = "ruff check --fix ."
+format = "ruff format ."
+format-check = "ruff format --check ."
+typecheck = "ty check src/ezcompiler/"
+build = "uv build"
+docs = "mkdocs serve"
+docs-build = "mkdocs build --strict"
+docs-coverage = "pytest --cov=src/ezcompiler --cov-report=html --cov-report=xml -q"
+graph = "python .scripts/dev/generate_architecture_graph.py"
+version = "python .scripts/dev/update_version.py"
+
+test = "pytest"
+test-ci = "pytest --cov=src/ezcompiler --cov-fail-under=70"
+test-unit = "pytest -m unit"
+test-fast = "pytest -n auto -m 'not slow'"
+
+[tool.poe.tasks.imports]
+help = "Check import-linter layer contracts"
+cmd = "lint-imports"
+env = { PYTHONPATH = "src" }
+
+[tool.poe.tasks.security]
+help = "Run Bandit and audit locked dependencies"
+sequence = [
+    "bandit -r src/ezcompiler -ll",
+    "pip-audit --ignore-vuln GHSA-qp9x-wp8f-qgjj",
+]
+default_item_type = "cmd"
+
+[tool.poe.tasks.check]
+help = "Full local quality gate (mirrors CI)"
+sequence = ["format-check", "lint", "typecheck", "imports", "test-ci"]
+default_item_type = "ref"
 
 # ///////////////////////////////////////////////////////////////
 # 📦 HATCHLING CONFIGURATION
