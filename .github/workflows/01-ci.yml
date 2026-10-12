@@ -41,8 +41,8 @@ jobs:
         with:
           enable-cache: true
       - run: uv sync --frozen --group dev
-      - run: uv run --frozen ruff check .
-      - run: uv run --frozen ruff format --check .
+      - run: uv run --frozen poe lint
+      - run: uv run --frozen poe format-check
 
   type-check:
     name: Type Check & Import Contracts
@@ -57,8 +57,10 @@ jobs:
         with:
           enable-cache: true
       - run: uv sync --frozen --all-extras --group dev
-      - run: uv run --frozen ty check src/ezcompiler/
-      - run: PYTHONPATH=src uv run --frozen lint-imports
+      - run: uv run --frozen poe typecheck
+      # The poe task carries PYTHONPATH=src itself (import-linter 2.x needs
+      # the package importable).
+      - run: uv run --frozen poe imports
 
   security:
     name: Security (bandit + pip-audit)
@@ -73,19 +75,21 @@ jobs:
         with:
           enable-cache: true
       - run: uv sync --frozen --all-extras --group dev
-      # SAST of the package's own code: the gate documented in AGENTS.md.
-      - run: uv run --frozen bandit -r src/ezcompiler -ll
-      # CVEs in the locked dependencies: this package signs TUF releases,
-      # so a CVE in tufup/cryptography/boto3 hits the chain itself.
+      # `poe security` chains the two gates documented in AGENTS.md:
       #
-      # GHSA-qp9x-wp8f-qgjj (python-tuf 4.0.0, fixed in 7.0.0) is ignored:
-      # tufup 0.10.0 pins `tuf==4.0.*`, so the upgrade is not ours to make.
-      # The impact is limited to the updater client on Windows and assumes a
-      # repository whose delegations differ only by case — which this project
-      # does not generate (a single `targets` role).
-      # Exit condition: drop this ignore as soon as tufup relaxes its bound
+      #   1. bandit — SAST of the package's own code.
+      #   2. pip-audit — CVEs in the locked dependencies: this package signs
+      #      TUF releases, so a CVE in tufup/cryptography/boto3 hits the
+      #      chain itself.
+      #
+      # The task pins `--ignore-vuln GHSA-qp9x-wp8f-qgjj` (python-tuf 4.0.0,
+      # fixed in 7.0.0): tufup 0.10.0 pins `tuf==4.0.*`, so the upgrade is not
+      # ours to make. The impact is limited to the updater client on Windows
+      # and assumes a repository whose delegations differ only by case — which
+      # this project does not generate (a single `targets` role).
+      # Exit condition: drop that ignore as soon as tufup relaxes its bound
       # on tuf.
-      - run: uv run --frozen pip-audit --ignore-vuln GHSA-qp9x-wp8f-qgjj
+      - run: uv run --frozen poe security
 
   test:
     name: Tests (${{ matrix.os }}, Python ${{ matrix.python }})
@@ -113,9 +117,9 @@ jobs:
           python-version: ${{ matrix.python }}
           enable-cache: true
       - run: uv sync --frozen --all-extras --group dev
-      # The coverage threshold lives here, not in addopts: a partial local
-      # run must not exit with code 1.
-      - run: uv run --frozen pytest --cov=src/ezcompiler --cov-fail-under=70
+      # `poe test-ci` carries the coverage threshold, which is deliberately
+      # not in addopts: a partial local run must not exit with code 1.
+      - run: uv run --frozen poe test-ci
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: matrix.os == 'ubuntu-24.04' && matrix.python == '3.13' && always()
         with:
