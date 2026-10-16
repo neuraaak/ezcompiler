@@ -1,19 +1,17 @@
 name: 01 · CI
 
-# Quality gate: lint/format and type-check/import-contracts run first and block
-# the test matrix. Runs on PRs, and as the release gate via workflow_call from
-# 02-tag-sync (no bare `push` trigger → one CI run per change, no double runs).
+# Quality gate: quality/type-check run first and block the test matrix; security
+# runs in parallel and deliberately gates nothing (it reads an external advisory
+# feed, so it can turn red without the code changing). Runs on PRs, and as the
+# release gate via workflow_call from 02-tag-sync (no bare `push` trigger → one
+# CI run per change, no double runs).
+#
+# No `paths:` filter: `poe lint` and `poe format-check` cover the whole tree, so
+# a filtered trigger would hide a break under .scripts/, examples/ or docs/.
 
 on:
   pull_request:
     branches: [main]
-    paths:
-      - "src/**"
-      - "tests/**"
-      - "pyproject.toml"
-      - "uv.lock"
-      - ".github/workflows/00-install-deps.yml"
-      - ".github/workflows/01-ci.yml"
   workflow_call:
   workflow_dispatch:
 
@@ -25,11 +23,14 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  # Four consumers (quality, type-check, security, test): all four install,
+  # so the primer is above the ~3-consumer heuristic on its own merits.
   install-deps:
+    name: Install & cache deps
     uses: ./.github/workflows/00-install-deps.yml
 
-  lint:
-    name: Lint & Format Check
+  quality:
+    name: Lint & format
     needs: [install-deps]
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -45,7 +46,7 @@ jobs:
       - run: uv run --frozen poe format-check
 
   type-check:
-    name: Type Check & Import Contracts
+    name: Type check & contracts
     needs: [install-deps]
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -63,7 +64,7 @@ jobs:
       - run: uv run --frozen poe imports
 
   security:
-    name: Security (bandit + pip-audit)
+    name: Security scan
     needs: [install-deps]
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -93,7 +94,7 @@ jobs:
 
   test:
     name: Tests (${{ matrix.os }}, Python ${{ matrix.python }})
-    needs: [lint, type-check]
+    needs: [quality, type-check]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 25
     permissions:

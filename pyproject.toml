@@ -174,6 +174,9 @@ docs-build = "mkdocs build --strict"
 docs-coverage = "pytest --cov=src/ezcompiler --cov-report=html --cov-report=xml -q"
 graph = "python .scripts/dev/generate_architecture_graph.py"
 version = "python .scripts/dev/update_version.py"
+# Machine-readable version for CI: the single source the workflows read,
+# instead of each one re-implementing a grep/sed on pyproject.toml.
+read-version = '''python -c "import tomllib, pathlib; print(tomllib.loads(pathlib.Path('pyproject.toml').read_text(encoding='utf-8'))['project']['version'])"'''
 
 test = "pytest"
 test-ci = "pytest --cov=src/ezcompiler --cov-fail-under=70"
