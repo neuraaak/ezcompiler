@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.7">
     
     
       
@@ -33,7 +33,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -647,7 +647,7 @@
   <span class="md-ellipsis">
     
   
-    Secure Updates with tufup
+    Secure updates with tufup
   
 
     
@@ -1428,6 +1428,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#ezcompiler.adapters.base_releaser.BaseReleaser.remove_latest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;remove_latest
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#ezcompiler.adapters.base_releaser.BaseReleaser.get_releaser_name" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1493,6 +1504,17 @@
     <span class="md-ellipsis">
       
         <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;refresh_expiration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ezcompiler.adapters._tufup_releaser.TufupReleaser.remove_latest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;remove_latest
       
     </span>
   </a>
@@ -2858,6 +2880,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#ezcompiler.adapters.base_releaser.BaseReleaser.remove_latest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;remove_latest
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#ezcompiler.adapters.base_releaser.BaseReleaser.get_releaser_name" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2923,6 +2956,17 @@
     <span class="md-ellipsis">
       
         <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;refresh_expiration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ezcompiler.adapters._tufup_releaser.TufupReleaser.remove_latest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;remove_latest
       
     </span>
   </a>
@@ -3843,7 +3887,7 @@ compiler.compile(console=False)</p>
 <p>compiler = PyInstallerCompiler(config)
 name = compiler.get_compiler_name()
 print(name)
-'PyInstaller (Empaquetée)'</p>
+'PyInstaller (Packaged)'</p>
 </blockquote>
 </blockquote>
 </blockquote>
@@ -4319,7 +4363,7 @@ compiler.compile(console=True)</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Display name "PyInstaller (Empaquetée)"</p>
+                <p>Display name "PyInstaller (Packaged)"</p>
               </div>
             </td>
           </tr>
@@ -4334,7 +4378,7 @@ compiler.compile(console=True)</p>
 <blockquote>
 <p>compiler = PyInstallerCompiler(config)
 print(compiler.get_compiler_name())
-'PyInstaller (Empaquetée)'</p>
+'PyInstaller (Packaged)'</p>
 </blockquote>
 </blockquote>
 </blockquote>
@@ -4742,12 +4786,14 @@ options from project settings, and runs compilation.</p>
   </span>
 
 <a href="#ezcompiler.adapters.compiler_factory.CompilerFactory.create_compiler" class="headerlink" title="Anchor link to this section">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">create_compiler</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;CompilerConfig&lt;/span&gt;
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">create_compiler</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">config</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;CompilerConfig&lt;/span&gt;
 
 
   &lt;span class=&quot;doc doc-labels&quot;&gt;
       &lt;small class=&quot;doc doc-label doc-label-dataclass&quot;&gt;&lt;code&gt;dataclass&lt;/code&gt;&lt;/small&gt;
-  &lt;/span&gt; (&lt;code&gt;ezcompiler.shared.CompilerConfig&lt;/code&gt;)" href="../shared/#ezcompiler.shared.CompilerConfig">CompilerConfig</a></span><span class="p">,</span> <span class="n">compiler_name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;CompilerPort&lt;/span&gt; (&lt;code&gt;ezcompiler._types.CompilerPort&lt;/code&gt;)" href="../reference/#ezcompiler.CompilerPort">CompilerPort</a></span>
+  &lt;/span&gt; (&lt;code&gt;ezcompiler.shared.CompilerConfig&lt;/code&gt;)" href="../shared/#ezcompiler.shared.CompilerConfig">CompilerConfig</a></span><span class="p">,</span> <span class="n">compiler_name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;CompilerPort&lt;/span&gt; (&lt;code&gt;ezcompiler._types.CompilerPort&lt;/code&gt;)" href="../reference/#ezcompiler.CompilerPort">CompilerPort</a></span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
@@ -4902,7 +4948,7 @@ options from project settings, and runs compilation.</p>
 
 
 <a href="#ezcompiler.adapters.base_installer.BaseInstaller" class="headerlink" title="Anchor link to this section">&para;</a></h2>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">BaseInstaller</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n"><span title="typing.Any">Any</span></span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">BaseInstaller</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n"><span title="ezcompiler.shared.InstallerConfig">InstallerConfig</span></span><span class="p">)</span>
 </span></code></pre></div>
 
     <div class="doc doc-contents first">
@@ -4946,7 +4992,16 @@ options from project settings, and runs compilation.</p>
   </span>
 
 <a href="#ezcompiler.adapters.base_installer.BaseInstaller.build" class="headerlink" title="Anchor link to this section">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">build</span><span class="p">(</span><span class="n">bundle_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">,</span> <span class="n">app_name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">output_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="pathlib.Path">Path</span></span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">build</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">bundle_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">app_name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">version</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">output_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">,</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="o">*</span><span class="p">,</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">company_name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">icon</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">main_file</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="pathlib.Path">Path</span></span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
@@ -5002,7 +5057,7 @@ options from project settings, and runs compilation.</p>
 
 
 <a href="#ezcompiler.adapters._innosetup_installer.InnoSetupInstaller" class="headerlink" title="Anchor link to this section">&para;</a></h2>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">InnoSetupInstaller</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n"><span title="typing.Any">Any</span></span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">InnoSetupInstaller</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n"><span title="ezcompiler.shared.InstallerConfig">InstallerConfig</span></span><span class="p">)</span>
 </span></code></pre></div>
 
     <div class="doc doc-contents first">
@@ -5042,12 +5097,28 @@ options from project settings, and runs compilation.</p>
 
 
 <a href="#ezcompiler.adapters._innosetup_installer.InnoSetupInstaller.build" class="headerlink" title="Anchor link to this section">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">build</span><span class="p">(</span><span class="n">bundle_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">,</span> <span class="n">app_name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">output_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="pathlib.Path">Path</span></span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">build</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">bundle_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">app_name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">version</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">output_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">,</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="o">*</span><span class="p">,</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">company_name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">icon</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">main_file</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="pathlib.Path">Path</span></span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
 
-        <p>Render the .iss script and compile it into a setup.exe.</p>
+        <p>Detect the main executable, resolve the .iss, and compile it.</p>
+<p><code>company_name</code> and <code>icon</code> are keyword-only: they feed
+<code>render_iss</code> (the former drives the deterministic AppId GUID via
+<code>resolve_app_id</code>, so it must match whatever <code>generate iss</code> uses
+for the same product — see <code>InstallerService.build_installer</code>).
+<code>main_file</code> is the entry-point script: it disambiguates a bundle
+holding several executables when none matches <code>app_name</code> (a bundle
+built from <code>main.py</code> for project <code>MyApp</code> emits <code>main.exe</code>).</p>
 
 
     </div>
@@ -5115,7 +5186,10 @@ options from project settings, and runs compilation.</p>
   </span>
 
 <a href="#ezcompiler.adapters.installer_factory.InstallerFactory.create_installer" class="headerlink" title="Anchor link to this section">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">create_installer</span><span class="p">(</span><span class="n">installer_type</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n"><span title="typing.Any">Any</span></span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="ezcompiler._types.InstallerPort">InstallerPort</span></span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">create_installer</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">installer_type</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">config</span><span class="p">:</span> <span class="n"><span title="ezcompiler.shared.InstallerConfig">InstallerConfig</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="ezcompiler._types.InstallerPort">InstallerPort</span></span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
@@ -5155,11 +5229,11 @@ options from project settings, and runs compilation.</p>
                 <code>config</code>
             </td>
             <td>
-                  <code><span title="dict">dict</span>[<span title="str">str</span>, <span title="typing.Any">Any</span>] | None</code>
+                  <code><span title="ezcompiler.shared.InstallerConfig">InstallerConfig</span> | None</code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Configuration dictionary for the installer adapter</p>
+                <p>Configuration for the installer adapter</p>
               </div>
             </td>
             <td>
@@ -5309,7 +5383,15 @@ options from project settings, and runs compilation.</p>
   </span>
 
 <a href="#ezcompiler.adapters.base_releaser.BaseReleaser.release" class="headerlink" title="Anchor link to this section">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">release</span><span class="p">(</span><span class="n">bundle_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">,</span> <span class="n">app_name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">repo_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">patch</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="pathlib.Path">Path</span></span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">release</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">bundle_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">app_name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">version</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">repo_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">,</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="o">*</span><span class="p">,</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">patch</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">required</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="pathlib.Path">Path</span></span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
@@ -5333,13 +5415,15 @@ options from project settings, and runs compilation.</p>
   </span>
 
 <a href="#ezcompiler.adapters.base_releaser.BaseReleaser.init_keys" class="headerlink" title="Anchor link to this section">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">init_keys</span><span class="p">(</span><span class="n">app_name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">repo_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">,</span> <span class="n">keys_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="bool">bool</span></span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">init_keys</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">app_name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">repo_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">,</span> <span class="n">keys_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="bool">bool</span></span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
 
-        <p>Initialise clés + squelette repo TUF. Idempotent.</p>
-<p>Returns True si init effectuée, False si déjà présente (skip).
+        <p>Initialize TUF keys and the repo skeleton. Idempotent.</p>
+<p>Returns True if the init ran, False if it was already present (skip).
 Raises ReleaseError / SigningKeyError on failure.</p>
 
 
@@ -5359,7 +5443,18 @@ Raises ReleaseError / SigningKeyError on failure.</p>
   </span>
 
 <a href="#ezcompiler.adapters.base_releaser.BaseReleaser.refresh_expiration" class="headerlink" title="Anchor link to this section">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">refresh_expiration</span><span class="p">(</span><span class="n">app_name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">repo_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">,</span> <span class="n">keys_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">roles</span><span class="p">:</span> <span class="n"><span title="tuple">tuple</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;targets&#39;</span><span class="p">,</span> <span class="s1">&#39;snapshot&#39;</span><span class="p">,</span> <span class="s1">&#39;timestamp&#39;</span><span class="p">),</span> <span class="n">days</span><span class="p">:</span> <span class="n"><span title="int">int</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="pathlib.Path">Path</span></span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">refresh_expiration</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">app_name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">repo_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">keys_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="o">*</span><span class="p">,</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">roles</span><span class="p">:</span> <span class="n"><span title="tuple">tuple</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>        <span class="s2">"targets"</span><span class="p">,</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        <span class="s2">"snapshot"</span><span class="p">,</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        <span class="s2">"timestamp"</span><span class="p">,</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="p">),</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="n">days</span><span class="p">:</span> <span class="n"><span title="int">int</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="pathlib.Path">Path</span></span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
@@ -5367,6 +5462,33 @@ Raises ReleaseError / SigningKeyError on failure.</p>
         <p>Re-sign metadata to push out expiration without a new release.</p>
 <p>Returns the local repository directory.
 Raises ReleaseError / SigningKeyError on failure.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="ezcompiler.adapters.base_releaser.BaseReleaser.remove_latest" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">remove_latest</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+  </span>
+
+<a href="#ezcompiler.adapters.base_releaser.BaseReleaser.remove_latest" class="headerlink" title="Anchor link to this section">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">remove_latest</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">app_name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">repo_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">,</span> <span class="n">keys_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="str">str</span></span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Remove the latest archive and its patch, re-sign, return the version.</p>
+<p>Raises ReleaseError / SigningKeyError on failure.</p>
 
 
     </div>
@@ -5457,7 +5579,15 @@ Raises ReleaseError / SigningKeyError on failure.</p>
 
 
 <a href="#ezcompiler.adapters._tufup_releaser.TufupReleaser.release" class="headerlink" title="Anchor link to this section">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">release</span><span class="p">(</span><span class="n">bundle_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">,</span> <span class="n">app_name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">repo_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">patch</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="pathlib.Path">Path</span></span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">release</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">bundle_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">app_name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">version</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">repo_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">,</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="o">*</span><span class="p">,</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">patch</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">required</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="pathlib.Path">Path</span></span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
@@ -5477,13 +5607,15 @@ Raises ReleaseError / SigningKeyError on failure.</p>
 
 
 <a href="#ezcompiler.adapters._tufup_releaser.TufupReleaser.init_keys" class="headerlink" title="Anchor link to this section">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">init_keys</span><span class="p">(</span><span class="n">app_name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">repo_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">,</span> <span class="n">keys_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="bool">bool</span></span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">init_keys</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">app_name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">repo_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">,</span> <span class="n">keys_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="bool">bool</span></span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
 
-        <p>Initialise clés + squelette repo TUF. Idempotent.</p>
-<p>Returns True si l'init a été effectuée, False si déjà présente (skip).</p>
+        <p>Initialize keys and the TUF repo skeleton. Idempotent.</p>
+<p>Returns True if the init ran, False if it was already present (skip).</p>
 
 
     </div>
@@ -5498,7 +5630,18 @@ Raises ReleaseError / SigningKeyError on failure.</p>
 
 
 <a href="#ezcompiler.adapters._tufup_releaser.TufupReleaser.refresh_expiration" class="headerlink" title="Anchor link to this section">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">refresh_expiration</span><span class="p">(</span><span class="n">app_name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">repo_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">,</span> <span class="n">keys_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">roles</span><span class="p">:</span> <span class="n"><span title="tuple">tuple</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;targets&#39;</span><span class="p">,</span> <span class="s1">&#39;snapshot&#39;</span><span class="p">,</span> <span class="s1">&#39;timestamp&#39;</span><span class="p">),</span> <span class="n">days</span><span class="p">:</span> <span class="n"><span title="int">int</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="pathlib.Path">Path</span></span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">refresh_expiration</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">app_name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">repo_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">keys_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="o">*</span><span class="p">,</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">roles</span><span class="p">:</span> <span class="n"><span title="tuple">tuple</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>        <span class="s2">"targets"</span><span class="p">,</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        <span class="s2">"snapshot"</span><span class="p">,</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        <span class="s2">"timestamp"</span><span class="p">,</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="p">),</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="n">days</span><span class="p">:</span> <span class="n"><span title="int">int</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="pathlib.Path">Path</span></span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
@@ -5666,6 +5809,151 @@ per-role <code>expiration_days</code> (or tufup defaults).</p>
 
 </div>
 
+<div class="doc doc-object doc-function">
+
+
+<h3 id="ezcompiler.adapters._tufup_releaser.TufupReleaser.remove_latest" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">remove_latest</span>
+
+
+<a href="#ezcompiler.adapters._tufup_releaser.TufupReleaser.remove_latest" class="headerlink" title="Anchor link to this section">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">remove_latest</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">app_name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">repo_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">,</span> <span class="n">keys_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="str">str</span></span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Remove the latest archive and its patch, then re-sign the tree.</p>
+<p>Native tufup <code>remove_latest_bundle</code>: only the latest version can be
+removed, intermediate ones would break the patch chain. The change is
+local; <code>ezcompiler publish update</code> publishes it.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>app_name</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Application name (must match the initialized repo).</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>repo_dir</code>
+            </td>
+            <td>
+                  <code><span title="pathlib.Path">Path</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Root of the local TUF repository tree.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>keys_dir</code>
+            </td>
+            <td>
+                  <code><span title="pathlib.Path">Path</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Directory holding the private signing keys.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+<th>Name</th>          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+<td><code>str</code></td>            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The removed version, as spelled in the archive name.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;SigningKeyError&lt;/span&gt; (&lt;code&gt;ezcompiler.shared.exceptions.SigningKeyError&lt;/code&gt;)" href="../shared/#ezcompiler.shared.exceptions.SigningKeyError">SigningKeyError</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If the keys directory is missing.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;ReleaseError&lt;/span&gt; (&lt;code&gt;ezcompiler.shared.exceptions.ReleaseError&lt;/code&gt;)" href="../shared/#ezcompiler.shared.exceptions.ReleaseError">ReleaseError</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If the repo is not initialized, holds no version,
+or tufup fails.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
 
 
   </div>
@@ -5727,7 +6015,9 @@ per-role <code>expiration_days</code> (or tufup defaults).</p>
   </span>
 
 <a href="#ezcompiler.adapters.releaser_factory.ReleaserFactory.create_releaser" class="headerlink" title="Anchor link to this section">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">create_releaser</span><span class="p">(</span><span class="n">release_type</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n"><span title="typing.Any">Any</span></span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;ReleaserPort&lt;/span&gt; (&lt;code&gt;ezcompiler._types.ReleaserPort&lt;/code&gt;)" href="../reference/#ezcompiler.ReleaserPort">ReleaserPort</a></span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">create_releaser</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">release_type</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n"><span title="typing.Any">Any</span></span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;ReleaserPort&lt;/span&gt; (&lt;code&gt;ezcompiler._types.ReleaserPort&lt;/code&gt;)" href="../reference/#ezcompiler.ReleaserPort">ReleaserPort</a></span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
@@ -5920,7 +6210,9 @@ per-role <code>expiration_days</code> (or tufup defaults).</p>
   </span>
 
 <a href="#ezcompiler.adapters.base_file_writer.BaseFileWriter.write_text" class="headerlink" title="Anchor link to this section">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">write_text</span><span class="p">(</span><span class="n">output_path</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">encoding</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">write_text</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">output_path</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">encoding</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s2">"utf-8"</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
@@ -5991,7 +6283,9 @@ per-role <code>expiration_days</code> (or tufup defaults).</p>
 
 
 <a href="#ezcompiler.adapters._disk_file_writer.DiskFileWriter.write_text" class="headerlink" title="Anchor link to this section">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">write_text</span><span class="p">(</span><span class="n">output_path</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">encoding</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">write_text</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">output_path</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">encoding</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s2">"utf-8"</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
@@ -6763,6 +7057,10 @@ support for authentication, SSL verification, and automatic retry logic.</p>
 username (str): Username for basic authentication (default: "")
 password (str): Password for basic authentication (default: "")
 api_key (str): API key for bearer token authentication (default: "")
+    Empty <code>username</code>, <code>password</code> and <code>api_key</code> fall back to the
+    <code>EZCOMPILER_SERVER_USERNAME</code>, <code>EZCOMPILER_SERVER_PASSWORD</code> and
+    <code>EZCOMPILER_SERVER_API_KEY</code> environment variables, so the CLI
+    never needs a credential on its command line.
 timeout (int|float): Request timeout in seconds (default: 30)
 verify_ssl (bool): Verify SSL certificates (default: True)
 chunk_size (int): Chunk size for uploads (default: 8192)
@@ -7151,7 +7449,9 @@ print(types)
   </span>
 
 <a href="#ezcompiler.adapters.uploader_factory.UploaderFactory.create_uploader" class="headerlink" title="Anchor link to this section">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">create_uploader</span><span class="p">(</span><span class="n">upload_type</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n"><span title="typing.Any">Any</span></span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;UploaderPort&lt;/span&gt; (&lt;code&gt;ezcompiler._types.UploaderPort&lt;/code&gt;)" href="../reference/#ezcompiler.UploaderPort">UploaderPort</a></span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">create_uploader</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">upload_type</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n"><span title="typing.Any">Any</span></span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;UploaderPort&lt;/span&gt; (&lt;code&gt;ezcompiler._types.UploaderPort&lt;/code&gt;)" href="../reference/#ezcompiler.UploaderPort">UploaderPort</a></span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
@@ -7460,7 +7760,9 @@ print(types)
   </span>
 
 <a href="#ezcompiler.adapters.uploader_factory.UploaderFactory.validate_config" class="headerlink" title="Anchor link to this section">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">validate_config</span><span class="p">(</span><span class="n">upload_type</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n"><span title="typing.Any">Any</span></span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="bool">bool</span></span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">validate_config</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">upload_type</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n"><span title="typing.Any">Any</span></span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="bool">bool</span></span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
@@ -7693,7 +7995,7 @@ True</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.path", "navigation.top", "navigation.footer", "navigation.indexes", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

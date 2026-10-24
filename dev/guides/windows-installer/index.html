@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.7">
     
     
       
@@ -33,7 +33,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -652,7 +652,7 @@
   <span class="md-ellipsis">
     
   
-    Secure Updates with tufup
+    Secure updates with tufup
   
 
     
@@ -744,10 +744,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#steps" class="md-nav__link">
+  <a href="#enable-the-installer" class="md-nav__link">
     <span class="md-ellipsis">
       
-        📝 Steps
+        📝 Enable the installer
       
     </span>
   </a>
@@ -755,10 +755,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#config-reference" class="md-nav__link">
+  <a href="#choose-a-script-mode" class="md-nav__link">
     <span class="md-ellipsis">
       
-        ⚙️ Config reference
+        Choose a script mode
       
     </span>
   </a>
@@ -766,10 +766,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#cli" class="md-nav__link">
+  <a href="#stable-identity-and-build-values" class="md-nav__link">
     <span class="md-ellipsis">
       
-        💻 CLI
+        Stable identity and build values
       
     </span>
   </a>
@@ -777,10 +777,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#result" class="md-nav__link">
+  <a href="#installer-options" class="md-nav__link">
     <span class="md-ellipsis">
       
-        ✅ Result
+        ⚙️ Installer options
       
     </span>
   </a>
@@ -788,10 +788,71 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#error-handling" class="md-nav__link">
+  <a href="#extend-the-generated-script" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Error handling
+        Extend the generated script
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#migration-400" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Migration 4.0.0
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Migration 4.0.0">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#move-flat-toml-keys-into-the-installer-section" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Move flat TOML keys into the installer section
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update-python-constructors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Update Python constructors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regenerate-legacy-scripts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regenerate legacy scripts
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#result-and-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ✅ Result and errors
       
     </span>
   </a>
@@ -1366,10 +1427,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#steps" class="md-nav__link">
+  <a href="#enable-the-installer" class="md-nav__link">
     <span class="md-ellipsis">
       
-        📝 Steps
+        📝 Enable the installer
       
     </span>
   </a>
@@ -1377,10 +1438,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#config-reference" class="md-nav__link">
+  <a href="#choose-a-script-mode" class="md-nav__link">
     <span class="md-ellipsis">
       
-        ⚙️ Config reference
+        Choose a script mode
       
     </span>
   </a>
@@ -1388,10 +1449,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#cli" class="md-nav__link">
+  <a href="#stable-identity-and-build-values" class="md-nav__link">
     <span class="md-ellipsis">
       
-        💻 CLI
+        Stable identity and build values
       
     </span>
   </a>
@@ -1399,10 +1460,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#result" class="md-nav__link">
+  <a href="#installer-options" class="md-nav__link">
     <span class="md-ellipsis">
       
-        ✅ Result
+        ⚙️ Installer options
       
     </span>
   </a>
@@ -1410,10 +1471,71 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#error-handling" class="md-nav__link">
+  <a href="#extend-the-generated-script" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Error handling
+        Extend the generated script
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#migration-400" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Migration 4.0.0
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Migration 4.0.0">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#move-flat-toml-keys-into-the-installer-section" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Move flat TOML keys into the installer section
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update-python-constructors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Update Python constructors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regenerate-legacy-scripts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regenerate legacy scripts
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#result-and-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ✅ Result and errors
       
     </span>
   </a>
@@ -1489,106 +1611,372 @@
 
 
 <h1 id="how-to-build-a-windows-installer">How to build a Windows installer<a class="headerlink" href="#how-to-build-a-windows-installer" title="Anchor link to this section">&para;</a></h1>
-<p>Package a compiled bundle into a first-deployment <code>setup.exe</code> with Inno Setup, so end users get a standard Windows installer instead of a raw ZIP.</p>
+<p>Package a compiled bundle into a first-deployment <code>setup.exe</code> with Inno Setup.</p>
 <h2 id="prerequisites">🔧 Prerequisites<a class="headerlink" href="#prerequisites" title="Anchor link to this section">&para;</a></h2>
 <ul>
-<li>A working <code>CompilerConfig</code> that already compiles your project (see <a href="../configuration/">How to configure a compiler</a>)</li>
-<li><a href="https://jrsoftware.org/isdl.php">Inno Setup 6</a> installed, with <code>ISCC.exe</code> on <code>PATH</code> (or in its default <code>Program Files</code> location)</li>
+<li>A working compiler configuration (see <a href="../configuration/">Configuration</a>).</li>
+<li><a href="https://jrsoftware.org/isdl.php">Inno Setup 6</a> installed on the build machine.
+  Make <code>ISCC.exe</code> available on <code>PATH</code>, use its default Program Files installation,
+  or set <code>installer.iscc_path</code> explicitly.</li>
 </ul>
-<div class="admonition note">
-<p class="admonition-title">No PyPI dependency</p>
-<p>The installer stage shells out to <code>ISCC.exe</code> — there is no <code>pip install ezcompiler[...]</code> extra to add. Only the Inno Setup compiler itself needs to be installed on the build machine.</p>
-</div>
-<h2 id="steps">📝 Steps<a class="headerlink" href="#steps" title="Anchor link to this section">&para;</a></h2>
-<ol>
-<li>
-<p>Enable the installer stage in your config.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler</span><span class="w"> </span><span class="kn">import</span> <span class="n">EzCompiler</span><span class="p">,</span> <span class="n">CompilerConfig</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">config</span> <span class="o">=</span> <span class="n">CompilerConfig</span><span class="p">(</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">version</span><span class="o">=</span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">project_name</span><span class="o">=</span><span class="s2">&quot;MyApp&quot;</span><span class="p">,</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">main_file</span><span class="o">=</span><span class="s2">&quot;main.py&quot;</span><span class="p">,</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">include_files</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;files&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;folders&quot;</span><span class="p">:</span> <span class="p">[]},</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">output_folder</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;dist/pyinstaller_build&quot;</span><span class="p">),</span>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="n">compiler</span><span class="o">=</span><span class="s2">&quot;PyInstaller&quot;</span><span class="p">,</span>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="n">installer_enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="p">)</span>
+<p>Jinja2 is a runtime dependency of ezcompiler and renders generated installer
+scripts. Inno Setup remains an external application: no PyPI package or
+ezcompiler extra replaces its <code>ISCC.exe</code> compiler.</p>
+<h2 id="enable-the-installer">📝 Enable the installer<a class="headerlink" href="#enable-the-installer" title="Anchor link to this section">&para;</a></h2>
+<p>Add a nested installer section to the project's <code>pyproject.toml</code>:</p>
+<div class="language-toml highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">[tool.ezcompiler.installer]</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">per_user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
 </span></code></pre></div>
-</li>
-<li>
-<p>Run the build pipeline. The installer stage runs automatically after <code>zip</code> when <code>installer_enabled=True</code>.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">compiler</span> <span class="o">=</span> <span class="n">EzCompiler</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">compiler</span><span class="o">.</span><span class="n">run_pipeline</span><span class="p">(</span><span class="n">console</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<p>For the Python API, pass an <code>InstallerConfig</code> to <code>CompilerConfig</code>:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezplog</span><span class="w"> </span><span class="kn">import</span> <span class="n">Ezpl</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompilerConfig</span><span class="p">,</span> <span class="n">EzCompiler</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler.shared</span><span class="w"> </span><span class="kn">import</span> <span class="n">InstallerConfig</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="n">Ezpl</span><span class="p">()</span>  <span class="c1"># Initialize logging in the host application.</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="n">config</span> <span class="o">=</span> <span class="n">CompilerConfig</span><span class="p">(</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    <span class="n">version</span><span class="o">=</span><span class="s2">"1.0.0"</span><span class="p">,</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    <span class="n">project_name</span><span class="o">=</span><span class="s2">"MyApp"</span><span class="p">,</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    <span class="n">main_file</span><span class="o">=</span><span class="s2">"main.py"</span><span class="p">,</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    <span class="n">include_files</span><span class="o">=</span><span class="p">{</span><span class="s2">"files"</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">"folders"</span><span class="p">:</span> <span class="p">[]},</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    <span class="n">output_folder</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">"dist/pyinstaller_build"</span><span class="p">),</span>
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    <span class="n">compiler</span><span class="o">=</span><span class="s2">"PyInstaller"</span><span class="p">,</span>
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>    <span class="n">installer</span><span class="o">=</span><span class="n">InstallerConfig</span><span class="p">(</span><span class="n">enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">per_user</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="p">)</span>
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="n">compiler</span> <span class="o">=</span> <span class="n">EzCompiler</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="n">compiler</span><span class="o">.</span><span class="n">run_pipeline</span><span class="p">(</span><span class="n">console</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </span></code></pre></div>
-<p>This produces <code>dist/installer/MyApp-1.0.0-setup.exe</code> by default — see the config reference below to change the location.</p>
-</li>
-<li>
-<p>Point at a custom <code>.iss</code> script if the generated one doesn't fit your needs.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">config</span> <span class="o">=</span> <span class="n">CompilerConfig</span><span class="p">(</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="o">...</span><span class="p">,</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="n">installer_enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">installer_iss_path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;installer/custom.iss&quot;</span><span class="p">),</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="p">)</span>
+<p>The installer stage runs after <code>zip</code> and before <code>release</code>. This example produces
+<code>dist/installer/MyApp-1.0.0-setup.exe</code>. Use
+<code>compiler.run_pipeline(skip_installer=True)</code> to skip it for one run.</p>
+<p>The default system-wide installation uses <code>{autopf}\MyApp</code> and requires admin
+rights. Set <code>per_user = true</code> for <code>%LOCALAPPDATA%\Programs\MyApp</code> with
+<code>PrivilegesRequired=lowest</code>. Per-user installation allows a
+<a href="../secure-updates-tufup/">tufup updater</a> running as the logged-in user to replace
+application files without elevation.</p>
+<p>The CLI can scaffold the enabled section:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>ezcompiler<span class="w"> </span>generate<span class="w"> </span>config<span class="w"> </span>--project-name<span class="w"> </span><span class="s2">"MyApp"</span><span class="w"> </span>--main-file<span class="w"> </span><span class="s2">"main.py"</span><span class="w"> </span>--installer-enabled
 </span></code></pre></div>
-<p>Your script can reuse the same <code>#PLACEHOLDER#</code> tokens as the built-in template (<code>#APP_NAME#</code>, <code>#VERSION#</code>, <code>#COMPANY_NAME#</code>, <code>#BUNDLE_DIR#</code>, <code>#OUTPUT_DIR#</code>, <code>#ICON_LINE#</code>, <code>#MAIN_EXE#</code>, <code>#DEFAULT_DIR#</code>, <code>#PRIVILEGES_REQUIRED#</code>).</p>
-</li>
-<li>
-<p>Skip the installer for a single run without touching the config.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">compiler</span><span class="o">.</span><span class="n">run_pipeline</span><span class="p">(</span><span class="n">skip_installer</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</span></code></pre></div>
-</li>
-<li>
-<p>Install per-user instead of system-wide if the app also uses <a href="../secure-updates-tufup/">TUF secure updates</a>.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">config</span> <span class="o">=</span> <span class="n">CompilerConfig</span><span class="p">(</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="o">...</span><span class="p">,</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="n">installer_enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="n">installer_per_user</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="p">)</span>
-</span></code></pre></div>
-<p>By default the installer targets <code>{autopf}\&lt;App&gt;</code> (Program Files) and requires admin rights (<code>PrivilegesRequired=admin</code>). A tufup auto-update runs as the logged-in user and cannot elevate to overwrite files there. Set <code>installer_per_user=True</code> to install into <code>%LOCALAPPDATA%\Programs\&lt;App&gt;</code> instead, with <code>PrivilegesRequired=lowest</code> — no elevation needed to install, and none needed later for auto-update to replace files in place.</p>
-</li>
-</ol>
-<h2 id="config-reference">⚙️ Config reference<a class="headerlink" href="#config-reference" title="Anchor link to this section">&para;</a></h2>
+<h2 id="choose-a-script-mode">Choose a script mode<a class="headerlink" href="#choose-a-script-mode" title="Anchor link to this section">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th style="text-align: left;">Field</th>
-<th style="text-align: left;">Default</th>
-<th style="text-align: left;">Description</th>
+<th style="text-align: left;">Mode</th>
+<th style="text-align: left;">Selection</th>
+<th style="text-align: left;">Behavior</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><code>installer_enabled</code></td>
-<td style="text-align: left;"><code>False</code></td>
-<td style="text-align: left;">Turn on the installer build stage</td>
+<td style="text-align: left;">Ephemeral</td>
+<td style="text-align: left;">Leave <code>iss_path</code> unset</td>
+<td style="text-align: left;">Render the bundled Jinja2 template to a temporary UTF-8 BOM <code>.iss</code>, compile it, and remove it on success. No script is left in <code>installer.output_dir</code>. A failed ISCC invocation retains the script for diagnosis.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>installer_output_dir</code></td>
-<td style="text-align: left;"><code>output_folder.parent / "installer"</code></td>
-<td style="text-align: left;">Directory receiving the generated <code>.iss</code> and the compiled <code>setup.exe</code></td>
+<td style="text-align: left;">Generated</td>
+<td style="text-align: left;">Run <code>ezcompiler generate iss</code></td>
+<td style="text-align: left;">Write an editable, committable UTF-8 BOM script, by default <code>installer/&lt;project_name&gt;.iss</code>. Generation does not run ISCC or automatically adopt the file.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>installer_iss_path</code></td>
-<td style="text-align: left;"><code>None</code> (built-in template)</td>
-<td style="text-align: left;">Path to a custom <code>.iss</code> script, overriding the bundled one</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>installer_per_user</code></td>
-<td style="text-align: left;"><code>False</code></td>
-<td style="text-align: left;">Install to <code>%LOCALAPPDATA%\Programs</code> with <code>PrivilegesRequired=lowest</code> instead of Program Files with admin rights — required for tufup in-place auto-update</td>
+<td style="text-align: left;">File</td>
+<td style="text-align: left;">Set <code>iss_path</code></td>
+<td style="text-align: left;">Pass the existing <code>.iss</code> directly to ISCC. Its contents are authoritative; they are neither re-rendered with Jinja2 nor rewritten.</td>
 </tr>
 </tbody>
 </table>
-<h2 id="cli">💻 CLI<a class="headerlink" href="#cli" title="Anchor link to this section">&para;</a></h2>
-<p>Enable the stage from the <code>generate config</code> command:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>ezcompiler<span class="w"> </span>generate<span class="w"> </span>config<span class="w"> </span>--project-name<span class="w"> </span><span class="s2">&quot;MyApp&quot;</span><span class="w"> </span>--main-file<span class="w"> </span><span class="s2">&quot;main.py&quot;</span><span class="w"> </span>--installer-enabled
+<p>Generate and then adopt a script when the typed options are insufficient:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>ezcompiler<span class="w"> </span>generate<span class="w"> </span>iss
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="c1"># Or choose another destination:</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>ezcompiler<span class="w"> </span>generate<span class="w"> </span>iss<span class="w"> </span>--output<span class="w"> </span>installer/custom.iss
 </span></code></pre></div>
-<h2 id="result">✅ Result<a class="headerlink" href="#result" title="Anchor link to this section">&para;</a></h2>
-<p><code>run_pipeline()</code> produces <code>{project_name}-{version}-setup.exe</code> in <code>installer_output_dir</code>. When <code>tuf_enabled=True</code>, <code>upload()</code> also copies it into the assembled <code>release/</code> directory alongside the ZIP, so it ships with the rest of the release artifacts — see <a href="../../concepts/about-release-pipeline/">Release pipeline</a>.</p>
-<h2 id="error-handling">Error handling<a class="headerlink" href="#error-handling" title="Anchor link to this section">&para;</a></h2>
+<div class="language-toml highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">[tool.ezcompiler.installer]</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">iss_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"installer/custom.iss"</span>
+</span></code></pre></div>
+<p>An existing destination is protected from overwriting. Use
+<code>ezcompiler generate iss --force</code> when you want to replace it with a fresh render
+of the configuration; hand edits will be lost. Generation can run while the
+installer stage is disabled and does not require ISCC.</p>
+<div class="admonition warning">
+<p class="admonition-title">The file wins</p>
+<p>With <code>iss_path</code> set, the script-generation options in the table below do not
+change the file. The pipeline warns by name about non-default ignored
+options. <code>enabled</code>, <code>iss_path</code>, <code>output_dir</code>, and <code>iscc_path</code> still control the
+build, and the signing pair still supplies ISCC's <code>/S</code> registration; a custom
+script must select the matching <code>SignTool</code> itself.</p>
+</div>
+<p>The top-level compiler <code>icon</code> supplies <code>SetupIconFile</code> and must be a <code>.ico</code> when
+the installer is enabled. Ephemeral builds resolve it to an absolute path.
+Generated scripts preserve a relative icon path and warn that ISCC resolves it
+relative to the <code>.iss</code> directory, rather than the current working directory.
+Adjust the path in the adopted script accordingly.</p>
+<h2 id="stable-identity-and-build-values">Stable identity and build values<a class="headerlink" href="#stable-identity-and-build-values" title="Anchor link to this section">&para;</a></h2>
+<p>The rendered script stores <code>MyAppName</code>, <code>MyAppPublisher</code>, and a stable <code>AppId</code>.
+Unless explicitly set, the GUID derives deterministically from <code>company_name</code>
+and <code>project_name</code>, independently of the version or machine. Changing either
+name changes that derived identity; set an explicit <code>app_id</code> if the product must
+keep its identity across a rename. In the script, a literal GUID uses
+<code>AppId={{GUID}</code>: the opening brace is doubled, the closing brace stays single.</p>
+<p>Every build passes five volatile values as ISCC <code>/D</code> preprocessor defines:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Define</th>
+<th style="text-align: left;">Value supplied for the current build</th>
+<th style="text-align: left;">Script consumer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>MyAppVersion</code></td>
+<td style="text-align: left;"><code>CompilerConfig.version</code></td>
+<td style="text-align: left;"><code>AppVersion</code> and the setup filename</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>VersionInfo</code></td>
+<td style="text-align: left;">Numeric four-part version, e.g. <code>1.2.3.0</code> from <code>1.2.3-rc1</code></td>
+<td style="text-align: left;"><code>VersionInfoVersion</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>BundleDir</code></td>
+<td style="text-align: left;">Absolute compiled bundle directory</td>
+<td style="text-align: left;"><code>[Files]</code> source</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>OutputDir</code></td>
+<td style="text-align: left;">Absolute installer output directory</td>
+<td style="text-align: left;"><code>OutputDir</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>MainExe</code></td>
+<td style="text-align: left;">Detected executable name at the bundle root</td>
+<td style="text-align: left;">Shortcuts and post-install launch</td>
+</tr>
+</tbody>
+</table>
+<p>The adapter chooses the sole bundle-root <code>.exe</code>, otherwise the executable
+matching the project name; an unresolved ambiguity is an error.</p>
+<p>Generated standalone scripts provide fallback values inside <code>#ifndef</code> guards
+for those five defines. ezcompiler's build values override the guarded defaults.
+Keep these guards and <code>{#MyAppVersion}</code> references when editing a committed
+script. A hardcoded <code>AppVersion=1.0.0</code> or an unconditional
+<code>#define MyAppVersion "1.0.0"</code> can compile the old version even when the project
+configuration has advanced. <code>VersionInfo</code> is supplied separately so a release
+suffix is never sent to the numeric-only <code>VersionInfoVersion</code> directive.</p>
+<h2 id="installer-options">⚙️ Installer options<a class="headerlink" href="#installer-options" title="Anchor link to this section">&para;</a></h2>
+<p>This is the complete reference for the 24 <code>InstallerConfig</code> fields. TOML keys
+live under <code>[tool.ezcompiler.installer]</code>; Python defaults use <code>None</code> for unset
+paths or optional values. In TOML, omit those keys instead of writing <code>null</code>.
+Effects describe generated scripts; file mode follows the rule above.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Option</th>
+<th style="text-align: left;">Default</th>
+<th style="text-align: left;">Effect on the <code>.iss</code> or compiler invocation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>enabled</code></td>
+<td style="text-align: left;"><code>False</code></td>
+<td style="text-align: left;">Enable the pipeline's installer stage; emits no directive.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>iss_path</code></td>
+<td style="text-align: left;"><code>None</code></td>
+<td style="text-align: left;">Use this existing script directly instead of rendering the template.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>output_dir</code></td>
+<td style="text-align: left;"><code>None</code></td>
+<td style="text-align: left;">Resolve to <code>output_folder.parent / "installer"</code>; supply <code>/DOutputDir</code> for the script's <code>OutputDir</code>. Receives the setup executable.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>iscc_path</code></td>
+<td style="text-align: left;"><code>None</code></td>
+<td style="text-align: left;">Explicit compiler binary; otherwise discover ISCC on <code>PATH</code> or in default Inno Setup 6 Program Files directories.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>app_id</code></td>
+<td style="text-align: left;"><code>None</code></td>
+<td style="text-align: left;">Stable <code>AppId</code>; derive a UUIDv5 from company/project names, or use an explicit <code>{XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}</code> GUID.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>publisher_url</code></td>
+<td style="text-align: left;"><code>""</code></td>
+<td style="text-align: left;">Emit <code>AppPublisherURL</code> when non-empty.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>support_url</code></td>
+<td style="text-align: left;"><code>""</code></td>
+<td style="text-align: left;">Emit <code>AppSupportURL</code> when non-empty.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>updates_url</code></td>
+<td style="text-align: left;"><code>""</code></td>
+<td style="text-align: left;">Emit <code>AppUpdatesURL</code> when non-empty.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>architecture</code></td>
+<td style="text-align: left;"><code>"x64"</code></td>
+<td style="text-align: left;">Emit <code>ArchitecturesAllowed</code> and <code>ArchitecturesInstallIn64BitMode</code> with the selected value (<code>x64</code>, <code>x86</code>, or <code>arm64</code>); <code>auto</code> omits both and leaves Inno's defaults in effect.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>per_user</code></td>
+<td style="text-align: left;"><code>False</code></td>
+<td style="text-align: left;">Select <code>{autopf}\&lt;App&gt;</code> with <code>PrivilegesRequired=admin</code>, or <code>{localappdata}\Programs\&lt;App&gt;</code> with <code>PrivilegesRequired=lowest</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>desktop_icon</code></td>
+<td style="text-align: left;"><code>True</code></td>
+<td style="text-align: left;">Emit an optional, initially unchecked <code>desktopicon</code> task and its <code>[Icons]</code> entry; disabling it omits both.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>start_menu_group</code></td>
+<td style="text-align: left;"><code>None</code></td>
+<td style="text-align: left;">Set <code>DefaultGroupName</code>; default to the project name. A Start Menu shortcut is always emitted.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>launch_after_install</code></td>
+<td style="text-align: left;"><code>True</code></td>
+<td style="text-align: left;">Emit the <code>[Run]</code> launch entry with <code>postinstall</code> and <code>skipifsilent</code>; disabling it omits that entry.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>add_to_path</code></td>
+<td style="text-align: left;"><code>False</code></td>
+<td style="text-align: left;">Append <code>{app}</code> to the user's <code>HKCU\Environment\Path</code> through <code>[Registry]</code>; uses <code>preservestringtype</code>. A generated <code>[Code]</code> block guards against duplicate entries on reinstall and removes the entry again at uninstall (never <code>uninsdeletevalue</code>, which would wipe the whole <code>Path</code>). Defining your own <code>CurUninstallStepChanged</code> in <code>extra_sections.Code</code> collides with it.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>close_running_app</code></td>
+<td style="text-align: left;"><code>True</code></td>
+<td style="text-align: left;">Emit <code>CloseApplications=force</code> and <code>RestartApplications=yes</code> (an unattended upgrade closes the running app instead of prompting); <code>False</code> omits both directives rather than explicitly setting them to <code>no</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>uninstall_delete</code></td>
+<td style="text-align: left;"><code>[]</code></td>
+<td style="text-align: left;">Emit each value verbatim as a <code>[UninstallDelete]</code> <code>Name</code> with <code>Type: filesandordirs</code>; use application-relative entries such as <code>{app}\cache</code>. Absolute paths and <code>..</code> segments are rejected.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>license_file</code></td>
+<td style="text-align: left;"><code>None</code></td>
+<td style="text-align: left;">Emit <code>LicenseFile</code>; the supplied file must exist when enabled. A relative path is resolved against the working directory for an ephemeral build and kept verbatim in a generated script, which warns — ISCC itself resolves it against the <code>.iss</code> directory.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>languages</code></td>
+<td style="text-align: left;"><code>["english"]</code></td>
+<td style="text-align: left;">Emit <code>[Languages]</code>: English uses <code>compiler:Default.isl</code>, others use bundled language files. Names must be supported, non-empty, and unique, e.g. <code>["english", "french"]</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>wizard_style</code></td>
+<td style="text-align: left;"><code>"modern"</code></td>
+<td style="text-align: left;">Emit <code>WizardStyle</code> (<code>modern</code> or <code>classic</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>compression</code></td>
+<td style="text-align: left;"><code>"lzma2/max"</code></td>
+<td style="text-align: left;">Emit <code>Compression</code>; <code>SolidCompression=yes</code> is always emitted. ISCC validates the algorithm.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>sign_tool_name</code></td>
+<td style="text-align: left;"><code>None</code></td>
+<td style="text-align: left;">Emit <code>SignTool</code> and register the command with ISCC's <code>/S</code>; must be paired with <code>sign_tool_command</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>sign_tool_command</code></td>
+<td style="text-align: left;"><code>None</code></td>
+<td style="text-align: left;">Supply the command in <code>/S&lt;name&gt;=&lt;command&gt;</code>; must be paired with <code>sign_tool_name</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>extra_setup_directives</code></td>
+<td style="text-align: left;"><code>{}</code></td>
+<td style="text-align: left;">Append raw additional <code>[Setup]</code> directives; managed directive collisions are rejected case-insensitively.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>extra_sections</code></td>
+<td style="text-align: left;"><code>{}</code></td>
+<td style="text-align: left;">Append raw lines in additional sections; collisions with managed section names are rejected case-insensitively.</td>
+</tr>
+</tbody>
+</table>
+<p>Shape validation also runs when the stage is disabled. Existing <code>iss_path</code> and
+<code>license_file</code> checks run when enabled. Invalid installer options raise
+<code>ConfigurationError</code>.</p>
+<h2 id="extend-the-generated-script">Extend the generated script<a class="headerlink" href="#extend-the-generated-script" title="Anchor link to this section">&para;</a></h2>
+<p>Use the two escape hatches for Inno features outside the typed option set:</p>
+<div class="language-toml highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">[tool.ezcompiler.installer.extra_setup_directives]</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">DisableProgramGroupPage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"yes"</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">SetupLogging</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"yes"</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="k">[tool.ezcompiler.installer.extra_sections]</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="n">Code</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">  </span><span class="s2">"function InitializeSetup(): Boolean;"</span><span class="p">,</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">  </span><span class="s2">"begin"</span><span class="p">,</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">  </span><span class="s2">"  Result := True;"</span><span class="p">,</span>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">  </span><span class="s2">"end;"</span><span class="p">,</span>
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="p">]</span>
+</span></code></pre></div>
+<p><code>extra_setup_directives</code> contains raw <code>key=value</code> lines inside <code>[Setup]</code>.
+<code>extra_sections</code> contains section names without brackets and lists of raw lines.
+Both bypass typed-value escaping: write valid Inno syntax yourself, including
+quotes and constants. Typed literal values escape only <code>{</code> to <code>{{</code>; quotes,
+newlines, carriage returns, and tabs in those values raise <code>InstallerRenderError</code>.</p>
+<p>Do not override directives owned by the typed configuration, such as <code>AppId</code>,
+<code>AppVersion</code>, <code>DefaultDirName</code>, or <code>OutputDir</code>. Managed sections are <code>Setup</code>,
+<code>Files</code>, <code>Icons</code>, <code>Run</code>, <code>Tasks</code>, <code>Languages</code>, <code>Registry</code>, and <code>UninstallDelete</code>.
+Collisions with these managed names raise <code>ConfigurationError</code> even if that
+section would be omitted for the current options. Adopt a generated file when
+you need to edit those directives or sections.</p>
+<h2 id="migration-400">Migration 4.0.0<a class="headerlink" href="#migration-400" title="Anchor link to this section">&para;</a></h2>
+<h3 id="move-flat-toml-keys-into-the-installer-section">Move flat TOML keys into the installer section<a class="headerlink" href="#move-flat-toml-keys-into-the-installer-section" title="Anchor link to this section">&para;</a></h3>
+<p>The old <code>installer_enabled</code>, <code>installer_iss_path</code>, <code>installer_output_dir</code>, and
+<code>installer_per_user</code> keys are removed. Flat <code>installer_*</code> keys passed through
+configuration loading raise an explicit <code>ConfigurationError</code> naming the keys
+and the required nested section. For example, replace:</p>
+<div class="language-toml highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">[tool.ezcompiler]</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="n">installer_enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">installer_per_user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="n">installer_output_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"dist/installer"</span>
+</span></code></pre></div>
+<p>with:</p>
+<div class="language-toml highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">[tool.ezcompiler.installer]</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="n">enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="n">per_user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="n">output_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"dist/installer"</span>
+</span></code></pre></div>
+<p>A configuration written by ezcompiler 3.4.0 carries the same keys <em>inside</em> the
+installer table, because that version's own <code>to_dict()</code> emitted them there:</p>
+<div class="language-toml highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">[tool.ezcompiler.installer]</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="n">installer_enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="n">installer_per_user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+</span></code></pre></div>
+<p>Both shapes raise the same <code>ConfigurationError</code>, which spells out every
+replacement (<code>installer_enabled -&gt; enabled</code>, and so on).</p>
+<h3 id="update-python-constructors">Update Python constructors<a class="headerlink" href="#update-python-constructors" title="Anchor link to this section">&para;</a></h3>
+<p>Removed flat constructor keywords raise Python's <code>TypeError</code> for an unexpected
+keyword argument. Use <code>installer=InstallerConfig(enabled=True, per_user=True)</code>
+in <code>CompilerConfig(...)</code>; import <code>InstallerConfig</code> from <code>ezcompiler.shared</code>.</p>
+<h3 id="regenerate-legacy-scripts">Regenerate legacy scripts<a class="headerlink" href="#regenerate-legacy-scripts" title="Anchor link to this section">&para;</a></h3>
+<p>Custom scripts using <code>#APP_NAME#</code>, <code>#VERSION#</code>, <code>#BUNDLE_DIR#</code>, or other
+<code>#TOKEN#</code> placeholders are no longer substituted. Generate a replacement with
+<code>ezcompiler generate iss --output installer/v4.iss</code>, carry your manual changes
+over, then set <code>iss_path</code> to the replacement.</p>
+<p>The generation engine now uses Jinja2 with <code>&lt;% ... %&gt;</code> blocks, <code>&lt;&lt; ... &gt;&gt;</code>
+expressions, and <code>&lt;# ... #&gt;</code> comments. These delimiters avoid collisions with
+Inno's <code>{#Define}</code> and <code>{{</code> syntax. The emitted <code>.iss</code> contains resolved values
+and Inno preprocessor references, not Jinja2 expressions; file-mode scripts are
+compiled directly. Save manual edits as UTF-8 with a BOM to retain accented text.</p>
+<h2 id="result-and-errors">✅ Result and errors<a class="headerlink" href="#result-and-errors" title="Anchor link to this section">&para;</a></h2>
+<p>The pipeline produces <code>&lt;project_name&gt;-&lt;version&gt;-setup.exe</code> in
+<code>installer.output_dir</code>, or <code>output_folder.parent / "installer"</code> by default.
+A custom script must use the current output directory and that filename;
+otherwise the adapter raises <code>InstallerBuildError</code> even if ISCC exits successfully.
+<code>ezcompiler publish release</code> publishes the installer alongside the ZIP, and refuses
+to publish when <code>installer.enabled</code> is true but the <code>.exe</code> is missing on the GitHub
+path; see <a href="../../concepts/about-release-pipeline/">Release pipeline</a>.</p>
 <table>
 <thead>
 <tr>
@@ -1598,32 +1986,38 @@
 </thead>
 <tbody>
 <tr>
+<td style="text-align: left;"><code>ConfigurationError</code></td>
+<td style="text-align: left;">Installer options are invalid, legacy flat keys are loaded, or an enabled configured script/license file does not exist.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>TypeError</code></td>
+<td style="text-align: left;">Removed flat installer keywords are passed to the Python <code>CompilerConfig</code> constructor.</td>
+</tr>
+<tr>
 <td style="text-align: left;"><code>IsccNotFoundError</code></td>
-<td style="text-align: left;"><code>ISCC.exe</code> is not on <code>PATH</code> or in a default install dir</td>
+<td style="text-align: left;">ISCC cannot be found and no explicit compiler path was supplied.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>InstallerRenderError</code></td>
+<td style="text-align: left;">Jinja2 rendering fails or a typed literal value contains unsupported characters.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>InstallerBuildError</code></td>
-<td style="text-align: left;"><code>ISCC.exe</code> exits with a non-zero status</td>
+<td style="text-align: left;">ISCC exits unsuccessfully, or its expected setup executable is missing after a successful invocation. An ISCC failure retains the ephemeral script and reports its path.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>InstallerConfigError</code></td>
-<td style="text-align: left;"><code>bundle_dir</code> is missing/empty, or <code>installer_iss_path</code> doesn't exist</td>
+<td style="text-align: left;">The bundle is missing/empty, its main executable cannot be identified, the script is missing at build time, or generation would overwrite an existing file without <code>--force</code>.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>InstallerTypeError</code></td>
-<td style="text-align: left;">An unsupported <code>installer_type</code> was requested</td>
+<td style="text-align: left;">An unsupported installer backend was requested.</td>
 </tr>
 </tbody>
 </table>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler.shared.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">IsccNotFoundError</span><span class="p">,</span> <span class="n">InstallerBuildError</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="k">try</span><span class="p">:</span>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="n">compiler</span><span class="o">.</span><span class="n">run_pipeline</span><span class="p">()</span>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="k">except</span> <span class="n">IsccNotFoundError</span><span class="p">:</span>
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Install Inno Setup 6 and ensure ISCC.exe is on PATH.&quot;</span><span class="p">)</span>
-</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="k">except</span> <span class="n">InstallerBuildError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Installer build failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</span></code></pre></div>
+<p>Installer exceptions can be imported from <code>ezcompiler.shared.exceptions</code>.
+They derive from <code>InstallerError</code>. Let real compiler failures propagate so the
+build cannot silently publish an incomplete result.</p>
 
 
 
@@ -1661,7 +2055,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../secure-updates-tufup/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Secure Updates with tufup">
+          <a href="../secure-updates-tufup/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Secure updates with tufup">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1671,7 +2065,7 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Secure Updates with tufup
+                Secure updates with tufup
               </div>
             </div>
           </a>
@@ -1750,7 +2144,7 @@
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.path", "navigation.top", "navigation.footer", "navigation.indexes", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

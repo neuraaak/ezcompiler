@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.7">
     
     
       
@@ -33,7 +33,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -604,10 +604,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#4-compile-and-run-the-full-pipeline" class="md-nav__link">
+  <a href="#4-compile-and-package" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. Compile and run the full pipeline
+        4. Compile and package
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-publish" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Publish
       
     </span>
   </a>
@@ -788,7 +799,7 @@
   <span class="md-ellipsis">
     
   
-    Secure Updates with tufup
+    Secure updates with tufup
   
 
     
@@ -1434,10 +1445,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#4-compile-and-run-the-full-pipeline" class="md-nav__link">
+  <a href="#4-compile-and-package" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. Compile and run the full pipeline
+        4. Compile and package
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-publish" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Publish
       
     </span>
   </a>
@@ -1503,7 +1525,7 @@
 <p>Build a working EzCompiler setup and compile your first project in a few minutes.</p>
 <h2 id="prerequisites">🔧 Prerequisites<a class="headerlink" href="#prerequisites" title="Anchor link to this section">&para;</a></h2>
 <ul>
-<li>Python &gt;= 3.11</li>
+<li>Python &gt;= 3.13</li>
 <li>One compilation backend: <code>cx-freeze</code>, <code>pyinstaller</code>, or <code>nuitka</code></li>
 <li>PyYAML &gt;= 6.0</li>
 </ul>
@@ -1542,39 +1564,41 @@
 <div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler</span><span class="w"> </span><span class="kn">import</span> <span class="n">EzCompiler</span><span class="p">,</span> <span class="n">CompilerConfig</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
 </span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">config</span> <span class="o">=</span> <span class="n">CompilerConfig</span><span class="p">(</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="n">version</span><span class="o">=</span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">project_name</span><span class="o">=</span><span class="s2">&quot;MyApp&quot;</span><span class="p">,</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    <span class="n">main_file</span><span class="o">=</span><span class="s2">&quot;main.py&quot;</span><span class="p">,</span>  <span class="c1"># (1)!</span>
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    <span class="n">include_files</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;files&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;folders&quot;</span><span class="p">:</span> <span class="p">[]},</span>
-</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>    <span class="n">output_folder</span><span class="o">=</span><span class="s2">&quot;dist&quot;</span><span class="p">,</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="n">version</span><span class="o">=</span><span class="s2">"1.0.0"</span><span class="p">,</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">project_name</span><span class="o">=</span><span class="s2">"MyApp"</span><span class="p">,</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    <span class="n">main_file</span><span class="o">=</span><span class="s2">"main.py"</span><span class="p">,</span>  <span class="c1"># (1)!</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    <span class="n">include_files</span><span class="o">=</span><span class="p">{</span><span class="s2">"files"</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">"folders"</span><span class="p">:</span> <span class="p">[]},</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>    <span class="n">output_folder</span><span class="o">=</span><span class="s2">"dist"</span><span class="p">,</span>
 </span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="p">)</span>
 </span></code></pre></div>
 <ol>
 <li>Path to the main Python entry point of your project.</li>
 </ol>
-<h3 id="4-compile-and-run-the-full-pipeline">4. Compile and run the full pipeline<a class="headerlink" href="#4-compile-and-run-the-full-pipeline" title="Anchor link to this section">&para;</a></h3>
+<h3 id="4-compile-and-package">4. Compile and package<a class="headerlink" href="#4-compile-and-package" title="Anchor link to this section">&para;</a></h3>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">ezcompiler</span> <span class="o">=</span> <span class="n">EzCompiler</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">ezcompiler</span><span class="o">.</span><span class="n">compile_project</span><span class="p">(</span><span class="n">compiler</span><span class="o">=</span><span class="s2">&quot;PyInstaller&quot;</span><span class="p">)</span>  <span class="c1"># (1)!</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">ezcompiler</span><span class="o">.</span><span class="n">compile_project</span><span class="p">(</span><span class="n">compiler</span><span class="o">=</span><span class="s2">"PyInstaller"</span><span class="p">)</span>  <span class="c1"># (1)!</span>
 </span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="n">ezcompiler</span><span class="o">.</span><span class="n">zip_compiled_project</span><span class="p">()</span>                   <span class="c1"># (2)!</span>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="n">ezcompiler</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span>                                  <span class="c1"># (3)!</span>
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    <span class="n">destination</span><span class="o">=</span><span class="s2">&quot;./releases&quot;</span><span class="p">,</span>
-</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    <span class="n">structure</span><span class="o">=</span><span class="s2">&quot;disk&quot;</span><span class="p">,</span>
-</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="p">)</span>
 </span></code></pre></div>
 <ol>
 <li>Compiles the project to the <code>output_folder</code>.</li>
 <li>Creates a ZIP archive of the compiled output.</li>
-<li>Copies the archive to a local release directory.</li>
 </ol>
 <details class="tip">
 <summary>✅ Success check</summary>
 <p>After <code>compile_project()</code> you should see the compiled output in <code>dist/</code>.
 After <code>zip_compiled_project()</code> a <code>.zip</code> archive appears alongside it.</p>
 </details>
+<h3 id="5-publish">5. Publish<a class="headerlink" href="#5-publish" title="Anchor link to this section">&para;</a></h3>
+<p>Publication is a deliberate step of the CLI, never of the Python API:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># Publication is a separate CLI step: it reads your ezcompiler.yaml / pyproject.toml</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>ezcompiler<span class="w"> </span>publish<span class="w"> </span>release<span class="w"> </span>--release-destination<span class="w"> </span>disk<span class="w"> </span>--destination<span class="w"> </span>./releases
+</span></code></pre></div>
+<p>The command copies the archive to <code>./releases/release/</code>. To publish a GitHub
+Release instead, see <a href="../cli/#publish-release"><code>publish release</code></a>.</p>
 <h2 id="what-you-built">✅ What you built<a class="headerlink" href="#what-you-built" title="Anchor link to this section">&para;</a></h2>
-<p>You now have a compiled, archived, and distributed Python project.
-EzCompiler orchestrated all three steps — compile, package, upload — through a single typed API.</p>
+<p>You now have a compiled, archived, and published Python project.
+EzCompiler compiled and packaged it through a typed API, then published it through the CLI.</p>
 <h2 id="next-steps">➡️ Next steps<a class="headerlink" href="#next-steps" title="Anchor link to this section">&para;</a></h2>
 <ul>
 <li><a href="../guides/configuration/">How to configure a compiler</a></li>
@@ -1709,7 +1733,7 @@ EzCompiler orchestrated all three steps — compile, package, upload — through
       <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.path", "navigation.top", "navigation.footer", "navigation.indexes", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "toc.follow"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.7">
     
     
       
@@ -33,7 +33,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -647,7 +647,7 @@
   <span class="md-ellipsis">
     
   
-    Secure Updates with tufup
+    Secure updates with tufup
   
 
     
@@ -1053,6 +1053,45 @@
     <span class="md-ellipsis">
       
         <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;CompilationResult
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" CompilationResult">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tufstatus-and-tufversion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TufStatus and TufVersion
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ezcompiler.shared.TufStatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;TufStatus
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ezcompiler.shared.TufVersion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;TufVersion
       
     </span>
   </a>
@@ -1901,6 +1940,45 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label=" CompilationResult">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tufstatus-and-tufversion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TufStatus and TufVersion
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ezcompiler.shared.TufStatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;TufStatus
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ezcompiler.shared.TufVersion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;TufVersion
+      
+    </span>
+  </a>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2350,7 +2428,37 @@ underscore-prefixed private modules (e.g. <code>_compiler_config</code>).</p>
   </span>
 
 <a href="#ezcompiler.shared.CompilerConfig" class="headerlink" title="Anchor link to this section">&para;</a></h2>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">CompilerConfig</span><span class="p">(</span><span class="n">version</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">project_name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">main_file</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">include_files</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n"><span title="list">list</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">]],</span> <span class="n">output_folder</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">,</span> <span class="n">version_filename</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s1">&#39;version_info.txt&#39;</span><span class="p">,</span> <span class="n">project_description</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">company_name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">author</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">icon</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">packages</span><span class="p">:</span> <span class="n"><span title="list">list</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">]</span> <span class="o">=</span> <span class="n"><span title="list">list</span></span><span class="p">(),</span> <span class="n">includes</span><span class="p">:</span> <span class="n"><span title="list">list</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">]</span> <span class="o">=</span> <span class="n"><span title="list">list</span></span><span class="p">(),</span> <span class="n">excludes</span><span class="p">:</span> <span class="n"><span title="list">list</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">]</span> <span class="o">=</span> <span class="n"><span title="list">list</span></span><span class="p">(),</span> <span class="n">console</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">compiler</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">repo_destination</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-type_alias&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-type_alias-name&quot;&gt;RepoDestination&lt;/span&gt; (&lt;code&gt;ezcompiler._types.RepoDestination&lt;/code&gt;)" href="../reference/#ezcompiler.RepoDestination">RepoDestination</a></span> <span class="o">=</span> <span class="s1">&#39;disk&#39;</span><span class="p">,</span> <span class="n">release_destination</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-type_alias&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-type_alias-name&quot;&gt;ReleaseDestination&lt;/span&gt; (&lt;code&gt;ezcompiler._types.ReleaseDestination&lt;/code&gt;)" href="../reference/#ezcompiler.ReleaseDestination">ReleaseDestination</a></span> <span class="o">=</span> <span class="s1">&#39;disk&#39;</span><span class="p">,</span> <span class="n">repo_endpoint</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">release_endpoint</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">repo_public_url</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">optimize</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">strip</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">tuf_enabled</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">tuf_repo_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">tuf_keys_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">tuf_expiration_days</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n"><span title="int">int</span></span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">installer_enabled</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">installer_output_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">installer_iss_path</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">installer_per_user</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">compiler_options</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n"><span title="typing.Any">Any</span></span><span class="p">]</span> <span class="o">=</span> <span class="n"><span title="dict">dict</span></span><span class="p">())</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">CompilerConfig</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">version</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">project_name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">main_file</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">include_files</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n"><span title="list">list</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">]],</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">output_folder</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">,</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">version_filename</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s2">"version_info.txt"</span><span class="p">,</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">project_description</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">company_name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="n">author</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="n">icon</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="n">packages</span><span class="p">:</span> <span class="n"><span title="list">list</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">]</span> <span class="o">=</span> <span class="n"><span title="list">list</span></span><span class="p">(),</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    <span class="n">includes</span><span class="p">:</span> <span class="n"><span title="list">list</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">]</span> <span class="o">=</span> <span class="n"><span title="list">list</span></span><span class="p">(),</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    <span class="n">excludes</span><span class="p">:</span> <span class="n"><span title="list">list</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">]</span> <span class="o">=</span> <span class="n"><span title="list">list</span></span><span class="p">(),</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    <span class="n">console</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    <span class="n">compiler</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    <span class="n">repo_destination</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-type_alias&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-type_alias-name&quot;&gt;RepoDestination&lt;/span&gt; (&lt;code&gt;ezcompiler._types.RepoDestination&lt;/code&gt;)" href="../types/#ezcompiler._types.RepoDestination">RepoDestination</a></span> <span class="o">=</span> <span class="s2">"disk"</span><span class="p">,</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    <span class="n">release_destination</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-type_alias&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-type_alias-name&quot;&gt;ReleaseDestination&lt;/span&gt; (&lt;code&gt;ezcompiler._types.ReleaseDestination&lt;/code&gt;)" href="../types/#ezcompiler._types.ReleaseDestination">ReleaseDestination</a></span> <span class="o">=</span> <span class="s2">"disk"</span><span class="p">,</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    <span class="n">repo_endpoint</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    <span class="n">release_endpoint</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>    <span class="n">repo_public_url</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>    <span class="n">optimize</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>    <span class="n">strip</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>    <span class="n">debug</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>    <span class="n">tuf_enabled</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>    <span class="n">tuf_repo_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>    <span class="n">tuf_keys_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>    <span class="n">tuf_expiration_days</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n"><span title="int">int</span></span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>    <span class="n">installer</span><span class="p">:</span> <span class="n"><span title="ezcompiler.shared._installer_config.InstallerConfig">InstallerConfig</span></span> <span class="o">=</span> <span class="n"><span title="ezcompiler.shared._installer_config.InstallerConfig">InstallerConfig</span></span><span class="p">(),</span>
+</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>    <span class="n">compiler_options</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n"><span title="typing.Any">Any</span></span><span class="p">]</span> <span class="o">=</span> <span class="n"><span title="dict">dict</span></span><span class="p">(),</span>
+</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="p">)</span>
 </span></code></pre></div>
 
     <div class="doc doc-contents first">
@@ -2542,7 +2650,7 @@ properties for file paths.</p>
           <tr class="doc-section-item">
             <td><code><span title="ezcompiler.shared.CompilerConfig.repo_destination">repo_destination</span></code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-type_alias&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-type_alias-name&quot;&gt;RepoDestination&lt;/span&gt; (&lt;code&gt;ezcompiler._types.RepoDestination&lt;/code&gt;)" href="../reference/#ezcompiler.RepoDestination">RepoDestination</a></code>
+                  <code><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-type_alias&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-type_alias-name&quot;&gt;RepoDestination&lt;/span&gt; (&lt;code&gt;ezcompiler._types.RepoDestination&lt;/code&gt;)" href="../types/#ezcompiler._types.RepoDestination">RepoDestination</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -2553,11 +2661,12 @@ properties for file paths.</p>
           <tr class="doc-section-item">
             <td><code><span title="ezcompiler.shared.CompilerConfig.release_destination">release_destination</span></code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-type_alias&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-type_alias-name&quot;&gt;ReleaseDestination&lt;/span&gt; (&lt;code&gt;ezcompiler._types.ReleaseDestination&lt;/code&gt;)" href="../reference/#ezcompiler.ReleaseDestination">ReleaseDestination</a></code>
+                  <code><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-type_alias&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-type_alias-name&quot;&gt;ReleaseDestination&lt;/span&gt; (&lt;code&gt;ezcompiler._types.ReleaseDestination&lt;/code&gt;)" href="../types/#ezcompiler._types.ReleaseDestination">ReleaseDestination</a></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Zip installer upload backend - "disk" | "server"</p>
+                <p>Release asset destination - disk, server, r2,
+github, or gitlab</p>
               </div>
             </td>
           </tr>
@@ -2579,7 +2688,7 @@ properties for file paths.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Endpoint for zip installer upload (path or URL)</p>
+                <p>Release endpoint (path, URL, bucket/prefix, or owner/repo)</p>
               </div>
             </td>
           </tr>
@@ -2837,7 +2946,7 @@ output folder (e.g., dist/MyApp.zip).</p>
 
     <div class="doc doc-contents ">
 
-        <p>Destination résolue pour l'arbre TUF.</p>
+        <p>Resolved destination for the TUF tree.</p>
 
     </div>
 
@@ -2861,7 +2970,7 @@ output folder (e.g., dist/MyApp.zip).</p>
 
     <div class="doc doc-contents ">
 
-        <p>Destination résolue pour le zip installeur.</p>
+        <p>Resolved destination for the installer zip.</p>
 
     </div>
 
@@ -3086,7 +3195,11 @@ config = CompilerConfig.from_dict(config_dict)</p>
 
 
 <a href="#ezcompiler.shared.CompilationResult" class="headerlink" title="Anchor link to this section">&para;</a></h2>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">CompilationResult</span><span class="p">(</span><span class="n">zip_needed</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span><span class="p">,</span> <span class="n">compiler_name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">compiler_instance</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;CompilerPort&lt;/span&gt; (&lt;code&gt;ezcompiler._types.CompilerPort&lt;/code&gt;)" href="../reference/#ezcompiler.CompilerPort">CompilerPort</a></span><span class="p">)</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">CompilationResult</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">zip_needed</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">compiler_name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">compiler_instance</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;CompilerPort&lt;/span&gt; (&lt;code&gt;ezcompiler._types.CompilerPort&lt;/code&gt;)" href="../reference/#ezcompiler.CompilerPort">CompilerPort</a></span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">)</span>
 </span></code></pre></div>
 
     <div class="doc doc-contents first">
@@ -3247,11 +3360,128 @@ if result.zip_needed:
     </div>
 
 </div><hr />
+<h3 id="tufstatus-and-tufversion">TufStatus and TufVersion<a class="headerlink" href="#tufstatus-and-tufversion" title="Anchor link to this section">&para;</a></h3>
+<p>Read-only snapshot of the local TUF tree returned by <code>TufService.status()</code>.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler.shared</span><span class="w"> </span><span class="kn">import</span> <span class="n">TufStatus</span><span class="p">,</span> <span class="n">TufVersion</span>
+</span></code></pre></div>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="ezcompiler.shared.TufStatus" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">TufStatus</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#ezcompiler.shared.TufStatus" class="headerlink" title="Anchor link to this section">&para;</a></h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">TufStatus</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">repo_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">versions</span><span class="p">:</span> <span class="n"><span title="tuple">tuple</span></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;TufVersion&lt;/span&gt;
+
+
+  &lt;span class=&quot;doc doc-labels&quot;&gt;
+      &lt;small class=&quot;doc doc-label doc-label-dataclass&quot;&gt;&lt;code&gt;dataclass&lt;/code&gt;&lt;/small&gt;
+  &lt;/span&gt; (&lt;code&gt;ezcompiler.shared._tuf_status.TufVersion&lt;/code&gt;)" href="#ezcompiler.shared.TufVersion">TufVersion</a></span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">expirations</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n"><span title="datetime.datetime">datetime</span></span><span class="p">],</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">withdrawn</span><span class="p">:</span> <span class="n"><span title="tuple">tuple</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">)</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents first">
+
+
+
+        <p>State of the local tree, as clients would see it once published.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="ezcompiler.shared.TufVersion" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">TufVersion</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#ezcompiler.shared.TufVersion" class="headerlink" title="Anchor link to this section">&para;</a></h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">TufVersion</span><span class="p">(</span><span class="n">version</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">required</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span><span class="p">,</span> <span class="n">has_patch</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span><span class="p">)</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents first">
+
+
+
+        <p>One application version signed in the tree.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div><hr />
 <h2 id="exceptions">Exceptions<a class="headerlink" href="#exceptions" title="Anchor link to this section">&para;</a></h2>
 <h3 id="base-exceptions">Base exceptions<a class="headerlink" href="#base-exceptions" title="Anchor link to this section">&para;</a></h3>
 <h4 id="ezcompilererror">EzCompilerError<a class="headerlink" href="#ezcompilererror" title="Anchor link to this section">&para;</a></h4>
 <p>Base exception class for all EzCompiler errors.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler.shared.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">EzCompilerError</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler.shared.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">EzCompilerError</span>
 </span></code></pre></div>
 
 
@@ -3287,13 +3517,13 @@ if result.zip_needed:
 </div><hr />
 <h3 id="service-exceptions">Service exceptions<a class="headerlink" href="#service-exceptions" title="Anchor link to this section">&para;</a></h3>
 <p>Exceptions raised by service layer components.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler.shared.exceptions.services</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="n">CompilationError</span><span class="p">,</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="n">ConfigurationError</span><span class="p">,</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">TemplateServiceError</span><span class="p">,</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="n">UploaderServiceError</span><span class="p">,</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="n">CompilerServiceError</span><span class="p">,</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler.shared.exceptions.services</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="n">CompilationError</span><span class="p">,</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="n">ConfigurationError</span><span class="p">,</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="n">TemplateServiceError</span><span class="p">,</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="n">UploaderServiceError</span><span class="p">,</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    <span class="n">CompilerServiceError</span><span class="p">,</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="p">)</span>
 </span></code></pre></div>
 <h4 id="compilationerror">CompilationError<a class="headerlink" href="#compilationerror" title="Anchor link to this section">&para;</a></h4>
 <p>Exception raised when compilation fails.</p>
@@ -3419,8 +3649,8 @@ if result.zip_needed:
 
 
         <p>Base exception for uploader service operations.</p>
-<p>Conservé pour compatibilité ; <code>UploadError</code> est désormais l'unique classe
-canonique importée depuis utils/_uploader_exceptions.py (sous EzCompilerError).</p>
+<p>Kept for compatibility; <code>UploadError</code> is now the single canonical
+class imported from utils/_uploader_exceptions.py (under EzCompilerError).</p>
 
 
 
@@ -3472,13 +3702,13 @@ canonique importée depuis utils/_uploader_exceptions.py (sous EzCompilerError).
 <code>UploadError</code> are re-exported from <code>ezcompiler.shared.exceptions</code>. The
 remaining utility-layer exceptions are accessed via
 <code>ezcompiler.shared.exceptions.utils</code>.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler.shared.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfigError</span><span class="p">,</span> <span class="n">ZipError</span><span class="p">,</span> <span class="n">UploadError</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler.shared.exceptions.utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="n">ValidationError</span><span class="p">,</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="n">FileError</span><span class="p">,</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="n">TemplateProcessingError</span><span class="p">,</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    <span class="n">CompilerError</span><span class="p">,</span>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler.shared.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfigError</span><span class="p">,</span> <span class="n">ZipError</span><span class="p">,</span> <span class="n">UploadError</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler.shared.exceptions.utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="n">ValidationError</span><span class="p">,</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="n">FileError</span><span class="p">,</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">TemplateProcessingError</span><span class="p">,</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    <span class="n">CompilerError</span><span class="p">,</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="p">)</span>
 </span></code></pre></div>
 <h4 id="validationerror">ValidationError<a class="headerlink" href="#validationerror" title="Anchor link to this section">&para;</a></h4>
 <p>Exception raised when validation fails.</p>
@@ -3720,13 +3950,13 @@ remaining utility-layer exceptions are accessed via
 </div><hr />
 <h3 id="installer-exceptions">Installer exceptions<a class="headerlink" href="#installer-exceptions" title="Anchor link to this section">&para;</a></h3>
 <p>Exceptions raised by installer packaging (Inno Setup).</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler.shared.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="n">InstallerError</span><span class="p">,</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="n">InstallerTypeError</span><span class="p">,</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="n">InstallerBuildError</span><span class="p">,</span>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">InstallerConfigError</span><span class="p">,</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    <span class="n">IsccNotFoundError</span><span class="p">,</span>
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler.shared.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="n">InstallerError</span><span class="p">,</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="n">InstallerTypeError</span><span class="p">,</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="n">InstallerBuildError</span><span class="p">,</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="n">InstallerConfigError</span><span class="p">,</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    <span class="n">IsccNotFoundError</span><span class="p">,</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="p">)</span>
 </span></code></pre></div>
 <h4 id="installererror">InstallerError<a class="headerlink" href="#installererror" title="Anchor link to this section">&para;</a></h4>
 <p>Base exception for installer packaging errors.</p>
@@ -3900,13 +4130,13 @@ remaining utility-layer exceptions are accessed via
 </div><hr />
 <h3 id="release-exceptions">Release exceptions<a class="headerlink" href="#release-exceptions" title="Anchor link to this section">&para;</a></h3>
 <p>Exceptions raised by secure-release (TUF/tufup) operations.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler.shared.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="n">ReleaseError</span><span class="p">,</span>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="n">ReleaserTypeError</span><span class="p">,</span>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="n">BundleBuildError</span><span class="p">,</span>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="n">SigningKeyError</span><span class="p">,</span>
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    <span class="n">ReleaseConfigError</span><span class="p">,</span>
-</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler.shared.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    <span class="n">ReleaseError</span><span class="p">,</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="n">ReleaserTypeError</span><span class="p">,</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    <span class="n">BundleBuildError</span><span class="p">,</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    <span class="n">SigningKeyError</span><span class="p">,</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>    <span class="n">ReleaseConfigError</span><span class="p">,</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="p">)</span>
 </span></code></pre></div>
 <h4 id="releaseerror">ReleaseError<a class="headerlink" href="#releaseerror" title="Anchor link to this section">&para;</a></h4>
 <p>Base exception for secure-release operation errors.</p>
@@ -4204,7 +4434,7 @@ remaining utility-layer exceptions are accessed via
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.path", "navigation.top", "navigation.footer", "navigation.indexes", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

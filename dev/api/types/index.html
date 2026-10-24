@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.7">
     
     
       
@@ -33,7 +33,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -647,7 +647,7 @@
   <span class="md-ellipsis">
     
   
-    Secure Updates with tufup
+    Secure updates with tufup
   
 
     
@@ -1016,11 +1016,39 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#uploadtarget" class="md-nav__link">
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#publication-types" class="md-nav__link">
     <span class="md-ellipsis">
       
-        UploadTarget
+        Publication types
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Publication types">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#repodestination" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RepoDestination
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#releasedestination" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ReleaseDestination
       
     </span>
   </a>
@@ -1110,6 +1138,28 @@
     <span class="md-ellipsis">
       
         <code class="doc-symbol doc-symbol-toc doc-symbol-type_alias"></code>&nbsp;CompilerName
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ezcompiler._types.RepoDestination" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-type_alias"></code>&nbsp;RepoDestination
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ezcompiler._types.ReleaseDestination" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-type_alias"></code>&nbsp;ReleaseDestination
       
     </span>
   </a>
@@ -1539,11 +1589,39 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#uploadtarget" class="md-nav__link">
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#publication-types" class="md-nav__link">
     <span class="md-ellipsis">
       
-        UploadTarget
+        Publication types
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Publication types">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#repodestination" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RepoDestination
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#releasedestination" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ReleaseDestination
       
     </span>
   </a>
@@ -1633,6 +1711,28 @@
     <span class="md-ellipsis">
       
         <code class="doc-symbol doc-symbol-toc doc-symbol-type_alias"></code>&nbsp;CompilerName
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ezcompiler._types.RepoDestination" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-type_alias"></code>&nbsp;RepoDestination
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ezcompiler._types.ReleaseDestination" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-type_alias"></code>&nbsp;ReleaseDestination
       
     </span>
   </a>
@@ -1743,7 +1843,7 @@ so they are part of the stable public API.</p>
 <p>The <code>_types</code> module centralizes common type aliases used throughout the library.
 Import them when you want to annotate your own code that calls EzCompiler APIs,
 or when building extensions on top of the framework.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler</span><span class="w"> </span><span class="kn">import</span> <span class="n">FilePath</span><span class="p">,</span> <span class="n">CompilerName</span><span class="p">,</span> <span class="n">UploadTarget</span><span class="p">,</span> <span class="n">IncludeFiles</span><span class="p">,</span> <span class="n">JsonMap</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler</span><span class="w"> </span><span class="kn">import</span> <span class="n">FilePath</span><span class="p">,</span> <span class="n">CompilerName</span><span class="p">,</span> <span class="n">ReleaseDestination</span><span class="p">,</span> <span class="n">IncludeFiles</span><span class="p">,</span> <span class="n">JsonMap</span>
 </span></code></pre></div>
 <p>They can also be imported from the submodule directly:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler._types</span><span class="w"> </span><span class="kn">import</span> <span class="n">FilePath</span><span class="p">,</span> <span class="n">IncludeFiles</span>
@@ -1772,58 +1872,71 @@ file utility functions). Both a plain string and a <code>pathlib.Path</code> obj
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
 </span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="k">def</span><span class="w"> </span><span class="nf">build</span><span class="p">(</span><span class="n">compiler</span><span class="p">:</span> <span class="n">CompilerName</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="n">config</span> <span class="o">=</span> <span class="n">CompilerConfig</span><span class="p">(</span>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>        <span class="n">version</span><span class="o">=</span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>        <span class="n">project_name</span><span class="o">=</span><span class="s2">&quot;MyApp&quot;</span><span class="p">,</span>
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>        <span class="n">main_file</span><span class="o">=</span><span class="s2">&quot;main.py&quot;</span><span class="p">,</span>
-</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>        <span class="n">include_files</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;files&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;folders&quot;</span><span class="p">:</span> <span class="p">[]},</span>
-</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>        <span class="n">output_folder</span><span class="o">=</span><span class="s2">&quot;dist&quot;</span><span class="p">,</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>        <span class="n">version</span><span class="o">=</span><span class="s2">"1.0.0"</span><span class="p">,</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>        <span class="n">project_name</span><span class="o">=</span><span class="s2">"MyApp"</span><span class="p">,</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>        <span class="n">main_file</span><span class="o">=</span><span class="s2">"main.py"</span><span class="p">,</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>        <span class="n">include_files</span><span class="o">=</span><span class="p">{</span><span class="s2">"files"</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">"folders"</span><span class="p">:</span> <span class="p">[]},</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>        <span class="n">output_folder</span><span class="o">=</span><span class="s2">"dist"</span><span class="p">,</span>
 </span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>    <span class="p">)</span>
 </span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>    <span class="n">EzCompiler</span><span class="p">(</span><span class="n">config</span><span class="p">)</span><span class="o">.</span><span class="n">compile_project</span><span class="p">(</span><span class="n">compiler</span><span class="o">=</span><span class="n">compiler</span><span class="p">)</span>
 </span></code></pre></div>
-<h3 id="uploadtarget">UploadTarget<a class="headerlink" href="#uploadtarget" title="Anchor link to this section">&para;</a></h3>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">UploadTarget</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="nb">str</span>
+<h2 id="publication-types">Publication types<a class="headerlink" href="#publication-types" title="Anchor link to this section">&para;</a></h2>
+<h3 id="repodestination">RepoDestination<a class="headerlink" href="#repodestination" title="Anchor link to this section">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nb">type</span> <span class="n">RepoDestination</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"disk"</span><span class="p">,</span> <span class="s2">"server"</span><span class="p">,</span> <span class="s2">"r2"</span><span class="p">]</span>
 </span></code></pre></div>
-<p>Narrows the <code>structure</code> parameter of upload operations.</p>
-<p>Valid values: <code>"disk"</code>, <code>"server"</code></p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler</span><span class="w"> </span><span class="kn">import</span> <span class="n">UploadTarget</span>
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="k">def</span><span class="w"> </span><span class="nf">upload</span><span class="p">(</span><span class="n">target</span><span class="p">:</span> <span class="n">UploadTarget</span><span class="p">,</span> <span class="n">destination</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    <span class="o">...</span>
+<p>Backend that receives the TUF update tree (<code>repo_destination</code>, <code>ezcompiler publish update</code>).</p>
+<h3 id="releasedestination">ReleaseDestination<a class="headerlink" href="#releasedestination" title="Anchor link to this section">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nb">type</span> <span class="n">ReleaseDestination</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"disk"</span><span class="p">,</span> <span class="s2">"server"</span><span class="p">,</span> <span class="s2">"r2"</span><span class="p">,</span> <span class="s2">"github"</span><span class="p">,</span> <span class="s2">"gitlab"</span><span class="p">]</span>
+</span></code></pre></div>
+<p>Destination of the release assets (<code>release_destination</code>, <code>ezcompiler publish release</code>).
+<code>github</code> creates a GitHub Release through the <code>gh</code> CLI; <code>gitlab</code> is reserved and
+rejected for now.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompilerConfig</span><span class="p">,</span> <span class="n">ReleaseDestination</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="k">def</span><span class="w"> </span><span class="nf">make_config</span><span class="p">(</span><span class="n">destination</span><span class="p">:</span> <span class="n">ReleaseDestination</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CompilerConfig</span><span class="p">:</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="k">return</span> <span class="n">CompilerConfig</span><span class="p">(</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>        <span class="n">version</span><span class="o">=</span><span class="s2">"1.0.0"</span><span class="p">,</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>        <span class="n">project_name</span><span class="o">=</span><span class="s2">"MyApp"</span><span class="p">,</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>        <span class="n">main_file</span><span class="o">=</span><span class="s2">"main.py"</span><span class="p">,</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>        <span class="n">include_files</span><span class="o">=</span><span class="p">{</span><span class="s2">"files"</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">"folders"</span><span class="p">:</span> <span class="p">[]},</span>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>        <span class="n">output_folder</span><span class="o">=</span><span class="s2">"dist"</span><span class="p">,</span>
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>        <span class="n">release_destination</span><span class="o">=</span><span class="n">destination</span><span class="p">,</span>
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>    <span class="p">)</span>
 </span></code></pre></div>
 <hr />
 <h2 id="configuration-types">Configuration types<a class="headerlink" href="#configuration-types" title="Anchor link to this section">&para;</a></h2>
 <h3 id="includefiles">IncludeFiles<a class="headerlink" href="#includefiles" title="Anchor link to this section">&para;</a></h3>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">IncludeFiles</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">IncludeFiles</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
 </span></code></pre></div>
 <p>Expected shape for the <code>include_files</code> field of <code>CompilerConfig</code>:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="p">{</span>
-</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    <span class="s2">&quot;files&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;path/to/config.yaml&quot;</span><span class="p">,</span> <span class="s2">&quot;path/to/data.dll&quot;</span><span class="p">],</span>
-</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    <span class="s2">&quot;folders&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;path/to/assets/&quot;</span><span class="p">,</span> <span class="s2">&quot;path/to/locale/&quot;</span><span class="p">],</span>
-</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="p">}</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="p">{</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    <span class="s2">"files"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"path/to/config.yaml"</span><span class="p">,</span> <span class="s2">"path/to/data.dll"</span><span class="p">],</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    <span class="s2">"folders"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"path/to/assets/"</span><span class="p">,</span> <span class="s2">"path/to/locale/"</span><span class="p">],</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>Both keys are required. Pass empty lists when no files or folders should be included.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler</span><span class="w"> </span><span class="kn">import</span> <span class="n">IncludeFiles</span><span class="p">,</span> <span class="n">CompilerConfig</span>
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
-</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="n">bundle</span><span class="p">:</span> <span class="n">IncludeFiles</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    <span class="s2">&quot;files&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;settings.yaml&quot;</span><span class="p">],</span>
-</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>    <span class="s2">&quot;folders&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;assets&quot;</span><span class="p">],</span>
-</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="p">}</span>
-</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="n">config</span> <span class="o">=</span> <span class="n">CompilerConfig</span><span class="p">(</span>
-</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>    <span class="n">version</span><span class="o">=</span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span>
-</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>    <span class="n">project_name</span><span class="o">=</span><span class="s2">&quot;MyApp&quot;</span><span class="p">,</span>
-</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>    <span class="n">main_file</span><span class="o">=</span><span class="s2">&quot;main.py&quot;</span><span class="p">,</span>
-</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>    <span class="n">include_files</span><span class="o">=</span><span class="n">bundle</span><span class="p">,</span>
-</span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>    <span class="n">output_folder</span><span class="o">=</span><span class="s2">&quot;dist&quot;</span><span class="p">,</span>
-</span><span id="__span-10-13"><a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler</span><span class="w"> </span><span class="kn">import</span> <span class="n">IncludeFiles</span><span class="p">,</span> <span class="n">CompilerConfig</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="n">bundle</span><span class="p">:</span> <span class="n">IncludeFiles</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    <span class="s2">"files"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"settings.yaml"</span><span class="p">],</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>    <span class="s2">"folders"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"assets"</span><span class="p">],</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="p">}</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="n">config</span> <span class="o">=</span> <span class="n">CompilerConfig</span><span class="p">(</span>
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>    <span class="n">version</span><span class="o">=</span><span class="s2">"1.0.0"</span><span class="p">,</span>
+</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>    <span class="n">project_name</span><span class="o">=</span><span class="s2">"MyApp"</span><span class="p">,</span>
+</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>    <span class="n">main_file</span><span class="o">=</span><span class="s2">"main.py"</span><span class="p">,</span>
+</span><span id="__span-11-11"><a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>    <span class="n">include_files</span><span class="o">=</span><span class="n">bundle</span><span class="p">,</span>
+</span><span id="__span-11-12"><a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>    <span class="n">output_folder</span><span class="o">=</span><span class="s2">"dist"</span><span class="p">,</span>
+</span><span id="__span-11-13"><a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a><span class="p">)</span>
 </span></code></pre></div>
 <h3 id="jsonmap">JsonMap<a class="headerlink" href="#jsonmap" title="Anchor link to this section">&para;</a></h3>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">JsonMap</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="n">JsonMap</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span>
 </span></code></pre></div>
 <p>Generic mapping for JSON-serializable data. Used internally by configuration parsers,
 template renderers, and YAML/JSON loaders. Useful when passing raw config dictionaries.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler</span><span class="w"> </span><span class="kn">import</span> <span class="n">JsonMap</span>
-</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>
-</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="n">raw</span><span class="p">:</span> <span class="n">JsonMap</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span> <span class="s2">&quot;project_name&quot;</span><span class="p">:</span> <span class="s2">&quot;MyApp&quot;</span><span class="p">}</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler</span><span class="w"> </span><span class="kn">import</span> <span class="n">JsonMap</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="n">raw</span><span class="p">:</span> <span class="n">JsonMap</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"version"</span><span class="p">:</span> <span class="s2">"1.0.0"</span><span class="p">,</span> <span class="s2">"project_name"</span><span class="p">:</span> <span class="s2">"MyApp"</span><span class="p">}</span>
 </span></code></pre></div>
 <hr />
 <h2 id="api-reference">API reference<a class="headerlink" href="#api-reference" title="Anchor link to this section">&para;</a></h2>
@@ -1929,6 +2042,50 @@ to improve code readability, maintainability, and type safety.</p>
 
 
 
+<h3 id="ezcompiler._types.RepoDestination" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-type_alias"></code>            <span class="doc doc-object-name doc-type_alias-name">RepoDestination</span>
+
+
+<a href="#ezcompiler._types.RepoDestination" class="headerlink" title="Anchor link to this section">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nc">RepoDestination</span> <span class="o">=</span> <span class="n"><span title="typing.Literal">Literal</span></span><span class="p">[</span><span class="s1">'disk'</span><span class="p">,</span> <span class="s1">'server'</span><span class="p">,</span> <span class="s1">'r2'</span><span class="p">]</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Type alias for the TUF repository upload backend.</p>
+<p>Valid values: "disk", "server", "r2"</p>
+<p>Used by: CompilerConfig.repo_destination, <code>ezcompiler publish update</code>.</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-type_alias">
+
+
+
+<h3 id="ezcompiler._types.ReleaseDestination" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-type_alias"></code>            <span class="doc doc-object-name doc-type_alias-name">ReleaseDestination</span>
+
+
+<a href="#ezcompiler._types.ReleaseDestination" class="headerlink" title="Anchor link to this section">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nc">ReleaseDestination</span> <span class="o">=</span> <span class="n"><span title="typing.Literal">Literal</span></span><span class="p">[</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="s2">"disk"</span><span class="p">,</span> <span class="s2">"server"</span><span class="p">,</span> <span class="s2">"r2"</span><span class="p">,</span> <span class="s2">"github"</span><span class="p">,</span> <span class="s2">"gitlab"</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">]</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Type alias for the release asset destination or publication platform.</p>
+<p>Valid values: "disk", "server", "r2", "github", "gitlab"</p>
+<p>Used by: CompilerConfig.release_destination, <code>ezcompiler publish release</code>.</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-type_alias">
+
+
+
 <h3 id="ezcompiler._types.IncludeFiles" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-type_alias"></code>            <span class="doc doc-object-name doc-type_alias-name">IncludeFiles</span>
 
@@ -1942,8 +2099,8 @@ to improve code readability, maintainability, and type safety.</p>
         <p>Type alias for the include_files configuration structure.</p>
 <p>Expected shape::</p>
 <div class="language-text highlight"><pre><span></span><code>{
-    &quot;files&quot;: [&quot;path/to/file1.txt&quot;, &quot;path/to/file2.dll&quot;],
-    &quot;folders&quot;: [&quot;path/to/assets/&quot;, &quot;path/to/data/&quot;],
+    "files": ["path/to/file1.txt", "path/to/file2.dll"],
+    "folders": ["path/to/assets/", "path/to/data/"],
 }
 </code></pre></div>
 <p>Used by: CompilerConfig.include_files.</p>
@@ -2106,7 +2263,7 @@ to improve code readability, maintainability, and type safety.</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.path", "navigation.top", "navigation.footer", "navigation.indexes", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

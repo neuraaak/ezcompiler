@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.7">
     
     
       
@@ -33,7 +33,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -647,7 +647,7 @@
   <span class="md-ellipsis">
     
   
-    Secure Updates with tufup
+    Secure updates with tufup
   
 
     
@@ -1204,10 +1204,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#upload-layout" class="md-nav__link">
+  <a href="#local-vs-published" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Upload layout
+        Local vs published
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#publication-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Publication layout
       
     </span>
   </a>
@@ -1333,10 +1344,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#upload-layout" class="md-nav__link">
+  <a href="#local-vs-published" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Upload layout
+        Local vs published
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#publication-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Publication layout
       
     </span>
   </a>
@@ -1427,16 +1449,47 @@
 <hr />
 <h2 id="pipeline-order">Pipeline order<a class="headerlink" href="#pipeline-order" title="Anchor link to this section">&para;</a></h2>
 <p>The build pipeline stages execute in a fixed order:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>compile → zip → installer → release
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>version → compile → zip → installer → release
 </span></code></pre></div>
-<p><code>installer</code> runs when <code>installer_enabled=True</code>, producing a Windows <code>setup.exe</code> via Inno Setup — see the <a href="../../guides/windows-installer/">Windows Installer</a> guide. <code>release</code> always runs after: the signed TUF tree is built locally from the output. <code>run_pipeline()</code> stops here — it never transfers anything. Uploading is a <strong>separate, explicit step</strong> (<code>compiler.upload()</code> / <code>ezcompiler upload</code>), which keeps a partial or unsigned tree from ever being published.</p>
+<p><code>installer</code> runs when <code>installer.enabled=True</code>, producing a Windows <code>setup.exe</code> via Inno Setup — see the <a href="../../guides/windows-installer/">Windows Installer</a> guide. By default, its <code>.iss</code> script is ephemeral: it is written in a temporary directory and removed after a successful ISCC invocation, rather than left in <code>installer.output_dir</code>. A failed invocation retains it for diagnosis. Generate and adopt a script through <code>installer.iss_path</code> when a persistent, editable file is needed. <code>release</code> always runs after: the signed TUF tree is built locally from the output. <code>run_pipeline()</code> stops here — it never transfers anything. Publishing is a <strong>separate, explicit step</strong> (<code>ezcompiler publish update</code> / <code>ezcompiler publish release</code>), which keeps a partial or unsigned tree from ever being published.</p>
 <hr />
-<h2 id="upload-layout">Upload layout<a class="headerlink" href="#upload-layout" title="Anchor link to this section">&para;</a></h2>
-<p>When <code>tuf_enabled=True</code>, <code>upload()</code> transfers two artifacts to independent destinations:</p>
+<h2 id="local-vs-published">Local vs published<a class="headerlink" href="#local-vs-published" title="Anchor link to this section">&para;</a></h2>
+<p>The pipeline produces and signs <strong>locally</strong>; the CLI <strong>publishes</strong>. Nothing irreversible happens until an operator runs a <code>publish</code> command. The irreversible publications, the TUF tree and a GitHub release, print a recap and ask for confirmation first (<code>--yes</code> skips it for automation). A release copied to <code>disk</code>, <code>server</code> or <code>r2</code> is an overwritable file and is copied without a prompt, as before.</p>
+<p>The two publications are not equivalent, which is why they are two commands rather than one:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;"></th>
+<th style="text-align: left;"><code>publish update</code> (TUF tree)</th>
+<th style="text-align: left;"><code>publish release</code> (installer + ZIP)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Reversibility</td>
+<td style="text-align: left;"><strong>None</strong> — metadata versions are monotonic and clients refuse a lower version (anti-rollback). You supersede, never revert.</td>
+<td style="text-align: left;">Yes — a file in a folder or bucket, overwritable.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Consumer</td>
+<td style="text-align: left;">Installed clients that <strong>update on their own</strong>, with no human action.</td>
+<td style="text-align: left;">Manual download.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Effect of a bad push</td>
+<td style="text-align: left;">Existing installations migrate by themselves.</td>
+<td style="text-align: left;">Nothing until someone downloads it.</td>
+</tr>
+</tbody>
+</table>
+<p>The confirmation lives in the CLI only. A Python method must never read stdin, so the Python publication paths (<code>EzCompiler.upload()</code>, <code>release(publish=True)</code>) cannot offer that guard: they are deprecated and will be removed in v5.</p>
+<hr />
+<h2 id="publication-layout">Publication layout<a class="headerlink" href="#publication-layout" title="Anchor link to this section">&para;</a></h2>
+<p>When <code>tuf_enabled=True</code>, the two publications target independent destinations:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>&lt;repo_endpoint&gt;/update/      # TUF tree: signed metadata/ + targets/
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>&lt;release_endpoint&gt;/release/  # distributable ZIP archive + setup.exe (if installer_enabled)
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>&lt;release_endpoint&gt;/release/  # distributable ZIP archive + setup.exe (if installer.enabled)
 </span></code></pre></div>
-<p>The TUF tree (<code>repo_destination</code>/<code>repo_endpoint</code>) and the release directory (<code>release_destination</code>/<code>release_endpoint</code>) are decoupled so each can target a different backend (<code>disk</code>, <code>server</code>, or <code>r2</code> for the TUF tree). For <code>r2</code>, the TUF tree is written straight to the bucket prefix and the release directory is skipped — including the installer.</p>
+<p>The TUF tree (<code>repo_destination</code>/<code>repo_endpoint</code>) and the release directory (<code>release_destination</code>/<code>release_endpoint</code>) are decoupled so each can target a different backend (<code>disk</code>, <code>server</code>, or <code>r2</code> for the TUF tree). The release can also go to a <strong>GitHub Release</strong> (<code>release_destination = "github"</code>, <code>release_endpoint = "owner/repo"</code>), created through the <code>gh</code> CLI; the TUF tree never can, because it must be served over HTTP on stable paths. For <code>r2</code>, each tree is written straight to its bucket prefix, with no <code>update/</code> or <code>release/</code> sub-folder.</p>
 <hr />
 <h2 id="client-side">Client side<a class="headerlink" href="#client-side" title="Anchor link to this section">&para;</a></h2>
 <p>The tufup <em>client</em> — checking for updates, downloading, and applying them inside the end-user application — <strong>is</strong> covered by ezcompiler: use <code>generate_updater()</code> to scaffold the bootstrap files, then call <code>update.main()</code> at startup. See the <a href="../../guides/secure-updates-tufup/">Secure Updates with tufup</a> guide. For advanced client behavior, refer to the <a href="https://dennisvang.github.io/tufup/">tufup documentation</a>.</p>
@@ -1566,7 +1619,7 @@
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.path", "navigation.top", "navigation.footer", "navigation.indexes", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.7">
     
     
       
@@ -33,7 +33,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -815,7 +815,7 @@
   <span class="md-ellipsis">
     
   
-    Secure Updates with tufup
+    Secure updates with tufup
   
 
     
@@ -1592,7 +1592,7 @@
 <p>Set up a local development workflow for implementing and validating changes in EzCompiler.</p>
 <h2 id="prerequisites">🔧 Prerequisites<a class="headerlink" href="#prerequisites" title="Anchor link to this section">&para;</a></h2>
 <ul>
-<li>Python 3.11+</li>
+<li>Python 3.13+</li>
 <li>Git</li>
 <li>A local clone of the repository</li>
 </ul>
@@ -1601,13 +1601,13 @@
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">uv workflow</label><label for="__tabbed_1_2">pip editable install</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>uv<span class="w"> </span>sync<span class="w"> </span>--extra<span class="w"> </span>dev<span class="w"> </span>--extra<span class="w"> </span>docs<span class="w"> </span>--extra<span class="w"> </span><span class="nb">test</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>uv<span class="w"> </span>sync<span class="w"> </span>--all-extras<span class="w"> </span>--group<span class="w"> </span>dev<span class="w"> </span>--group<span class="w"> </span>docs
 </span></code></pre></div>
 </div>
 <div class="tabbed-block">
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>.venv
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>.<span class="w"> </span>.venv/Scripts/activate
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[dev,docs,test]&quot;</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">".[dev,docs,test]"</span>
 </span></code></pre></div>
 </div>
 </div>
@@ -1694,13 +1694,13 @@ architecture contract validation, tests, and documentation checks all passing.</
         
         
           
-          <a href="../secure-updates-tufup/" class="md-footer__link md-footer__link--next" aria-label="Next: Secure Updates with tufup">
+          <a href="../secure-updates-tufup/" class="md-footer__link md-footer__link--next" aria-label="Next: Secure updates with tufup">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Secure Updates with tufup
+                Secure updates with tufup
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -1766,7 +1766,7 @@ architecture contract validation, tests, and documentation checks all passing.</
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.path", "navigation.top", "navigation.footer", "navigation.indexes", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

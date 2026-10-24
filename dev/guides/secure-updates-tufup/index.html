@@ -25,15 +25,15 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.7">
     
     
       
-        <title>Secure Updates with tufup - EzCompiler Documentation</title>
+        <title>Secure updates with tufup - EzCompiler Documentation</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -84,7 +84,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#secure-updates-with-tufup" class="md-skip">
+        <a href="#how-to-set-up-secure-updates-with-tufup" class="md-skip">
           Skip to content
         </a>
       
@@ -124,7 +124,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Secure Updates with tufup
+              Secure updates with tufup
             
           </span>
         </div>
@@ -661,7 +661,7 @@
   <span class="md-ellipsis">
     
   
-    Secure Updates with tufup
+    Secure updates with tufup
   
 
     
@@ -679,7 +679,7 @@
   <span class="md-ellipsis">
     
   
-    Secure Updates with tufup
+    Secure updates with tufup
   
 
     
@@ -708,7 +708,7 @@
   <a href="#prerequisites" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Prerequisites
+        🔧 Prerequisites
       
     </span>
   </a>
@@ -719,7 +719,7 @@
   <a href="#step-1-initialize-signing-keys-one-time-admin-operation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 1 — Initialize signing keys (one-time admin operation)
+        📝 Step 1 — Initialize signing keys (one-time admin operation)
       
     </span>
   </a>
@@ -730,7 +730,7 @@
   <a href="#step-2-configure-compilerconfig" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 2 — Configure CompilerConfig
+        📝 Step 2 — Configure CompilerConfig
       
     </span>
   </a>
@@ -741,7 +741,7 @@
   <a href="#step-3-compile-then-release" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 3 — Compile, then release
+        📝 Step 3 — Compile, then release
       
     </span>
   </a>
@@ -749,21 +749,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#step-4-build-via-the-pipeline-then-upload" class="md-nav__link">
+  <a href="#step-4-build-via-the-pipeline-then-publish" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 4 — Build via the pipeline, then upload
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#metadata-expiration-irregularly-updated-projects" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Metadata expiration (irregularly-updated projects)
+        📝 Step 4 — Build via the pipeline, then publish
       
     </span>
   </a>
@@ -774,7 +763,7 @@
   <a href="#step-5-generate-client-updater-files" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 5: Generate client updater files
+        📝 Step 5 — Generate client updater files
       
     </span>
   </a>
@@ -785,7 +774,7 @@
   <a href="#step-6-wire-the-updater-into-your-app" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 6 — Wire the updater into your app
+        📝 Step 6 — Wire the updater into your app
       
     </span>
   </a>
@@ -793,10 +782,60 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#variations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ⚙️ Variations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="⚙️ Variations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#metadata-expiration-on-irregularly-updated-projects" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metadata expiration on irregularly-updated projects
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#withdraw-a-broken-version" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Withdraw a broken version
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#error-handling" class="md-nav__link">
     <span class="md-ellipsis">
       
         Error handling
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#result" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ✅ Result
       
     </span>
   </a>
@@ -807,7 +846,7 @@
   <a href="#going-further" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Going further
+        ➡️ Going further
       
     </span>
   </a>
@@ -1402,7 +1441,7 @@
   <a href="#prerequisites" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Prerequisites
+        🔧 Prerequisites
       
     </span>
   </a>
@@ -1413,7 +1452,7 @@
   <a href="#step-1-initialize-signing-keys-one-time-admin-operation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 1 — Initialize signing keys (one-time admin operation)
+        📝 Step 1 — Initialize signing keys (one-time admin operation)
       
     </span>
   </a>
@@ -1424,7 +1463,7 @@
   <a href="#step-2-configure-compilerconfig" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 2 — Configure CompilerConfig
+        📝 Step 2 — Configure CompilerConfig
       
     </span>
   </a>
@@ -1435,7 +1474,7 @@
   <a href="#step-3-compile-then-release" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 3 — Compile, then release
+        📝 Step 3 — Compile, then release
       
     </span>
   </a>
@@ -1443,21 +1482,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#step-4-build-via-the-pipeline-then-upload" class="md-nav__link">
+  <a href="#step-4-build-via-the-pipeline-then-publish" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 4 — Build via the pipeline, then upload
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#metadata-expiration-irregularly-updated-projects" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Metadata expiration (irregularly-updated projects)
+        📝 Step 4 — Build via the pipeline, then publish
       
     </span>
   </a>
@@ -1468,7 +1496,7 @@
   <a href="#step-5-generate-client-updater-files" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 5: Generate client updater files
+        📝 Step 5 — Generate client updater files
       
     </span>
   </a>
@@ -1479,7 +1507,7 @@
   <a href="#step-6-wire-the-updater-into-your-app" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 6 — Wire the updater into your app
+        📝 Step 6 — Wire the updater into your app
       
     </span>
   </a>
@@ -1487,10 +1515,60 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#variations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ⚙️ Variations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="⚙️ Variations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#metadata-expiration-on-irregularly-updated-projects" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metadata expiration on irregularly-updated projects
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#withdraw-a-broken-version" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Withdraw a broken version
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#error-handling" class="md-nav__link">
     <span class="md-ellipsis">
       
         Error handling
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#result" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ✅ Result
       
     </span>
   </a>
@@ -1501,7 +1579,7 @@
   <a href="#going-further" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Going further
+        ➡️ Going further
       
     </span>
   </a>
@@ -1576,35 +1654,32 @@
   
 
 
-<h1 id="secure-updates-with-tufup">Secure Updates with tufup<a class="headerlink" href="#secure-updates-with-tufup" title="Anchor link to this section">&para;</a></h1>
+<h1 id="how-to-set-up-secure-updates-with-tufup">How to set up secure updates with tufup<a class="headerlink" href="#how-to-set-up-secure-updates-with-tufup" title="Anchor link to this section">&para;</a></h1>
 <p>This guide explains how to integrate <strong>tufup</strong> (Trust Updates for Python) into your ezcompiler build pipeline to produce signed, TUF-compliant update repositories for your compiled applications.</p>
 <blockquote>
 <p><strong>Scope.</strong> This guide covers the full loop: packaging a compiled bundle into a signed TUF tree, uploading it, <strong>and</strong> wiring the self-updating client into your app. For background on the pipeline design and publish layout, see <a href="../../concepts/about-release-pipeline/">Release pipeline</a>.</p>
 </blockquote>
 <hr />
-<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Anchor link to this section">&para;</a></h2>
+<h2 id="prerequisites">🔧 Prerequisites<a class="headerlink" href="#prerequisites" title="Anchor link to this section">&para;</a></h2>
 <p>Install the optional extra:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>ezcompiler<span class="o">[</span>tufup<span class="o">]</span>
 </span></code></pre></div>
 <p>tufup requires Python ≥ 3.13 and depends on <code>python-tuf</code> and <code>cryptography</code>.</p>
 <hr />
-<h2 id="step-1-initialize-signing-keys-one-time-admin-operation">Step 1 — Initialize signing keys (one-time admin operation)<a class="headerlink" href="#step-1-initialize-signing-keys-one-time-admin-operation" title="Anchor link to this section">&para;</a></h2>
+<h2 id="step-1-initialize-signing-keys-one-time-admin-operation">📝 Step 1 — Initialize signing keys (one-time admin operation)<a class="headerlink" href="#step-1-initialize-signing-keys-one-time-admin-operation" title="Anchor link to this section">&para;</a></h2>
 <blockquote>
 <p><strong>Important.</strong> Key initialization is a deliberate, offline step. Keys are <strong>never</strong> generated automatically during a build.</p>
 </blockquote>
 <p>Use the <code>ezcompiler</code> CLI to initialize the key set and the repository skeleton:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>ezcompiler<span class="w"> </span>release<span class="w"> </span>init
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>ezcompiler<span class="w"> </span>tuf<span class="w"> </span>init
 </span></code></pre></div>
 <p>The paths (<code>tuf_repo_dir</code>, <code>tuf_keys_dir</code>) are read from the project config file (auto-detected in the current directory). You can also point to a specific config:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>ezcompiler<span class="w"> </span>release<span class="w"> </span>init<span class="w"> </span>--config<span class="w"> </span>path/to/ezcompiler.config.yaml
-</span></code></pre></div>
-<p>Alternatively, call it from your setup script (one-time, before the first build):</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>python<span class="w"> </span>setup.py<span class="w"> </span>--init
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>ezcompiler<span class="w"> </span>tuf<span class="w"> </span>init<span class="w"> </span>--config<span class="w"> </span>path/to/ezcompiler.config.yaml
 </span></code></pre></div>
 <p>This creates:</p>
 <ul>
 <li><code>./keystore/</code> — signing keys (root, targets, snapshot, timestamp).</li>
-<li><code>./repo/repository/</code> — the initial signed metadata.</li>
+<li><code>./repo/metadata/</code> — the initial signed metadata (<code>./repo/targets/</code> receives the archives at release time).</li>
 </ul>
 <p><strong>Security rules for keys:</strong></p>
 <ul>
@@ -1612,28 +1687,28 @@
 <li>Store offline keys (root, targets) on encrypted media; keep online keys (snapshot, timestamp) accessible only from the build machine.</li>
 </ul>
 <hr />
-<h2 id="step-2-configure-compilerconfig">Step 2 — Configure <code>CompilerConfig</code><a class="headerlink" href="#step-2-configure-compilerconfig" title="Anchor link to this section">&para;</a></h2>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler</span><span class="w"> </span><span class="kn">import</span> <span class="n">EzCompiler</span><span class="p">,</span> <span class="n">CompilerConfig</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="n">config</span> <span class="o">=</span> <span class="n">CompilerConfig</span><span class="p">(</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="n">version</span><span class="o">=</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">,</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    <span class="n">project_name</span><span class="o">=</span><span class="s2">&quot;MyApp&quot;</span><span class="p">,</span>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    <span class="n">main_file</span><span class="o">=</span><span class="s2">&quot;src/main.py&quot;</span><span class="p">,</span>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>    <span class="n">include_files</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;files&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;folders&quot;</span><span class="p">:</span> <span class="p">[]},</span>
-</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>    <span class="n">output_folder</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;dist&quot;</span><span class="p">),</span>
-</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>    <span class="c1"># Release options</span>
-</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>    <span class="n">tuf_enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>                 <span class="c1"># turn on the TUF release + updater</span>
-</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>    <span class="n">tuf_repo_dir</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;repo&quot;</span><span class="p">),</span>        <span class="c1"># local TUF repository root</span>
-</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>    <span class="n">tuf_keys_dir</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;keystore&quot;</span><span class="p">),</span>    <span class="c1"># signing keys directory</span>
-</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>    <span class="c1"># Upload destinations (split: TUF tree vs. installer zip)</span>
-</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>    <span class="n">repo_destination</span><span class="o">=</span><span class="s2">&quot;server&quot;</span><span class="p">,</span>        <span class="c1"># disk | server | r2 — where the TUF tree lands</span>
-</span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>    <span class="n">repo_endpoint</span><span class="o">=</span><span class="s2">&quot;https://uploads.example.com/MyApp&quot;</span><span class="p">,</span>   <span class="c1"># upload target for the TUF tree</span>
-</span><span id="__span-4-17"><a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>    <span class="n">release_destination</span><span class="o">=</span><span class="s2">&quot;server&quot;</span><span class="p">,</span>     <span class="c1"># disk | server — where the installer zip lands</span>
-</span><span id="__span-4-18"><a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>    <span class="n">release_endpoint</span><span class="o">=</span><span class="s2">&quot;https://uploads.example.com/MyApp&quot;</span><span class="p">,</span>
-</span><span id="__span-4-19"><a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>    <span class="c1"># Client updater — the URL the compiled app polls for updates</span>
-</span><span id="__span-4-20"><a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>    <span class="n">repo_public_url</span><span class="o">=</span><span class="s2">&quot;https://updates.example.com/MyApp&quot;</span><span class="p">,</span>
-</span><span id="__span-4-21"><a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a><span class="p">)</span>
+<h2 id="step-2-configure-compilerconfig">📝 Step 2 — Configure <code>CompilerConfig</code><a class="headerlink" href="#step-2-configure-compilerconfig" title="Anchor link to this section">&para;</a></h2>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler</span><span class="w"> </span><span class="kn">import</span> <span class="n">EzCompiler</span><span class="p">,</span> <span class="n">CompilerConfig</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">config</span> <span class="o">=</span> <span class="n">CompilerConfig</span><span class="p">(</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="n">version</span><span class="o">=</span><span class="s2">"2.0.0"</span><span class="p">,</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="n">project_name</span><span class="o">=</span><span class="s2">"MyApp"</span><span class="p">,</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    <span class="n">main_file</span><span class="o">=</span><span class="s2">"src/main.py"</span><span class="p">,</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    <span class="n">include_files</span><span class="o">=</span><span class="p">{</span><span class="s2">"files"</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">"folders"</span><span class="p">:</span> <span class="p">[]},</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>    <span class="n">output_folder</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">"dist"</span><span class="p">),</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>    <span class="c1"># Release options</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>    <span class="n">tuf_enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>                 <span class="c1"># turn on the TUF release + updater</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>    <span class="n">tuf_repo_dir</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">"repo"</span><span class="p">),</span>        <span class="c1"># local TUF repository root</span>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>    <span class="n">tuf_keys_dir</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">"keystore"</span><span class="p">),</span>    <span class="c1"># signing keys directory</span>
+</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>    <span class="c1"># Upload destinations (split: TUF tree vs. installer zip)</span>
+</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>    <span class="n">repo_destination</span><span class="o">=</span><span class="s2">"server"</span><span class="p">,</span>        <span class="c1"># disk | server | r2 — where the TUF tree lands</span>
+</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>    <span class="n">repo_endpoint</span><span class="o">=</span><span class="s2">"https://uploads.example.com/MyApp"</span><span class="p">,</span>   <span class="c1"># upload target for the TUF tree</span>
+</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>    <span class="n">release_destination</span><span class="o">=</span><span class="s2">"server"</span><span class="p">,</span>     <span class="c1"># disk | server — where the installer zip lands</span>
+</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>    <span class="n">release_endpoint</span><span class="o">=</span><span class="s2">"https://uploads.example.com/MyApp"</span><span class="p">,</span>
+</span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>    <span class="c1"># Client updater — the URL the compiled app polls for updates</span>
+</span><span id="__span-3-20"><a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a>    <span class="n">repo_public_url</span><span class="o">=</span><span class="s2">"https://updates.example.com/MyApp"</span><span class="p">,</span>
+</span><span id="__span-3-21"><a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a><span class="p">)</span>
 </span></code></pre></div>
 <blockquote>
 <p><strong>Destinations.</strong> The TUF tree and the installer ZIP are uploaded <strong>separately</strong>:
@@ -1643,28 +1718,30 @@ control the distributable ZIP. An <code>*_endpoint</code> is required whenever i
 <p><strong><code>repo_public_url</code></strong> is the public URL the compiled client application polls for updates. It is required when <code>tuf_enabled=True</code> and <code>repo_destination</code> is not <code>"disk"</code>. This value is written into the generated <code>settings.py</code> so the end-user app knows where to fetch update metadata.</p>
 </blockquote>
 <hr />
-<h2 id="step-3-compile-then-release">Step 3 — Compile, then release<a class="headerlink" href="#step-3-compile-then-release" title="Anchor link to this section">&para;</a></h2>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">compiler</span> <span class="o">=</span> <span class="n">EzCompiler</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="c1"># 1. Compile the project as usual.</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">compiler</span><span class="o">.</span><span class="n">compile_project</span><span class="p">()</span>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="c1"># 2. Package the compiled output into a signed TUF repository.</span>
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="c1">#    bundle_dir is the compiled application directory (onedir output).</span>
-</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="n">repository_path</span> <span class="o">=</span> <span class="n">compiler</span><span class="o">.</span><span class="n">release</span><span class="p">(</span><span class="n">bundle_dir</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;dist/MyApp&quot;</span><span class="p">))</span>
-</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>
-</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Signed repository written to: </span><span class="si">{</span><span class="n">repository_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<h2 id="step-3-compile-then-release">📝 Step 3 — Compile, then release<a class="headerlink" href="#step-3-compile-then-release" title="Anchor link to this section">&para;</a></h2>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">compiler</span> <span class="o">=</span> <span class="n">EzCompiler</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="c1"># 1. Compile the project as usual.</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="n">compiler</span><span class="o">.</span><span class="n">compile_project</span><span class="p">()</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="c1"># 2. Package the compiled output into a signed TUF repository.</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="c1">#    bundle_dir is the compiled application directory (onedir output).</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="n">repository_path</span> <span class="o">=</span> <span class="n">compiler</span><span class="o">.</span><span class="n">release</span><span class="p">(</span><span class="n">bundle_dir</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">"dist/MyApp"</span><span class="p">))</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Signed repository written to: </span><span class="si">{</span><span class="n">repository_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </span></code></pre></div>
-<p><code>release()</code> calls <code>tufup.repo.Repository.add_bundle()</code> + <code>publish_changes()</code> and returns the path to the local <code>repository/</code> tree.</p>
+<p><code>release()</code> calls <code>tufup.repo.Repository.add_bundle()</code> + <code>publish_changes()</code> and returns the path to the local TUF repository (<code>tuf_repo_dir</code>).</p>
 <hr />
-<h2 id="step-4-build-via-the-pipeline-then-upload">Step 4 — Build via the pipeline, then upload<a class="headerlink" href="#step-4-build-via-the-pipeline-then-upload" title="Anchor link to this section">&para;</a></h2>
-<p>The build pipeline runs the stages <code>compile → zip → release</code>. When <code>tuf_enabled</code>
+<h2 id="step-4-build-via-the-pipeline-then-publish">📝 Step 4 — Build via the pipeline, then publish<a class="headerlink" href="#step-4-build-via-the-pipeline-then-publish" title="Anchor link to this section">&para;</a></h2>
+<p>The build pipeline runs the stages <code>version → compile → zip → installer → release</code>. When <code>tuf_enabled</code>
 is set, <code>run_pipeline()</code> builds the signed TUF tree locally — it does <strong>not</strong>
-transfer anything. Upload is a separate, explicit step:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">compiler</span><span class="o">.</span><span class="n">run_pipeline</span><span class="p">(</span><span class="n">console</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>   <span class="c1"># compile → zip → release (local only)</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="n">compiler</span><span class="o">.</span><span class="n">upload</span><span class="p">()</span>                      <span class="c1"># transfer TUF tree + installer zip</span>
+transfer anything. Publication is a separate, explicit CLI step:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">compiler</span><span class="o">.</span><span class="n">run_pipeline</span><span class="p">(</span><span class="n">console</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>   <span class="c1"># version → compile → zip → installer → release (local only)</span>
 </span></code></pre></div>
-<p><code>upload()</code> performs <strong>two sequential transfers</strong>, mirrored by the client's update URL:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>ezcompiler<span class="w"> </span>publish<span class="w"> </span>update<span class="w">    </span><span class="c1"># TUF tree — recap + confirmation</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>ezcompiler<span class="w"> </span>publish<span class="w"> </span>release<span class="w">   </span><span class="c1"># installer + ZIP (recap + confirmation on GitHub)</span>
+</span></code></pre></div>
+<p>The two commands perform <strong>two independent transfers</strong>, mirrored by the client's update URL:</p>
 <table>
 <thead>
 <tr>
@@ -1686,68 +1763,45 @@ transfer anything. Upload is a separate, explicit step:</p>
 </tr>
 </tbody>
 </table>
-<p>For <code>r2</code>, the TUF tree is uploaded straight to the bucket prefix (no <code>/update/</code>
-subdir) and the installer ZIP is skipped. The <code>/update/</code> suffix is what the
+<p><code>publish update</code> uploads only the public part of the local tree: <code>metadata/</code>,
+<code>targets/</code> and <code>withdrawn.json</code>. Anything else under <code>tuf_repo_dir</code> — including
+the default keystore <code>&lt;tuf_repo_dir&gt;/keystore/</code> when <code>tuf_keys_dir</code> is unset —
+never leaves the machine.</p>
+<p>For <code>r2</code>, each tree is uploaded straight to its bucket prefix (no <code>/update/</code>
+or <code>/release/</code> subdir). The <code>/update/</code> suffix is what the
 generated client polls — keep <code>repo_public_url</code> pointing at the same root
 (the client appends <code>/update</code> itself for <code>disk</code> and <code>server</code>).</p>
+<p><code>publish release</code> can also create a GitHub Release (<code>release_destination = "github"</code>);
+see the <a href="../../cli/#publish-release">CLI reference</a>.</p>
 <div class="admonition warning">
 <p class="admonition-title">Deprecated</p>
-<p><code>compiler.release(bundle_dir, publish=True)</code> is deprecated: remote transfer is
-now handled by <code>upload()</code>. The call still works but emits a <code>DeprecationWarning</code>.</p>
+<p><code>compiler.upload()</code>, <code>ezcompiler upload</code> and
+<code>compiler.release(bundle_dir, publish=True)</code> are deprecated and will be removed
+in v5: use the <code>ezcompiler publish</code> commands. The calls still work but warn.</p>
 </div>
-<p>You can drive the CLI instead of the Python API:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>ezcompiler<span class="w"> </span>upload<span class="w"> </span>--repo-destination<span class="w"> </span>server<span class="w"> </span>--release-destination<span class="w"> </span>server<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span>--destination<span class="w"> </span>https://uploads.example.com/MyApp
-</span></code></pre></div>
 <hr />
-<h2 id="metadata-expiration-irregularly-updated-projects">Metadata expiration (irregularly-updated projects)<a class="headerlink" href="#metadata-expiration-irregularly-updated-projects" title="Anchor link to this section">&para;</a></h2>
-<p>TUF metadata carries an expiration date <strong>per role</strong>. tufup's defaults are short
-for the online roles — <code>root=365</code>, <code>targets=7</code>, <code>snapshot=7</code>, <code>timestamp=1</code> (days).
-Once <code>timestamp</code>/<code>snapshot</code> expire, clients refuse to trust the repository <strong>even
-if no new version was published</strong>. For a project you release irregularly, that
-silently breaks updates between releases.</p>
-<p>Two native tufup mechanisms address this:</p>
-<p><strong>1. Longer lifetimes via config.</strong> Set <code>tuf_expiration_days</code> to raise the per-role
-lifetime (unset roles fall back to tufup defaults). It is applied on <code>release init</code>
-and every release:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">config</span> <span class="o">=</span> <span class="n">CompilerConfig</span><span class="p">(</span>
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    <span class="o">...</span><span class="p">,</span>
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    <span class="n">tuf_enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="n">tuf_expiration_days</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span> <span class="s2">&quot;snapshot&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span> <span class="s2">&quot;targets&quot;</span><span class="p">:</span> <span class="mi">90</span><span class="p">},</span>
-</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="p">)</span>
-</span></code></pre></div>
-<p><strong>2. Keep-alive re-sign.</strong> Re-sign the metadata to push the expiration forward
-without cutting a new release — run this periodically (e.g. a scheduled job):</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>ezcompiler<span class="w"> </span>release<span class="w"> </span>refresh<span class="w">                       </span><span class="c1"># targets/snapshot/timestamp</span>
-</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>ezcompiler<span class="w"> </span>release<span class="w"> </span>refresh<span class="w"> </span>--role<span class="w"> </span>timestamp<span class="w"> </span>--days<span class="w"> </span><span class="m">60</span>
-</span></code></pre></div>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">compiler</span><span class="o">.</span><span class="n">refresh_release_expiration</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
-</span></code></pre></div>
-<p>Both require the signing keys (<code>release init</code>). After a refresh, re-run
-<code>ezcompiler upload</code> so the freshly-signed metadata reaches the clients.</p>
-<hr />
-<h2 id="step-5-generate-client-updater-files">Step 5: Generate client updater files<a class="headerlink" href="#step-5-generate-client-updater-files" title="Anchor link to this section">&para;</a></h2>
+<h2 id="step-5-generate-client-updater-files">📝 Step 5 — Generate client updater files<a class="headerlink" href="#step-5-generate-client-updater-files" title="Anchor link to this section">&para;</a></h2>
 <p>Once the TUF repository is initialized and the config contains a valid <code>repo_public_url</code>, generate the client-side bootstrap files:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler</span><span class="w"> </span><span class="kn">import</span> <span class="n">EzCompiler</span><span class="p">,</span> <span class="n">CompilerConfig</span>
-</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>
-</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="n">config</span> <span class="o">=</span> <span class="n">CompilerConfig</span><span class="p">(</span>
-</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>    <span class="n">version</span><span class="o">=</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">,</span>
-</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>    <span class="n">project_name</span><span class="o">=</span><span class="s2">&quot;MyApp&quot;</span><span class="p">,</span>
-</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>    <span class="n">main_file</span><span class="o">=</span><span class="s2">&quot;src/main.py&quot;</span><span class="p">,</span>
-</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>    <span class="n">include_files</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;files&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;folders&quot;</span><span class="p">:</span> <span class="p">[]},</span>
-</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>    <span class="n">output_folder</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;dist&quot;</span><span class="p">),</span>
-</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>    <span class="n">tuf_enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="__span-11-11"><a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>    <span class="n">tuf_repo_dir</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;repo&quot;</span><span class="p">),</span>
-</span><span id="__span-11-12"><a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>    <span class="n">tuf_keys_dir</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;keystore&quot;</span><span class="p">),</span>
-</span><span id="__span-11-13"><a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>    <span class="n">repo_public_url</span><span class="o">=</span><span class="s2">&quot;https://updates.example.com/MyApp&quot;</span><span class="p">,</span>
-</span><span id="__span-11-14"><a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a><span class="p">)</span>
-</span><span id="__span-11-15"><a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>
-</span><span id="__span-11-16"><a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a><span class="n">compiler</span> <span class="o">=</span> <span class="n">EzCompiler</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-</span><span id="__span-11-17"><a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a><span class="n">generated</span> <span class="o">=</span> <span class="n">compiler</span><span class="o">.</span><span class="n">generate_updater</span><span class="p">(</span><span class="n">output_dir</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;src/updater&quot;</span><span class="p">))</span>
-</span><span id="__span-11-18"><a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a><span class="c1"># Returns a list of generated paths: [update.py, settings.py, root.json]</span>
-</span><span id="__span-11-19"><a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a><span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">generated</span><span class="p">:</span>
-</span><span id="__span-11-20"><a id="__codelineno-11-20" name="__codelineno-11-20" href="#__codelineno-11-20"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generated: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler</span><span class="w"> </span><span class="kn">import</span> <span class="n">EzCompiler</span><span class="p">,</span> <span class="n">CompilerConfig</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="n">config</span> <span class="o">=</span> <span class="n">CompilerConfig</span><span class="p">(</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    <span class="n">version</span><span class="o">=</span><span class="s2">"2.0.0"</span><span class="p">,</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>    <span class="n">project_name</span><span class="o">=</span><span class="s2">"MyApp"</span><span class="p">,</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>    <span class="n">main_file</span><span class="o">=</span><span class="s2">"src/main.py"</span><span class="p">,</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>    <span class="n">include_files</span><span class="o">=</span><span class="p">{</span><span class="s2">"files"</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">"folders"</span><span class="p">:</span> <span class="p">[]},</span>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>    <span class="n">output_folder</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">"dist"</span><span class="p">),</span>
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>    <span class="n">tuf_enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>    <span class="n">tuf_repo_dir</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">"repo"</span><span class="p">),</span>
+</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>    <span class="n">tuf_keys_dir</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">"keystore"</span><span class="p">),</span>
+</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>    <span class="n">repo_public_url</span><span class="o">=</span><span class="s2">"https://updates.example.com/MyApp"</span><span class="p">,</span>
+</span><span id="__span-7-14"><a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="p">)</span>
+</span><span id="__span-7-15"><a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>
+</span><span id="__span-7-16"><a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a><span class="n">compiler</span> <span class="o">=</span> <span class="n">EzCompiler</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+</span><span id="__span-7-17"><a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a><span class="n">generated</span> <span class="o">=</span> <span class="n">compiler</span><span class="o">.</span><span class="n">generate_updater</span><span class="p">(</span><span class="n">output_dir</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">"src/updater"</span><span class="p">))</span>
+</span><span id="__span-7-18"><a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a><span class="c1"># Returns a list of generated paths: [update.py, settings.py, root.json]</span>
+</span><span id="__span-7-19"><a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a><span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">generated</span><span class="p">:</span>
+</span><span id="__span-7-20"><a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Generated: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </span></code></pre></div>
 <p>This produces three files in <code>output_dir</code> (defaults to the project root):</p>
 <table>
@@ -1773,26 +1827,26 @@ without cutting a new release — run this periodically (e.g. a scheduled job):<
 </tbody>
 </table>
 <p>By default (<code>patch_config=True</code>), <code>generate_updater()</code> adds the three generated files to <code>include_files</code> so they are bundled into the compiled app. Because it mutates the config, <strong>call it before <code>run_pipeline()</code></strong>:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">tuf_enabled</span><span class="p">:</span>
-</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>    <span class="n">compiler</span><span class="o">.</span><span class="n">generate_updater</span><span class="p">()</span>   <span class="c1"># must precede run_pipeline()</span>
-</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="n">compiler</span><span class="o">.</span><span class="n">run_pipeline</span><span class="p">()</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">tuf_enabled</span><span class="p">:</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    <span class="n">compiler</span><span class="o">.</span><span class="n">generate_updater</span><span class="p">()</span>   <span class="c1"># must precede run_pipeline()</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="n">compiler</span><span class="o">.</span><span class="n">run_pipeline</span><span class="p">()</span>
 </span></code></pre></div>
 <p>Via CLI:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>ezcompiler<span class="w"> </span>updater<span class="w"> </span>generate<span class="w"> </span>--output-dir<span class="w"> </span>src/updater
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>ezcompiler<span class="w"> </span>updater<span class="w"> </span>generate<span class="w"> </span>--output-dir<span class="w"> </span>src/updater
 </span></code></pre></div>
 <hr />
-<h2 id="step-6-wire-the-updater-into-your-app">Step 6 — Wire the updater into your app<a class="headerlink" href="#step-6-wire-the-updater-into-your-app" title="Anchor link to this section">&para;</a></h2>
+<h2 id="step-6-wire-the-updater-into-your-app">📝 Step 6 — Wire the updater into your app<a class="headerlink" href="#step-6-wire-the-updater-into-your-app" title="Anchor link to this section">&para;</a></h2>
 <p>Call <code>update.main()</code> at the very top of your app's entry point. It checks the
 repository once, and if a newer version is available it downloads and applies it,
 then exits so tufup can swap the files and relaunch. It never blocks startup: a
 failed check is reported and ignored.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1"># main.py</span>
-</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="k">try</span><span class="p">:</span>
-</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>    <span class="kn">import</span><span class="w"> </span><span class="nn">update</span>  <span class="c1"># generated by generate_updater(), bundled at compile time</span>
-</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>
-</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>    <span class="n">update</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
-</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>    <span class="k">pass</span>  <span class="c1"># updater files absent in dev — app still runs</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># main.py</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="k">try</span><span class="p">:</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    <span class="kn">import</span><span class="w"> </span><span class="nn">update</span>  <span class="c1"># generated by generate_updater(), bundled at compile time</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>    <span class="n">update</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>    <span class="k">pass</span>  <span class="c1"># updater files absent in dev — app still runs</span>
 </span></code></pre></div>
 <p>The generated client is bundler-agnostic (PyInstaller, cx_Freeze, Nuitka) and
 resolves its own install directory from the running executable. The TUF
@@ -1826,7 +1880,50 @@ production.</p>
 recompiling — an already-shipped executable keeps its original URL.</p>
 </div>
 <hr />
-<h2 id="error-handling">Error handling<a class="headerlink" href="#error-handling" title="Anchor link to this section">&para;</a></h2>
+<h2 id="variations">⚙️ Variations<a class="headerlink" href="#variations" title="Anchor link to this section">&para;</a></h2>
+<p>The steps above cover the regular release loop. The cases below apply only under the stated condition.</p>
+<h3 id="metadata-expiration-on-irregularly-updated-projects">Metadata expiration on irregularly-updated projects<a class="headerlink" href="#metadata-expiration-on-irregularly-updated-projects" title="Anchor link to this section">&para;</a></h3>
+<p>TUF metadata carries an expiration date <strong>per role</strong>. tufup's defaults are short
+for the online roles — <code>root=365</code>, <code>targets=7</code>, <code>snapshot=7</code>, <code>timestamp=1</code> (days).
+Once <code>timestamp</code>/<code>snapshot</code> expire, clients refuse to trust the repository <strong>even
+if no new version was published</strong>. For a project you release irregularly, that
+silently breaks updates between releases.</p>
+<p>Two native tufup mechanisms address this:</p>
+<h4 id="1-longer-lifetimes-via-config">1. Longer lifetimes via config<a class="headerlink" href="#1-longer-lifetimes-via-config" title="Anchor link to this section">&para;</a></h4>
+<p>Set <code>tuf_expiration_days</code> to raise the per-role
+lifetime (unset roles fall back to tufup defaults). It is applied on <code>tuf init</code>
+and every release:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">config</span> <span class="o">=</span> <span class="n">CompilerConfig</span><span class="p">(</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>    <span class="o">...</span><span class="p">,</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>    <span class="n">tuf_enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    <span class="n">tuf_expiration_days</span><span class="o">=</span><span class="p">{</span><span class="s2">"timestamp"</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span> <span class="s2">"snapshot"</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span> <span class="s2">"targets"</span><span class="p">:</span> <span class="mi">90</span><span class="p">},</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="p">)</span>
+</span></code></pre></div>
+<h4 id="2-keep-alive-re-sign">2. Keep-alive re-sign<a class="headerlink" href="#2-keep-alive-re-sign" title="Anchor link to this section">&para;</a></h4>
+<p>Re-sign the metadata to push the expiration forward
+without cutting a new release — run this periodically (e.g. a scheduled job):</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>ezcompiler<span class="w"> </span>tuf<span class="w"> </span>refresh<span class="w">                          </span><span class="c1"># targets/snapshot/timestamp</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>ezcompiler<span class="w"> </span>tuf<span class="w"> </span>refresh<span class="w"> </span>--role<span class="w"> </span>timestamp<span class="w"> </span>--days<span class="w"> </span><span class="m">60</span>
+</span></code></pre></div>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="n">compiler</span><span class="o">.</span><span class="n">refresh_release_expiration</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+</span></code></pre></div>
+<p>Both require the signing keys (<code>tuf init</code>). After a refresh, re-run
+<code>ezcompiler publish update</code> so the freshly-signed metadata reaches the clients.</p>
+<h3 id="withdraw-a-broken-version">Withdraw a broken version<a class="headerlink" href="#withdraw-a-broken-version" title="Anchor link to this section">&para;</a></h3>
+<p>When the latest published version turns out to be broken, withdraw it from the signed tree, then ship a mandatory fix:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>ezcompiler<span class="w"> </span>tuf<span class="w"> </span>remove-latest<span class="w">           </span><span class="c1"># withdraw 1.2.3 from the local tree, re-sign</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>ezcompiler<span class="w"> </span>publish<span class="w"> </span>update<span class="w">              </span><span class="c1"># republish the tree without 1.2.3</span>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="c1"># set `version` to 1.2.4 in the config before building</span>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>ezcompiler<span class="w"> </span>compile<span class="w"> </span>--required<span class="w">          </span><span class="c1"># build 1.2.4, mandatory</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>ezcompiler<span class="w"> </span>publish<span class="w"> </span>update<span class="w">              </span><span class="c1"># clients on 1.2.3 move to 1.2.4</span>
+</span></code></pre></div>
+<p>Bump <code>version</code> in the config first: a build that keeps 1.2.3 is refused, because a new release must be above every withdrawn version.</p>
+<p><code>ezcompiler tuf status</code> shows the versions, their flags, the role expirations and the withdrawn versions before and after.</p>
+<p>Clients never downgrade: withdrawing stops the version from reaching clients that do not have it yet; clients that installed it leave it only through a higher version, which <code>--required</code> makes mandatory.</p>
+<p>The first release after a withdrawal ships <strong>without a patch</strong>: tufup would build it from the latest archive left in the tree (1.2.2), which clients on the withdrawn version do not have. Clients on 1.2.3 therefore download the full archive of 1.2.4; patches resume from the next release.</p>
+<p>Only the latest version can be withdrawn. The archive and patch stay on the remote storage, unusable because no signed metadata references them.</p>
+<p><code>withdrawn.json</code> at the repository root records withdrawn versions; ezcompiler refuses to release a version that is not above them. It is published with the tree and ignored by clients. The rule also applies from the Python API (<code>EzCompiler.release(..., required=True)</code>, <code>run_pipeline(..., required=True)</code>).</p>
+<h3 id="error-handling">Error handling<a class="headerlink" href="#error-handling" title="Anchor link to this section">&para;</a></h3>
 <table>
 <thead>
 <tr>
@@ -1869,14 +1966,17 @@ recompiling — an already-shipped executable keeps its original URL.</p>
 </span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler.shared.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">SigningKeyError</span>
 </span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>
 </span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="k">try</span><span class="p">:</span>
-</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>    <span class="n">compiler</span><span class="o">.</span><span class="n">release</span><span class="p">(</span><span class="n">bundle_dir</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;dist/MyApp&quot;</span><span class="p">))</span>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>    <span class="n">compiler</span><span class="o">.</span><span class="n">release</span><span class="p">(</span><span class="n">bundle_dir</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">"dist/MyApp"</span><span class="p">))</span>
 </span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="k">except</span> <span class="n">SigningKeyError</span><span class="p">:</span>
-</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Initialize keys first — see Step 1.&quot;</span><span class="p">)</span>
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"Initialize keys first — see Step 1."</span><span class="p">)</span>
 </span><span id="__span-15-8"><a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="k">except</span> <span class="n">ReleaseError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-</span><span id="__span-15-9"><a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Release failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span><span id="__span-15-9"><a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Release failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </span></code></pre></div>
 <hr />
-<h2 id="going-further">Going further<a class="headerlink" href="#going-further" title="Anchor link to this section">&para;</a></h2>
+<h2 id="result">✅ Result<a class="headerlink" href="#result" title="Anchor link to this section">&para;</a></h2>
+<p>Your build produces a signed TUF tree that <code>ezcompiler publish update</code> transfers to <code>repo_public_url</code>, and your compiled application ships a client that polls that tree, downloads a newer version and applies it. <code>ezcompiler tuf status</code> lists the published versions, the role expirations and any withdrawn version.</p>
+<hr />
+<h2 id="going-further">➡️ Going further<a class="headerlink" href="#going-further" title="Anchor link to this section">&para;</a></h2>
 <p>The generated client covers the common check-download-apply loop. For advanced
 scenarios — custom pre-release channels, patch (delta) updates, or bespoke
 confirmation UI — see the <a href="https://dennisvang.github.io/tufup/">tufup documentation</a>
@@ -2007,7 +2107,7 @@ and adapt the generated <code>update.py</code> to your needs.</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.path", "navigation.top", "navigation.footer", "navigation.indexes", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

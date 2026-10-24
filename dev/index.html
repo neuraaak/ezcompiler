@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.7">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="assets/stylesheets/palette.ab4e12ef.min.css">
@@ -747,7 +747,7 @@
   <span class="md-ellipsis">
     
   
-    Secure Updates with tufup
+    Secure updates with tufup
   
 
     
@@ -1425,7 +1425,7 @@
 <a href="https://pypi.org/project/ezcompiler/"><img alt="PyPI status" src="https://img.shields.io/pypi/status/ezcompiler?style=flat&amp;logo=pypi&amp;logoColor=white" /></a>
 <a href="https://github.com/neuraaak/ezcompiler/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/badge/license-MIT-green?style=flat&amp;logo=github&amp;logoColor=white" /></a>
 <a href="https://github.com/neuraaak/ezcompiler/actions/workflows/01-ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/neuraaak/ezcompiler/01-ci.yml?style=flat&amp;label=ci&amp;logo=githubactions&amp;logoColor=white" /></a>
-<a href="https://neuraaak.github.io/ezcompiler/"><img alt="Docs" src="https://img.shields.io/badge/docs-Github%20Pages-blue?style=flat&amp;logo=materialformkdocs&amp;logoColor=white" /></a>
+<a href="https://neuraaak.github.io/ezcompiler/"><img alt="Docs" src="https://img.shields.io/badge/docs-GitHub%20Pages-blue?style=flat&amp;logo=materialformkdocs&amp;logoColor=white" /></a>
 <a href="https://github.com/astral-sh/uv"><img alt="uv" src="https://img.shields.io/badge/package%20manager-uv-DE5FE9?style=flat&amp;logo=uv&amp;logoColor=white" /></a>
 <a href="https://github.com/astral-sh/ruff"><img alt="linter" src="https://img.shields.io/badge/linter-ruff-D7FF64?style=flat&amp;logo=ruff&amp;logoColor=white" /></a>
 <a href="https://github.com/astral-sh/ty"><img alt="type checker" src="https://img.shields.io/badge/type%20checker-ty-261230?style=flat&amp;logo=astral&amp;logoColor=white" /></a>
@@ -1448,28 +1448,31 @@
 <div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ezcompiler</span><span class="w"> </span><span class="kn">import</span> <span class="n">EzCompiler</span><span class="p">,</span> <span class="n">CompilerConfig</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">config</span> <span class="o">=</span> <span class="n">CompilerConfig</span><span class="p">(</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">version</span><span class="o">=</span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">project_name</span><span class="o">=</span><span class="s2">&quot;MyApp&quot;</span><span class="p">,</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="n">main_file</span><span class="o">=</span><span class="s2">&quot;main.py&quot;</span><span class="p">,</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="n">include_files</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;files&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;folders&quot;</span><span class="p">:</span> <span class="p">[]},</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="n">output_folder</span><span class="o">=</span><span class="s2">&quot;dist&quot;</span><span class="p">,</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">version</span><span class="o">=</span><span class="s2">"1.0.0"</span><span class="p">,</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">project_name</span><span class="o">=</span><span class="s2">"MyApp"</span><span class="p">,</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="n">main_file</span><span class="o">=</span><span class="s2">"main.py"</span><span class="p">,</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="n">include_files</span><span class="o">=</span><span class="p">{</span><span class="s2">"files"</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">"folders"</span><span class="p">:</span> <span class="p">[]},</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="n">output_folder</span><span class="o">=</span><span class="s2">"dist"</span><span class="p">,</span>
 </span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="p">)</span>
 </span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>
 </span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="n">ezcompiler</span> <span class="o">=</span> <span class="n">EzCompiler</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="n">ezcompiler</span><span class="o">.</span><span class="n">compile_project</span><span class="p">(</span><span class="n">compiler</span><span class="o">=</span><span class="s2">&quot;PyInstaller&quot;</span><span class="p">)</span>  <span class="c1"># (1)!</span>
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="n">ezcompiler</span><span class="o">.</span><span class="n">compile_project</span><span class="p">(</span><span class="n">compiler</span><span class="o">=</span><span class="s2">"PyInstaller"</span><span class="p">)</span>  <span class="c1"># (1)!</span>
 </span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="n">ezcompiler</span><span class="o">.</span><span class="n">zip_compiled_project</span><span class="p">()</span>
-</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="n">ezcompiler</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">destination</span><span class="o">=</span><span class="s2">&quot;./releases&quot;</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="s2">&quot;disk&quot;</span><span class="p">)</span>
 </span></code></pre></div>
 <ol>
 <li>Supported backends: <code>"PyInstaller"</code>, <code>"Cx_Freeze"</code>, <code>"Nuitka"</code>.</li>
 </ol>
+<p>Publication is a separate CLI step, never done by the Python API:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Publication is a separate CLI step: it reads your ezcompiler.yaml / pyproject.toml</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>ezcompiler<span class="w"> </span>publish<span class="w"> </span>release<span class="w"> </span>--release-destination<span class="w"> </span>disk<span class="w"> </span>--destination<span class="w"> </span>./releases
+</span></code></pre></div>
 <h2 id="key-features">✨ Key features<a class="headerlink" href="#key-features" title="Anchor link to this section">&para;</a></h2>
 <ul>
 <li>Multi-backend compilation: Cx_Freeze, PyInstaller, and Nuitka.</li>
 <li>ZIP packaging with configurable compression.</li>
-<li>Disk and HTTP server upload backends.</li>
-<li>Template-based generation for config, setup, and version files.</li>
-<li>Complete Python 3.11+ type hints throughout the public API.</li>
+<li>Publication to disk, HTTP servers, R2 or GitHub Releases with <code>ezcompiler publish</code>.</li>
+<li>Template-based generation for config, build, and version files.</li>
+<li>Complete Python 3.13+ type hints throughout the public API.</li>
 </ul>
 <h2 id="documentation">📚 Documentation<a class="headerlink" href="#documentation" title="Anchor link to this section">&para;</a></h2>
 <table>
@@ -1500,11 +1503,19 @@
 <td style="text-align: left;"><a href="examples/">Examples</a></td>
 <td style="text-align: left;">Copy-paste runnable scenarios.</td>
 </tr>
+<tr>
+<td style="text-align: left;"><a href="concepts/">Concepts</a></td>
+<td style="text-align: left;">Design rationale behind the architecture and pipeline.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="changelog/">Changelog</a></td>
+<td style="text-align: left;">Released versions and their changes.</td>
+</tr>
 </tbody>
 </table>
 <h2 id="requirements">📋 Requirements<a class="headerlink" href="#requirements" title="Anchor link to this section">&para;</a></h2>
 <ul>
-<li>Python &gt;= 3.11</li>
+<li>Python &gt;= 3.13</li>
 <li>PyYAML &gt;= 6.0</li>
 <li>cx_Freeze, PyInstaller, or Nuitka (at least one backend)</li>
 </ul>
@@ -1620,7 +1631,7 @@
       <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.path", "navigation.top", "navigation.footer", "navigation.indexes", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "toc.follow"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.7">
     
     
       
@@ -33,7 +33,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -647,7 +647,7 @@
   <span class="md-ellipsis">
     
   
-    Secure Updates with tufup
+    Secure updates with tufup
   
 
     
@@ -958,6 +958,39 @@
     <span class="md-ellipsis">
       
         <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;upload
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ezcompiler.interfaces.python_api.EzCompiler.publish_update" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;publish_update
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ezcompiler.interfaces.python_api.EzCompiler.preflight_release" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;preflight_release
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ezcompiler.interfaces.python_api.EzCompiler.publish_release" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;publish_release
       
     </span>
   </a>
@@ -1632,6 +1665,39 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#ezcompiler.interfaces.python_api.EzCompiler.publish_update" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;publish_update
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ezcompiler.interfaces.python_api.EzCompiler.preflight_release" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;preflight_release
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ezcompiler.interfaces.python_api.EzCompiler.publish_release" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;publish_release
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#ezcompiler.interfaces.python_api.EzCompiler.release" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1815,17 +1881,26 @@
 
 
 <a href="#ezcompiler.interfaces.python_api.EzCompiler" class="headerlink" title="Anchor link to this section">&para;</a></h2>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">EzCompiler</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;CompilerConfig&lt;/span&gt;
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">EzCompiler</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">config</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;CompilerConfig&lt;/span&gt;
 
 
   &lt;span class=&quot;doc doc-labels&quot;&gt;
       &lt;small class=&quot;doc doc-label doc-label-dataclass&quot;&gt;&lt;code&gt;dataclass&lt;/code&gt;&lt;/small&gt;
-  &lt;/span&gt; (&lt;code&gt;ezcompiler.shared.CompilerConfig&lt;/code&gt;)" href="../shared/#ezcompiler.shared.CompilerConfig">CompilerConfig</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">compiler_service_factory</span><span class="p">:</span> <span class="n"><span title="collections.abc.Callable">Callable</span></span><span class="p">[[</span><span class="n"><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;CompilerConfig&lt;/span&gt;
+  &lt;/span&gt; (&lt;code&gt;ezcompiler.shared.CompilerConfig&lt;/code&gt;)" href="../shared/#ezcompiler.shared.CompilerConfig">CompilerConfig</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">compiler_service_factory</span><span class="p">:</span> <span class="n"><span title="collections.abc.Callable">Callable</span></span><span class="p">[</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>        <span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;CompilerConfig&lt;/span&gt;
 
 
   &lt;span class=&quot;doc doc-labels&quot;&gt;
       &lt;small class=&quot;doc doc-label doc-label-dataclass&quot;&gt;&lt;code&gt;dataclass&lt;/code&gt;&lt;/small&gt;
-  &lt;/span&gt; (&lt;code&gt;ezcompiler.shared.CompilerConfig&lt;/code&gt;)" href="../shared/#ezcompiler.shared.CompilerConfig">CompilerConfig</a></span><span class="p">],</span> <span class="n"><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;CompilerService&lt;/span&gt; (&lt;code&gt;ezcompiler.services.CompilerService&lt;/code&gt;)" href="../services/#ezcompiler.services.compiler_service.CompilerService">CompilerService</a></span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">template_service</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;TemplateService&lt;/span&gt; (&lt;code&gt;ezcompiler.services.TemplateService&lt;/code&gt;)" href="../services/#ezcompiler.services.template_service.TemplateService">TemplateService</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">uploader_service</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;UploaderService&lt;/span&gt; (&lt;code&gt;ezcompiler.services.UploaderService&lt;/code&gt;)" href="../services/#ezcompiler.services.uploader_service.UploaderService">UploaderService</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">pipeline_service</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;PipelineService&lt;/span&gt; (&lt;code&gt;ezcompiler.services.PipelineService&lt;/code&gt;)" href="../services/#ezcompiler.services.pipeline_service.PipelineService">PipelineService</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span>
+  &lt;/span&gt; (&lt;code&gt;ezcompiler.shared.CompilerConfig&lt;/code&gt;)" href="../shared/#ezcompiler.shared.CompilerConfig">CompilerConfig</a></span><span class="p">],</span> <span class="n"><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;CompilerService&lt;/span&gt; (&lt;code&gt;ezcompiler.services.CompilerService&lt;/code&gt;)" href="../services/#ezcompiler.services.compiler_service.CompilerService">CompilerService</a></span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="p">]</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">template_service</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;TemplateService&lt;/span&gt; (&lt;code&gt;ezcompiler.services.TemplateService&lt;/code&gt;)" href="../services/#ezcompiler.services.template_service.TemplateService">TemplateService</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">uploader_service</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;UploaderService&lt;/span&gt; (&lt;code&gt;ezcompiler.services.UploaderService&lt;/code&gt;)" href="../services/#ezcompiler.services.uploader_service.UploaderService">UploaderService</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">pipeline_service</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;PipelineService&lt;/span&gt; (&lt;code&gt;ezcompiler.services.PipelineService&lt;/code&gt;)" href="../services/#ezcompiler.services.pipeline_service.PipelineService">PipelineService</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">)</span>
 </span></code></pre></div>
 
     <div class="doc doc-contents first">
@@ -1902,8 +1977,7 @@ Provides high-level API for managing the full build pipeline.</p>
 <p>config = CompilerConfig(...)
 compiler = EzCompiler(config)
 compiler.compile_project()
-compiler.zip_compiled_project()
-compiler.upload()</p>
+compiler.zip_compiled_project()</p>
 </blockquote>
 </blockquote>
 </blockquote>
@@ -2199,7 +2273,14 @@ application-level concern.</p>
 
 
 <a href="#ezcompiler.interfaces.python_api.EzCompiler.init_project" class="headerlink" title="Anchor link to this section">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">init_project</span><span class="p">(</span><span class="n">version</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">project_name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">main_file</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">include_files</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n"><span title="list">list</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">]],</span> <span class="n">output_folder</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span> <span class="o">|</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n"><span title="typing.Any">Any</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">init_project</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">version</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">project_name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">main_file</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">include_files</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n"><span title="list">list</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">]],</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">output_folder</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span> <span class="o">|</span> <span class="n"><span title="str">str</span></span><span class="p">,</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n"><span title="typing.Any">Any</span></span><span class="p">,</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
@@ -2374,7 +2455,9 @@ compiler.init_project(
 
 
 <a href="#ezcompiler.interfaces.python_api.EzCompiler.generate_version_file" class="headerlink" title="Anchor link to this section">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">generate_version_file</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s1">&#39;version_info.txt&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">generate_version_file</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s2">"version_info.txt"</span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
@@ -2536,7 +2619,9 @@ for backward compatibility.</p>
 
 
 <a href="#ezcompiler.interfaces.python_api.EzCompiler.compile_project" class="headerlink" title="Anchor link to this section">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">compile_project</span><span class="p">(</span><span class="n">console</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">compiler</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">compile_project</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">console</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">compiler</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
@@ -2703,16 +2788,29 @@ zipped; PyInstaller single-file output is not.</p>
 
 
 <a href="#ezcompiler.interfaces.python_api.EzCompiler.upload" class="headerlink" title="Anchor link to this section">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">upload</span><span class="p">(</span><span class="n">destination</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">repo_destination</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-type_alias&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-type_alias-name&quot;&gt;RepoDestination&lt;/span&gt; (&lt;code&gt;ezcompiler._types.RepoDestination&lt;/code&gt;)" href="../reference/#ezcompiler.RepoDestination">RepoDestination</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">release_destination</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-type_alias&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-type_alias-name&quot;&gt;ReleaseDestination&lt;/span&gt; (&lt;code&gt;ezcompiler._types.ReleaseDestination&lt;/code&gt;)" href="../reference/#ezcompiler.ReleaseDestination">ReleaseDestination</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">upload_config</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n"><span title="typing.Any">Any</span></span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">upload</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">destination</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">repo_destination</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-type_alias&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-type_alias-name&quot;&gt;RepoDestination&lt;/span&gt; (&lt;code&gt;ezcompiler._types.RepoDestination&lt;/code&gt;)" href="../types/#ezcompiler._types.RepoDestination">RepoDestination</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">release_destination</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-type_alias&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-type_alias-name&quot;&gt;ReleaseDestination&lt;/span&gt; (&lt;code&gt;ezcompiler._types.ReleaseDestination&lt;/code&gt;)" href="../types/#ezcompiler._types.ReleaseDestination">ReleaseDestination</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">upload_config</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n"><span title="typing.Any">Any</span></span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
 
-        <p>Upload le repo TUF et/ou le zip installeur selon la config.</p>
-<p>Quand <code>release_needed</code> est True, effectue deux uploads séquentiels :
-1. arbre TUF → <code>&lt;dest&gt;/update/</code>
-2. zip installeur → <code>&lt;dest&gt;/release/</code> (ignoré si repo_destination="r2")</p>
-<p>Sinon, uploade l'artefact compilé (comportement inchangé).</p>
+        <p>Upload the TUF repo and/or the installer zip, as the config says.</p>
+
+
+<details class="deprecated" open>
+  <summary>Deprecated</summary>
+  <p>Deprecated since 4.1.0, removed in v5. Use <code>publish_update()</code>
+then <code>publish_release()</code>, or the CLI (<code>ezcompiler publish
+update</code> then <code>ezcompiler publish release</code>), which asks for
+confirmation before any irreversible publication.</p>
+</details>        <p>When <code>release_needed</code> is True, performs two sequential uploads:
+1. TUF tree -&gt; <code>&lt;dest&gt;/update/</code>
+2. installer zip -&gt; <code>&lt;dest&gt;/release/</code> (skipped if repo_destination="r2")</p>
+<p>Otherwise, uploads the compiled artifact (unchanged behavior).</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -2735,7 +2833,7 @@ zipped; PyInstaller single-file output is not.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Override commun pour les deux destinations.</p>
+                <p>Shared override for both destinations.</p>
               </div>
             </td>
             <td>
@@ -2747,11 +2845,11 @@ zipped; PyInstaller single-file output is not.</p>
                 <code>repo_destination</code>
             </td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-type_alias&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-type_alias-name&quot;&gt;RepoDestination&lt;/span&gt; (&lt;code&gt;ezcompiler._types.RepoDestination&lt;/code&gt;)" href="../reference/#ezcompiler.RepoDestination">RepoDestination</a> | None</code>
+                  <code><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-type_alias&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-type_alias-name&quot;&gt;RepoDestination&lt;/span&gt; (&lt;code&gt;ezcompiler._types.RepoDestination&lt;/code&gt;)" href="../types/#ezcompiler._types.RepoDestination">RepoDestination</a> | None</code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Override de <code>config.repo_destination</code>.</p>
+                <p>Override for <code>config.repo_destination</code>.</p>
               </div>
             </td>
             <td>
@@ -2763,11 +2861,11 @@ zipped; PyInstaller single-file output is not.</p>
                 <code>release_destination</code>
             </td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-type_alias&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-type_alias-name&quot;&gt;ReleaseDestination&lt;/span&gt; (&lt;code&gt;ezcompiler._types.ReleaseDestination&lt;/code&gt;)" href="../reference/#ezcompiler.ReleaseDestination">ReleaseDestination</a> | None</code>
+                  <code><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-type_alias&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-type_alias-name&quot;&gt;ReleaseDestination&lt;/span&gt; (&lt;code&gt;ezcompiler._types.ReleaseDestination&lt;/code&gt;)" href="../types/#ezcompiler._types.ReleaseDestination">ReleaseDestination</a> | None</code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Override de <code>config.release_destination</code>.</p>
+                <p>Override for <code>config.release_destination</code>.</p>
               </div>
             </td>
             <td>
@@ -2783,7 +2881,7 @@ zipped; PyInstaller single-file output is not.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Options supplémentaires passées aux uploaders.</p>
+                <p>Extra options passed to the uploaders.</p>
               </div>
             </td>
             <td>
@@ -2809,7 +2907,7 @@ zipped; PyInstaller single-file output is not.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Si le projet n'est pas initialisé.</p>
+                <p>If the project is not initialized.</p>
               </div>
             </td>
           </tr>
@@ -2819,7 +2917,527 @@ zipped; PyInstaller single-file output is not.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Si un upload échoue.</p>
+                <p>If an upload fails.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="ezcompiler.interfaces.python_api.EzCompiler.publish_update" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">publish_update</span>
+
+
+<a href="#ezcompiler.interfaces.python_api.EzCompiler.publish_update" class="headerlink" title="Anchor link to this section">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">publish_update</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">destination</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">repo_destination</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-type_alias&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-type_alias-name&quot;&gt;RepoDestination&lt;/span&gt; (&lt;code&gt;ezcompiler._types.RepoDestination&lt;/code&gt;)" href="../types/#ezcompiler._types.RepoDestination">RepoDestination</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">upload_config</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n"><span title="typing.Any">Any</span></span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Publish the signed TUF tree to the update backend.</p>
+<p>Python counterpart of <code>ezcompiler publish update</code>. Only the public
+part of the tree is transferred; the interactive confirmation stays
+specific to the CLI, a programmatic call being explicit by nature.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>destination</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Override for the resolved update destination.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>repo_destination</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-type_alias&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-type_alias-name&quot;&gt;RepoDestination&lt;/span&gt; (&lt;code&gt;ezcompiler._types.RepoDestination&lt;/code&gt;)" href="../types/#ezcompiler._types.RepoDestination">RepoDestination</a> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Override for <code>config.repo_destination</code>.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>upload_config</code>
+            </td>
+            <td>
+                  <code><span title="dict">dict</span>[<span title="str">str</span>, <span title="typing.Any">Any</span>] | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Extra options passed to the uploader.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;ConfigurationError&lt;/span&gt; (&lt;code&gt;ezcompiler.shared.exceptions.ConfigurationError&lt;/code&gt;)" href="../shared/#ezcompiler.shared.exceptions.services.ConfigurationError">ConfigurationError</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If the project is not initialized.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;UploadError&lt;/span&gt; (&lt;code&gt;ezcompiler.shared.exceptions.UploadError&lt;/code&gt;)" href="../shared/#ezcompiler.shared.exceptions.UploadError">UploadError</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If the transfer fails.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="ezcompiler.interfaces.python_api.EzCompiler.preflight_release" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">preflight_release</span>
+
+
+<a href="#ezcompiler.interfaces.python_api.EzCompiler.preflight_release" class="headerlink" title="Anchor link to this section">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">preflight_release</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="o">*</span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">tag</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">release_destination</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-type_alias&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-type_alias-name&quot;&gt;ReleaseDestination&lt;/span&gt; (&lt;code&gt;ezcompiler._types.ReleaseDestination&lt;/code&gt;)" href="../types/#ezcompiler._types.ReleaseDestination">ReleaseDestination</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="ezcompiler.shared.ReleasePreflight">ReleasePreflight</span></span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Run the pre-publication checks and return the recap.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>tag</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Target tag (default: <code>v&lt;version&gt;</code>).</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>release_destination</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-type_alias&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-type_alias-name&quot;&gt;ReleaseDestination&lt;/span&gt; (&lt;code&gt;ezcompiler._types.ReleaseDestination&lt;/code&gt;)" href="../types/#ezcompiler._types.ReleaseDestination">ReleaseDestination</a> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Override for <code>config.release_destination</code>.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+<th>Name</th>          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+<td><code>ReleasePreflight</code></td>            <td>
+                  <code><span title="ezcompiler.shared.ReleasePreflight">ReleasePreflight</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>What the publication would do, once every local
+check has passed.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;ConfigurationError&lt;/span&gt; (&lt;code&gt;ezcompiler.shared.exceptions.ConfigurationError&lt;/code&gt;)" href="../shared/#ezcompiler.shared.exceptions.services.ConfigurationError">ConfigurationError</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If the project is not initialized.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="PublishError">PublishError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If the platform CLI is missing, not authenticated,
+or if the tag already exists.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;ReleaseError&lt;/span&gt; (&lt;code&gt;ezcompiler.shared.exceptions.ReleaseError&lt;/code&gt;)" href="../shared/#ezcompiler.shared.exceptions.ReleaseError">ReleaseError</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If an enabled installer is missing, or if nothing
+was built.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="ezcompiler.interfaces.python_api.EzCompiler.publish_release" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">publish_release</span>
+
+
+<a href="#ezcompiler.interfaces.python_api.EzCompiler.publish_release" class="headerlink" title="Anchor link to this section">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">publish_release</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="o">*</span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">tag</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">title</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">notes</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">prerelease</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">draft</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">destination</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">release_destination</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-type_alias&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-type_alias-name&quot;&gt;ReleaseDestination&lt;/span&gt; (&lt;code&gt;ezcompiler._types.ReleaseDestination&lt;/code&gt;)" href="../types/#ezcompiler._types.ReleaseDestination">ReleaseDestination</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="n">upload_config</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n"><span title="typing.Any">Any</span></span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="kc">None</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Publish the installer and the zip as a release.</p>
+<p>Python counterpart of <code>ezcompiler publish release</code>. On a platform
+(<code>github</code>), creates the release and attaches the artifacts; on a
+file destination (<code>disk</code>/<code>server</code>/<code>r2</code>), copies the artifacts.
+The operation is irreversible on the platform side: call
+<code>preflight_release()</code> first to present a recap.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>tag</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Release tag (default: <code>v&lt;version&gt;</code>).</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>title</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Title (default: <code>&lt;project&gt; v&lt;version&gt;</code>).</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>notes</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Release body; <code>None</code> asks for generated notes.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>prerelease</code>
+            </td>
+            <td>
+                  <code><span title="bool">bool</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Force the pre-release label (default: inferred from
+the version).</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>draft</code>
+            </td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Create the release unpublished.</p>
+              </div>
+            </td>
+            <td>
+                  <code>False</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>destination</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Override for the resolved file destination.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>release_destination</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-type_alias&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-type_alias-name&quot;&gt;ReleaseDestination&lt;/span&gt; (&lt;code&gt;ezcompiler._types.ReleaseDestination&lt;/code&gt;)" href="../types/#ezcompiler._types.ReleaseDestination">ReleaseDestination</a> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Override for <code>config.release_destination</code>.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>upload_config</code>
+            </td>
+            <td>
+                  <code><span title="dict">dict</span>[<span title="str">str</span>, <span title="typing.Any">Any</span>] | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Extra options passed to the uploader.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="str">str</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>str | None: The release URL on the platform path, <code>None</code> on the
+file path.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;ConfigurationError&lt;/span&gt; (&lt;code&gt;ezcompiler.shared.exceptions.ConfigurationError&lt;/code&gt;)" href="../shared/#ezcompiler.shared.exceptions.services.ConfigurationError">ConfigurationError</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If the project is not initialized.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="PublishError">PublishError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If publishing to the platform fails.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;UploadError&lt;/span&gt; (&lt;code&gt;ezcompiler.shared.exceptions.UploadError&lt;/code&gt;)" href="../shared/#ezcompiler.shared.exceptions.UploadError">UploadError</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If the file transfer fails.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;ReleaseError&lt;/span&gt; (&lt;code&gt;ezcompiler.shared.exceptions.ReleaseError&lt;/code&gt;)" href="../shared/#ezcompiler.shared.exceptions.ReleaseError">ReleaseError</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If an enabled installer is missing, or if nothing
+was built.</p>
               </div>
             </td>
           </tr>
@@ -2839,7 +3457,12 @@ zipped; PyInstaller single-file output is not.</p>
 
 
 <a href="#ezcompiler.interfaces.python_api.EzCompiler.release" class="headerlink" title="Anchor link to this section">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">release</span><span class="p">(</span><span class="n">bundle_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">publish</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="pathlib.Path">Path</span></span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">release</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">bundle_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="o">*</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">publish</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">required</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="pathlib.Path">Path</span></span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
@@ -2886,7 +3509,26 @@ configured uploader (<code>update_repo_url</code> + repo_destination).</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>When True, upload the repository/ tree to <code>update_repo_url</code>.</p>
+                <p>When True, upload the repository/ tree to <code>update_repo_url</code>.
+Deprecated since 4.1.0 (removed in v5): run <code>run_pipeline()</code>
+then <code>ezcompiler publish update</code> / <code>ezcompiler publish
+release</code> instead.</p>
+              </div>
+            </td>
+            <td>
+                  <code>False</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>required</code>
+            </td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Mark this version as mandatory for TUF clients.</p>
               </div>
             </td>
             <td>
@@ -2970,8 +3612,8 @@ configured uploader (<code>update_repo_url</code> + repo_destination).</p>
 
     <div class="doc doc-contents ">
 
-        <p>Initialise les clés/repo TUF depuis la config courante.</p>
-<p>Action explicite — jamais appelée par run_pipeline().</p>
+        <p>Initialize the TUF keys/repo from the current config.</p>
+<p>Explicit action - never called by run_pipeline().</p>
 
 
     <p><span class="doc-section-title">Returns:</span></p>
@@ -2989,7 +3631,8 @@ configured uploader (<code>update_repo_url</code> + repo_destination).</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>True si init effectuée, False si clés déjà présentes (skip).</p>
+                <p>True if the init ran, False if the keys were already present
+(skip).</p>
               </div>
             </td>
           </tr>
@@ -3042,7 +3685,15 @@ configured uploader (<code>update_repo_url</code> + repo_destination).</p>
 
 
 <a href="#ezcompiler.interfaces.python_api.EzCompiler.refresh_release_expiration" class="headerlink" title="Anchor link to this section">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">refresh_release_expiration</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">roles</span><span class="p">:</span> <span class="n"><span title="tuple">tuple</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;targets&#39;</span><span class="p">,</span> <span class="s1">&#39;snapshot&#39;</span><span class="p">,</span> <span class="s1">&#39;timestamp&#39;</span><span class="p">),</span> <span class="n">days</span><span class="p">:</span> <span class="n"><span title="int">int</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="pathlib.Path">Path</span></span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">refresh_release_expiration</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="o">*</span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">roles</span><span class="p">:</span> <span class="n"><span title="tuple">tuple</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>        <span class="s2">"targets"</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>        <span class="s2">"snapshot"</span><span class="p">,</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>        <span class="s2">"timestamp"</span><span class="p">,</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="p">),</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">days</span><span class="p">:</span> <span class="n"><span title="int">int</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="pathlib.Path">Path</span></span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
@@ -3179,7 +3830,11 @@ keep trusting the repository between releases.</p>
 
 
 <a href="#ezcompiler.interfaces.python_api.EzCompiler.generate_updater" class="headerlink" title="Anchor link to this section">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">generate_updater</span><span class="p">(</span><span class="n">output_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span> <span class="o">|</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">patch_config</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="list">list</span></span><span class="p">[</span><span class="n"><span title="pathlib.Path">Path</span></span><span class="p">]</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">generate_updater</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">output_dir</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span> <span class="o">|</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="o">*</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">patch_config</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="list">list</span></span><span class="p">[</span><span class="n"><span title="pathlib.Path">Path</span></span><span class="p">]</span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
@@ -3319,7 +3974,15 @@ directory containing <code>main_file</code>.</p>
 
 
 <a href="#ezcompiler.interfaces.python_api.EzCompiler.run_pipeline" class="headerlink" title="Anchor link to this section">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">run_pipeline</span><span class="p">(</span><span class="n">console</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">compiler</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">skip_zip</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">skip_release</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">skip_installer</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">run_pipeline</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">console</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">compiler</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">skip_zip</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">skip_release</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">skip_installer</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">skip_build</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">required</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
@@ -3327,8 +3990,9 @@ directory containing <code>main_file</code>.</p>
         <p>Run the build pipeline with visual progress tracking.</p>
 <p>Executes version generation, compilation, optional ZIP creation,
 optional installer build and optional TUF release in sequence with a
-DynamicLayeredProgress display. Upload is no longer part of the
-pipeline — call <code>upload()</code> explicitly afterwards.</p>
+DynamicLayeredProgress display. Publication is not part of the
+pipeline — run <code>ezcompiler publish update</code> / <code>ezcompiler publish
+release</code> afterwards.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -3422,6 +4086,40 @@ pipeline — call <code>upload()</code> explicitly afterwards.</p>
                   <code>False</code>
             </td>
           </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>skip_build</code>
+            </td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Skip version generation and compilation, and resume
+from the existing build in <code>output_folder</code></p>
+              </div>
+            </td>
+            <td>
+                  <code>False</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>required</code>
+            </td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Mark the released version as mandatory (needs the TUF
+release stage)</p>
+              </div>
+            </td>
+            <td>
+                  <code>False</code>
+            </td>
+          </tr>
       </tbody>
     </table>
 
@@ -3441,7 +4139,8 @@ pipeline — call <code>upload()</code> explicitly afterwards.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>If project not initialized</p>
+                <p>If project not initialized, or required without
+a release stage</p>
               </div>
             </td>
           </tr>
@@ -3451,7 +4150,8 @@ pipeline — call <code>upload()</code> explicitly afterwards.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>If compilation fails</p>
+                <p>If compilation fails, or no existing build is
+found when <code>skip_build</code> is set</p>
               </div>
             </td>
           </tr>
@@ -3505,8 +4205,7 @@ pipeline — call <code>upload()</code> explicitly afterwards.</p>
 <blockquote>
 <blockquote>
 <p>compiler = EzCompiler(config)
-compiler.run_pipeline(console=False)
-compiler.upload()</p>
+compiler.run_pipeline(console=False)</p>
 </blockquote>
 </blockquote>
 </blockquote>
@@ -3537,7 +4236,7 @@ compiler.upload()</p>
     <div class="doc doc-contents first">
 
         <p>EzCompiler - CLI for Python project compilation and distribution.</p>
-<p>Generates configuration files, setup.py, and version files from templates
+<p>Generates configuration files, build.py, and version files from templates
 with support for multiple formats (YAML, JSON) and template types.</p>
 
 
@@ -3670,7 +4369,7 @@ with support for multiple formats (YAML, JSON) and template types.</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.path", "navigation.top", "navigation.footer", "navigation.indexes", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>
